@@ -9,6 +9,7 @@ const {
 } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 require('dotenv').config();
 
 // Create Discord client with required intents
@@ -392,6 +393,74 @@ process.on('uncaughtException', error => {
     error: error.stack.substring(0, 1000)
   });
   process.exit(1);
+});
+
+// Create a simple HTTP server for UptimeRobot to ping
+// This helps keep the bot running 24/7 on services like Render
+const server = http.createServer((req, res) => {
+  const uptime = process.uptime();
+  const days = Math.floor(uptime / 86400);
+  const hours = Math.floor((uptime % 86400) / 3600);
+  const minutes = Math.floor((uptime % 3600) / 60);
+  const seconds = Math.floor(uptime % 60);
+
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end(`
+    <html>
+      <head>
+        <title>SWOOSH Discord Bot Status</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            text-align: center;
+          }
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          }
+          h1 {
+            color: #5865F2;
+          }
+          .status {
+            font-size: 24px;
+            font-weight: bold;
+            color: #43B581;
+            margin: 20px 0;
+          }
+          .uptime {
+            font-size: 18px;
+            color: #4f545c;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>SWOOSH Discord Bot</h1>
+          <div class="status">Status: Online</div>
+          <div class="uptime">
+            Uptime: ${days}d ${hours}h ${minutes}m ${seconds}s
+          </div>
+          <p>This is a status page for the SWOOSH Discord bot.</p>
+          <p>Last checked: ${new Date().toLocaleString()}</p>
+        </div>
+      </body>
+    </html>
+  `);
+});
+
+// Set the server to listen on the port Render assigns or default to 3000
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`🌐 HTTP Server running on port ${PORT}`);
+  console.log(`🔗 Use this URL for UptimeRobot: https://your-render-url.onrender.com/`);
 });
 
 // Start bot
