@@ -33,6 +33,16 @@ module.exports = {
   },
   
   /**
+   * Validates if a file is a valid image for emoji conversion
+   * @param {Object} attachment - Discord attachment object
+   * @returns {boolean} - Whether the attachment is a valid image
+   */
+  isValidImage: (attachment) => {
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+    return attachment && validTypes.includes(attachment.contentType);
+  },
+  
+  /**
    * Validates a Discord channel
    * @param {Object} channel - Discord channel
    * @param {Array} types - Array of valid channel types

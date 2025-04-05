@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SWOOSH Bot - Home</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="navbar">
+      <div class="logo">
+        <img src="/img/logo.png" alt="SWOOSH Bot Logo">
+        <h1>SWOOSH Bot</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="/" class="active">Home</a></li>
+          <li><a href="/commands">Commands</a></li>
+          <li><a href="/status">Status</a></li>
+          <li><a href="https://discord.gg/swoosh" target="_blank" class="discord-btn">Join Discord</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu-btn">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Welcome to SWOOSH Bot</h1>
+        <p>A powerful Discord bot with moderation, tickets, and utility features</p>
+        <div class="hero-buttons">
+          <a href="https://discord.com/oauth2/authorize?client_id=<%= client.user.id %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary" target="_blank">Add to Discord</a>
+          <a href="/commands" class="btn btn-secondary">View Commands</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="/img/bot-banner.svg" alt="SWOOSH Bot Banner">
+      </div>
+    </section>
+
+    <section class="features">
+      <h2 class="section-title">Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3>Moderation</h3>
+          <p>Powerful moderation tools including ban, kick, mute, and purge commands.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <h3>Ticket System</h3>
+          <p>Comprehensive ticket system with transcripts and user management.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <h3>Auto-Roles</h3>
+          <p>Automatically assign roles to new members when they join your server.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-image"></i>
+          </div>
+          <h3>Custom Emojis</h3>
+          <p>Create custom server emojis directly through bot commands.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="statistics">
+      <h2 class="section-title">Bot Statistics</h2>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-number"><%= client.guilds.cache.size %></div>
+          <div class="stat-label">Servers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number"><%= client.channels.cache.size %></div>
+          <div class="stat-label">Channels</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number"><%= client.users.cache.size %></div>
+          <div class="stat-label">Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number"><%= client.commands.size + client.slashCommands.size %></div>
+          <div class="stat-label">Commands</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="cta-content">
+        <h2>Ready to enhance your Discord server?</h2>
+        <p>Add SWOOSH Bot to your server today and unlock powerful moderation and utility features.</p>
+        <a href="https://discord.com/oauth2/authorize?client_id=<%= client.user.id %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary" target="_blank">Add to Discord</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-logo">
+        <img src="/img/logo.png" alt="SWOOSH Bot Logo">
+        <h3>SWOOSH Bot</h3>
+      </div>
+      <div class="footer-links">
+        <h4>Links</h4>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/commands">Commands</a></li>
+          <li><a href="/status">Status</a></li>
+          <li><a href="https://discord.gg/swoosh" target="_blank">Discord Server</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h4>Contact</h4>
+        <p>Have questions? Join our Discord server!</p>
+        <div class="social-icons">
+          <a href="https://discord.gg/swoosh" target="_blank"><i class="fab fa-discord"></i></a>
+          <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@ const {
 } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const express = require('express');
 const http = require('http');
 require('dotenv').config();
 
@@ -395,72 +396,99 @@ process.on('uncaughtException', error => {
   process.exit(1);
 });
 
-// Create a simple HTTP server for UptimeRobot to ping
-// This helps keep the bot running 24/7 on services like Render
-const server = http.createServer((req, res) => {
+// Create an Express application for the website
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Set up EJS as the view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'website/views'));
+
+// Set up static file serving
+app.use(express.static(path.join(__dirname, 'website/public')));
+
+// Calculate bot uptime
+function getBotUptime() {
   const uptime = process.uptime();
   const days = Math.floor(uptime / 86400);
   const hours = Math.floor((uptime % 86400) / 3600);
   const minutes = Math.floor((uptime % 3600) / 60);
   const seconds = Math.floor(uptime % 60);
+  
+  return { days, hours, minutes, seconds, totalSeconds: uptime };
+}
 
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end(`
-    <html>
-      <head>
-        <title>SWOOSH Discord Bot Status</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            text-align: center;
-          }
-          .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-          }
-          h1 {
-            color: #5865F2;
-          }
-          .status {
-            font-size: 24px;
-            font-weight: bold;
-            color: #43B581;
-            margin: 20px 0;
-          }
-          .uptime {
-            font-size: 18px;
-            color: #4f545c;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>SWOOSH Discord Bot</h1>
-          <div class="status">Status: Online</div>
-          <div class="uptime">
-            Uptime: ${days}d ${hours}h ${minutes}m ${seconds}s
-          </div>
-          <p>This is a status page for the SWOOSH Discord bot.</p>
-          <p>Last checked: ${new Date().toLocaleString()}</p>
-        </div>
-      </body>
-    </html>
-  `);
+// Routes for the website
+app.get('/', (req, res) => {
+  // Render home page
+  res.render('index', {
+    title: 'SWOOSH Bot - Home',
+    uptime: getBotUptime(),
+    client: client,
+    lastChecked: new Date().toLocaleString()
+  });
 });
 
-// Set the server to listen on the port Render assigns or default to 3000
-const PORT = process.env.PORT || 3000;
+app.get('/commands', (req, res) => {
+  // Get commands for display
+  const regularCommands = Array.from(client.commands.values())
+    .filter(cmd => cmd.name && cmd.description)
+    .map(cmd => ({ 
+      name: cmd.name, 
+      description: cmd.description,
+      usage: cmd.usage || null,
+      category: cmd.category || 'General'
+    }));
+    
+  const slashCommands = Array.from(client.slashCommands.values())
+    .map(cmd => ({
+      name: cmd.data.name,
+      description: cmd.data.description,
+      category: cmd.category || 'General'
+    }));
+    
+  res.render('commands', {
+    title: 'SWOOSH Bot - Commands',
+    regularCommands,
+    slashCommands,
+    prefix: config.prefix
+  });
+});
+
+app.get('/status', (req, res) => {
+  // Render status page with bot information
+  res.render('status', {
+    title: 'SWOOSH Bot - Status',
+    uptime: getBotUptime(),
+    client: client,
+    guilds: client.guilds.cache.size,
+    users: client.users.cache.size,
+    channels: client.channels.cache.size,
+    lastChecked: new Date().toLocaleString()
+  });
+});
+
+// API routes
+app.get('/api/status', (req, res) => {
+  const uptime = getBotUptime();
+  res.json({
+    status: 'online',
+    uptime: uptime,
+    guilds: client.guilds.cache.size,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Legacy status route for UptimeRobot
+app.get('/status-check', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// Start the HTTP server
+const server = http.createServer(app);
 server.listen(PORT, () => {
-  console.log(`🌐 HTTP Server running on port ${PORT}`);
-  console.log(`🔗 Use this URL for UptimeRobot: https://your-render-url.onrender.com/`);
+  console.log(`🌐 Express server running on port ${PORT}`);
+  console.log(`🔗 Website URL: https://swoosh-bot.replit.app/`);
 });
 
 // Start bot
