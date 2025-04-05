@@ -1,157 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SWOOSH Bot - Status</title>
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-  <header>
-    <div class="navbar">
-      <div class="logo">
-        <img src="/img/logo.png" alt="SWOOSH Bot Logo">
-        <h1>SWOOSH Bot</h1>
+<% 
+  // Set variables for the template
+  title = 'SWOOSH Bot - Status';
+  path = '/status';
+%>
+
+<section class="status-header">
+  <h1>Bot Status</h1>
+  <p>Current status and performance metrics for SWOOSH Bot</p>
+</section>
+
+<section class="status-overview">
+  <div class="container">
+    <div class="status-card main-status">
+      <div class="status-icon online">
+        <i class="fas fa-circle"></i>
       </div>
-      <nav>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/commands">Commands</a></li>
-          <li><a href="/status" class="active">Status</a></li>
-          <li><a href="https://discord.gg/swoosh" target="_blank" class="discord-btn">Join Discord</a></li>
-        </ul>
-      </nav>
-      <div class="mobile-menu-btn">
-        <i class="fas fa-bars"></i>
+      <div class="status-info">
+        <h2>Online</h2>
+        <p>SWOOSH Bot is up and running</p>
       </div>
     </div>
-  </header>
 
-  <main>
-    <section class="status-header">
-      <h1>Bot Status</h1>
-      <p>Current status and performance metrics for SWOOSH Bot</p>
-    </section>
-
-    <section class="status-overview">
-      <div class="status-card main-status">
-        <div class="status-icon online">
-          <i class="fas fa-circle"></i>
+    <div class="stats-grid">
+      <div class="status-card">
+        <div class="status-title">
+          <i class="fas fa-server"></i>
+          <h3>Uptime</h3>
         </div>
-        <div class="status-info">
-          <h2>Online</h2>
-          <p>SWOOSH Bot is up and running</p>
+        <div class="status-value">
+          <%= uptime.days %>d <%= uptime.hours %>h <%= uptime.minutes %>m <%= uptime.seconds %>s
         </div>
       </div>
 
-      <div class="stats-grid">
-        <div class="status-card">
-          <div class="status-title">
-            <i class="fas fa-server"></i>
-            <h3>Uptime</h3>
-          </div>
-          <div class="status-value">
-            <%= uptime.days %>d <%= uptime.hours %>h <%= uptime.minutes %>m <%= uptime.seconds %>s
-          </div>
+      <div class="status-card">
+        <div class="status-title">
+          <i class="fas fa-users"></i>
+          <h3>Servers</h3>
         </div>
-
-        <div class="status-card">
-          <div class="status-title">
-            <i class="fas fa-users"></i>
-            <h3>Servers</h3>
-          </div>
-          <div class="status-value">
-            <%= guilds %>
-          </div>
-        </div>
-
-        <div class="status-card">
-          <div class="status-title">
-            <i class="fas fa-user"></i>
-            <h3>Users</h3>
-          </div>
-          <div class="status-value">
-            <%= users %>
-          </div>
-        </div>
-
-        <div class="status-card">
-          <div class="status-title">
-            <i class="fas fa-hashtag"></i>
-            <h3>Channels</h3>
-          </div>
-          <div class="status-value">
-            <%= channels %>
-          </div>
+        <div class="status-value">
+          <%= guilds %>
         </div>
       </div>
-    </section>
 
-    <section class="system-info">
-      <h2>System Information</h2>
-      <div class="system-stats">
-        <div class="system-card">
-          <div class="system-title">Memory Usage</div>
-          <div class="system-value"><%= Math.round(process.memoryUsage().heapUsed / 1024 / 1024) %> MB</div>
-          <div class="progress-bar">
-            <div class="progress" style="width: <%= Math.min(100, Math.round(process.memoryUsage().heapUsed / process.memoryUsage().heapTotal * 100)) %>%"></div>
-          </div>
+      <div class="status-card">
+        <div class="status-title">
+          <i class="fas fa-user"></i>
+          <h3>Users</h3>
         </div>
+        <div class="status-value">
+          <%= users %>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-title">
+          <i class="fas fa-hashtag"></i>
+          <h3>Channels</h3>
+        </div>
+        <div class="status-value">
+          <%= channels %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="system-info">
+  <div class="container">
+    <h2 class="section-title">System Information</h2>
+    <div class="system-stats">
+      <div class="system-card">
+        <div class="system-title">Memory Usage</div>
+        <div class="system-value"><%= Math.round(process.memoryUsage().heapUsed / 1024 / 1024) %> MB</div>
+        <div class="progress-bar">
+          <div class="progress" style="width: <%= Math.min(100, Math.round(process.memoryUsage().heapUsed / process.memoryUsage().heapTotal * 100)) %>%"></div>
+        </div>
+      </div>
+      
+      <div class="system-card">
+        <div class="system-title">Discord API Latency</div>
+        <div class="system-value"><%= client.ws.ping %> ms</div>
+        <div class="latency-indicator <%= client.ws.ping < 100 ? 'good' : client.ws.ping < 300 ? 'medium' : 'poor' %>"></div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-title">Node.js Version</div>
+        <div class="system-value"><%= process.version %></div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-title">Platform</div>
+        <div class="system-value"><%= process.platform %></div>
+      </div>
+    </div>
+    <div class="last-updated">
+      Last updated: <%= lastChecked %>
+      <button id="refresh-status" class="btn btn-small">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="hosting-info">
+  <div class="container">
+    <h2 class="section-title">Hosting Information</h2>
+    <div class="hosting-details">
+      <div class="hosting-logo">
+        <img src="/img/render-logo.png" alt="Render Logo" onerror="this.src='/img/logo.png'; this.alt='Hosting Provider'">
+      </div>
+      <div class="hosting-text">
+        <h3>Hosted on Render</h3>
+        <p>SWOOSH Bot is hosted on Render's cloud platform for reliable 24/7 uptime and performance.</p>
+        <p>Visit our bot at: <a href="https://swooshfinal.onrender.com" target="_blank">swooshfinal.onrender.com</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Refresh button functionality
+    const refreshButton = document.getElementById('refresh-status');
+    if (refreshButton) {
+      refreshButton.addEventListener('click', function() {
+        // Add loading spinner
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        this.disabled = true;
         
-        <div class="system-card">
-          <div class="system-title">Discord API Latency</div>
-          <div class="system-value"><%= client.ws.ping %> ms</div>
-          <div class="latency-indicator <%= client.ws.ping < 100 ? 'good' : client.ws.ping < 300 ? 'medium' : 'poor' %>"></div>
-        </div>
-
-        <div class="system-card">
-          <div class="system-title">Node.js Version</div>
-          <div class="system-value"><%= process.version %></div>
-        </div>
-
-        <div class="system-card">
-          <div class="system-title">Platform</div>
-          <div class="system-value"><%= process.platform %></div>
-        </div>
-      </div>
-      <div class="last-updated">
-        Last updated: <%= lastChecked %>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="footer-content">
-      <div class="footer-logo">
-        <img src="/img/logo.png" alt="SWOOSH Bot Logo">
-        <h3>SWOOSH Bot</h3>
-      </div>
-      <div class="footer-links">
-        <h4>Links</h4>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/commands">Commands</a></li>
-          <li><a href="/status">Status</a></li>
-          <li><a href="https://discord.gg/swoosh" target="_blank">Discord Server</a></li>
-        </ul>
-      </div>
-      <div class="footer-contact">
-        <h4>Contact</h4>
-        <p>Have questions? Join our Discord server!</p>
-        <div class="social-icons">
-          <a href="https://discord.gg/swoosh" target="_blank"><i class="fab fa-discord"></i></a>
-          <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <script src="/js/main.js"></script>
-</body>
-</html>
+        // Reload the page
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      });
+    }
+    
+    // Animated counters for stats
+    const statusValues = document.querySelectorAll('.status-value');
+    
+    statusValues.forEach(value => {
+      // Skip the uptime counter
+      if (value.textContent.includes('d')) return;
+      
+      const finalValue = parseInt(value.textContent.trim());
+      if (isNaN(finalValue)) return;
+      
+      let startValue = 0;
+      const duration = 1500;
+      const increment = Math.ceil(finalValue / (duration / 16));
+      
+      const counter = setInterval(() => {
+        startValue += increment;
+        
+        if (startValue >= finalValue) {
+          value.textContent = finalValue;
+          clearInterval(counter);
+        } else {
+          value.textContent = startValue;
+        }
+      }, 16);
+    });
+  });
+</script>

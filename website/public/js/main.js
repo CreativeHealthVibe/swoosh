@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
+  // Team members loading
+  const teamContainer = document.getElementById('team-members-container');
+  if (teamContainer) {
+    loadTeamMembers();
+  }
+  
   // Command search functionality
   const searchInput = document.getElementById('command-search');
   const commandCards = document.querySelectorAll('.command-card');
@@ -62,4 +68,86 @@ document.addEventListener('DOMContentLoaded', function() {
       window.location.reload();
     }, 60000);
   }
+});
+
+/**
+ * Load team members from the API
+ */
+function loadTeamMembers() {
+  const teamContainer = document.getElementById('team-members-container');
+  
+  fetch('/api/team')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch team data');
+      }
+      return response.json();
+    })
+    .then(teamMembers => {
+      // Clear loading indicator
+      teamContainer.innerHTML = '';
+      
+      // Add each team member to the container
+      teamMembers.forEach(member => {
+        const memberElement = document.createElement('div');
+        memberElement.className = 'team-member';
+        
+        // Determine role class for styling
+        const roleClass = member.role.toLowerCase().includes('owner') ? 'owner' : 'developer';
+        const roleEmoji = member.role.toLowerCase().includes('owner') ? '👑' : '💻';
+        
+        // Use the fetched avatar URL or fallback to a default
+        const avatarUrl = member.avatarURL || '/img/logo.png';
+        
+        memberElement.innerHTML = `
+          <div class="member-avatar">
+            <img src="${avatarUrl}" alt="${member.name}" class="${roleClass}-avatar">
+            <div class="role-badge ${roleClass}">${roleEmoji} ${member.role.split(' ')[1] || member.role}</div>
+          </div>
+          <h3>${member.name}</h3>
+          <p>${member.description}</p>
+        `;
+        
+        teamContainer.appendChild(memberElement);
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching team data:', error);
+      teamContainer.innerHTML = `
+        <div class="team-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>Failed to load team information. Please try again later.</p>
+        </div>
+      `;
+    });
+}
+/**
+ * Smooth scroll functionality
+ */
+document.addEventListener('DOMContentLoaded', function() {
+  const scrollDown = document.querySelector('.scroll-down');
+  
+  if (scrollDown) {
+    scrollDown.addEventListener('click', function() {
+      // Smooth scroll to features section
+      const featuresSection = document.querySelector('.features');
+      if (featuresSection) {
+        featuresSection.scrollIntoView({ 
+          behavior: 'smooth' 
+        });
+      }
+    });
+  }
+  
+  // Add glowing effect to primary buttons on hover
+  const primaryButtons = document.querySelectorAll('.btn-primary');
+  primaryButtons.forEach(btn => {
+    btn.addEventListener('mouseenter', function() {
+      this.style.boxShadow = '0 0 20px rgba(156, 77, 255, 0.7)';
+    });
+    
+    btn.addEventListener('mouseleave', function() {
+      this.style.boxShadow = '';
+    });
+  });
 });

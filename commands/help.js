@@ -48,11 +48,11 @@ module.exports = {
                 },
                 { 
                     name: '<:aperson:1358185076449476660> Utilities', 
-                    value: '`.help` - Show this menu\n`.create role name: [Name] color: [Color] mentionable: [yes/no]` - Create a new role\n`/website` - Get a link to the bot website' 
+                    value: '`.help` - Show this menu\n`.create role name: [Name] color: [Color] mentionable: [yes/no]` - Create a new role\n`/website` - Get a link to the bot website\n`/developers` - Meet the SWOOSH bot team' 
                 }
             )
             .setColor('#0099ff')
-            .setFooter({ text: 'SWOOSH Bot | https://swoosh-bot.replit.app' });
+            .setFooter({ text: 'SWOOSH Bot | https://swooshfinal.onrender.com' });
 
         await message.reply({ embeds: [embed] });
     }

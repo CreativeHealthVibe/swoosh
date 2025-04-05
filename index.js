@@ -420,6 +420,13 @@ function getBotUptime() {
 
 // Routes for the website
 app.get('/', (req, res) => {
+  // Render landing page
+  res.render('landing', {
+    client: client
+  });
+});
+
+app.get('/home', (req, res) => {
   // Render home page
   res.render('index', {
     title: 'SWOOSH Bot - Home',
@@ -479,6 +486,54 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// API endpoint for team members data
+app.get('/api/team', async (req, res) => {
+  try {
+    const teamMembers = [
+      {
+        id: '930131254106550333',
+        name: 'gh_Sman',
+        role: 'Bot Owner',
+        description: 'Project Lead & Core Developer'
+      },
+      {
+        id: '1196042021488570391',
+        name: 'fl4ddie',
+        role: 'Bot Owner',
+        description: 'Systems Engineer & Feature Developer'
+      },
+      {
+        id: '506323791140356106',
+        name: 'cdn.gov',
+        role: 'Bot Developer',
+        description: 'Backend Developer & Integration Specialist'
+      }
+    ];
+    
+    // Fetch avatars from Discord for each team member
+    const teamWithAvatars = await Promise.all(teamMembers.map(async (member) => {
+      try {
+        const user = await client.users.fetch(member.id);
+        return {
+          ...member,
+          avatarURL: user.displayAvatarURL({ size: 128, format: 'png' })
+        };
+      } catch (error) {
+        console.error(`Error fetching user ${member.id}:`, error);
+        return {
+          ...member,
+          avatarURL: null // No avatar available
+        };
+      }
+    }));
+    
+    res.json(teamWithAvatars);
+  } catch (error) {
+    console.error('Error in team API:', error);
+    res.status(500).json({ error: 'Failed to fetch team data' });
+  }
+});
+
 // Legacy status route for UptimeRobot
 app.get('/status-check', (req, res) => {
   res.status(200).send('OK');
@@ -488,7 +543,7 @@ app.get('/status-check', (req, res) => {
 const server = http.createServer(app);
 server.listen(PORT, () => {
   console.log(`🌐 Express server running on port ${PORT}`);
-  console.log(`🔗 Website URL: https://swoosh-bot.replit.app/`);
+  console.log(`🔗 Website URL: https://swooshfinal.onrender.com/`);
 });
 
 // Start bot

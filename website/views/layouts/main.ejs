@@ -8,8 +8,28 @@
   <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Three.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <!-- Meta Description -->
+  <meta name="description" content="SWOOSH Bot - A powerful Discord bot with moderation, utility, and fun commands to enhance your server experience.">
+  <!-- Open Graph / Social Media -->
+  <meta property="og:title" content="SWOOSH Bot">
+  <meta property="og:description" content="A powerful Discord bot with advanced features for your server.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://swooshfinal.onrender.com/">
 </head>
 <body>
+  <!-- Custom cursor elements -->
+  <div class="cursor-dot" id="cursor-dot"></div>
+  <div class="cursor-outline" id="cursor-outline"></div>
+  
+  <!-- Particle container -->
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  
   <header>
     <div class="navbar">
       <div class="logo">
@@ -63,6 +83,63 @@
     </div>
   </footer>
 
+  <!-- Main Javascript -->
   <script src="/js/main.js"></script>
+  
+  <!-- Three.js Background Scripts -->
+  <% if (typeof path !== 'undefined') { %>
+    <% if (path === '/') { %>
+      <script src="/js/three-background.js"></script>
+    <% } else if (path === '/commands') { %>
+      <script src="/js/three-commands.js"></script>
+    <% } else if (path === '/status') { %>
+      <script src="/js/three-status.js"></script>
+    <% } %>
+  <% } %>
+  
+  <!-- Custom Cursor -->
+  <script src="/js/cursor.js"></script>
+  
+  <!-- Particle Effects -->
+  <script src="/js/create-particle.js"></script>
+  
+  <!-- Smooth Scroll -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Smooth scroll for anchor links
+      const scrollLinks = document.querySelectorAll('a[href^="#"]');
+      
+      scrollLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          if (targetId === '#') return;
+          
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 80, // Offset for navbar
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+      
+      // Handle scroll indicator click
+      const scrollDown = document.querySelector('.scroll-down');
+      if (scrollDown) {
+        scrollDown.addEventListener('click', function() {
+          const featuresSection = document.querySelector('.features-section');
+          if (featuresSection) {
+            window.scrollTo({
+              top: featuresSection.offsetTop - 80,
+              behavior: 'smooth'
+            });
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>

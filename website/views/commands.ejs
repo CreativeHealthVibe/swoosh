@@ -1,119 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SWOOSH Bot - Commands</title>
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-  <header>
-    <div class="navbar">
-      <div class="logo">
-        <img src="/img/logo.png" alt="SWOOSH Bot Logo">
-        <h1>SWOOSH Bot</h1>
-      </div>
-      <nav>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/commands" class="active">Commands</a></li>
-          <li><a href="/status">Status</a></li>
-          <li><a href="https://discord.gg/swoosh" target="_blank" class="discord-btn">Join Discord</a></li>
-        </ul>
-      </nav>
-      <div class="mobile-menu-btn">
-        <i class="fas fa-bars"></i>
-      </div>
-    </div>
-  </header>
+<% 
+  // Set variables for the template
+  title = 'SWOOSH Bot - Commands';
+  path = '/commands';
+%>
 
-  <main>
-    <section class="commands-header">
-      <h1>Bot Commands</h1>
-      <p>Here's a comprehensive list of all available commands for SWOOSH Bot</p>
-    </section>
+<section class="commands-header">
+  <h1>Bot Commands</h1>
+  <p>Discover all the powerful commands available with SWOOSH Bot</p>
+</section>
 
-    <section class="commands-container">
-      <div class="commands-nav">
-        <div class="search-bar">
-          <input type="text" id="command-search" placeholder="Search commands...">
-          <i class="fas fa-search"></i>
-        </div>
-        <div class="category-filter">
-          <h3>Categories</h3>
-          <ul id="category-list">
-            <li data-category="all" class="active">All Commands</li>
-            <li data-category="moderation">Moderation</li>
-            <li data-category="tickets">Tickets</li>
-            <li data-category="utility">Utility</li>
-            <li data-category="general">General</li>
-          </ul>
-        </div>
+<section class="commands-container">
+  <div class="container">
+    <div class="commands-nav">
+      <div class="search-bar">
+        <input type="text" id="command-search" placeholder="Search commands...">
+        <i class="fas fa-search"></i>
       </div>
-
-      <div class="commands-content">
-        <div class="command-section" id="prefix-commands">
-          <h2>Prefix Commands <span class="prefix-badge"><%= prefix %></span></h2>
-          <div class="commands-grid">
-            <% regularCommands.forEach(command => { %>
-              <div class="command-card" data-category="<%= command.category.toLowerCase() %>">
-                <div class="command-name"><%= prefix %><%= command.name %></div>
-                <div class="command-description"><%= command.description %></div>
-                <% if (command.usage) { %>
-                  <div class="command-usage">Usage: <%= prefix %><%= command.usage %></div>
-                <% } %>
-              </div>
-            <% }); %>
-          </div>
-        </div>
-
-        <div class="command-section" id="slash-commands">
-          <h2>Slash Commands</h2>
-          <div class="commands-grid">
-            <% slashCommands.forEach(command => { %>
-              <div class="command-card" data-category="<%= command.category.toLowerCase() %>">
-                <div class="command-name">/<%= command.name %></div>
-                <div class="command-description"><%= command.description %></div>
-              </div>
-            <% }); %>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="footer-content">
-      <div class="footer-logo">
-        <img src="/img/logo.png" alt="SWOOSH Bot Logo">
-        <h3>SWOOSH Bot</h3>
-      </div>
-      <div class="footer-links">
-        <h4>Links</h4>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/commands">Commands</a></li>
-          <li><a href="/status">Status</a></li>
-          <li><a href="https://discord.gg/swoosh" target="_blank">Discord Server</a></li>
+      <div class="category-filter">
+        <h3>Categories</h3>
+        <ul id="category-list">
+          <li data-category="all" class="active">All Commands</li>
+          <li data-category="moderation">Moderation</li>
+          <li data-category="tickets">Tickets</li>
+          <li data-category="utility">Utility</li>
+          <li data-category="general">General</li>
         </ul>
       </div>
-      <div class="footer-contact">
-        <h4>Contact</h4>
-        <p>Have questions? Join our Discord server!</p>
-        <div class="social-icons">
-          <a href="https://discord.gg/swoosh" target="_blank"><i class="fab fa-discord"></i></a>
-          <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+    </div>
+
+    <div class="commands-content">
+      <div class="command-section" id="prefix-commands">
+        <h2>Prefix Commands <span class="prefix-badge"><%= prefix %></span></h2>
+        <div class="commands-grid">
+          <% regularCommands.forEach(command => { %>
+            <div class="command-card" data-category="<%= command.category.toLowerCase() %>">
+              <div class="command-name"><%= prefix %><%= command.name %></div>
+              <div class="command-description"><%= command.description %></div>
+              <% if (command.usage) { %>
+                <div class="command-usage">Usage: <%= prefix %><%= command.usage %></div>
+              <% } %>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="command-section" id="slash-commands">
+        <h2>Slash Commands</h2>
+        <div class="commands-grid">
+          <% slashCommands.forEach(command => { %>
+            <div class="command-card" data-category="<%= command.category.toLowerCase() %>">
+              <div class="command-name">/<%= command.name %></div>
+              <div class="command-description"><%= command.description %></div>
+            </div>
+          <% }); %>
         </div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
-    </div>
-  </footer>
+  </div>
+</section>
 
-  <script src="/js/main.js"></script>
-</body>
-</html>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Command search functionality
+    const searchInput = document.getElementById('command-search');
+    const commandCards = document.querySelectorAll('.command-card');
+    
+    searchInput.addEventListener('input', function() {
+      const searchValue = this.value.toLowerCase();
+      
+      commandCards.forEach(card => {
+        const commandName = card.querySelector('.command-name').textContent.toLowerCase();
+        const commandDesc = card.querySelector('.command-description').textContent.toLowerCase();
+        
+        if (commandName.includes(searchValue) || commandDesc.includes(searchValue)) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+    
+    // Category filter functionality
+    const categoryItems = document.querySelectorAll('#category-list li');
+    
+    categoryItems.forEach(item => {
+      item.addEventListener('click', function() {
+        // Remove active class from all items
+        categoryItems.forEach(i => i.classList.remove('active'));
+        
+        // Add active class to clicked item
+        this.classList.add('active');
+        
+        const category = this.getAttribute('data-category');
+        
+        commandCards.forEach(card => {
+          if (category === 'all' || card.getAttribute('data-category') === category) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>

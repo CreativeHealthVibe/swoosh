@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Swoosh</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0d0d0d;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      color: #d6b4fc;
+    }
+
+    header {
+      position: absolute;
+      top: 20px;
+      left: 40px;
+      z-index: 2;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: #9c4dff;
+      letter-spacing: 2px;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .content {
+      position: absolute;
+      bottom: 50px;
+      left: 40px;
+      z-index: 2;
+      max-width: 400px;
+    }
+
+    .content h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #c792ff;
+    }
+
+    .content p {
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #9c4dff;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #b168ff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Swoosh</h1>
+  </header>
+
+  <div class="content">
+    <h2>Speed. Style. Vibe.</h2>
+    <p>Welcome to Swoosh — your new Discord bot for motion, mood, and moderation. Dive into our features and enhance your server experience.</p>
+    <a href="https://discord.com/oauth2/authorize?client_id=<%= client && client.user ? client.user.id : '1253391043969974302' %>&permissions=8&scope=bot%20applications.commands" class="btn" target="_blank">Add to Discord</a>
+    <a href="/home" class="btn">Explore Features</a>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Basic Three.js scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add purple rotating 3D cube
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshStandardMaterial({ color: 0x9c4dff });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    // Light
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(5, 5, 5);
+    scene.add(light);
+
+    camera.position.z = 3;
+
+    // Animation loop
+    const animate = function () {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    // Responsive
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
