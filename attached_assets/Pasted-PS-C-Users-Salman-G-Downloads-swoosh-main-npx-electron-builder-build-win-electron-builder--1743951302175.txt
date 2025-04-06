@@ -1,0 +1,38 @@
+PS C:\Users\Salman G\Downloads\swoosh-main> npx electron-builder build --win
+  • electron-builder  version=24.13.3 os=10.0.19045
+  • loaded configuration  file=C:\Users\Salman G\Downloads\swoosh-main\electron-builder.yml
+  • writing effective config  file=dist\builder-effective-config.yaml
+  • packaging       platform=win32 arch=x64 electron=28.3.3 appOutDir=dist\win-unpacked
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'      
+Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Downloads\swoosh-main\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string 
+ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2023 SWOOSH' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-version-string CompanyName 'SWOOSH Team' --set-icon 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 3 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'      
+Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Downloads\swoosh-main\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string 
+ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2023 SWOOSH' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-version-string CompanyName 'SWOOSH Team' --set-icon 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 2 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'      
+Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Downloads\swoosh-main\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string 
+ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2023 SWOOSH' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-version-string CompanyName 'SWOOSH Team' --set-icon 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 1 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'      
+Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Downloads\swoosh-main\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string 
+ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2023 SWOOSH' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-version-string CompanyName 'SWOOSH Team' --set-icon 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 0 more times
+PS C:\Users\Salman G\Downloads\swoosh-main> 
