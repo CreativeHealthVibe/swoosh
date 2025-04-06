@@ -407,7 +407,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
 const passport = require('passport');
 const flash = require('express-flash');
 
@@ -424,7 +423,7 @@ app.use(express.static(path.join(__dirname, 'website/public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set up session middleware
+// Set up session middleware with memory store
 app.use(session({
   secret: process.env.SESSION_SECRET || 'swoosh-admin-dashboard-secret',
   resave: false,
@@ -432,12 +431,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000 // 1 day
-  },
-  store: process.env.MONGODB_URI && process.env.MONGODB_URI.startsWith('mongodb') ? 
-    MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-      collectionName: 'sessions'
-    }) : null
+  }
 }));
 
 // Set up flash messages
@@ -467,7 +461,22 @@ function getBotUptime() {
 
 // Routes for the website
 app.get('/', (req, res) => {
-  // Render landing page
+  // If there's a code parameter, it's an OAuth callback
+  if (req.query.code) {
+    // Log OAuth callback received
+    console.log('OAuth callback received at root with code:', req.query.code);
+    
+    // Pass the code to our authentication route
+    return res.redirect(`/auth/discord/callback?code=${req.query.code}`);
+  }
+  
+  // If user is authenticated, redirect to welcome page
+  if (req.isAuthenticated()) {
+    console.log('User already authenticated, redirecting to welcome page');
+    return res.redirect('/admin/welcome');
+  }
+  
+  // Otherwise render landing page
   res.render('landing', {
     title: 'SWOOSH Bot - Discord Utility Bot',
     client: client,
@@ -793,6 +802,30 @@ app.get('/demo', (req, res) => {
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 
+// Direct callback handler for OAuth redirect to /admin
+app.get('/admin', (req, res) => {
+  // If there's a code parameter, it's an OAuth callback
+  if (req.query.code) {
+    // Log OAuth callback received
+    console.log('OAuth callback received at /admin with code');
+    
+    // Redirect to the proper callback URL
+    const callbackUrl = `/auth/discord/callback${req.url.substring(req.url.indexOf('?'))}`;
+    console.log('Redirecting to:', callbackUrl);
+    return res.redirect(callbackUrl);
+  }
+  
+  // Otherwise redirect to dashboard if authenticated
+  if (req.isAuthenticated()) {
+    console.log('User already authenticated, redirecting to dashboard');
+    return res.redirect('/admin/dashboard');
+  }
+  
+  // If not authenticated, redirect to login
+  console.log('User not authenticated, redirecting to login');
+  res.redirect('/auth/login');
+});
+
 // Register routes
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
@@ -963,7 +996,7 @@ process.on('exit', () => {
 // Start the server
 server.listen(PORT, () => {
   console.log(`🌐 Express server running on port ${PORT}`);
-  console.log(`🔗 Website URL: https://swooshfinal.onrender.com/`);
+  console.log(`🔗 Website URL: ${process.env.WEBSITE_URL}`);
   console.log(`📊 Real-time server health monitoring enabled`);
 });
 

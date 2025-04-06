@@ -9,8 +9,10 @@ const { redirectIfAuthenticated } = require('../../middlewares/auth');
  */
 router.get('/login', redirectIfAuthenticated, (req, res) => {
   const clientId = process.env.DISCORD_CLIENT_ID;
-  const redirectUri = encodeURIComponent(process.env.WEBSITE_URL + '/');
+  const redirectUri = encodeURIComponent(process.env.WEBSITE_URL + process.env.DISCORD_CALLBACK_URL);
   const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=guilds.join+identify`;
+  
+  console.log('OAuth URL generated:', oauthUrl);
   
   res.render('auth/login', {
     title: 'Login | SWOOSH Bot Admin',
@@ -38,7 +40,10 @@ router.get('/discord/callback',
   }),
   (req, res) => {
     // Successful authentication
-    const redirectUrl = req.session.returnTo || '/admin/dashboard';
+    console.log('OAuth authentication successful, user:', req.user.username);
+    
+    // Redirect to the welcome page with time-based greeting
+    const redirectUrl = req.session.returnTo || '/admin/welcome';
     delete req.session.returnTo;
     res.redirect(redirectUrl);
   }

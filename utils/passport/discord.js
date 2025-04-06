@@ -9,9 +9,10 @@ const setupDiscordStrategy = () => {
   passport.use(new DiscordStrategy({
     clientID: process.env.DISCORD_CLIENT_ID,
     clientSecret: process.env.DISCORD_CLIENT_SECRET,
-    callbackURL: process.env.DISCORD_CALLBACK_URL,
+    callbackURL: `${process.env.WEBSITE_URL}${process.env.DISCORD_CALLBACK_URL}`,
     scope: scopes
   }, async (accessToken, refreshToken, profile, done) => {
+    console.log('Discord OAuth callback received. User:', profile.username);
     try {
       // List of allowed admin user IDs
       const adminUserIds = [

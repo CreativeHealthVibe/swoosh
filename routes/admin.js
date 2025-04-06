@@ -5,6 +5,19 @@ const router = express.Router();
 const { isAdmin } = require('../middlewares/auth');
 const blacklistManager = require('../handlers/blacklistManager');
 
+// Helper function to get appropriate greeting based on time of day
+function getTimeBasedGreeting() {
+  const hour = new Date().getHours();
+  
+  if (hour < 12) {
+    return 'Good morning';
+  } else if (hour < 18) {
+    return 'Good afternoon';
+  } else {
+    return 'Good evening';
+  }
+}
+
 // Protect all admin routes with isAdmin middleware
 router.use(isAdmin);
 
@@ -218,6 +231,22 @@ router.get('/logs/:filename', (req, res) => {
 router.get('/stats', (req, res) => {
   res.render('admin/stats', {
     title: 'Statistics | SWOOSH Bot',
+    user: req.user,
+    layout: 'layouts/admin'
+  });
+});
+
+/**
+ * GET /admin/welcome
+ * Welcome page with time-based greeting
+ */
+router.get('/welcome', (req, res) => {
+  const greeting = getTimeBasedGreeting();
+  const username = req.user.username || 'Admin';
+  
+  res.render('admin/welcome', {
+    title: 'Welcome | SWOOSH Bot',
+    greeting: `${greeting}, @${username}!`,
     user: req.user,
     layout: 'layouts/admin'
   });

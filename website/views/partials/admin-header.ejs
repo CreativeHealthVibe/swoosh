@@ -1,0 +1,35 @@
+<!-- Admin header partial -->
+<header class="admin-header">
+  <div class="admin-header-brand">
+    <a href="/admin/dashboard">
+      <img src="/img/swoosh-logo.png" alt="SWOOSH Bot" class="admin-logo">
+      <span>SWOOSH Admin</span>
+    </a>
+  </div>
+  
+  <nav class="admin-nav">
+    <ul>
+      <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+      <li><a href="/admin/blacklist"><i class="fas fa-ban"></i> Blacklist</a></li>
+      <li><a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a></li>
+      <li><a href="/admin/logs"><i class="fas fa-list"></i> Logs</a></li>
+      <li><a href="/admin/stats"><i class="fas fa-chart-bar"></i> Stats</a></li>
+    </ul>
+  </nav>
+  
+  <div class="admin-user-menu">
+    <div class="user-info">
+      <% if (user.avatar) { %>
+        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=32" alt="<%= user.username %>'s Avatar" class="user-avatar">
+      <% } else { %>
+        <div class="user-avatar-placeholder"><%= user.username.charAt(0).toUpperCase() %></div>
+      <% } %>
+      <span class="username"><%= user.username %></span>
+    </div>
+    <div class="dropdown-menu">
+      <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-content">
