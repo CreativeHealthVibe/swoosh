@@ -432,8 +432,7 @@ app.get('/home', (req, res) => {
     title: 'SWOOSH Bot - Home',
     uptime: getBotUptime(),
     client: client,
-    lastChecked: new Date().toLocaleString(),
-    path: '/' // Set path to root so the three-background.js is loaded
+    lastChecked: new Date().toLocaleString()
   });
 });
 

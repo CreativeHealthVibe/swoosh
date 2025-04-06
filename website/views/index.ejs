@@ -5,12 +5,11 @@
 %>
 
 <section class="hero">
-  <div id="three-background" class="three-background"></div>
   <div class="hero-content">
-    <h1 >Speed. Style. Vibe.</h1>
+    <h1 class="gradient-text">Speed. Style. Vibe.</h1>
     <p>Elevate your Discord server with Swoosh Bot — powerful moderation, seamless ticket management, and unique custom utilities designed to enhance your community experience.</p>
     <div class="hero-buttons">
-      <a href="https://discord.com/oauth2/authorize?client_id=<%= client && client.user ? client.user.id : '1253391043969974302' %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary" target="_blank">Add to Discord</a>
+      <a href="https://discord.com/oauth2/authorize?client_id=<%= client && client.user ? client && client.user ? client.user.id : "1253391043969974302" : '1253391043969974302' %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary" target="_blank">Add to Discord</a>
       <a href="/commands" class="btn btn-secondary">View Commands</a>
     </div>
   </div>
@@ -145,9 +144,9 @@
 <section class="cta-section">
   <div class="container">
     <div class="cta-content">
-      <h2 >Ready to enhance your Discord server?</h2>
+      <h2>Ready to enhance your Discord server?</h2>
       <p>Add SWOOSH Bot to your server today and unlock powerful moderation and utility features.</p>
-      <a href="https://discord.com/oauth2/authorize?client_id=<%= client && client.user ? client.user.id : '1253391043969974302' %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary" target="_blank">Add to Discord</a>
+      <a href="https://discord.com/oauth2/authorize?client_id=<%= client && client.user ? client.user.id : "1253391043969974302" %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary" target="_blank">Add to Discord</a>
     </div>
   </div>
 </section>

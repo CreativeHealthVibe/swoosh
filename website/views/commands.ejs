@@ -5,10 +5,8 @@
 %>
 
 <section class="commands-header">
-  <div class="gradient-overlay"></div>
-  <h1 >Bot Commands</h1>
+  <h1>Bot Commands</h1>
   <p>Discover all the powerful commands available with SWOOSH Bot</p>
-  <div class="pulse-circle"></div>
 </section>
 
 <section class="commands-container">
@@ -32,11 +30,10 @@
 
     <div class="commands-content">
       <div class="command-section" id="prefix-commands">
-        <h2 >Prefix Commands <span class="prefix-badge"><%= prefix %></span></h2>
+        <h2>Prefix Commands <span class="prefix-badge"><%= prefix %></span></h2>
         <div class="commands-grid">
           <% regularCommands.forEach(command => { %>
             <div class="command-card" data-category="<%= command.category.toLowerCase() %>">
-              <div class="card-glow"></div>
               <div class="command-name"><%= prefix %><%= command.name %></div>
               <div class="command-description"><%= command.description %></div>
               <% if (command.usage) { %>
@@ -48,11 +45,10 @@
       </div>
 
       <div class="command-section" id="slash-commands">
-        <h2 >Slash Commands</h2>
+        <h2>Slash Commands</h2>
         <div class="commands-grid">
           <% slashCommands.forEach(command => { %>
             <div class="command-card" data-category="<%= command.category.toLowerCase() %>">
-              <div class="card-glow"></div>
               <div class="command-name">/<%= command.name %></div>
               <div class="command-description"><%= command.description %></div>
             </div>
