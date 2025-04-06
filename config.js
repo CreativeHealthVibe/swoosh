@@ -7,6 +7,23 @@ module.exports = {
   ticketCategory: process.env.TICKET_CATEGORY || "SWOOSH | Tickets",
   logChannelId: process.env.LOG_CHANNEL_ID,
   
+  // Website and session settings
+  website: {
+    sessionSecret: process.env.SESSION_SECRET || 'swoosh-admin-dashboard-secret',
+    sessionExpiry: 86400000, // 24 hours in milliseconds
+    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/swoosh',
+    port: process.env.PORT || 3000,
+    url: process.env.WEBSITE_URL || 'https://swooshfinal.onrender.com'
+  },
+  
+  // Discord OAuth settings
+  oauth: {
+    clientId: process.env.DISCORD_CLIENT_ID,
+    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    callbackUrl: process.env.DISCORD_CALLBACK_URL || 'https://swooshfinal.onrender.com/auth/discord/callback',
+    scopes: ['identify', 'guilds.join']
+  },
+  
   // Specific logging channels
   loggingChannels: {
     deletedMessages: "1357714564946464808",  // Channel for deleted message logs
@@ -16,7 +33,7 @@ module.exports = {
   },
   
   // Admin User IDs with full system access
-  adminUserIds: ['930131254106550333', '1196042021488570391', '506323791140356106'], // Core team members
+  adminUserIds: ['1234567890123456', '2345678901234567'], // Replace with actual admin Discord user IDs
   
   // Ticket types and their configurations
   ticketTypes: {

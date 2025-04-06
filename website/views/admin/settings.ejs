@@ -1,545 +1,212 @@
-<!-- Bot Settings Page -->
-<div class="container-fluid py-4">
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
-          <div class="d-flex align-items-center">
-            <div>
-              <h2 class="mb-0"><i class="fas fa-cog me-2"></i> Bot Settings</h2>
-              <p class="text-muted mb-0">Configure SWOOSH Bot functionality</p>
+<div class="settings-container">
+  <!-- Bot Settings -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">Bot Configuration</h5>
+    </div>
+    <div class="card-body">
+      <form id="botSettingsForm">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="prefix" class="form-label">Command Prefix</label>
+              <input type="text" class="form-control" id="prefix" name="prefix" value="." maxlength="3">
+              <small class="form-text text-muted">Character used before commands (e.g., .help)</small>
             </div>
-            <a href="/admin/dashboard" class="btn btn-outline-primary ms-auto">
-              <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
-            </a>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="embedColor" class="form-label">Embed Color</label>
+              <input type="color" class="form-control form-control-color" id="embedColor" name="embedColor" value="#0099ff">
+              <small class="form-text text-muted">Color used for message embeds</small>
+            </div>
           </div>
         </div>
+        
+        <div class="row">
+          <div class="col-md-12">
+            <div class="mb-3">
+              <label for="ticketCategory" class="form-label">Ticket Category</label>
+              <input type="text" class="form-control" id="ticketCategory" name="ticketCategory" value="SWOOSH | Tickets">
+              <small class="form-text text-muted">Discord category for new tickets</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-12">
+            <div class="mb-3">
+              <label for="logChannelId" class="form-label">Log Channel ID</label>
+              <input type="text" class="form-control" id="logChannelId" name="logChannelId" value="" placeholder="Discord Channel ID">
+              <small class="form-text text-muted">Main channel for sending log messages</small>
+            </div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" disabled>
+          <i class="fas fa-save me-2"></i> Save Changes
+        </button>
+        <small class="form-text text-muted d-block mt-2">Note: This feature is coming soon. Direct configuration changes are not yet available.</small>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Logging Channels -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="card-title">Logging Channels</h5>
+    </div>
+    <div class="card-body">
+      <form id="loggingChannelsForm">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="deletedMessages" class="form-label">Deleted Messages</label>
+              <input type="text" class="form-control" id="deletedMessages" name="deletedMessages" placeholder="Channel ID">
+              <small class="form-text text-muted">Channel for logging deleted messages</small>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="ticketTranscripts" class="form-label">Ticket Transcripts</label>
+              <input type="text" class="form-control" id="ticketTranscripts" name="ticketTranscripts" placeholder="Channel ID">
+              <small class="form-text text-muted">Channel for storing ticket transcripts</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="commandUsage" class="form-label">Command Usage</label>
+              <input type="text" class="form-control" id="commandUsage" name="commandUsage" placeholder="Channel ID">
+              <small class="form-text text-muted">Channel for logging command usage</small>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="botStatus" class="form-label">Bot Status</label>
+              <input type="text" class="form-control" id="botStatus" name="botStatus" placeholder="Channel ID">
+              <small class="form-text text-muted">Channel for bot status updates</small>
+            </div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" disabled>
+          <i class="fas fa-save me-2"></i> Save Changes
+        </button>
+        <small class="form-text text-muted d-block mt-2">Note: This feature is coming soon. Direct configuration changes are not yet available.</small>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Staff Roles -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="card-title">Staff Roles</h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted">Roles that have access to tickets and administrative commands.</p>
+      
+      <div id="staffRoles" class="role-list">
+        <div class="role-item">
+          <span class="role-name">Admin</span>
+          <button class="btn btn-sm btn-outline-danger" disabled>
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="role-item">
+          <span class="role-name">Moderator</span>
+          <button class="btn btn-sm btn-outline-danger" disabled>
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="role-item">
+          <span class="role-name">Staff</span>
+          <button class="btn btn-sm btn-outline-danger" disabled>
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="role-item">
+          <span class="role-name">Bounty Master</span>
+          <button class="btn btn-sm btn-outline-danger" disabled>
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="mt-3">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Add new role" disabled>
+          <button class="btn btn-outline-primary" type="button" disabled>
+            <i class="fas fa-plus"></i> Add
+          </button>
+        </div>
+        <small class="form-text text-muted">Note: This feature is coming soon. Direct configuration changes are not yet available.</small>
       </div>
     </div>
   </div>
   
-  <!-- Settings Tabs -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-light p-0">
-          <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">
-                <i class="fas fa-sliders-h me-2"></i> General
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets" type="button" role="tab" aria-controls="tickets" aria-selected="false">
-                <i class="fas fa-ticket-alt me-2"></i> Tickets
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="logging-tab" data-bs-toggle="tab" data-bs-target="#logging" type="button" role="tab" aria-controls="logging" aria-selected="false">
-                <i class="fas fa-list-alt me-2"></i> Logging
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab" aria-controls="admin" aria-selected="false">
-                <i class="fas fa-user-shield me-2"></i> Admin
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="customization-tab" data-bs-toggle="tab" data-bs-target="#customization" type="button" role="tab" aria-controls="customization" aria-selected="false">
-                <i class="fas fa-paint-brush me-2"></i> Customization
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="card-body p-4">
-          <div class="tab-content" id="settingsTabContent">
-            <!-- General Settings Tab -->
-            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
-              <form id="generalSettingsForm" class="needs-validation" novalidate>
-                <div class="row mb-4">
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Bot Configuration</h5>
-                    <div class="mb-3">
-                      <label for="botPrefix" class="form-label">Command Prefix</label>
-                      <input type="text" class="form-control" id="botPrefix" value="!" required>
-                      <div class="form-text">The prefix used for regular commands (e.g., !help)</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="botStatus" class="form-label">Bot Status</label>
-                      <select class="form-select" id="botStatus">
-                        <option value="online" selected>Online</option>
-                        <option value="idle">Idle</option>
-                        <option value="dnd">Do Not Disturb</option>
-                        <option value="invisible">Invisible</option>
-                      </select>
-                      <div class="form-text">Bot's status display on Discord</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="activityType" class="form-label">Activity Type</label>
-                      <select class="form-select" id="activityType">
-                        <option value="PLAYING">Playing</option>
-                        <option value="STREAMING">Streaming</option>
-                        <option value="LISTENING">Listening to</option>
-                        <option value="WATCHING" selected>Watching</option>
-                        <option value="COMPETING">Competing in</option>
-                      </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="activityName" class="form-label">Activity Name</label>
-                      <input type="text" class="form-control" id="activityName" value=".gg/swoosh">
-                      <div class="form-text">Text displayed after the activity type</div>
-                    </div>
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Rate Limits & Cooldowns</h5>
-                    <div class="mb-3">
-                      <label for="cmdCooldown" class="form-label">Command Cooldown (seconds)</label>
-                      <input type="number" class="form-control" id="cmdCooldown" min="0" max="60" value="3">
-                      <div class="form-text">Time users must wait between commands</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="modCooldown" class="form-label">Moderation Command Cooldown (seconds)</label>
-                      <input type="number" class="form-control" id="modCooldown" min="0" max="60" value="5">
-                      <div class="form-text">Time between moderation commands (ban, kick, etc.)</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="maxCommands" class="form-label">Max Commands Per Minute</label>
-                      <input type="number" class="form-control" id="maxCommands" min="1" max="100" value="20">
-                      <div class="form-text">Maximum number of commands a user can run per minute</div>
-                    </div>
-                    
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="enableRateLimit" checked>
-                      <label class="form-check-label" for="enableRateLimit">Enable Rate Limiting</label>
-                      <div class="form-text">Temporarily block users who spam commands</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <h5 class="mb-3">Feature Toggles</h5>
-                    <div class="row">
-                      <div class="col-md-4">
-                        <div class="mb-3 form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="enableAfk" checked>
-                          <label class="form-check-label" for="enableAfk">AFK System</label>
-                        </div>
-                        
-                        <div class="mb-3 form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="enableRoles" checked>
-                          <label class="form-check-label" for="enableRoles">Role Management</label>
-                        </div>
-                      </div>
-                      
-                      <div class="col-md-4">
-                        <div class="mb-3 form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="enableBlacklist" checked>
-                          <label class="form-check-label" for="enableBlacklist">Blacklist System</label>
-                        </div>
-                        
-                        <div class="mb-3 form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="enableCommands" checked>
-                          <label class="form-check-label" for="enableCommands">Commands</label>
-                        </div>
-                      </div>
-                      
-                      <div class="col-md-4">
-                        <div class="mb-3 form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="enableWebhooks" checked>
-                          <label class="form-check-label" for="enableWebhooks">Webhook Integration</label>
-                        </div>
-                        
-                        <div class="mb-3 form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="enableAnalytics" checked>
-                          <label class="form-check-label" for="enableAnalytics">Usage Analytics</label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i> Save General Settings
-                </button>
-              </form>
+  <!-- Validation Settings -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="card-title">Validation Settings</h5>
+    </div>
+    <div class="card-body">
+      <form id="validationSettingsForm">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="bountyMin" class="form-label">Minimum Bounty</label>
+              <input type="number" class="form-control" id="bountyMin" name="bountyMin" value="15" min="1">
+              <small class="form-text text-muted">Minimum allowed bounty amount</small>
             </div>
-            
-            <!-- Tickets Settings Tab -->
-            <div class="tab-pane fade" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
-              <form id="ticketSettingsForm" class="needs-validation" novalidate>
-                <div class="row mb-4">
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Ticket System Configuration</h5>
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="enableTickets" checked>
-                      <label class="form-check-label" for="enableTickets">Enable Ticket System</label>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="ticketCategory" class="form-label">Ticket Category ID</label>
-                      <input type="text" class="form-control" id="ticketCategory" value="1234567890123456789">
-                      <div class="form-text">Category where ticket channels will be created</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="supportRole" class="form-label">Support Team Role ID</label>
-                      <input type="text" class="form-control" id="supportRole" value="1234567890123456789">
-                      <div class="form-text">Role that will have access to all tickets</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="ticketNameFormat" class="form-label">Ticket Channel Name Format</label>
-                      <input type="text" class="form-control" id="ticketNameFormat" value="ticket-{username}">
-                      <div class="form-text">Format for ticket channel names ({username}, {id}, {count})</div>
-                    </div>
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Ticket Options</h5>
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="transcriptsEnabled" checked>
-                      <label class="form-check-label" for="transcriptsEnabled">Enable Transcripts</label>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="transcriptChannel" class="form-label">Transcript Channel ID</label>
-                      <input type="text" class="form-control" id="transcriptChannel" value="1234567890123456789">
-                      <div class="form-text">Channel where ticket transcripts will be sent</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="ticketTypes" class="form-label">Ticket Types</label>
-                      <textarea class="form-control" id="ticketTypes" rows="4">General Support
-Technical Issue
-Account Problem
-Billing Question
-Feature Request</textarea>
-                      <div class="form-text">List of ticket types (one per line)</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <h5 class="mb-3">Welcome Message</h5>
-                    <div class="mb-3">
-                      <label for="ticketWelcome" class="form-label">Ticket Welcome Message</label>
-                      <textarea class="form-control" id="ticketWelcome" rows="4">Welcome to your support ticket, {user}!
-
-A member of our support team will assist you shortly. Please describe your issue in detail so we can help you better.
-
-To close this ticket when resolved, click the button below or type `!close`.</textarea>
-                      <div class="form-text">Message sent when a ticket is created. Variables: {user}, {server}, {type}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i> Save Ticket Settings
-                </button>
-              </form>
-            </div>
-            
-            <!-- Logging Settings Tab -->
-            <div class="tab-pane fade" id="logging" role="tabpanel" aria-labelledby="logging-tab">
-              <form id="loggingSettingsForm" class="needs-validation" novalidate>
-                <div class="row mb-4">
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Logging Configuration</h5>
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="enableLogging" checked>
-                      <label class="form-check-label" for="enableLogging">Enable Discord Logging</label>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="logChannel" class="form-label">Log Channel ID</label>
-                      <input type="text" class="form-control" id="logChannel" value="1234567890123456789">
-                      <div class="form-text">Channel where logs will be sent</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="modLogChannel" class="form-label">Moderation Log Channel ID</label>
-                      <input type="text" class="form-control" id="modLogChannel" value="1234567890123456789">
-                      <div class="form-text">Channel for moderation action logs</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="errorLogChannel" class="form-label">Error Log Channel ID</label>
-                      <input type="text" class="form-control" id="errorLogChannel" value="1234567890123456789">
-                      <div class="form-text">Channel for error logs</div>
-                    </div>
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Log Events</h5>
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="logCommands" checked>
-                      <label class="form-check-label" for="logCommands">Command Usage</label>
-                    </div>
-                    
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="logErrors" checked>
-                      <label class="form-check-label" for="logErrors">Errors</label>
-                    </div>
-                    
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="logModeration" checked>
-                      <label class="form-check-label" for="logModeration">Moderation Actions</label>
-                    </div>
-                    
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="logTickets" checked>
-                      <label class="form-check-label" for="logTickets">Ticket Events</label>
-                    </div>
-                    
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="logJoinLeave" checked>
-                      <label class="form-check-label" for="logJoinLeave">Join/Leave Events</label>
-                    </div>
-                    
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="logMessageDelete" checked>
-                      <label class="form-check-label" for="logMessageDelete">Message Deletions</label>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <h5 class="mb-3">File Logging Settings</h5>
-                    <div class="row">
-                      <div class="col-md-4">
-                        <div class="mb-3">
-                          <label for="logLevel" class="form-label">Log Level</label>
-                          <select class="form-select" id="logLevel">
-                            <option value="error">Error Only</option>
-                            <option value="warn">Warning & Error</option>
-                            <option value="info" selected>Info & Above</option>
-                            <option value="debug">Debug & Above</option>
-                            <option value="verbose">All (Verbose)</option>
-                          </select>
-                        </div>
-                      </div>
-                      
-                      <div class="col-md-4">
-                        <div class="mb-3">
-                          <label for="maxLogFiles" class="form-label">Max Log Files</label>
-                          <input type="number" class="form-control" id="maxLogFiles" min="1" max="100" value="10">
-                          <div class="form-text">Maximum number of log files to keep</div>
-                        </div>
-                      </div>
-                      
-                      <div class="col-md-4">
-                        <div class="mb-3">
-                          <label for="maxLogSize" class="form-label">Max Log Size (MB)</label>
-                          <input type="number" class="form-control" id="maxLogSize" min="1" max="100" value="5">
-                          <div class="form-text">Maximum size of each log file</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i> Save Logging Settings
-                </button>
-              </form>
-            </div>
-            
-            <!-- Admin Settings Tab -->
-            <div class="tab-pane fade" id="admin" role="tabpanel" aria-labelledby="admin-tab">
-              <form id="adminSettingsForm" class="needs-validation" novalidate>
-                <div class="row mb-4">
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Admin Access</h5>
-                    <div class="mb-3">
-                      <label for="adminRoleId" class="form-label">Admin Role ID</label>
-                      <input type="text" class="form-control" id="adminRoleId" value="1234567890123456789">
-                      <div class="form-text">Discord role that grants admin access</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="adminUsers" class="form-label">Admin User IDs</label>
-                      <textarea class="form-control" id="adminUsers" rows="4">930131254106550333
-1196042021488570391
-506323791140356106</textarea>
-                      <div class="form-text">Discord user IDs that have admin access (one per line)</div>
-                    </div>
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Security Settings</h5>
-                    <div class="mb-3">
-                      <label for="sessionTimeout" class="form-label">Session Timeout (minutes)</label>
-                      <input type="number" class="form-control" id="sessionTimeout" min="5" max="1440" value="60">
-                      <div class="form-text">Time before admin sessions expire</div>
-                    </div>
-                    
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="requireVerification" checked>
-                      <label class="form-check-label" for="requireVerification">Require Verification for Critical Actions</label>
-                    </div>
-                    
-                    <div class="mb-3 form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="logAdminActions" checked>
-                      <label class="form-check-label" for="logAdminActions">Log Admin Actions</label>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <h5 class="mb-3">Dashboard Settings</h5>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="mb-3 form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="enableDashboard" checked>
-                          <label class="form-check-label" for="enableDashboard">Enable Dashboard</label>
-                        </div>
-                        
-                        <div class="mb-3 form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="enablePublicStats" checked>
-                          <label class="form-check-label" for="enablePublicStats">Public Statistics</label>
-                        </div>
-                      </div>
-                      
-                      <div class="col-md-6">
-                        <div class="mb-3">
-                          <label for="dashboardUrl" class="form-label">Dashboard URL</label>
-                          <input type="url" class="form-control" id="dashboardUrl" value="https://swooshfinal.onrender.com">
-                        </div>
-                        
-                        <div class="mb-3">
-                          <label for="callbackUrl" class="form-label">OAuth Callback URL</label>
-                          <input type="url" class="form-control" id="callbackUrl" value="https://swooshfinal.onrender.com/auth/discord/callback">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i> Save Admin Settings
-                </button>
-              </form>
-            </div>
-            
-            <!-- Customization Tab -->
-            <div class="tab-pane fade" id="customization" role="tabpanel" aria-labelledby="customization-tab">
-              <form id="customizationForm" class="needs-validation" novalidate>
-                <div class="row mb-4">
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Message Customization</h5>
-                    <div class="mb-3">
-                      <label for="welcomeMessage" class="form-label">Welcome Message</label>
-                      <textarea class="form-control" id="welcomeMessage" rows="3">Welcome to {server}, {user}! Enjoy your stay!</textarea>
-                      <div class="form-text">Message sent to new server members. Variables: {user}, {server}</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="leaveMessage" class="form-label">Leave Message</label>
-                      <textarea class="form-control" id="leaveMessage" rows="3">{user} has left the server. We hope to see you again!</textarea>
-                      <div class="form-text">Message sent when users leave. Variables: {user}, {server}</div>
-                    </div>
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <h5 class="mb-3">Command Responses</h5>
-                    <div class="mb-3">
-                      <label for="helpText" class="form-label">Help Command Text</label>
-                      <textarea class="form-control" id="helpText" rows="3">Here are the available commands for SWOOSH Bot:
-
-Use `!help <command>` for more information about a specific command.</textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="errorMessage" class="form-label">Error Message</label>
-                      <textarea class="form-control" id="errorMessage" rows="3">An error occurred while executing that command. Please try again later or contact support.</textarea>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <h5 class="mb-3">Embed Customization</h5>
-                    <div class="row">
-                      <div class="col-md-4">
-                        <div class="mb-3">
-                          <label for="embedColor" class="form-label">Primary Embed Color</label>
-                          <input type="color" class="form-control form-control-color" id="embedColor" value="#4361ee">
-                        </div>
-                      </div>
-                      
-                      <div class="col-md-4">
-                        <div class="mb-3">
-                          <label for="errorColor" class="form-label">Error Embed Color</label>
-                          <input type="color" class="form-control form-control-color" id="errorColor" value="#e63946">
-                        </div>
-                      </div>
-                      
-                      <div class="col-md-4">
-                        <div class="mb-3">
-                          <label for="successColor" class="form-label">Success Embed Color</label>
-                          <input type="color" class="form-control form-control-color" id="successColor" value="#2a9d8f">
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                      <label for="footerText" class="form-label">Embed Footer Text</label>
-                      <input type="text" class="form-control" id="footerText" value="SWOOSH Bot • Discord Utility Bot">
-                    </div>
-                  </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i> Save Customization Settings
-                </button>
-              </form>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="bountyMax" class="form-label">Maximum Bounty</label>
+              <input type="number" class="form-control" id="bountyMax" name="bountyMax" value="30000" min="100">
+              <small class="form-text text-muted">Maximum allowed bounty amount</small>
             </div>
           </div>
         </div>
-      </div>
+        
+        <button type="submit" class="btn btn-primary" disabled>
+          <i class="fas fa-save me-2"></i> Save Changes
+        </button>
+        <small class="form-text text-muted d-block mt-2">Note: This feature is coming soon. Direct configuration changes are not yet available.</small>
+      </form>
     </div>
   </div>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
-    const forms = document.querySelectorAll('.needs-validation');
-    
-    Array.from(forms).forEach(form => {
-      form.addEventListener('submit', event => {
-        if (!form.checkValidity()) {
-          event.preventDefault();
-          event.stopPropagation();
-        } else {
-          // Prevent the default form submission for demo purposes
-          event.preventDefault();
-          
-          // Show success message for demonstration
-          alert(`Settings updated successfully! (This is a demo, settings aren't actually saved)`);
-        }
-        
-        form.classList.add('was-validated');
-      }, false);
-    });
-    
-    // Enable all tabs and tooltips
-    const tabs = document.querySelectorAll('#settingsTabs button');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        e.preventDefault();
-        tab.tab.show();
-      });
+  // Load settings when WebSocket data comes in
+  socket.addEventListener('message', function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      
+      // This would be expanded in the future to load actual settings
+      // For now, we'll just keep the form disabled
+      
+    } catch (error) {
+      console.error('Error parsing WebSocket message:', error);
+    }
+  });
+  
+  // Disable form submissions
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      // When implemented, this would save settings
+      alert('This feature is coming soon. Direct configuration changes are not yet available.');
     });
   });
 </script>

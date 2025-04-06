@@ -1,221 +1,183 @@
-<!-- Bot Statistics Page -->
-<div class="container-fluid py-4">
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
-          <div class="d-flex align-items-center">
-            <div>
-              <h2 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Bot Statistics</h2>
-              <p class="text-muted mb-0">View detailed bot usage and performance metrics</p>
-            </div>
-            <a href="/admin/dashboard" class="btn btn-outline-primary ms-auto">
-              <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
-            </a>
-          </div>
-        </div>
-      </div>
+<div class="stats-container">
+  <!-- Command Usage Stats -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">Command Usage Statistics</h5>
     </div>
-  </div>
-  
-  <!-- Usage Overview -->
-  <div class="row mb-4">
-    <div class="col-md-8 mb-4">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Command Usage</h5>
-        </div>
-        <div class="card-body">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
           <canvas id="commandUsageChart" height="300"></canvas>
         </div>
-      </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Top Commands</h5>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-sm table-hover">
-              <thead class="table-light">
-                <tr>
-                  <th>Command</th>
-                  <th>Usage</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>!help</code></td>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                        <div class="progress-bar bg-primary" style="width: 85%"></div>
-                      </div>
-                      <span>85</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>!afk</code></td>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                        <div class="progress-bar bg-primary" style="width: 72%"></div>
-                      </div>
-                      <span>72</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>/whos</code></td>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                        <div class="progress-bar bg-primary" style="width: 65%"></div>
-                      </div>
-                      <span>65</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>/emoji</code></td>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                        <div class="progress-bar bg-primary" style="width: 58%"></div>
-                      </div>
-                      <span>58</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>!purge</code></td>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                        <div class="progress-bar bg-primary" style="width: 47%"></div>
-                      </div>
-                      <span>47</span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <div class="col-md-4">
+          <div class="stat-list" id="commandStatsList">
+            <div class="stat-item">
+              <span class="stat-label">help</span>
+              <span class="stat-value">0</span>
+              <div class="stat-bar" style="width: 0%;"></div>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label">emoji</span>
+              <span class="stat-value">0</span>
+              <div class="stat-bar" style="width: 0%;"></div>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label">role</span>
+              <span class="stat-value">0</span>
+              <div class="stat-bar" style="width: 0%;"></div>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label">whos</span>
+              <span class="stat-value">0</span>
+              <div class="stat-bar" style="width: 0%;"></div>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label">ban</span>
+              <span class="stat-value">0</span>
+              <div class="stat-bar" style="width: 0%;"></div>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label">kick</span>
+              <span class="stat-value">0</span>
+              <div class="stat-bar" style="width: 0%;"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
   
-  <!-- Growth and Activity -->
-  <div class="row mb-4">
-    <div class="col-md-6 mb-4">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Growth Statistics</h5>
+  <!-- Server Stats -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">CPU Usage Over Time</h5>
         </div>
         <div class="card-body">
-          <canvas id="growthChart" height="250"></canvas>
+          <canvas id="cpuChart" height="250"></canvas>
         </div>
       </div>
     </div>
     
-    <div class="col-md-6 mb-4">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Activity by Hour</h5>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Memory Usage Over Time</h5>
         </div>
         <div class="card-body">
-          <canvas id="activityChart" height="250"></canvas>
+          <canvas id="memoryChart" height="250"></canvas>
         </div>
       </div>
     </div>
   </div>
   
-  <!-- Features and Server Distribution -->
-  <div class="row mb-4">
-    <div class="col-md-5 mb-4">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Feature Usage</h5>
-        </div>
-        <div class="card-body">
-          <canvas id="featureChart" height="250"></canvas>
-        </div>
-      </div>
+  <!-- User Activity Stats -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="card-title">Usage Statistics</h5>
     </div>
-    
-    <div class="col-md-7 mb-4">
-      <div class="card shadow-sm border-0 h-100">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Server Size Distribution</h5>
-        </div>
-        <div class="card-body">
-          <canvas id="serverSizeChart" height="250"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Error Analysis -->
-  <div class="row">
-    <div class="col-12 mb-4">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">Error Analysis</h5>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-4 mb-4 mb-md-0">
-              <canvas id="errorTypeChart" height="250"></canvas>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="stats-card">
+            <div class="stats-card-header">
+              <i class="fas fa-users"></i>
+              <h5>Total Users</h5>
             </div>
-            <div class="col-md-8">
-              <div class="table-responsive">
-                <table class="table table-sm table-hover">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Error Type</th>
-                      <th>Count</th>
-                      <th>Last Occurrence</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>API Rate Limit</td>
-                      <td>12</td>
-                      <td>2023-12-14 13:45</td>
-                      <td><span class="badge bg-warning">Monitoring</span></td>
-                    </tr>
-                    <tr>
-                      <td>Command Timeout</td>
-                      <td>7</td>
-                      <td>2023-12-15 09:22</td>
-                      <td><span class="badge bg-success">Resolved</span></td>
-                    </tr>
-                    <tr>
-                      <td>Permission Error</td>
-                      <td>5</td>
-                      <td>2023-12-14 22:10</td>
-                      <td><span class="badge bg-success">Resolved</span></td>
-                    </tr>
-                    <tr>
-                      <td>Database Connection</td>
-                      <td>3</td>
-                      <td>2023-12-10 04:17</td>
-                      <td><span class="badge bg-success">Resolved</span></td>
-                    </tr>
-                    <tr>
-                      <td>Network Timeout</td>
-                      <td>2</td>
-                      <td>2023-12-09 19:55</td>
-                      <td><span class="badge bg-success">Resolved</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="stats-card-value" id="totalUsersStat">0</div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="stats-card">
+            <div class="stats-card-header">
+              <i class="fas fa-server"></i>
+              <h5>Total Servers</h5>
+            </div>
+            <div class="stats-card-value" id="totalServersStat">0</div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="stats-card">
+            <div class="stats-card-header">
+              <i class="fas fa-hashtag"></i>
+              <h5>Total Channels</h5>
+            </div>
+            <div class="stats-card-value" id="totalChannelsStat">0</div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="stats-card">
+            <div class="stats-card-header">
+              <i class="fas fa-terminal"></i>
+              <h5>Total Commands</h5>
+            </div>
+            <div class="stats-card-value" id="totalCommandsStat">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- System Performance -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="card-title">System Performance</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h6>CPU Usage</h6>
+          <div class="progress-stat">
+            <div class="progress-info">
+              <span class="progress-label">Current Usage</span>
+              <span class="progress-percentage" id="cpuPercentage">0%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" id="cpuProgressBar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          
+          <div class="system-stats">
+            <div class="stat-row">
+              <span class="stat-title">CPU Count:</span>
+              <span class="stat-data" id="cpuCount">-</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-title">Load Average:</span>
+              <span class="stat-data" id="loadAverage">-</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <h6>Memory Usage</h6>
+          <div class="progress-stat">
+            <div class="progress-info">
+              <span class="progress-label">Current Usage</span>
+              <span class="progress-percentage" id="memoryPercentage">0%</span>
+            </div>
+            <div class="progress">
+              <div class="progress-bar" id="memoryProgressBar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          
+          <div class="system-stats">
+            <div class="stat-row">
+              <span class="stat-title">Total Memory:</span>
+              <span class="stat-data" id="totalMemory">-</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-title">Used Memory:</span>
+              <span class="stat-data" id="usedMemory">-</span>
             </div>
           </div>
         </div>
@@ -224,227 +186,218 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Command Usage Chart
-    const commandUsageCtx = document.getElementById('commandUsageChart').getContext('2d');
-    const commandUsageChart = new Chart(commandUsageCtx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [{
-          label: 'Regular Commands',
-          data: [420, 450, 560, 610, 580, 650, 710, 790, 820, 880, 910, 950],
-          borderColor: '#4361ee',
-          backgroundColor: 'rgba(67, 97, 238, 0.1)',
-          tension: 0.3,
-          fill: true
-        }, {
-          label: 'Slash Commands',
-          data: [220, 310, 380, 490, 520, 610, 680, 750, 840, 920, 1050, 1120],
-          borderColor: '#3a0ca3',
-          backgroundColor: 'rgba(58, 12, 163, 0.1)',
-          tension: 0.3,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-          },
-          title: {
-            display: true,
-            text: 'Monthly Command Usage'
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-    
-    // Growth Chart
-    const growthCtx = document.getElementById('growthChart').getContext('2d');
-    const growthChart = new Chart(growthCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
-        datasets: [{
-          label: 'New Servers',
-          data: [15, 22, 28, 34, 42, 47],
-          backgroundColor: 'rgba(67, 97, 238, 0.7)',
-        }, {
-          label: 'New Users',
-          data: [320, 450, 580, 720, 860, 950],
-          backgroundColor: 'rgba(111, 207, 151, 0.7)',
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-    
-    // Activity Chart
-    const activityCtx = document.getElementById('activityChart').getContext('2d');
-    const activityChart = new Chart(activityCtx, {
-      type: 'line',
-      data: {
-        labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
-        datasets: [{
-          label: 'Command Activations',
-          data: [42, 28, 15, 67, 120, 155, 180, 134],
-          borderColor: '#4cc9f0',
-          backgroundColor: 'rgba(76, 201, 240, 0.1)',
-          tension: 0.4,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-    
-    // Feature Chart
-    const featureCtx = document.getElementById('featureChart').getContext('2d');
-    const featureChart = new Chart(featureCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Moderation', 'Tickets', 'Image Gen', 'Blacklist', 'Other'],
-        datasets: [{
-          data: [35, 25, 15, 10, 15],
-          backgroundColor: [
-            'rgba(67, 97, 238, 0.7)',
-            'rgba(247, 127, 0, 0.7)',
-            'rgba(76, 201, 240, 0.7)',
-            'rgba(225, 29, 72, 0.7)',
-            'rgba(111, 207, 151, 0.7)'
-          ],
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'right',
-          }
-        }
-      }
-    });
-    
-    // Server Size Chart
-    const serverSizeCtx = document.getElementById('serverSizeChart').getContext('2d');
-    const serverSizeChart = new Chart(serverSizeCtx, {
-      type: 'bar',
-      data: {
-        labels: [
-          'Small (<100)',
-          'Medium (100-500)',
-          'Large (500-1k)',
-          'XL (1k-5k)',
-          'XXL (5k-10k)',
-          'Community (>10k)'
+  // Initialize command usage chart
+  const commandCtx = document.getElementById('commandUsageChart').getContext('2d');
+  const commandUsageChart = new Chart(commandCtx, {
+    type: 'bar',
+    data: {
+      labels: ['help', 'emoji', 'role', 'whos', 'ban', 'kick'],
+      datasets: [{
+        label: 'Times Used',
+        data: [0, 0, 0, 0, 0, 0],
+        backgroundColor: [
+          '#5865F2',
+          '#57F287',
+          '#FEE75C',
+          '#EB459E',
+          '#ED4245',
+          '#9B59B6'
         ],
-        datasets: [{
-          label: 'Servers by Member Count',
-          data: [28, 35, 18, 12, 5, 2],
-          backgroundColor: [
-            'rgba(111, 207, 151, 0.7)',
-            'rgba(76, 201, 240, 0.7)',
-            'rgba(67, 97, 238, 0.7)',
-            'rgba(247, 127, 0, 0.7)',
-            'rgba(225, 29, 72, 0.7)',
-            'rgba(58, 12, 163, 0.7)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          }
+        borderColor: [
+          '#4752C4',
+          '#45C16C',
+          '#EED84A',
+          '#D33D8C',
+          '#D63C3F',
+          '#8E44AD'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Number of Servers'
-            }
-          },
-          x: {
-            title: {
-              display: true,
-              text: 'Server Size Category'
-            }
-          }
+        title: {
+          display: true,
+          text: 'Command Usage Distribution'
         }
-      }
-    });
-    
-    // Error Type Chart
-    const errorTypeCtx = document.getElementById('errorTypeChart').getContext('2d');
-    const errorTypeChart = new Chart(errorTypeCtx, {
-      type: 'pie',
-      data: {
-        labels: ['API Rate Limit', 'Command Timeout', 'Permission Error', 'Database', 'Network'],
-        datasets: [{
-          data: [12, 7, 5, 3, 2],
-          backgroundColor: [
-            'rgba(225, 29, 72, 0.7)',
-            'rgba(247, 127, 0, 0.7)',
-            'rgba(76, 201, 240, 0.7)',
-            'rgba(67, 97, 238, 0.7)',
-            'rgba(111, 207, 151, 0.7)'
-          ],
-          hoverOffset: 4
-        }]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-          },
-          title: {
-            display: true,
-            text: 'Error Distribution'
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
           }
         }
       }
-    });
+    }
+  });
+
+  // Initialize the time series charts for CPU and Memory
+  // We'll use fixed timestamps for now (last 10 minutes with 1-minute intervals)
+  const timeLabels = Array.from({length: 10}, (_, i) => `${10-i} min ago`);
+  
+  // CPU Chart
+  const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+  const cpuChart = new Chart(cpuCtx, {
+    type: 'line',
+    data: {
+      labels: timeLabels,
+      datasets: [{
+        label: 'CPU Usage (%)',
+        data: Array(10).fill(0),
+        borderColor: '#5865F2',
+        backgroundColor: 'rgba(88, 101, 242, 0.1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  // Memory Chart
+  const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+  const memoryChart = new Chart(memoryCtx, {
+    type: 'line',
+    data: {
+      labels: timeLabels,
+      datasets: [{
+        label: 'Memory Usage (%)',
+        data: Array(10).fill(0),
+        borderColor: '#57F287',
+        backgroundColor: 'rgba(87, 242, 135, 0.1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Arrays to store time series data
+  let cpuData = Array(10).fill(0);
+  let memoryData = Array(10).fill(0);
+
+  // Format bytes to human-readable format
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  // Update stats on WebSocket data
+  socket.addEventListener('message', function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      
+      // Update command usage stats
+      if (data.commandUsage) {
+        const commands = Object.keys(data.commandUsage);
+        const usages = commands.map(cmd => data.commandUsage[cmd]);
+        const totalUsage = usages.reduce((a, b) => a + b, 0);
+        
+        // Update chart
+        commandUsageChart.data.labels = commands;
+        commandUsageChart.data.datasets[0].data = usages;
+        commandUsageChart.update();
+        
+        // Update stat list
+        const commandStatsList = document.getElementById('commandStatsList');
+        commandStatsList.innerHTML = '';
+        
+        commands.forEach(cmd => {
+          const count = data.commandUsage[cmd];
+          const percentage = totalUsage > 0 ? (count / totalUsage * 100) : 0;
+          
+          const statItem = document.createElement('div');
+          statItem.className = 'stat-item';
+          statItem.innerHTML = `
+            <span class="stat-label">${cmd}</span>
+            <span class="stat-value">${count}</span>
+            <div class="stat-bar" style="width: ${percentage}%;"></div>
+          `;
+          
+          commandStatsList.appendChild(statItem);
+        });
+      }
+      
+      // Update CPU and Memory time series
+      cpuData.shift();
+      cpuData.push(data.cpu);
+      cpuChart.data.datasets[0].data = cpuData;
+      cpuChart.update();
+      
+      memoryData.shift();
+      memoryData.push(data.memory);
+      memoryChart.data.datasets[0].data = memoryData;
+      memoryChart.update();
+      
+      // Update usage statistics
+      document.getElementById('totalUsersStat').textContent = data.users.toLocaleString();
+      document.getElementById('totalServersStat').textContent = data.servers.toLocaleString();
+      document.getElementById('totalChannelsStat').textContent = data.channels.toLocaleString();
+      document.getElementById('totalCommandsStat').textContent = data.commands.toLocaleString();
+      
+      // Update system performance
+      document.getElementById('cpuPercentage').textContent = `${data.cpu}%`;
+      document.getElementById('cpuProgressBar').style.width = `${data.cpu}%`;
+      document.getElementById('cpuCount').textContent = data.cpuCount;
+      document.getElementById('loadAverage').textContent = data.loadAverage.map(v => v.toFixed(2)).join(', ');
+      
+      document.getElementById('memoryPercentage').textContent = `${data.memory}%`;
+      document.getElementById('memoryProgressBar').style.width = `${data.memory}%`;
+      document.getElementById('totalMemory').textContent = formatBytes(data.totalMemory);
+      document.getElementById('usedMemory').textContent = formatBytes(data.usedMemory);
+      
+    } catch (error) {
+      console.error('Error parsing WebSocket message:', error);
+    }
   });
 </script>

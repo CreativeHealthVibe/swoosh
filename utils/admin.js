@@ -1,173 +1,83 @@
-// Admin utilities for the dashboard
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
+/**
+ * Admin utility functions
+ * Contains functions for admin permissions and operations
+ */
 
 /**
- * Get system statistics for admin dashboard
- * @returns {Object} System statistics
+ * Check if a user is a server admin
+ * @param {Object} member - Guild member
+ * @returns {boolean} - Whether the user is an admin
  */
-function getSystemStats() {
-  const cpuUsage = getCpuUsage();
-  const totalMemory = os.totalmem();
-  const freeMemory = os.freemem();
-  const usedMemory = totalMemory - freeMemory;
-  const memoryPercentage = Math.round((usedMemory / totalMemory) * 100);
+const isAdmin = (member) => {
+  if (!member) return false;
   
-  return {
-    platform: os.platform(),
-    arch: os.arch(),
-    hostname: os.hostname(),
-    cpuUsage: cpuUsage,
-    uptime: formatUptime(os.uptime()),
-    memoryUsage: {
-      total: formatBytes(totalMemory),
-      used: formatBytes(usedMemory),
-      free: formatBytes(freeMemory),
-      percentage: memoryPercentage
-    }
-  };
-}
-
-/**
- * Get CPU usage percentage
- * @returns {Number} CPU usage percentage
- */
-function getCpuUsage() {
-  // This is a simplified version since getting real-time CPU usage requires sampling over time
-  // For a real implementation, consider using the 'os-utils' package
-  const cpus = os.cpus();
-  const usages = cpus.map(cpu => {
-    const total = Object.values(cpu.times).reduce((acc, time) => acc + time, 0);
-    const idle = cpu.times.idle;
-    return 100 - (idle / total * 100);
-  });
-  
-  // Average CPU usage across all cores
-  return Math.round(usages.reduce((acc, usage) => acc + usage, 0) / cpus.length);
-}
-
-/**
- * Format bytes to human-readable string
- * @param {Number} bytes Number of bytes
- * @returns {String} Formatted string
- */
-function formatBytes(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-/**
- * Format uptime in seconds to human-readable string
- * @param {Number} seconds Uptime in seconds
- * @returns {String} Formatted string
- */
-function formatUptime(seconds) {
-  const days = Math.floor(seconds / (3600 * 24));
-  const hours = Math.floor((seconds % (3600 * 24)) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-  
-  let result = '';
-  if (days > 0) result += `${days}d `;
-  if (hours > 0) result += `${hours}h `;
-  if (minutes > 0) result += `${minutes}m `;
-  if (secs > 0) result += `${secs}s`;
-  
-  return result.trim();
-}
-
-/**
- * Get Discord bot statistics
- * @param {Object} client Discord client
- * @returns {Object} Bot statistics
- */
-function getBotStats(client) {
-  if (!client) {
-    return {
-      status: 'Offline',
-      ping: 0,
-      guilds: 0,
-      users: 0,
-      channels: 0,
-      commands: 0,
-      uptime: '0s'
-    };
+  // Check if user has administrator permission
+  if (member.permissions && member.permissions.has('ADMINISTRATOR')) {
+    return true;
   }
   
-  return {
-    status: client.user?.presence?.status || 'Offline',
-    ping: client.ws?.ping || 0,
-    guilds: client.guilds?.cache?.size || 0,
-    users: client.users?.cache?.size || 0,
-    channels: client.channels?.cache?.size || 0,
-    commands: getCommandCount(),
-    uptime: formatUptime(client.uptime ? client.uptime / 1000 : 0)
-  };
-}
+  // Check for admin role
+  const adminRoles = ['Admin', 'Administrator', 'Moderator', 'Staff'];
+  return member.roles.cache.some(role => adminRoles.includes(role.name));
+};
 
 /**
- * Get the number of available commands
- * @returns {Number} Command count
+ * Check if a user can create channels
+ * @param {Object} member - Guild member
+ * @returns {boolean} - Whether the user can create channels
  */
-function getCommandCount() {
-  try {
-    const commandsDir = path.join(__dirname, '..', 'commands');
-    const commandFiles = fs.readdirSync(commandsDir).filter(file => file.endsWith('.js'));
-    return commandFiles.length;
-  } catch (error) {
-    console.error('Error getting command count:', error);
-    return 0;
-  }
-}
+const canCreateChannels = (member) => {
+  if (!member) return false;
+  return member.permissions.has('MANAGE_CHANNELS') || isAdmin(member);
+};
 
 /**
- * Get log file information
- * @returns {Array} Array of log file objects
+ * Check if a user can manage tickets
+ * @param {Object} member - Guild member
+ * @returns {boolean} - Whether the user can manage tickets
  */
-function getLogFiles() {
-  try {
-    const logsDir = path.join(__dirname, '..', 'logs');
-    
-    // Create logs directory if it doesn't exist
-    if (!fs.existsSync(logsDir)) {
-      fs.mkdirSync(logsDir, { recursive: true });
-      return []; // Return empty array since we just created the directory
-    }
-    
-    const files = fs.readdirSync(logsDir).filter(file => file.endsWith('.log'));
-    
-    const logFiles = files.map(file => {
-      const filePath = path.join(logsDir, file);
-      const stats = fs.statSync(filePath);
-      
-      return {
-        name: file,
-        path: filePath,
-        size: formatBytes(stats.size),
-        created: stats.birthtime,
-        modified: stats.mtime,
-        sizeBytes: stats.size
-      };
-    });
-    
-    // Sort by modification date (newest first)
-    return logFiles.sort((a, b) => b.modified - a.modified);
-  } catch (error) {
-    console.error('Error getting log files:', error);
-    return [];
-  }
-}
+const canManageTickets = (member) => {
+  if (!member) return false;
+  return isAdmin(member) || member.roles.cache.some(role => 
+    ['Ticket Support', 'Support Team', 'Support'].includes(role.name)
+  );
+};
+
+/**
+ * Check if a user can manage roles
+ * @param {Object} member - Guild member
+ * @returns {boolean} - Whether the user can manage roles
+ */
+const canManageRoles = (member) => {
+  if (!member) return false;
+  return member.permissions.has('MANAGE_ROLES') || isAdmin(member);
+};
+
+/**
+ * Check if a user can ban members
+ * @param {Object} member - Guild member
+ * @returns {boolean} - Whether the user can ban members
+ */
+const canBanMembers = (member) => {
+  if (!member) return false;
+  return member.permissions.has('BAN_MEMBERS') || isAdmin(member);
+};
+
+/**
+ * Check if a user can kick members
+ * @param {Object} member - Guild member
+ * @returns {boolean} - Whether the user can kick members
+ */
+const canKickMembers = (member) => {
+  if (!member) return false;
+  return member.permissions.has('KICK_MEMBERS') || isAdmin(member);
+};
 
 module.exports = {
-  getSystemStats,
-  getBotStats,
-  getLogFiles,
-  formatBytes,
-  formatUptime
+  isAdmin,
+  canCreateChannels,
+  canManageTickets,
+  canManageRoles,
+  canBanMembers,
+  canKickMembers
 };

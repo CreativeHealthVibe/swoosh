@@ -1,49 +1,76 @@
 /**
- * Main JavaScript for the SWOOSH Bot website and admin dashboard
+ * Main JavaScript file for SWOOSH Bot website
  */
-
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('SWOOSH Bot website initialized');
+  // Mobile menu toggle
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const mobileCloseBtn = document.querySelector('.mobile-close-btn');
+  const mobileMenu = document.querySelector('.mobile-menu');
   
-  // Initialize Bootstrap tooltips
-  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
-  });
+  // Create a menu overlay element
+  const menuOverlay = document.createElement('div');
+  menuOverlay.className = 'menu-overlay';
+  document.body.appendChild(menuOverlay);
   
-  // Initialize Bootstrap popovers
-  const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-  popoverTriggerList.map(function (popoverTriggerEl) {
-    return new bootstrap.Popover(popoverTriggerEl);
-  });
-  
-  // Sidebar toggle functionality for mobile
-  const sidebarToggle = document.querySelector('#sidebarToggle');
-  if (sidebarToggle) {
-    sidebarToggle.addEventListener('click', function() {
-      document.querySelector('.sidebar').classList.toggle('show');
+  // Open mobile menu
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', function() {
+      mobileMenu.classList.add('open');
+      menuOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling
     });
   }
   
-  // Form validation
-  const forms = document.querySelectorAll('.needs-validation');
-  Array.from(forms).forEach(form => {
-    form.addEventListener('submit', event => {
-      if (!form.checkValidity()) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      form.classList.add('was-validated');
-    }, false);
-  });
+  // Close mobile menu
+  if (mobileCloseBtn) {
+    mobileCloseBtn.addEventListener('click', closeMenu);
+  }
   
-  // Active link highlighting
-  const currentLocation = window.location.pathname;
-  const navLinks = document.querySelectorAll('.nav-link');
+  // Close menu when clicking overlay
+  menuOverlay.addEventListener('click', closeMenu);
   
-  navLinks.forEach(link => {
-    if (link.getAttribute('href') === currentLocation) {
-      link.classList.add('active');
+  function closeMenu() {
+    mobileMenu.classList.remove('open');
+    menuOverlay.classList.remove('open');
+    document.body.style.overflow = ''; // Re-enable scrolling
+  }
+  
+  // Navbar scroll effect
+  const navbar = document.querySelector('.navbar');
+  
+  function checkScroll() {
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
     }
+  }
+  
+  // Run once on page load
+  checkScroll();
+  
+  // Add scroll event listener
+  window.addEventListener('scroll', checkScroll);
+  
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      
+      if (target) {
+        e.preventDefault();
+        
+        // Close mobile menu if open
+        if (mobileMenu.classList.contains('open')) {
+          closeMenu();
+        }
+        
+        // Smooth scroll to target
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
   });
 });

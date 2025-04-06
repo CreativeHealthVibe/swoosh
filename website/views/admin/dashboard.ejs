@@ -1,309 +1,273 @@
-<%- include('../partials/header') %>
-
-<div class="container-fluid admin-dashboard">
+<div class="dashboard-container">
+  <!-- Stats Overview -->
+  <div class="stats-overview">
+    <div class="stat-card">
+      <div class="stat-icon bg-purple">
+        <i class="fas fa-server"></i>
+      </div>
+      <div class="stat-info">
+        <h3>Servers</h3>
+        <p id="serversStat">0</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon bg-blue">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="stat-info">
+        <h3>Users</h3>
+        <p id="usersStat">0</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon bg-green">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-info">
+        <h3>Uptime</h3>
+        <p id="uptimeStat">0d 0h 0m</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon bg-red">
+        <i class="fas fa-heartbeat"></i>
+      </div>
+      <div class="stat-info">
+        <h3>Ping</h3>
+        <p id="pingStat">0ms</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- System Resources -->
   <div class="row">
-    <!-- Sidebar -->
-    <%- include('./partials/sidebar', { activeNav: 'admin-dashboard' }) %>
-
-    <!-- Main Content -->
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary refresh-stats">
-              <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-          </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">CPU Usage</h5>
         </div>
-      </div>
-
-      <!-- Status Overview Cards -->
-      <div class="row">
-        <div class="col-md-3 mb-4">
-          <div class="card bg-primary text-white h-100">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-uppercase">Bot Status</h6>
-                  <h2 class="mb-0"><%= botStats.status === 'online' ? 'Online' : 'Offline' %></h2>
-                </div>
-                <i class="fas fa-robot fa-2x"></i>
-              </div>
+        <div class="card-body">
+          <div class="resource-gauge">
+            <div class="gauge-value">
+              <span id="cpuStat">0%</span>
             </div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-              <span>Uptime: <%= botStats.uptime %></span>
-              <span>Ping: <%= botStats.ping %>ms</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3 mb-4">
-          <div class="card bg-success text-white h-100">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-uppercase">CPU Usage</h6>
-                  <h2 class="mb-0"><%= systemStats.cpuUsage %>%</h2>
-                </div>
-                <i class="fas fa-microchip fa-2x"></i>
-              </div>
-            </div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-              <span>Platform: <%= systemStats.platform %></span>
-              <span>Arch: <%= systemStats.arch %></span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3 mb-4">
-          <div class="card bg-warning text-white h-100">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-uppercase">Memory Usage</h6>
-                  <h2 class="mb-0"><%= systemStats.memoryUsage.percentage %>%</h2>
-                </div>
-                <i class="fas fa-memory fa-2x"></i>
-              </div>
-            </div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-              <span>Used: <%= systemStats.memoryUsage.used %></span>
-              <span>Total: <%= systemStats.memoryUsage.total %></span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3 mb-4">
-          <div class="card bg-info text-white h-100">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-uppercase">Servers</h6>
-                  <h2 class="mb-0"><%= botStats.guilds %></h2>
-                </div>
-                <i class="fas fa-server fa-2x"></i>
-              </div>
-            </div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-              <span>Users: <%= botStats.users %></span>
-              <span>Channels: <%= botStats.channels %></span>
+            <div class="progress">
+              <div id="cpuProgress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Bot Activity & System Health -->
-      <div class="row">
-        <div class="col-md-8 mb-4">
-          <div class="card h-100">
-            <div class="card-header">
-              <h5 class="mb-0"><i class="fas fa-chart-line"></i> Bot Activity</h5>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Memory Usage</h5>
+        </div>
+        <div class="card-body">
+          <div class="resource-gauge">
+            <div class="gauge-value">
+              <span id="memoryStat">0%</span>
             </div>
-            <div class="card-body">
-              <canvas id="activityChart" height="250"></canvas>
+            <div class="progress">
+              <div id="memoryProgress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
           </div>
         </div>
-        
-        <div class="col-md-4 mb-4">
-          <div class="card h-100">
-            <div class="card-header">
-              <h5 class="mb-0"><i class="fas fa-heartbeat"></i> System Health</h5>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recent Activity & Top Commands -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Recent Activity</h5>
+        </div>
+        <div class="card-body">
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon bg-blue">
+                <i class="fas fa-user-plus"></i>
+              </div>
+              <div class="activity-details">
+                <p>New user joined the server</p>
+                <small>5 minutes ago</small>
+              </div>
             </div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between mb-3">
-                <span>CPU Usage</span>
-                <div class="progress flex-grow-1 mx-3" style="height: 10px;">
-                  <div class="progress-bar <%= systemStats.cpuUsage > 80 ? 'bg-danger' : (systemStats.cpuUsage > 60 ? 'bg-warning' : 'bg-success') %>" role="progressbar" style="width: <%= systemStats.cpuUsage %>%" aria-valuenow="<%= systemStats.cpuUsage %>" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <span><%= systemStats.cpuUsage %>%</span>
+            
+            <div class="activity-item">
+              <div class="activity-icon bg-green">
+                <i class="fas fa-ticket-alt"></i>
               </div>
-              
-              <div class="d-flex justify-content-between mb-3">
-                <span>Memory</span>
-                <div class="progress flex-grow-1 mx-3" style="height: 10px;">
-                  <div class="progress-bar <%= systemStats.memoryUsage.percentage > 80 ? 'bg-danger' : (systemStats.memoryUsage.percentage > 60 ? 'bg-warning' : 'bg-success') %>" role="progressbar" style="width: <%= systemStats.memoryUsage.percentage %>%" aria-valuenow="<%= systemStats.memoryUsage.percentage %>" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <span><%= systemStats.memoryUsage.percentage %>%</span>
+              <div class="activity-details">
+                <p>Ticket #1234 was created</p>
+                <small>15 minutes ago</small>
               </div>
-              
-              <div class="d-flex justify-content-between mb-3">
-                <span>Uptime</span>
-                <span class="ms-auto"><%= systemStats.uptime %></span>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-icon bg-purple">
+                <i class="fas fa-ban"></i>
               </div>
-              
-              <div class="d-flex justify-content-between mb-3">
-                <span>Hostname</span>
-                <span class="ms-auto"><%= systemStats.hostname %></span>
+              <div class="activity-details">
+                <p>User was added to blacklist</p>
+                <small>30 minutes ago</small>
               </div>
-              
-              <div class="d-flex justify-content-between">
-                <span>Platform</span>
-                <span class="ms-auto"><%= systemStats.platform %> (<%= systemStats.arch %>)</span>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-icon bg-orange">
+                <i class="fas fa-coins"></i>
+              </div>
+              <div class="activity-details">
+                <p>New bounty was set</p>
+                <small>1 hour ago</small>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Recent Logs & Quick Actions -->
-      <div class="row">
-        <div class="col-md-6 mb-4">
-          <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="mb-0"><i class="fas fa-list-alt"></i> Recent Logs</h5>
-              <a href="/admin/logs" class="btn btn-sm btn-outline-primary">View All</a>
-            </div>
-            <div class="card-body p-0">
-              <div class="list-group list-group-flush">
-                <% if (logFiles && logFiles.length > 0) { %>
-                  <% logFiles.forEach(file => { %>
-                    <a href="/admin/logs/view/<%= file.name %>" class="list-group-item list-group-item-action">
-                      <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1"><%= file.name %></h6>
-                        <small><%= file.size %></small>
-                      </div>
-                      <p class="mb-1 text-muted">Last modified: <%= file.modified.toLocaleString() %></p>
-                    </a>
-                  <% }); %>
-                <% } else { %>
-                  <div class="list-group-item">
-                    <p class="mb-0 text-muted">No log files available.</p>
-                  </div>
-                <% } %>
-              </div>
-            </div>
-          </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Top Commands</h5>
         </div>
-        
-        <div class="col-md-6 mb-4">
-          <div class="card h-100">
-            <div class="card-header">
-              <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
-            </div>
-            <div class="card-body">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <a href="/admin/blacklist" class="btn btn-outline-dark w-100 mb-3">
-                    <i class="fas fa-ban"></i> Manage Blacklist
-                  </a>
-                </div>
-                <div class="col-md-6">
-                  <a href="/admin/settings" class="btn btn-outline-dark w-100 mb-3">
-                    <i class="fas fa-cog"></i> Bot Settings
-                  </a>
-                </div>
-                <div class="col-md-6">
-                  <a href="/admin/stats" class="btn btn-outline-dark w-100 mb-3">
-                    <i class="fas fa-chart-pie"></i> View Statistics
-                  </a>
-                </div>
-                <div class="col-md-6">
-                  <a href="/admin/logs" class="btn btn-outline-dark w-100 mb-3">
-                    <i class="fas fa-clipboard-list"></i> View Logs
-                  </a>
-                </div>
-              </div>
-              
-              <div class="mt-3 pt-3 border-top">
-                <h6>Bot Commands</h6>
-                <div class="row g-2">
-                  <div class="col-md-6">
-                    <button class="btn btn-sm btn-success w-100" id="restartBot">
-                      <i class="fas fa-sync"></i> Restart Bot
-                    </button>
-                  </div>
-                  <div class="col-md-6">
-                    <button class="btn btn-sm btn-danger w-100" id="stopBot">
-                      <i class="fas fa-stop-circle"></i> Stop Bot
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="card-body">
+          <canvas id="commandChart" height="240"></canvas>
         </div>
       </div>
-    </main>
+    </div>
+  </div>
+  
+  <!-- System Info -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="card-title">System Information</h5>
+    </div>
+    <div class="card-body">
+      <div class="row system-info">
+        <div class="col-md-6">
+          <ul class="info-list">
+            <li><strong>Node.js Version:</strong> <span id="nodeVersion">-</span></li>
+            <li><strong>Discord.js Version:</strong> <span id="discordVersion">-</span></li>
+            <li><strong>Operating System:</strong> <span id="osInfo">-</span></li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <ul class="info-list">
+            <li><strong>Bot Started:</strong> <span id="startTime">-</span></li>
+            <li><strong>Total Commands:</strong> <span id="commandCount">-</span></li>
+            <li><strong>Total Channels:</strong> <span id="channelCount">-</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Sample chart data - would be replaced with real data
-  window.addEventListener('DOMContentLoaded', () => {
-    const ctx = document.getElementById('activityChart').getContext('2d');
-    
-    const activityChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['24h ago', '20h ago', '16h ago', '12h ago', '8h ago', '4h ago', 'Now'],
-        datasets: [
-          {
-            label: 'Commands',
-            data: [65, 59, 80, 81, 56, 55, 72],
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1,
-            fill: false
-          },
-          {
-            label: 'Users',
-            data: [28, 48, 40, 19, 86, 27, 90],
-            borderColor: 'rgb(255, 99, 132)',
-            tension: 0.1,
-            fill: false
-          }
-        ]
+  // Initialize command usage chart
+  const commandCtx = document.getElementById('commandChart').getContext('2d');
+  const commandChart = new Chart(commandCtx, {
+    type: 'bar',
+    data: {
+      labels: ['help', 'emoji', 'role', 'whos', 'ban', 'kick'],
+      datasets: [{
+        label: 'Usage Count',
+        data: [0, 0, 0, 0, 0, 0],
+        backgroundColor: [
+          '#5865F2',
+          '#57F287',
+          '#FEE75C',
+          '#EB459E',
+          '#ED4245',
+          '#9B59B6'
+        ],
+        borderColor: [
+          '#4752C4',
+          '#45C16C',
+          '#EED84A',
+          '#D33D8C',
+          '#D63C3F',
+          '#8E44AD'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
+          }
+        }
       }
-    });
-    
-    // Refresh stats button
-    document.querySelector('.refresh-stats').addEventListener('click', function() {
-      location.reload();
-    });
-    
-    // Bot control buttons
-    document.getElementById('restartBot').addEventListener('click', function() {
-      if (confirm('Are you sure you want to restart the bot?')) {
-        fetch('/api/bot/restart', { method: 'POST' })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              alert('Bot is restarting...');
-            } else {
-              alert('Failed to restart bot: ' + data.message);
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while trying to restart the bot.');
-          });
-      }
-    });
-    
-    document.getElementById('stopBot').addEventListener('click', function() {
-      if (confirm('Are you sure you want to stop the bot?')) {
-        fetch('/api/bot/stop', { method: 'POST' })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              alert('Bot is stopping...');
-            } else {
-              alert('Failed to stop bot: ' + data.message);
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while trying to stop the bot.');
-          });
-      }
-    });
+    }
   });
-</script>
 
-<%- include('../partials/footer') %>
+  // WebSocket data handler for dashboard
+  socket.onmessage = function(event) {
+    try {
+      const data = JSON.parse(event.data);
+      botStatusText.textContent = 'Online';
+      statusIndicator.classList.remove('disconnected');
+      statusIndicator.classList.add('connected');
+      
+      // Update dashboard stats
+      document.getElementById('cpuStat').textContent = `${data.cpu}%`;
+      document.getElementById('memoryStat').textContent = `${data.memory}%`;
+      document.getElementById('pingStat').textContent = `${data.ping}ms`;
+      document.getElementById('serversStat').textContent = data.servers;
+      document.getElementById('usersStat').textContent = data.users;
+      
+      // Update progress bars
+      document.getElementById('cpuProgress').style.width = `${data.cpu}%`;
+      document.getElementById('memoryProgress').style.width = `${data.memory}%`;
+      
+      // Format uptime
+      const seconds = data.uptime;
+      const days = Math.floor(seconds / 86400);
+      const hours = Math.floor((seconds % 86400) / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      document.getElementById('uptimeStat').textContent = `${days}d ${hours}h ${minutes}m`;
+      
+      // Update system info
+      document.getElementById('nodeVersion').textContent = data.nodeVersion;
+      document.getElementById('discordVersion').textContent = data.discordVersion;
+      document.getElementById('osInfo').textContent = data.os;
+      document.getElementById('commandCount').textContent = data.commands;
+      document.getElementById('channelCount').textContent = data.channels;
+      
+      // Convert timestamp to relative time
+      const startTime = new Date(data.timestamp);
+      startTime.setSeconds(startTime.getSeconds() - data.uptime);
+      document.getElementById('startTime').textContent = startTime.toLocaleString();
+      
+      // Update command chart
+      if (data.commandUsage) {
+        const labels = Object.keys(data.commandUsage);
+        const usageCounts = labels.map(cmd => data.commandUsage[cmd]);
+        
+        commandChart.data.labels = labels;
+        commandChart.data.datasets[0].data = usageCounts;
+        commandChart.update();
+      }
+    } catch (error) {
+      console.error('Error parsing WebSocket message:', error);
+    }
+  };
+</script>

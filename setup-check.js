@@ -1,181 +1,122 @@
 /**
- * This file checks if all required files and dependencies 
- * are properly set up for the Discord OAuth admin dashboard.
+ * Discord OAuth Admin Panel Setup Check
+ * This script checks if all necessary files and configurations are in place
  */
+
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
-// ANSI color codes for terminal output
-const colors = {
-  reset: '\x1b[0m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  cyan: '\x1b[36m'
-};
+console.log('\n==== SWOOSH Bot Admin Panel Setup Check ====\n');
 
-// Define the required files to check
+// Check required files
 const requiredFiles = [
-  '.env',
-  '.env.sample',
-  'config.js',
-  'utils/passport.js',
-  'middlewares/auth.js',
-  'routes/auth/index.js',
-  'routes/admin.js',
-  'routes/api.js',
-  'website/views/auth/login.ejs',
-  'website/views/auth/profile.ejs',
-  'website/views/admin/dashboard.ejs',
-  'website/views/admin/blacklist.ejs',
-  'website/views/admin/logs.ejs',
-  'website/views/admin/logs-view.ejs',
-  'website/views/admin/partials/sidebar.ejs',
-  'website/views/errors/403.ejs',
-  'website/views/errors/404.ejs',
-  'website/views/errors/500.ejs',
-  'website/views/partials/header.ejs',
-  'website/views/partials/footer.ejs',
-  'website/views/layouts/main.ejs',
-  'website/public/css/style.css',
-  'website/public/js/main.js',
-  'DISCORD_OAUTH_SETUP.md'
+  { path: '.env', description: 'Environment variables' },
+  { path: 'utils/passport/discord.js', description: 'Discord authentication strategy' },
+  { path: 'middlewares/auth.js', description: 'Authentication middleware' },
+  { path: 'routes/auth/index.js', description: 'Authentication routes' },
+  { path: 'routes/admin.js', description: 'Admin routes' },
+  { path: 'website/views/auth/login.ejs', description: 'Login page template' },
+  { path: 'website/views/layouts/auth.ejs', description: 'Auth layout template' },
+  { path: 'website/views/layouts/admin.ejs', description: 'Admin layout template' },
+  { path: 'website/views/admin/dashboard.ejs', description: 'Admin dashboard template' },
+  { path: 'website/views/admin/blacklist.ejs', description: 'Blacklist management template' },
+  { path: 'website/public/css/admin.css', description: 'Admin styles' },
+  { path: 'website/public/js/admin.js', description: 'Admin scripts' }
 ];
 
-// Define the required environment variables
-const requiredEnvVars = [
-  'DISCORD_BOT_TOKEN',
-  'DISCORD_CLIENT_ID',
-  'DISCORD_CLIENT_SECRET',
-  'DISCORD_CALLBACK_URL',
-  'SESSION_SECRET',
-  'WEBSITE_URL'
-];
+console.log('Checking required files...');
+let fileErrors = 0;
 
-// Define required dependencies
-const requiredDependencies = [
-  'express',
-  'discord.js',
-  'express-session',
-  'connect-mongo',
-  'passport',
-  'passport-discord',
-  'cookie-parser',
-  'express-ejs-layouts',
-  'archiver'
-];
-
-// Check if a file exists
-function checkFile(filePath) {
-  try {
-    return fs.existsSync(path.join(__dirname, filePath));
-  } catch (error) {
-    return false;
-  }
-}
-
-// Check for required files
-console.log(`${colors.blue}${'='.repeat(60)}${colors.reset}`);
-console.log(`${colors.blue}Checking if all required files are present...${colors.reset}`);
-console.log(`${colors.blue}${'='.repeat(60)}${colors.reset}`);
-
-let missingFiles = 0;
 for (const file of requiredFiles) {
-  const exists = checkFile(file);
-  if (exists) {
-    console.log(`${colors.green}✓${colors.reset} ${file} exists`);
+  const filePath = path.join(__dirname, file.path);
+  if (fs.existsSync(filePath)) {
+    console.log(`✅ Found: ${file.path} (${file.description})`);
   } else {
-    console.log(`${colors.red}✗${colors.reset} ${file} is missing`);
-    missingFiles++;
+    console.error(`❌ Missing: ${file.path} (${file.description})`);
+    fileErrors++;
   }
 }
 
-console.log(`${colors.blue}\n${'='.repeat(60)}${colors.reset}`);
-console.log(`${colors.blue}Checking if required environment variables are defined...${colors.reset}`);
-console.log(`${colors.blue}${'='.repeat(60)}${colors.reset}`);
+// Check environment variables
+console.log('\nChecking environment variables...');
+const requiredEnvVars = [
+  { name: 'DISCORD_CLIENT_ID', value: process.env.DISCORD_CLIENT_ID },
+  { name: 'DISCORD_CLIENT_SECRET', value: process.env.DISCORD_CLIENT_SECRET },
+  { name: 'DISCORD_CALLBACK_URL', value: process.env.DISCORD_CALLBACK_URL },
+  { name: 'SESSION_SECRET', value: process.env.SESSION_SECRET },
+  { name: 'WEBSITE_URL', value: process.env.WEBSITE_URL }
+];
 
-// Check for environment variables in .env file
-try {
-  const envContent = fs.readFileSync(path.join(__dirname, '.env'), 'utf8');
-  const envLines = envContent.split('\n');
-  const envVars = {};
-  
-  // Extract environment variables
-  for (const line of envLines) {
-    const match = line.match(/^([^#][A-Za-z0-9_]+)=(.*)$/);
-    if (match) {
-      envVars[match[1]] = match[2];
-    }
-  }
-  
-  let missingEnvVars = 0;
-  for (const envVar of requiredEnvVars) {
-    if (envVars[envVar]) {
-      console.log(`${colors.green}✓${colors.reset} ${envVar} is defined`);
-    } else {
-      console.log(`${colors.red}✗${colors.reset} ${envVar} is missing or empty`);
-      missingEnvVars++;
-    }
-  }
-  
-  if (missingEnvVars > 0) {
-    console.log(`${colors.yellow}\nWarning: ${missingEnvVars} environment variables are missing or empty.${colors.reset}`);
-    console.log(`${colors.yellow}Make sure to add them to your .env file before deploying.${colors.reset}`);
+let envErrors = 0;
+
+for (const envVar of requiredEnvVars) {
+  if (envVar.value) {
+    // Mask secret values for security
+    const displayValue = envVar.name.includes('SECRET') ? 
+      '********' : envVar.value;
+    console.log(`✅ Set: ${envVar.name}=${displayValue}`);
   } else {
-    console.log(`${colors.green}\nAll required environment variables are defined.${colors.reset}`);
+    console.error(`❌ Missing: ${envVar.name}`);
+    envErrors++;
   }
-} catch (error) {
-  console.log(`${colors.red}Error reading .env file: ${colors.reset}${error.message}`);
 }
 
-console.log(`${colors.blue}\n${'='.repeat(60)}${colors.reset}`);
-console.log(`${colors.blue}Checking if required dependencies are installed...${colors.reset}`);
-console.log(`${colors.blue}${'='.repeat(60)}${colors.reset}`);
+// Check dependencies in package.json
+console.log('\nChecking dependencies in package.json...');
+const packageJsonPath = path.join(__dirname, 'package.json');
 
-// Check for dependencies in package.json
-try {
-  const packageJson = require('./package.json');
-  const dependencies = {
-    ...packageJson.dependencies,
-    ...packageJson.devDependencies
-  };
+if (fs.existsSync(packageJsonPath)) {
+  const packageJson = require(packageJsonPath);
+  const requiredDependencies = [
+    'express-session',
+    'connect-mongo',
+    'passport',
+    'passport-discord',
+    'express-flash'
+  ];
   
-  let missingDependencies = 0;
-  for (const dependency of requiredDependencies) {
-    if (dependencies[dependency]) {
-      console.log(`${colors.green}✓${colors.reset} ${dependency} is installed (${dependencies[dependency]})`);
+  let depErrors = 0;
+  
+  for (const dep of requiredDependencies) {
+    if (packageJson.dependencies && packageJson.dependencies[dep]) {
+      console.log(`✅ Installed: ${dep} (${packageJson.dependencies[dep]})`);
     } else {
-      console.log(`${colors.red}✗${colors.reset} ${dependency} is not installed`);
-      missingDependencies++;
+      console.error(`❌ Missing: ${dep}`);
+      depErrors++;
     }
   }
   
-  if (missingDependencies > 0) {
-    console.log(`${colors.yellow}\nWarning: ${missingDependencies} dependencies are missing.${colors.reset}`);
-    console.log(`${colors.yellow}Run npm install to install the missing dependencies.${colors.reset}`);
-  } else {
-    console.log(`${colors.green}\nAll required dependencies are installed.${colors.reset}`);
+  if (depErrors > 0) {
+    console.log(`\n⚠️ Some dependencies are missing. Run the following command to install them:`);
+    console.log(`npm install --save ${requiredDependencies.join(' ')}`);
   }
-} catch (error) {
-  console.log(`${colors.red}Error reading package.json file: ${colors.reset}${error.message}`);
+} else {
+  console.error('❌ package.json file not found!');
 }
 
 // Summary
-console.log(`${colors.blue}\n${'='.repeat(60)}${colors.reset}`);
-console.log(`${colors.blue}Summary${colors.reset}`);
-console.log(`${colors.blue}${'='.repeat(60)}${colors.reset}`);
-
-if (missingFiles > 0) {
-  console.log(`${colors.yellow}${missingFiles} required files are missing.${colors.reset}`);
+console.log('\n==== Setup Check Summary ====');
+if (fileErrors + envErrors === 0) {
+  console.log('✅ All necessary files and environment variables are in place.');
+  console.log('✅ Admin panel is ready to use!');
+  console.log('\n🔗 Access the admin panel at: https://swooshfinal.onrender.com/auth/login');
 } else {
-  console.log(`${colors.green}All required files are present.${colors.reset}`);
+  console.error(`❌ Found ${fileErrors} missing files and ${envErrors} missing environment variables.`);
+  console.error('❌ Please fix the issues above before continuing.');
 }
 
-console.log(`${colors.blue}\n${'='.repeat(60)}${colors.reset}`);
-console.log(`${colors.blue}Next Steps${colors.reset}`);
-console.log(`${colors.blue}${'='.repeat(60)}${colors.reset}`);
-console.log(`${colors.cyan}1. Update your .env file with your Discord application credentials.${colors.reset}`);
-console.log(`${colors.cyan}2. Configure your Discord application in the Discord Developer Portal.${colors.reset}`);
-console.log(`${colors.cyan}3. Start the bot with "npm start" or "node index.js".${colors.reset}`);
-console.log(`${colors.cyan}4. Visit http://localhost:3000/admin to access the admin dashboard.${colors.reset}`);
+// OAuth URL Instructions
+console.log('\n==== OAuth URL Information ====');
+if (process.env.DISCORD_CLIENT_ID) {
+  const website = process.env.WEBSITE_URL || 'https://swooshfinal.onrender.com';
+  const encodedRedirectUri = encodeURIComponent(website + '/');
+  const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${encodedRedirectUri}&scope=guilds.join+identify`;
+  
+  console.log('OAuth2 URL for login button:');
+  console.log(oauthUrl);
+} else {
+  console.error('Cannot generate OAuth URL because DISCORD_CLIENT_ID is missing.');
+}
+
+console.log('\n==== End of Setup Check ====\n');

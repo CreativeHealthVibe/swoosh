@@ -1,49 +1,117 @@
-<!-- Error Page -->
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card shadow-lg border-0">
-        <div class="card-header bg-danger text-white text-center py-4">
-          <h2><i class="fas fa-exclamation-triangle me-2"></i> Error <%= error.status %></h2>
-        </div>
-        <div class="card-body p-4 text-center">
-          <div class="mb-4">
-            <img src="/images/error.png" alt="Error" class="img-fluid mb-3" style="max-width: 150px;">
-            <h3 class="mb-3"><%= message %></h3>
-            <p class="lead text-muted">
-              <% if (error.status === 403) { %>
-                You don't have permission to access this page.
-              <% } else if (error.status === 404) { %>
-                The page you're looking for doesn't exist.
-              <% } else { %>
-                Something went wrong. Please try again later.
-              <% } %>
-            </p>
-          </div>
-          
-          <div class="d-grid gap-2 col-md-6 mx-auto">
-            <a href="/" class="btn btn-primary btn-lg">
-              <i class="fas fa-home me-2"></i> Go Home
-            </a>
-            <% if (error.status === 403) { %>
-              <a href="/auth/login" class="btn btn-outline-secondary">
-                <i class="fas fa-sign-in-alt me-2"></i> Login
-              </a>
-            <% } %>
-          </div>
-        </div>
-      </div>
-      
-      <% if (error.stack && process.env.NODE_ENV === 'development') { %>
-        <div class="card mt-4 shadow-sm border-0">
-          <div class="card-header bg-light">
-            <h5 class="mb-0">Error Details (Development Only)</h5>
-          </div>
-          <div class="card-body">
-            <pre class="mb-0 p-3 bg-light"><%= error.stack %></pre>
-          </div>
-        </div>
-      <% } %>
-    </div>
+<div class="error-container">
+  <div class="error-code"><%= error.status %></div>
+  <h1 class="error-title"><%= message %></h1>
+  
+  <% if (error.status === 404) { %>
+    <p class="error-description">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+  <% } else { %>
+    <p class="error-description">Sorry, something went wrong on our end. We're working to fix the issue.</p>
+  <% } %>
+  
+  <div class="error-actions">
+    <a href="/" class="error-btn">
+      <i class="fas fa-home"></i> Go to Homepage
+    </a>
+    <a href="javascript:history.back()" class="error-btn error-btn-secondary">
+      <i class="fas fa-arrow-left"></i> Go Back
+    </a>
   </div>
+  
+  <% if (process.env.NODE_ENV === 'development' && error.stack) { %>
+    <div class="error-stack">
+      <h3>Error Stack:</h3>
+      <pre><%= error.stack %></pre>
+    </div>
+  <% } %>
 </div>
+
+<style>
+  .error-container {
+    text-align: center;
+    padding: 60px 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .error-code {
+    font-size: 120px;
+    font-weight: 700;
+    color: #5865F2;
+    line-height: 1;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+  }
+  
+  .error-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #36393f;
+    margin-bottom: 15px;
+  }
+  
+  .error-description {
+    font-size: 16px;
+    color: #72767d;
+    margin-bottom: 30px;
+  }
+  
+  .error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+  }
+  
+  .error-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color: #5865F2;
+    color: #ffffff;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  
+  .error-btn:hover {
+    background-color: #4752c4;
+    color: #ffffff;
+  }
+  
+  .error-btn i {
+    margin-right: 8px;
+  }
+  
+  .error-btn-secondary {
+    background-color: #72767d;
+  }
+  
+  .error-btn-secondary:hover {
+    background-color: #5c6067;
+  }
+  
+  .error-stack {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f7f7f9;
+    border-radius: 8px;
+    text-align: left;
+  }
+  
+  .error-stack h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #36393f;
+  }
+  
+  .error-stack pre {
+    font-family: monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+    color: #72767d;
+    overflow-x: auto;
+  }
+</style>

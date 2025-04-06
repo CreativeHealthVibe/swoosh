@@ -1,121 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css">
-  <style>
-    .login-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 70vh;
-      text-align: center;
-      padding: 2rem;
-    }
+<div class="auth-logo">
+  <img src="/images/swoosh-logo.png" alt="SWOOSH Bot Logo">
+</div>
 
-    .login-card {
-      background: rgba(32, 34, 37, 0.9);
-      border-radius: 10px;
-      padding: 3rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      max-width: 500px;
-      width: 100%;
-    }
+<h1 class="auth-title">Admin Dashboard Login</h1>
 
-    .discord-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #5865F2;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      text-decoration: none;
-      margin-top: 1.5rem;
-    }
+<p class="text-center mb-4">
+  Sign in with your Discord account to access the admin dashboard. Only authorized administrators can access this area.
+</p>
 
-    .discord-btn:hover {
-      background-color: #4752c4;
-    }
-
-    .discord-btn i {
-      margin-right: 10px;
-      font-size: 1.2rem;
-    }
-
-    .login-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      color: #5865F2;
-    }
-
-    .login-title {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      color: #ffffff;
-    }
-
-    .login-description {
-      margin-bottom: 2rem;
-      color: #b9bbbe;
-    }
-
-    .login-footer {
-      margin-top: 1.5rem;
-      color: #b9bbbe;
-      font-size: 0.9rem;
-    }
-
-    .login-error {
-      background-color: rgba(237, 66, 69, 0.1);
-      color: #ED4245;
-      border: 1px solid #ED4245;
-      border-radius: 4px;
-      padding: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="login-container">
-    <div class="login-card">
-      <i class="fas fa-lock login-icon"></i>
-      <h1 class="login-title">SWOOSH Bot Admin</h1>
-      <p class="login-description">
-        Sign in with your Discord account to access the admin dashboard.
-        Only authorized users will be granted access.
-      </p>
-
-      <% if (error) { %>
-        <div class="login-error">
-          <i class="fas fa-exclamation-circle"></i>
-          <% if (error === 'AuthenticationFailed') { %>
-            Authentication failed. You may not have permission to access the admin dashboard.
-          <% } else { %>
-            An error occurred during login. Please try again.
-          <% } %>
-        </div>
-      <% } %>
-
-      <a href="/auth/discord" class="discord-btn">
-        <i class="fab fa-discord"></i> Login with Discord
-      </a>
-
-      <div class="login-footer">
-        <p>Need help? Contact the bot admin or join our <a href="https://discord.gg/swoosh" target="_blank">Discord server</a>.</p>
-      </div>
-    </div>
-  </div>
-
-  <script src="/js/main.js"></script>
-</body>
-</html>
+<a href="<%= oauthUrl %>" class="auth-btn">
+  <i class="fab fa-discord"></i> Login with Discord
+</a>

@@ -15,8 +15,6 @@ const WebSocket = require('ws');
 const os = require('os');
 const osUtils = require('os-utils');
 const ejsLayouts = require('express-ejs-layouts');
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 // Create Discord client with required intents
@@ -406,8 +404,12 @@ process.on('uncaughtException', error => {
 
 // Create an Express application for the website
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const expressLayouts = require('express-ejs-layouts');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const passport = require('passport');
+const flash = require('express-flash');
 
 // Set up EJS as the view engine with layouts
 app.set('view engine', 'ejs');
@@ -418,42 +420,39 @@ app.set('layout', 'layouts/main');
 // Set up static file serving
 app.use(express.static(path.join(__dirname, 'website/public')));
 
-// Set up middleware
+// Set up JSON request parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 
-// Set up session management with MongoDB
-const MongoStore = require('connect-mongo');
+// Set up session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'swoosh-bot-dashboard-secret',
+  secret: process.env.SESSION_SECRET || 'swoosh-admin-dashboard-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 // 1 day
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
   },
-  store: process.env.MONGODB_URI ? 
-    MongoStore.create({ 
+  store: process.env.MONGODB_URI && process.env.MONGODB_URI.startsWith('mongodb') ? 
+    MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
-      collectionName: 'sessions',
-      ttl: 60 * 60 * 24 // 1 day in seconds
-    }) : 
-    null // If no MongoDB URI, use default memory store
+      collectionName: 'sessions'
+    }) : null
 }));
 
-// Initialize Passport authentication
-const passport = require('./utils/passport');
+// Set up flash messages
+app.use(flash());
+
+// Set up passport for authentication
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Make client available to routes
-app.locals.client = client;
+// Configure Discord authentication strategy
+require('./utils/passport/discord')();
 
-// Share user data with all views
-app.use((req, res, next) => {
-  res.locals.user = req.user || null;
-  next();
-});
+// Make client object available to routes
+app.set('client', client);
+app.set('config', config);
 
 // Calculate bot uptime
 function getBotUptime() {
@@ -465,16 +464,6 @@ function getBotUptime() {
   
   return { days, hours, minutes, seconds, totalSeconds: uptime };
 }
-
-// Register route handlers
-const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin');
-const apiRoutes = require('./routes/api');
-
-// Use route modules
-app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-app.use('/api', apiRoutes);
 
 // Routes for the website
 app.get('/', (req, res) => {
@@ -799,6 +788,38 @@ app.get('/demo', (req, res) => {
 });
 
 // API endpoint for team member data
+
+// Load routes for admin and auth
+const authRoutes = require('./routes/auth');
+const adminRoutes = require('./routes/admin');
+
+// Register routes
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+
+// Error handling middleware
+app.use((req, res, next) => {
+  res.status(404).render('error', {
+    title: 'Page Not Found',
+    message: 'The page you are looking for does not exist',
+    error: {
+      status: 404,
+      stack: process.env.NODE_ENV === 'development' ? 'Page not found' : ''
+    }
+  });
+});
+
+app.use((err, req, res, next) => {
+  const status = err.status || 500;
+  res.status(status).render('error', {
+    title: 'Error',
+    message: err.message || 'An error occurred',
+    error: {
+      status: status,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : ''
+    }
+  });
+});
 
 // Legacy status route for UptimeRobot
 app.get('/status-check', (req, res) => {

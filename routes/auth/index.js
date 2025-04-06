@@ -1,48 +1,58 @@
-/**
- * Authentication routes for Discord OAuth
- */
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
-const { isAuthenticated, isLoggedOut, handleLoginError } = require('../../middlewares/auth');
+const { redirectIfAuthenticated } = require('../../middlewares/auth');
 
-// Login page
-router.get('/login', isLoggedOut, handleLoginError, (req, res) => {
-  res.render('auth/login', { 
-    title: 'Login - SWOOSH Bot Admin' 
+/**
+ * GET /auth/login
+ * Render login page
+ */
+router.get('/login', redirectIfAuthenticated, (req, res) => {
+  const clientId = process.env.DISCORD_CLIENT_ID;
+  const redirectUri = encodeURIComponent(process.env.WEBSITE_URL + '/');
+  const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=guilds.join+identify`;
+  
+  res.render('auth/login', {
+    title: 'Login | SWOOSH Bot Admin',
+    oauthUrl,
+    layout: 'layouts/auth'
   });
 });
 
-// Discord OAuth routes
-router.get('/discord', passport.authenticate('discord'));
+/**
+ * GET /auth/discord
+ * Initiate Discord OAuth2 authentication
+ */
+router.get('/discord', passport.authenticate('discord', { 
+  scope: ['identify', 'guilds.join'] 
+}));
 
+/**
+ * GET /auth/discord/callback
+ * Handle Discord OAuth2 callback
+ */
 router.get('/discord/callback', 
   passport.authenticate('discord', { 
-    failureRedirect: '/auth/login?error=AuthenticationFailed',
-    failureMessage: true 
+    failureRedirect: '/auth/login',
+    failureFlash: true
   }),
   (req, res) => {
     // Successful authentication
-    const redirectTo = req.session.returnTo || '/auth/profile';
+    const redirectUrl = req.session.returnTo || '/admin/dashboard';
     delete req.session.returnTo;
-    res.redirect(redirectTo);
+    res.redirect(redirectUrl);
   }
 );
 
-// User profile
-router.get('/profile', isAuthenticated, (req, res) => {
-  res.render('auth/profile', {
-    title: 'Your Profile - SWOOSH Bot Admin',
-    user: req.user
-  });
-});
-
-// Logout
+/**
+ * GET /auth/logout
+ * Log out user
+ */
 router.get('/logout', (req, res, next) => {
   req.logout((err) => {
     if (err) { return next(err); }
-    req.session.destroy();
-    res.redirect('/');
+    req.flash('success', 'You have been logged out');
+    res.redirect('/auth/login');
   });
 });
 

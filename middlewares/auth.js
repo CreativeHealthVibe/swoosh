@@ -1,73 +1,56 @@
 /**
- * Authentication Middleware for Admin Dashboard
- * 
- * This middleware handles authentication checks and authorization for the admin dashboard.
+ * Auth middleware functions
+ * These functions are used to protect routes that require authentication
  */
-const config = require('../config');
 
 /**
- * Middleware to check if a user is authenticated
+ * Middleware to check if the user is authenticated
+ * If not, redirect to login page
  */
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
   
-  // Store the requested URL to redirect after login
-  req.session.returnTo = req.originalUrl || req.url;
+  // Store the original URL to redirect back after login
+  req.session.returnTo = req.originalUrl;
+  req.flash('error', 'Please log in to access this page');
   res.redirect('/auth/login');
 };
 
 /**
- * Middleware to check if a user is an admin
+ * Middleware to check if the user is an admin
+ * If not, show an error page
  */
 const isAdmin = (req, res, next) => {
-  if (!req.isAuthenticated()) {
-    req.session.returnTo = req.originalUrl || req.url;
-    return res.redirect('/auth/login');
-  }
-  
-  // Check if user ID is in the adminUserIds array in config
-  if (config.adminUserIds.includes(req.user.id)) {
-    req.user.isAdmin = true;
+  if (req.isAuthenticated() && req.user.isAdmin) {
     return next();
   }
   
-  // User is authenticated but not authorized as admin
-  res.status(403).render('errors/403', { 
-    title: 'Access Denied',
-    message: 'You do not have permission to access the admin dashboard.',
-    user: req.user
-  });
-};
-
-/**
- * Middleware to check if a user is logged out
- */
-const isLoggedOut = (req, res, next) => {
-  if (!req.isAuthenticated()) {
-    return next();
+  if (req.isAuthenticated()) {
+    // User is authenticated but not an admin
+    return res.status(403).render('error', {
+      title: 'Access Denied',
+      message: 'You do not have permission to access this page',
+      error: {
+        status: 403,
+        stack: process.env.NODE_ENV === 'development' ? 'Not authorized' : ''
+      }
+    });
   }
-  res.redirect('/auth/profile');
+  
+  // User is not authenticated
+  req.session.returnTo = req.originalUrl;
+  req.flash('error', 'Please log in to access this page');
+  res.redirect('/auth/login');
 };
 
 /**
- * Add user to all views
+ * Middleware to redirect authenticated users away from login page
  */
-const addUserToViews = (req, res, next) => {
-  res.locals.user = req.user || null;
-  res.locals.isAuthenticated = req.isAuthenticated();
-  next();
-};
-
-/**
- * Handle login errors
- */
-const handleLoginError = (req, res, next) => {
-  if (req.query.error) {
-    res.locals.error = req.query.error;
-  } else {
-    res.locals.error = null;
+const redirectIfAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return res.redirect('/admin/dashboard');
   }
   next();
 };
@@ -75,7 +58,5 @@ const handleLoginError = (req, res, next) => {
 module.exports = {
   isAuthenticated,
   isAdmin,
-  isLoggedOut,
-  addUserToViews,
-  handleLoginError
+  redirectIfAuthenticated
 };
