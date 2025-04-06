@@ -634,7 +634,8 @@ app.get('/api/team', async (req, res) => {
     // Fetch avatars and status from Discord for each team member
     const teamWithAvatars = await Promise.all(teamMembers.map(async (member) => {
       try {
-        const user = await client.users.fetch(member.id);
+        // Force-fetch user with cache bypass to ensure we get the latest avatar
+        const user = await client.users.fetch(member.id, { force: true });
         
         // Get user status - if presence is not enabled, will default to 'offline'
         const status = user.presence?.status || 'offline';
@@ -646,9 +647,12 @@ app.get('/api/team', async (req, res) => {
           (now - joinDate) / (1000 * 60 * 60 * 24 * 30.4)
         );
         
+        // Add cache-busting parameter to avatar URL
+        const avatarURL = `${user.displayAvatarURL({ size: 256, format: 'png', dynamic: true })}?t=${Date.now()}`;
+        
         return {
           ...member,
-          avatarURL: user.displayAvatarURL({ size: 256, format: 'png', dynamic: true }),
+          avatarURL: avatarURL,
           status: status,
           username: user.username,
           discriminator: user.discriminator,
@@ -677,8 +681,10 @@ app.get('/api/team', async (req, res) => {
       count: teamWithAvatars.length
     };
     
-    // Cache response for 5 minutes
-    res.setHeader('Cache-Control', 'public, max-age=300');
+    // Don't cache response to ensure fresh avatar data
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.json(response);
     
     // Log successful fetch
