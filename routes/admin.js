@@ -113,9 +113,13 @@ router.post('/blacklist/remove', (req, res) => {
  * Bot settings
  */
 router.get('/settings', (req, res) => {
+  // Get the bot configuration
+  const config = require('../config');
+  
   res.render('admin/settings', {
     title: 'Bot Settings | SWOOSH Bot',
     user: req.user,
+    config: config,
     layout: 'layouts/admin'
   });
 });
@@ -258,6 +262,113 @@ router.get('/welcome', (req, res) => {
     user: req.user,
     layout: 'layouts/admin'
   });
+});
+
+/**
+ * POST /admin/settings/update
+ * Update bot configuration settings
+ */
+router.post('/settings/update', (req, res) => {
+  try {
+    // Get the current config and update values
+    const config = require('../config');
+    const fs = require('fs');
+    
+    // Get the form data
+    const { 
+      prefix, 
+      embedColor, 
+      ticketCategory, 
+      logChannelId,
+      deletedMessages,
+      ticketTranscripts,
+      commandUsage,
+      botStatus,
+      bountyMin,
+      bountyMax
+    } = req.body;
+    
+    // Validate required fields
+    if (!prefix) {
+      req.flash('error', 'Command prefix is required');
+      return res.redirect('/admin/settings');
+    }
+    
+    // Structure of config.js
+    const configContent = `// config.js - Bot configuration
+require('dotenv').config();
+
+module.exports = {
+  prefix: "${prefix}",
+  embedColor: "${embedColor || config.embedColor}",
+  ticketCategory: "${ticketCategory || config.ticketCategory}",
+  logChannelId: "${logChannelId || config.logChannelId}",
+  
+  // Website and session settings
+  website: {
+    sessionSecret: process.env.SESSION_SECRET || 'swoosh-admin-dashboard-secret',
+    sessionExpiry: 86400000, // 24 hours in milliseconds
+    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/swoosh',
+    port: process.env.PORT || 3000,
+    url: process.env.WEBSITE_URL || 'https://swooshfinal.onrender.com'
+  },
+  
+  // Discord OAuth settings
+  oauth: {
+    clientId: process.env.DISCORD_CLIENT_ID,
+    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    callbackUrl: process.env.DISCORD_CALLBACK_URL || 'https://swooshfinal.onrender.com/auth/discord/callback',
+    scopes: ['identify', 'guilds.join']
+  },
+  
+  // Specific logging channels
+  loggingChannels: {
+    deletedMessages: "${deletedMessages || config.loggingChannels.deletedMessages}",
+    ticketTranscripts: "${ticketTranscripts || config.loggingChannels.ticketTranscripts}",
+    commandUsage: "${commandUsage || config.loggingChannels.commandUsage}",
+    botStatus: "${botStatus || config.loggingChannels.botStatus}"
+  },
+  
+  // Admin User IDs with full system access
+  adminUserIds: ${JSON.stringify(config.adminUserIds)},
+  
+  // Ticket types and their configurations
+  ticketTypes: ${JSON.stringify(config.ticketTypes, null, 2)},
+  
+  // Role IDs that can access tickets (will be overridden by database settings)
+  staffRoles: ${JSON.stringify(config.staffRoles)},
+  
+  // Validation limits
+  validation: {
+    bountyMin: ${bountyMin || config.validation.bountyMin},
+    bountyMax: ${bountyMax || config.validation.bountyMax},
+    allowedImageTypes: ${JSON.stringify(config.validation.allowedImageTypes)}
+  },
+  
+  // Webhook settings
+  webhooks: {
+    bountyAvatarUrl: '${config.webhooks.bountyAvatarUrl}',
+    bountyName: '${config.webhooks.bountyName}',
+  }
+};
+`;
+    
+    // Log the action
+    console.log(`Admin ${req.user.username} (${req.user.id}) updated bot configuration`);
+    
+    // Write the config file
+    fs.writeFileSync('./config.js', configContent);
+    
+    // Clear the require cache for config.js
+    delete require.cache[require.resolve('../config')];
+    
+    req.flash('success', 'Bot configuration updated successfully');
+    return res.redirect('/admin/settings');
+  } catch (error) {
+    console.error('Error updating configuration:', error);
+    req.flash('error', 'Failed to update configuration: ' + error.message);
+    return res.redirect('/admin/settings');
+  }
 });
 
 module.exports = router;
