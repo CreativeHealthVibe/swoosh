@@ -403,10 +403,13 @@ process.on('uncaughtException', error => {
 // Create an Express application for the website
 const app = express();
 const PORT = process.env.PORT || 3000;
+const expressLayouts = require('express-ejs-layouts');
 
-// Set up EJS as the view engine
+// Set up EJS as the view engine with layouts
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'website/views'));
+app.use(expressLayouts);
+app.set('layout', 'layouts/main');
 
 // Set up static file serving
 app.use(express.static(path.join(__dirname, 'website/public')));
@@ -580,6 +583,8 @@ app.get('/api/team', async (req, res) => {
         github: 'ghSman',
         discordId: '930131254106550333',
         twitter: 'gh_sman',
+        specialties: ['Discord.js', 'UI/UX Design', 'Bot Architecture'],
+        joinedAt: '2022-01-15',
         badge: {
           icon: 'fas fa-crown',
           title: 'Project Founder'
@@ -593,6 +598,8 @@ app.get('/api/team', async (req, res) => {
         github: 'fl4ddie',
         discordId: '1196042021488570391',
         twitter: null,
+        specialties: ['Infrastructure', 'DevOps', 'Database Management'],
+        joinedAt: '2022-02-08',
         badge: {
           icon: 'fas fa-server',
           title: 'Infrastructure Lead'
@@ -606,6 +613,8 @@ app.get('/api/team', async (req, res) => {
         github: 'cdngov',
         discordId: '506323791140356106',
         twitter: 'cdn_gov',
+        specialties: ['API Integration', 'Backend Systems', 'Feature Development'],
+        joinedAt: '2022-03-22',
         badge: {
           icon: 'fas fa-code',
           title: 'Core Developer'
@@ -617,28 +626,61 @@ app.get('/api/team', async (req, res) => {
     const teamWithAvatars = await Promise.all(teamMembers.map(async (member) => {
       try {
         const user = await client.users.fetch(member.id);
+        
         // Get user status - if presence is not enabled, will default to 'offline'
         const status = user.presence?.status || 'offline';
         
+        // Calculate member's time on the team in months
+        const joinDate = new Date(member.joinedAt);
+        const now = new Date();
+        const monthsOnTeam = Math.floor(
+          (now - joinDate) / (1000 * 60 * 60 * 24 * 30.4)
+        );
+        
         return {
           ...member,
-          avatarURL: user.displayAvatarURL({ size: 256, format: 'png' }),
-          status: status
+          avatarURL: user.displayAvatarURL({ size: 256, format: 'png', dynamic: true }),
+          status: status,
+          username: user.username,
+          discriminator: user.discriminator,
+          monthsOnTeam: monthsOnTeam,
+          lastUpdated: new Date().toISOString()
         };
       } catch (error) {
         console.error(`Error fetching user ${member.id}:`, error);
+        // Use default image path if avatar fetching fails
+        const defaultAvatarPath = `/img/default-avatar-${member.role.toLowerCase().replace(' ', '-')}.svg`;
+        
         return {
           ...member,
-          avatarURL: null, // No avatar available
-          status: 'offline'
+          avatarURL: defaultAvatarPath,
+          status: 'offline',
+          error: 'Could not fetch user data',
+          lastUpdated: new Date().toISOString()
         };
       }
     }));
     
-    res.json(teamWithAvatars);
+    // Add a timestamp to the response
+    const response = {
+      team: teamWithAvatars,
+      timestamp: new Date().toISOString(),
+      count: teamWithAvatars.length
+    };
+    
+    // Cache response for 5 minutes
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.json(response);
+    
+    // Log successful fetch
+    console.log(`Successfully served team data for ${teamWithAvatars.length} members`);
   } catch (error) {
     console.error('Error in team API:', error);
-    res.status(500).json({ error: 'Failed to fetch team data' });
+    res.status(500).json({ 
+      error: 'Failed to fetch team data',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
