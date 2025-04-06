@@ -1,132 +1,124 @@
-/**
- * Three.js background animation for team page
- */
 document.addEventListener('DOMContentLoaded', function() {
+  // Set up the background scene
   const container = document.getElementById('team-bg');
-  if (!container) return;
-
-  let scene, camera, renderer, particles;
-  const particleCount = 100;
-  let time = 0;
-  const colors = [
-    new THREE.Color(0x9c4dff), // Primary purple
-    new THREE.Color(0x7c3acd), // Darker purple
-    new THREE.Color(0xb76eff), // Lighter purple
-  ];
-
-  init();
-  animate();
-
-  function init() {
-    // Create scene
-    scene = new THREE.Scene();
+  
+  // Initialize the scene
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  
+  // Create renderer with transparent background
+  const renderer = new THREE.WebGLRenderer({ 
+    alpha: true,
+    antialias: true
+  });
+  
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+  
+  // Create geometry for particles
+  const particlesGeometry = new THREE.BufferGeometry();
+  const particleCount = 1500;
+  
+  // Create positions array for particles
+  const positions = new Float32Array(particleCount * 3);
+  const scales = new Float32Array(particleCount);
+  
+  // Set random positions and scales
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 10;     // x
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 10; // y
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 10; // z
     
-    // Set up camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.z = 1000;
-    
-    // Create particle geometry
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const sizes = new Float32Array(particleCount);
-    const colorArray = new Float32Array(particleCount * 3);
-    
-    for (let i = 0; i < particleCount; i++) {
-      // Position particles in a circular area with random distribution
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 100 + Math.random() * 900;
-      
-      positions[i * 3] = Math.cos(angle) * radius;             // x
-      positions[i * 3 + 1] = Math.sin(angle) * radius - 400;   // y
-      positions[i * 3 + 2] = Math.random() * 500 - 250;         // z
-      
-      // Random sizes between 5 and 40
-      sizes[i] = 5 + Math.random() * 35;
-      
-      // Assign colors
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      colorArray[i * 3] = color.r;
-      colorArray[i * 3 + 1] = color.g;
-      colorArray[i * 3 + 2] = color.b;
-    }
-    
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
-    
-    // Create shader material for particles
-    const material = new THREE.ShaderMaterial({
-      uniforms: {
-        time: { value: 0 }
-      },
-      vertexShader: `
-        uniform float time;
-        attribute float size;
-        attribute vec3 color;
-        varying vec3 vColor;
-        
-        void main() {
-          vColor = color;
-          
-          // Simple wave animation based on time and position
-          vec3 pos = position;
-          pos.y += sin(time * 0.5 + position.x * 0.02) * 20.0;
-          pos.x += cos(time * 0.3 + position.y * 0.02) * 20.0;
-          
-          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (300.0 / -mvPosition.z);
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      fragmentShader: `
-        varying vec3 vColor;
-        
-        void main() {
-          // Create a circular particle with soft edges
-          float r = 0.5;
-          vec2 uv = gl_PointCoord - vec2(0.5);
-          float d = length(uv);
-          float c = smoothstep(r, r - 0.1, d);
-          
-          gl_FragColor = vec4(vColor, c * 0.6); // Semi-transparent
-        }
-      `,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
-    
-    // Create particle system
-    particles = new THREE.Points(geometry, material);
-    scene.add(particles);
-    
-    // Set up renderer
-    renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0); // Transparent background
-    container.appendChild(renderer.domElement);
-    
-    // Handle window resize
-    window.addEventListener('resize', onWindowResize);
+    scales[i] = Math.random() * 2.0;
   }
-
-  function onWindowResize() {
+  
+  // Add positions and scales to geometry
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particlesGeometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+  
+  // Create custom shader material
+  const particlesMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      time: { value: 0 },
+      color: { value: new THREE.Color(0x9370DB) }, // Purple color
+    },
+    vertexShader: `
+      attribute float scale;
+      uniform float time;
+      
+      void main() {
+        vec3 pos = position;
+        
+        // Add subtle animation to particles
+        pos.x += sin(pos.y * 0.2 + time * 0.5) * 0.1;
+        pos.y += cos(pos.x * 0.2 + time * 0.5) * 0.1;
+        pos.z += cos(pos.x * pos.y * 0.1 + time * 0.3) * 0.1;
+        
+        // Position particles
+        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+        
+        // Scale particles
+        gl_PointSize = scale * (20.0 / -mvPosition.z);
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 color;
+      
+      void main() {
+        // Create circular particles
+        float dist = length(gl_PointCoord - vec2(0.5, 0.5));
+        if (dist > 0.5) discard;
+        
+        // Smooth edges
+        float alpha = 1.0 - smoothstep(0.4, 0.5, dist);
+        
+        gl_FragColor = vec4(color, alpha * 0.7);  // semi-transparent
+      }
+    `,
+    transparent: true,
+    depthWrite: false
+  });
+  
+  // Create particle system
+  const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particles);
+  
+  // Set camera position
+  camera.position.z = 5;
+  
+  // Handle window resize
+  function handleResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
-
+  
+  window.addEventListener('resize', handleResize);
+  
+  // Animation loop
+  let time = 0;
   function animate() {
     requestAnimationFrame(animate);
     
     time += 0.01;
-    if (particles.material.uniforms) {
-      particles.material.uniforms.time.value = time;
-    }
+    particlesMaterial.uniforms.time.value = time;
     
-    // Slowly rotate particles
-    particles.rotation.z += 0.001;
+    // Rotate particles slightly
+    particles.rotation.x = Math.sin(time * 0.1) * 0.05;
+    particles.rotation.y = Math.cos(time * 0.1) * 0.05;
     
     renderer.render(scene, camera);
   }
+  
+  animate();
+  
+  // Clean up on page unload
+  window.addEventListener('beforeunload', function() {
+    window.removeEventListener('resize', handleResize);
+    renderer.dispose();
+    particlesGeometry.dispose();
+    particlesMaterial.dispose();
+  });
 });

@@ -25,6 +25,12 @@
   <% } %>
   <% if (locals.activeNav === 'messages') { %>
     <link rel="stylesheet" href="/css/messages-styles.css">
+  <% if (locals.activeNav === "team") { %>
+    <link rel="stylesheet" href="/css/team-styles.css">
+  <% } %>
+  <% } %>
+  <% if (locals.activeNav === 'team') { %>
+    <link rel="stylesheet" href="/css/team-styles.css">
   <% } %>
 </head>
 <body>
@@ -46,6 +52,7 @@
         
         <div class="nav-toggle" id="navToggle">
           <span></span>
+          <li><a href="/team" class="<%= locals.activeNav === "team" ? "active" : "" %>">Team</a></li>
           <span></span>
           <span></span>
         </div>
