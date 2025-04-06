@@ -20,6 +20,7 @@
   --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   --gradient-purple: linear-gradient(135deg, var(--primary), var(--primary-dark));
   --max-width: 1200px;
+  <link rel="stylesheet" href="/css/header.css">
 }
 
 /* Reset and Base Styles */

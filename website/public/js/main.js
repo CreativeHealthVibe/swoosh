@@ -1,76 +1,28 @@
-/**
- * Main JavaScript file for SWOOSH Bot website
- */
 document.addEventListener('DOMContentLoaded', function() {
-  // Mobile menu toggle
-  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-  const mobileCloseBtn = document.querySelector('.mobile-close-btn');
-  const mobileMenu = document.querySelector('.mobile-menu');
+  // Toggle mobile navigation
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
   
-  // Create a menu overlay element
-  const menuOverlay = document.createElement('div');
-  menuOverlay.className = 'menu-overlay';
-  document.body.appendChild(menuOverlay);
-  
-  // Open mobile menu
-  if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', function() {
-      mobileMenu.classList.add('open');
-      menuOverlay.classList.add('open');
-      document.body.style.overflow = 'hidden'; // Prevent scrolling
+  if (navToggle) {
+    navToggle.addEventListener('click', function() {
+      navLinks.classList.toggle('active');
+      navToggle.classList.toggle('active');
     });
   }
   
-  // Close mobile menu
-  if (mobileCloseBtn) {
-    mobileCloseBtn.addEventListener('click', closeMenu);
-  }
-  
-  // Close menu when clicking overlay
-  menuOverlay.addEventListener('click', closeMenu);
-  
-  function closeMenu() {
-    mobileMenu.classList.remove('open');
-    menuOverlay.classList.remove('open');
-    document.body.style.overflow = ''; // Re-enable scrolling
-  }
-  
-  // Navbar scroll effect
-  const navbar = document.querySelector('.navbar');
-  
-  function checkScroll() {
-    if (window.scrollY > 50) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
+  // Close mobile nav when clicking outside
+  document.addEventListener('click', function(event) {
+    const isClickInside = navToggle.contains(event.target) || navLinks.contains(event.target);
+    
+    if (!isClickInside && navLinks.classList.contains('active')) {
+      navLinks.classList.remove('active');
+      navToggle.classList.remove('active');
     }
-  }
+  });
   
-  // Run once on page load
-  checkScroll();
-  
-  // Add scroll event listener
-  window.addEventListener('scroll', checkScroll);
-  
-  // Smooth scroll for anchor links
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      const target = document.querySelector(this.getAttribute('href'));
-      
-      if (target) {
-        e.preventDefault();
-        
-        // Close mobile menu if open
-        if (mobileMenu.classList.contains('open')) {
-          closeMenu();
-        }
-        
-        // Smooth scroll to target
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
+  // Add scroll class to header
+  window.addEventListener('scroll', function() {
+    const header = document.querySelector('header');
+    header.classList.toggle('scrolled', window.scrollY > 50);
   });
 });
