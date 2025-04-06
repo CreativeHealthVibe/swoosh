@@ -1,0 +1,373 @@
+<!-- Blacklist Management Page -->
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center">
+            <div>
+              <h2 class="mb-0"><i class="fas fa-ban me-2"></i> Blacklist Management</h2>
+              <p class="text-muted mb-0">Manage users who are restricted from using bot commands</p>
+            </div>
+            <a href="/admin/dashboard" class="btn btn-outline-primary ms-auto">
+              <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add to Blacklist Form -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Add User to Blacklist</h5>
+        </div>
+        <div class="card-body p-4">
+          <form id="blacklistForm" class="row g-3">
+            <div class="col-md-4">
+              <label for="userId" class="form-label">User ID</label>
+              <input type="text" class="form-control" id="userId" placeholder="Enter Discord user ID" required>
+              <div class="form-text">The 18-digit Discord user ID</div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" placeholder="Optional username">
+              <div class="form-text">Optional, for easier identification</div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+              <label for="duration" class="form-label">Duration</label>
+              <select class="form-select" id="duration">
+                <option value="permanent" selected>Permanent</option>
+                <option value="1d">1 Day</option>
+                <option value="7d">7 Days</option>
+                <option value="30d">30 Days</option>
+                <option value="custom">Custom...</option>
+              </select>
+            </div>
+            
+            <div class="col-12 mb-3">
+              <label for="reason" class="form-label">Reason</label>
+              <textarea class="form-control" id="reason" rows="3" placeholder="Explain why this user is being blacklisted" required></textarea>
+            </div>
+            
+            <div class="col-12">
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-ban me-2"></i> Add to Blacklist
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Current Blacklist -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Current Blacklist</h5>
+          <div class="d-flex">
+            <div class="input-group">
+              <input type="text" class="form-control form-control-sm" id="blacklistSearch" placeholder="Search users...">
+              <button class="btn btn-outline-secondary btn-sm" type="button">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0" id="blacklistTable">
+              <thead class="table-light">
+                <tr>
+                  <th>User ID</th>
+                  <th>Username</th>
+                  <th>Added By</th>
+                  <th>Date Added</th>
+                  <th>Reason</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (blacklistedUsers && blacklistedUsers.length > 0) { %>
+                  <% blacklistedUsers.forEach(function(user) { %>
+                    <tr data-user-id="<%= user.userId %>">
+                      <td><code><%= user.userId %></code></td>
+                      <td><%= user.username || 'Unknown' %></td>
+                      <td><%= user.moderatorTag || 'Unknown' %></td>
+                      <td><%= new Date(user.timestamp).toLocaleString() %></td>
+                      <td><%= user.reason %></td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary view-btn" data-bs-toggle="modal" data-bs-target="#viewModal" data-user-id="<%= user.userId %>">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger remove-btn" data-bs-toggle="modal" data-bs-target="#removeModal" data-user-id="<%= user.userId %>" data-username="<%= user.username || 'Unknown' %>">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6" class="text-center py-4">
+                      <p class="mb-0 text-muted">No users have been blacklisted</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Total blacklisted users: <strong><%= blacklistedUsers ? blacklistedUsers.length : 0 %></strong></span>
+            <button class="btn btn-sm btn-outline-danger" id="clearAllBtn" <%= (!blacklistedUsers || blacklistedUsers.length === 0) ? 'disabled' : '' %>>
+              <i class="fas fa-trash-alt me-2"></i> Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View User Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewModalLabel">User Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center mb-4" id="userProfileSection">
+          <img src="/img/default-avatar.png" class="rounded-circle mb-2" width="80" height="80" id="modalUserAvatar">
+          <h5 id="modalUsername">Username</h5>
+          <p class="text-muted" id="modalUserId">User ID: 000000000000000000</p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">Blacklist Information</label>
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Added By:</span>
+              <span id="modalModeratorTag">Moderator#0000</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Date Added:</span>
+              <span id="modalTimestamp">2023-01-01 12:00:00</span>
+            </li>
+            <li class="list-group-item">
+              <div>
+                <span class="fw-bold">Reason:</span>
+                <p class="mt-1 mb-0" id="modalReason">Reason will be displayed here</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" id="modalRemoveBtn">
+          <i class="fas fa-ban me-2"></i> Remove from Blacklist
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Remove Confirmation Modal -->
+<div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="removeModalLabel">Remove from Blacklist</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to remove <span id="removeModalUsername" class="fw-bold">this user</span> from the blacklist?</p>
+        <p>They will be able to use bot commands again.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmRemoveBtn">
+          <i class="fas fa-check me-2"></i> Yes, Remove
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Clear All Confirmation Modal -->
+<div class="modal fade" id="clearAllModal" tabindex="-1" aria-labelledby="clearAllModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="clearAllModalLabel">Clear Entire Blacklist</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-triangle me-2"></i> Warning: This action cannot be undone!
+        </div>
+        <p>Are you sure you want to remove <strong>all users</strong> from the blacklist?</p>
+        <p>All blacklisted users will be able to use bot commands again.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmClearAllBtn">
+          <i class="fas fa-trash-alt me-2"></i> Yes, Clear All
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Form submission handler
+    document.getElementById('blacklistForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const userId = document.getElementById('userId').value;
+      const username = document.getElementById('username').value;
+      const reason = document.getElementById('reason').value;
+      
+      // Send API request to add user to blacklist
+      fetch('/api/blacklist/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          username: username,
+          reason: reason
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('User added to blacklist successfully!');
+          location.reload(); // Refresh page to show updated list
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding user to blacklist');
+      });
+    });
+    
+    // Remove user from blacklist
+    document.getElementById('confirmRemoveBtn').addEventListener('click', function() {
+      const userId = this.getAttribute('data-user-id');
+      
+      fetch('/api/blacklist/remove', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('User removed from blacklist successfully!');
+          location.reload(); // Refresh page to show updated list
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while removing user from blacklist');
+      });
+    });
+    
+    // Search functionality
+    document.getElementById('blacklistSearch').addEventListener('keyup', function() {
+      const searchTerm = this.value.toLowerCase();
+      const table = document.getElementById('blacklistTable');
+      const rows = table.getElementsByTagName('tr');
+      
+      for (let i = 1; i < rows.length; i++) { // Start from 1 to skip header row
+        const row = rows[i];
+        const userId = row.cells[0]?.textContent?.toLowerCase() || '';
+        const username = row.cells[1]?.textContent?.toLowerCase() || '';
+        const moderator = row.cells[2]?.textContent?.toLowerCase() || '';
+        const reason = row.cells[4]?.textContent?.toLowerCase() || '';
+        
+        const matches = userId.includes(searchTerm) || 
+                        username.includes(searchTerm) || 
+                        moderator.includes(searchTerm) || 
+                        reason.includes(searchTerm);
+        
+        row.style.display = matches ? '' : 'none';
+      }
+    });
+    
+    // Modal data handling for view user
+    const viewModal = document.getElementById('viewModal');
+    viewModal.addEventListener('show.bs.modal', function(event) {
+      const button = event.relatedTarget;
+      const userId = button.getAttribute('data-user-id');
+      
+      // Get user data from the table row
+      const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+      if (row) {
+        document.getElementById('modalUsername').textContent = row.cells[1].textContent;
+        document.getElementById('modalUserId').textContent = 'User ID: ' + row.cells[0].textContent;
+        document.getElementById('modalModeratorTag').textContent = row.cells[2].textContent;
+        document.getElementById('modalTimestamp').textContent = row.cells[3].textContent;
+        document.getElementById('modalReason').textContent = row.cells[4].textContent;
+        
+        // Set up the remove button in the modal
+        document.getElementById('modalRemoveBtn').setAttribute('data-user-id', userId);
+        document.getElementById('modalRemoveBtn').addEventListener('click', function() {
+          document.getElementById('removeModalUsername').textContent = row.cells[1].textContent;
+          document.getElementById('confirmRemoveBtn').setAttribute('data-user-id', userId);
+          
+          // Hide view modal and show remove modal
+          const viewModalInstance = bootstrap.Modal.getInstance(viewModal);
+          viewModalInstance.hide();
+          
+          const removeModal = new bootstrap.Modal(document.getElementById('removeModal'));
+          removeModal.show();
+        });
+      }
+    });
+    
+    // Setup for remove modal
+    const removeModal = document.getElementById('removeModal');
+    removeModal.addEventListener('show.bs.modal', function(event) {
+      const button = event.relatedTarget;
+      const userId = button.getAttribute('data-user-id');
+      const username = button.getAttribute('data-username');
+      
+      document.getElementById('removeModalUsername').textContent = username;
+      document.getElementById('confirmRemoveBtn').setAttribute('data-user-id', userId);
+    });
+    
+    // Clear all blacklist
+    document.getElementById('clearAllBtn').addEventListener('click', function() {
+      const clearAllModal = new bootstrap.Modal(document.getElementById('clearAllModal'));
+      clearAllModal.show();
+    });
+    
+    document.getElementById('confirmClearAllBtn').addEventListener('click', function() {
+      // This would normally make an API request to clear all blacklisted users
+      alert('This feature is not yet implemented. It would clear all users from the blacklist.');
+      location.reload();
+    });
+  });
+</script>

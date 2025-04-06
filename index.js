@@ -15,6 +15,8 @@ const WebSocket = require('ws');
 const os = require('os');
 const osUtils = require('os-utils');
 const ejsLayouts = require('express-ejs-layouts');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 // Create Discord client with required intents
@@ -416,6 +418,37 @@ app.set('layout', 'layouts/main');
 // Set up static file serving
 app.use(express.static(path.join(__dirname, 'website/public')));
 
+// Set up middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Set up session management
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'swoosh-bot-dashboard-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
+  }
+}));
+
+// Initialize Passport authentication
+const passport = require('passport');
+const initPassport = require('./utils/passport');
+app.use(passport.initialize());
+app.use(passport.session());
+initPassport(app);
+
+// Make client available to routes
+app.locals.client = client;
+
+// Share user data with all views
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
+
 // Calculate bot uptime
 function getBotUptime() {
   const uptime = process.uptime();
@@ -426,6 +459,16 @@ function getBotUptime() {
   
   return { days, hours, minutes, seconds, totalSeconds: uptime };
 }
+
+// Register route handlers
+const authRoutes = require('./routes/auth');
+const adminRoutes = require('./routes/admin');
+const apiRoutes = require('./routes/api');
+
+// Use route modules
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/api', apiRoutes);
 
 // Routes for the website
 app.get('/', (req, res) => {

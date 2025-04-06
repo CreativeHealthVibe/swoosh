@@ -1,0 +1,256 @@
+<!-- Logs Viewer Page -->
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center">
+            <div>
+              <h2 class="mb-0"><i class="fas fa-list-alt me-2"></i> Log Viewer</h2>
+              <p class="text-muted mb-0">Browse system and bot logs</p>
+            </div>
+            <a href="/admin/dashboard" class="btn btn-outline-primary ms-auto">
+              <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Log Files -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Log Files</h5>
+          <div class="d-flex">
+            <div class="input-group me-2">
+              <input type="text" class="form-control form-control-sm" id="logSearch" placeholder="Search logs...">
+              <button class="btn btn-outline-secondary btn-sm" type="button">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+            <select class="form-select form-select-sm me-2" id="logTypeFilter">
+              <option value="all">All Types</option>
+              <option value="bot.log">Bot Logs</option>
+              <option value="actions.log">Action Logs</option>
+              <option value="error.log">Error Logs</option>
+              <option value="access.log">Access Logs</option>
+            </select>
+            <a href="/api/logs/download-all" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-download me-1"></i> Download All
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0" id="logsTable">
+              <thead class="table-light">
+                <tr>
+                  <th>Filename</th>
+                  <th>Size</th>
+                  <th>Last Modified</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (logFiles && logFiles.length > 0) { %>
+                  <% logFiles.forEach(function(log) { %>
+                    <tr data-log-name="<%= log.name %>">
+                      <td>
+                        <i class="fas fa-file-alt me-2 text-<%= log.name.includes('error') ? 'danger' : (log.name.includes('bot') ? 'primary' : 'secondary') %>"></i>
+                        <%= log.name %>
+                      </td>
+                      <td><%= log.size %></td>
+                      <td><%= log.modified.toLocaleString() %></td>
+                      <td><%= log.created.toLocaleString() %></td>
+                      <td>
+                        <a href="/admin/logs/view/<%= log.name %>" class="btn btn-sm btn-outline-primary">
+                          <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="/api/logs/download/<%= log.name %>" class="btn btn-sm btn-outline-secondary">
+                          <i class="fas fa-download"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5" class="text-center py-4">
+                      <p class="mb-0 text-muted">No log files found</p>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Total log files: <strong><%= logFiles ? logFiles.length : 0 %></strong></span>
+            <div>
+              <button class="btn btn-sm btn-outline-danger" id="purgeLogsBtn" <%= (!logFiles || logFiles.length === 0) ? 'disabled' : '' %>>
+                <i class="fas fa-trash-alt me-2"></i> Purge Old Logs
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Log Rotation Settings (optional) -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Log Rotation Settings</h5>
+        </div>
+        <div class="card-body">
+          <form id="logSettingsForm" class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Log Retention Period</label>
+              <select class="form-select" id="logRetention">
+                <option value="7">7 days</option>
+                <option value="14" selected>14 days</option>
+                <option value="30">30 days</option>
+                <option value="90">90 days</option>
+              </select>
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Max File Size</label>
+              <select class="form-select" id="maxLogSize">
+                <option value="1">1 MB</option>
+                <option value="5" selected>5 MB</option>
+                <option value="10">10 MB</option>
+                <option value="20">20 MB</option>
+              </select>
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Compression</label>
+              <select class="form-select" id="logCompression">
+                <option value="none">None</option>
+                <option value="gzip" selected>GZIP</option>
+                <option value="zip">ZIP</option>
+              </select>
+            </div>
+            
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i> Save Settings
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="defaultSettingsBtn">
+                <i class="fas fa-undo me-2"></i> Reset to Defaults
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Purge Logs Confirmation Modal -->
+<div class="modal fade" id="purgeLogsModal" tabindex="-1" aria-labelledby="purgeLogsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="purgeLogsModalLabel">Purge Old Logs</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-triangle me-2"></i> Warning: This action cannot be undone!
+        </div>
+        <p>Are you sure you want to purge all logs older than the retention period?</p>
+        <p>This will permanently delete old log files that exceed the retention period.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmPurgeBtn">
+          <i class="fas fa-trash-alt me-2"></i> Yes, Purge Old Logs
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Log search functionality
+    document.getElementById('logSearch').addEventListener('keyup', function() {
+      const searchTerm = this.value.toLowerCase();
+      const table = document.getElementById('logsTable');
+      const rows = table.getElementsByTagName('tr');
+      
+      for (let i = 1; i < rows.length; i++) { // Start from 1 to skip header row
+        const row = rows[i];
+        if (!row.cells || row.cells.length === 0) continue;
+        
+        const fileName = row.cells[0]?.textContent?.toLowerCase() || '';
+        
+        row.style.display = fileName.includes(searchTerm) ? '' : 'none';
+      }
+    });
+    
+    // Log type filter
+    document.getElementById('logTypeFilter').addEventListener('change', function() {
+      const filterValue = this.value.toLowerCase();
+      const table = document.getElementById('logsTable');
+      const rows = table.getElementsByTagName('tr');
+      
+      for (let i = 1; i < rows.length; i++) { // Start from 1 to skip header row
+        const row = rows[i];
+        if (!row.cells || row.cells.length === 0) continue;
+        
+        const fileName = row.cells[0]?.textContent?.toLowerCase() || '';
+        
+        if (filterValue === 'all') {
+          row.style.display = '';
+        } else {
+          row.style.display = fileName.includes(filterValue) ? '' : 'none';
+        }
+      }
+    });
+    
+    // Purge logs button
+    document.getElementById('purgeLogsBtn').addEventListener('click', function() {
+      const purgeLogsModal = new bootstrap.Modal(document.getElementById('purgeLogsModal'));
+      purgeLogsModal.show();
+    });
+    
+    // Confirm purge logs
+    document.getElementById('confirmPurgeBtn').addEventListener('click', function() {
+      // This would normally make an API request to purge old logs
+      alert('This feature is not yet implemented. It would delete old log files based on the retention policy.');
+      
+      const purgeLogsModal = bootstrap.Modal.getInstance(document.getElementById('purgeLogsModal'));
+      purgeLogsModal.hide();
+    });
+    
+    // Log settings form
+    document.getElementById('logSettingsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const logRetention = document.getElementById('logRetention').value;
+      const maxLogSize = document.getElementById('maxLogSize').value;
+      const logCompression = document.getElementById('logCompression').value;
+      
+      // This would normally save the settings via an API request
+      alert('Log settings updated successfully! (This is a demo, settings are not actually saved)');
+    });
+    
+    // Reset to defaults
+    document.getElementById('defaultSettingsBtn').addEventListener('click', function() {
+      document.getElementById('logRetention').value = '14';
+      document.getElementById('maxLogSize').value = '5';
+      document.getElementById('logCompression').value = 'gzip';
+      
+      alert('Settings have been reset to defaults! (This is a demo, no actual changes made)');
+    });
+  });
+</script>

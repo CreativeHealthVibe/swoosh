@@ -1,0 +1,39 @@
+<!-- 403 Forbidden Page -->
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow border-0 rounded-3">
+        <div class="card-body p-5 text-center">
+          <div class="mb-4">
+            <div class="display-1 text-danger">
+              <i class="fas fa-ban"></i>
+            </div>
+            <h1 class="mt-3">Access Denied</h1>
+            <p class="lead text-muted">403 Forbidden</p>
+          </div>
+          
+          <div class="alert alert-danger">
+            <p class="mb-0"><%= message || 'You do not have permission to access this page.' %></p>
+          </div>
+          
+          <div class="mt-4">
+            <p>Please check that you have the necessary permissions or try logging in again.</p>
+            
+            <div class="d-grid gap-3">
+              <a href="/auth/login" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt me-2"></i> Log In
+              </a>
+              <a href="/" class="btn btn-outline-secondary">
+                <i class="fas fa-home me-2"></i> Go to Homepage
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-4 text-muted">
+        <small>If you believe this is an error, please contact an administrator.</small>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,263 @@
+<!-- Log View Page -->
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center">
+            <div>
+              <h2 class="mb-0"><i class="fas fa-file-alt me-2"></i> <%= filename %></h2>
+              <p class="text-muted mb-0">Viewing log file</p>
+            </div>
+            <div class="ms-auto">
+              <a href="/admin/logs" class="btn btn-outline-primary me-2">
+                <i class="fas fa-arrow-left me-2"></i> Back to Logs
+              </a>
+              <a href="/api/logs/download/<%= filename %>" class="btn btn-outline-secondary">
+                <i class="fas fa-download me-2"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Log Content -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Log Content</h5>
+          <div class="d-flex">
+            <div class="input-group me-2">
+              <input type="text" class="form-control form-control-sm" id="contentSearch" placeholder="Search content...">
+              <button class="btn btn-outline-secondary btn-sm" type="button" id="searchButton">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+            <select class="form-select form-select-sm" id="logLevelFilter">
+              <option value="all">All Levels</option>
+              <option value="error">Errors</option>
+              <option value="warn">Warnings</option>
+              <option value="info">Info</option>
+              <option value="debug">Debug</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="log-container p-3 bg-dark text-light font-monospace" style="max-height: 70vh; overflow-y: auto;">
+            <div class="log-content">
+              <% if (logLines && logLines.length > 0) { %>
+                <% logLines.forEach(function(line, index) { %>
+                  <div class="log-line <%= 
+                    line.toLowerCase().includes('error') ? 'text-danger' : 
+                    line.toLowerCase().includes('warn') ? 'text-warning' : 
+                    line.toLowerCase().includes('info') ? 'text-info' : '' 
+                  %>">
+                    <span class="line-number text-secondary me-3"><%= index + 1 %></span>
+                    <%= line %>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <div class="log-line text-muted">Log file is empty or contains no lines.</div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Total lines: <strong><%= logLines ? logLines.length : 0 %></strong></span>
+            <div>
+              <button class="btn btn-sm btn-outline-secondary me-2" id="copyBtn">
+                <i class="fas fa-copy me-2"></i> Copy to Clipboard
+              </button>
+              <button class="btn btn-sm btn-outline-primary" id="exportBtn">
+                <i class="fas fa-file-export me-2"></i> Export as CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Log Analysis (Optional) -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Log Analysis</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="mb-3">Level Distribution</h6>
+              <div class="progress mb-2" style="height: 25px;">
+                <div class="progress-bar bg-danger" role="progressbar" style="width: 15%;" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">
+                  Error (15%)
+                </div>
+                <div class="progress-bar bg-warning" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                  Warning (25%)
+                </div>
+                <div class="progress-bar bg-info" role="progressbar" style="width: 40%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
+                  Info (40%)
+                </div>
+                <div class="progress-bar bg-success" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                  Debug (20%)
+                </div>
+              </div>
+              <div class="d-flex justify-content-between text-muted small">
+                <span>Error: <%= Math.round(logLines ? logLines.filter(l => l.toLowerCase().includes('error')).length / logLines.length * 100 : 0) %>%</span>
+                <span>Warning: <%= Math.round(logLines ? logLines.filter(l => l.toLowerCase().includes('warn')).length / logLines.length * 100 : 0) %>%</span>
+                <span>Info: <%= Math.round(logLines ? logLines.filter(l => l.toLowerCase().includes('info')).length / logLines.length * 100 : 0) %>%</span>
+                <span>Debug: <%= Math.round(logLines ? logLines.filter(l => l.toLowerCase().includes('debug')).length / logLines.length * 100 : 0) %>%</span>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <h6 class="mb-3">Common Patterns</h6>
+              <div class="list-group">
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>Command Executions</strong>
+                    <div class="text-muted small">User command execution logs</div>
+                  </div>
+                  <span class="badge bg-primary rounded-pill"><%= logLines ? logLines.filter(l => l.toLowerCase().includes('command') || l.toLowerCase().includes('executed')).length : 0 %></span>
+                </div>
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>Error Patterns</strong>
+                    <div class="text-muted small">API errors, rate limits, etc.</div>
+                  </div>
+                  <span class="badge bg-danger rounded-pill"><%= logLines ? logLines.filter(l => l.toLowerCase().includes('error') || l.toLowerCase().includes('exception')).length : 0 %></span>
+                </div>
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>User Actions</strong>
+                    <div class="text-muted small">User-initiated events</div>
+                  </div>
+                  <span class="badge bg-success rounded-pill"><%= logLines ? logLines.filter(l => l.toLowerCase().includes('user') && l.toLowerCase().includes('action')).length : 0 %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .log-line {
+    padding: 2px 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.9rem;
+  }
+  
+  .log-line:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .line-number {
+    user-select: none;
+    min-width: 3rem;
+    display: inline-block;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Content search functionality
+    function searchLogContent() {
+      const searchTerm = document.getElementById('contentSearch').value.toLowerCase();
+      const logLines = document.querySelectorAll('.log-line');
+      let matchCount = 0;
+      
+      logLines.forEach(line => {
+        const lineContent = line.textContent.toLowerCase();
+        const matches = lineContent.includes(searchTerm);
+        
+        line.style.display = matches || !searchTerm ? '' : 'none';
+        
+        if (matches) {
+          matchCount++;
+          line.classList.add('highlight-match');
+        } else {
+          line.classList.remove('highlight-match');
+        }
+      });
+      
+      // Alert with number of matches if search term is not empty
+      if (searchTerm) {
+        alert(`Found ${matchCount} matches for "${searchTerm}"`);
+      }
+    }
+    
+    document.getElementById('searchButton').addEventListener('click', searchLogContent);
+    document.getElementById('contentSearch').addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') {
+        searchLogContent();
+      }
+    });
+    
+    // Log level filter
+    document.getElementById('logLevelFilter').addEventListener('change', function() {
+      const filterValue = this.value.toLowerCase();
+      const logLines = document.querySelectorAll('.log-line');
+      
+      logLines.forEach(line => {
+        const lineContent = line.textContent.toLowerCase();
+        
+        if (filterValue === 'all') {
+          line.style.display = '';
+        } else {
+          line.style.display = lineContent.includes(filterValue) ? '' : 'none';
+        }
+      });
+    });
+    
+    // Copy to clipboard
+    document.getElementById('copyBtn').addEventListener('click', function() {
+      const logContainer = document.querySelector('.log-content');
+      const logText = logContainer.innerText;
+      
+      navigator.clipboard.writeText(logText)
+        .then(() => {
+          alert('Log content copied to clipboard!');
+        })
+        .catch(err => {
+          console.error('Error copying to clipboard:', err);
+          alert('Failed to copy to clipboard');
+        });
+    });
+    
+    // Export as CSV
+    document.getElementById('exportBtn').addEventListener('click', function() {
+      const logLines = document.querySelectorAll('.log-line');
+      let csvContent = "data:text/csv;charset=utf-8,";
+      
+      // Add header
+      csvContent += "Line,Content\n";
+      
+      // Add each line
+      logLines.forEach((line, index) => {
+        // Clean the content for CSV (remove line number, escape quotes)
+        const lineText = line.textContent.substring(line.textContent.indexOf(' ') + 1).replace(/"/g, '""');
+        csvContent += `${index + 1},"${lineText}"\n`;
+      });
+      
+      // Create download link
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "<%= filename.replace('.log', '') %>_export.csv");
+      document.body.appendChild(link);
+      
+      // Trigger download and clean up
+      link.click();
+      document.body.removeChild(link);
+    });
+  });
+</script>
