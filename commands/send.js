@@ -1,14 +1,23 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const webhookManager = require('../handlers/webhookManager');
+const config = require('../config');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('send')
-    .setDescription('Send a message as the bot using webhook')
+    .setDescription('Send a message as an embed using webhook')
     .addStringOption(option => 
-      option.setName('message')
-        .setDescription('The message to send')
+      option.setName('title')
+        .setDescription('The title of the embed')
         .setRequired(true))
+    .addStringOption(option => 
+      option.setName('description')
+        .setDescription('The description/content of the embed')
+        .setRequired(true))
+    .addStringOption(option => 
+      option.setName('color')
+        .setDescription('The color of the embed (hex code or common color name)')
+        .setRequired(false))
     .addChannelOption(option =>
       option.setName('channel')
         .setDescription('The channel to send the message to (defaults to current channel)')
@@ -23,8 +32,10 @@ module.exports = {
     await interaction.deferReply({ ephemeral: true });
     
     try {
-      // Get the message content from options
-      const message = interaction.options.getString('message');
+      // Get the embed content from options
+      const title = interaction.options.getString('title');
+      const description = interaction.options.getString('description');
+      const color = interaction.options.getString('color') || config.embedColor;
       
       // Get the target channel (default to current channel if not specified)
       const targetChannel = interaction.options.getChannel('channel') || interaction.channel;
@@ -55,16 +66,27 @@ module.exports = {
       // Get the webhook
       const webhook = webhookResult.webhook;
       
+      // Create the embed
+      const embed = new EmbedBuilder()
+        .setTitle(title)
+        .setDescription(description)
+        .setColor(color)
+        .setTimestamp()
+        .setFooter({ 
+          text: `Sent by ${interaction.user.tag}`, 
+          iconURL: interaction.user.displayAvatarURL() 
+        });
+      
       // Send the message via webhook
       await webhook.send({
-        content: message,
         username: client.user.username,
-        avatarURL: client.user.displayAvatarURL()
+        avatarURL: client.user.displayAvatarURL(),
+        embeds: [embed]
       });
       
       // Respond to the user
       return interaction.editReply({
-        content: `✅ Message sent to ${targetChannel} using webhook!`,
+        content: `✅ Embed message sent to ${targetChannel} using webhook!`,
         ephemeral: true
       });
     } catch (error) {
