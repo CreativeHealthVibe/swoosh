@@ -1,145 +1,95 @@
+<!-- website/views/layouts/main.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %></title>
+  <title><%= typeof title !== 'undefined' ? title : 'SWOOSH Bot' %></title>
+  
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="/css/styles.css">
-  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Three.js Library -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-  <!-- Meta Description -->
-  <meta name="description" content="SWOOSH Bot - A powerful Discord bot with moderation, utility, and fun commands to enhance your server experience.">
-  <!-- Open Graph / Social Media -->
-  <meta property="og:title" content="SWOOSH Bot">
-  <meta property="og:description" content="A powerful Discord bot with advanced features for your server.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://swooshfinal.onrender.com/">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-  <!-- Custom cursor elements -->
-  <div class="cursor-dot" id="cursor-dot"></div>
-  <div class="cursor-outline" id="cursor-outline"></div>
+  <!-- Three.js Background Canvas -->
+  <div id="three-background" class="three-background"></div>
   
-  <!-- Particle container -->
-  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  <!-- Custom Cursor -->
+  <div id="custom-cursor" class="custom-cursor"></div>
   
+  <!-- Header Section -->
   <header>
     <div class="navbar">
       <div class="logo">
         <img src="/img/logo.png" alt="SWOOSH Bot Logo">
         <h1>SWOOSH Bot</h1>
       </div>
-      <nav>
+      <nav id="main-nav">
         <ul>
-          <li><a href="/" class="<%= typeof path !== 'undefined' && path === '/' ? 'active' : '' %>">Home</a></li>
-          <li><a href="/commands" class="<%= typeof path !== 'undefined' && path === '/commands' ? 'active' : '' %>">Commands</a></li>
-          <li><a href="/status" class="<%= typeof path !== 'undefined' && path === '/status' ? 'active' : '' %>">Status</a></li>
-          <li><a href="https://discord.gg/swoosh" target="_blank" class="discord-btn">Join Discord</a></li>
+          <li><a href="/" class="<%= typeof activeNav !== 'undefined' && activeNav === 'home' ? 'active' : '' %>">Home</a></li>
+          <li><a href="/commands" class="<%= typeof activeNav !== 'undefined' && activeNav === 'commands' ? 'active' : '' %>">Commands</a></li>
+          <li><a href="/status" class="<%= typeof activeNav !== 'undefined' && activeNav === 'status' ? 'active' : '' %>">Status</a></li>
+          <li><a href="/bot-status" class="<%= typeof activeNav !== 'undefined' && activeNav === 'bot-status' ? 'active' : '' %>">Dashboard</a></li>
+          <li><a href="/server-health" class="<%= typeof activeNav !== 'undefined' && activeNav === 'server-health' ? 'active' : '' %>">Health</a></li>
+          <li><a href="/team" class="<%= typeof activeNav !== 'undefined' && activeNav === 'team' ? 'active' : '' %>">Team</a></li>
+          <li><a href="https://discord.gg/swoosh" class="discord-btn" target="_blank"><i class="fab fa-discord"></i> Join Discord</a></li>
         </ul>
       </nav>
-      <div class="mobile-menu-btn">
+      <div class="mobile-menu-btn" id="mobile-menu-btn">
         <i class="fas fa-bars"></i>
       </div>
     </div>
   </header>
-
+  
+  <!-- Main Content -->
   <main>
     <%- body %>
   </main>
-
+  
+  <!-- Footer Section -->
   <footer>
     <div class="footer-content">
       <div class="footer-logo">
         <img src="/img/logo.png" alt="SWOOSH Bot Logo">
         <h3>SWOOSH Bot</h3>
+        <p>A sophisticated Discord bot with advanced utility tools and engaging user experiences.</p>
       </div>
       <div class="footer-links">
-        <h4>Links</h4>
+        <h4>Quick Links</h4>
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/commands">Commands</a></li>
           <li><a href="/status">Status</a></li>
-          <li><a href="https://discord.gg/swoosh" target="_blank">Discord Server</a></li>
+          <li><a href="/team">Team</a></li>
+          <li><a href="https://github.com/swoosh-bot/swooshbot" target="_blank">GitHub</a></li>
         </ul>
       </div>
       <div class="footer-contact">
-        <h4>Contact</h4>
-        <p>Have questions? Join our Discord server!</p>
+        <h4>Connect With Us</h4>
+        <p>Join our community to get support, suggest features, or just hang out!</p>
         <div class="social-icons">
           <a href="https://discord.gg/swoosh" target="_blank"><i class="fab fa-discord"></i></a>
-          <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://twitter.com/swooshbot" target="_blank"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/swoosh-bot" target="_blank"><i class="fab fa-github"></i></a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
+      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved. | Hosted on <a href="https://render.com" target="_blank">Render</a></p>
     </div>
   </footer>
-
-  <!-- Main Javascript -->
+  
+  <!-- Scripts -->
   <script src="/js/main.js"></script>
-  
-  <!-- Three.js Background Scripts -->
-  <% if (typeof path !== 'undefined') { %>
-    <% if (path === '/') { %>
-      <script src="/js/three-background.js"></script>
-    <% } else if (path === '/commands') { %>
-      <script src="/js/three-commands.js"></script>
-    <% } else if (path === '/status') { %>
-      <script src="/js/three-status.js"></script>
-    <% } %>
-  <% } %>
-  
-  <!-- Custom Cursor -->
+  <script src="/js/three-background.js"></script>
   <script src="/js/cursor.js"></script>
-  
-  <!-- Particle Effects -->
-  <script src="/js/create-particle.js"></script>
-  
-  <!-- Smooth Scroll -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Smooth scroll for anchor links
-      const scrollLinks = document.querySelectorAll('a[href^="#"]');
-      
-      scrollLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          const targetId = this.getAttribute('href');
-          if (targetId === '#') return;
-          
-          const targetElement = document.querySelector(targetId);
-          if (targetElement) {
-            window.scrollTo({
-              top: targetElement.offsetTop - 80, // Offset for navbar
-              behavior: 'smooth'
-            });
-          }
-        });
-      });
-      
-      // Handle scroll indicator click
-      const scrollDown = document.querySelector('.scroll-down');
-      if (scrollDown) {
-        scrollDown.addEventListener('click', function() {
-          const featuresSection = document.querySelector('.features-section');
-          if (featuresSection) {
-            window.scrollTo({
-              top: featuresSection.offsetTop - 80,
-              behavior: 'smooth'
-            });
-          }
-        });
-      }
-    });
-  </script>
 </body>
 </html>

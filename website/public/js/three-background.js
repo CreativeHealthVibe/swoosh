@@ -1,230 +1,146 @@
-// Three.js animated background for the hero section
-document.addEventListener('DOMContentLoaded', function() {
-  // Only initialize if the hero section exists
-  const heroSection = document.querySelector('.hero');
-  if (!heroSection) return;
+/**
+ * Three.js Background with Interactive Particles
+ * Creates an animated particle background that responds to mouse movements
+ */
 
-  // Create canvas container
-  const canvasContainer = document.createElement('div');
-  canvasContainer.className = 'hero-background';
-  canvasContainer.style.position = 'absolute';
-  canvasContainer.style.top = '0';
-  canvasContainer.style.left = '0';
-  canvasContainer.style.width = '100%';
-  canvasContainer.style.height = '100%';
-  canvasContainer.style.zIndex = '-1';
-  canvasContainer.style.overflow = 'hidden';
+// Default configuration
+const defaultConfig = {
+  color: 0x9c4dff,
+  density: 100,
+  size: 1.0,
+  speed: 0.2,
+  depth: 50,
+  responsive: true
+};
+
+// Global variables
+let container, scene, camera, renderer, particles;
+let mouseX = 0, mouseY = 0;
+let windowHalfX = window.innerWidth / 2;
+let windowHalfY = window.innerHeight / 2;
+
+/**
+ * Initializes the Three.js background with custom configuration
+ * @param {Object} customConfig - Override default settings
+ */
+function initThreeBackground(customConfig = {}) {
+  // Merge configurations
+  const config = { ...defaultConfig, ...customConfig };
   
-  // Insert before the first child of hero
-  heroSection.insertBefore(canvasContainer, heroSection.firstChild);
-
-  // Create canvas
-  const canvas = document.createElement('canvas');
-  canvas.style.display = 'block';
-  canvasContainer.appendChild(canvas);
-
-  // Initialize Three.js
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ 
-    canvas: canvas,
-    antialias: true,
-    alpha: true 
-  });
+  // Find container
+  container = document.getElementById('three-background');
+  if (!container) return;
   
-  renderer.setSize(window.innerWidth, heroSection.offsetHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setClearColor(0x000000, 0);
-
+  // Create scene
+  scene = new THREE.Scene();
+  
+  // Add camera
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+  camera.position.z = 1000;
+  
   // Create particles
-  const particlesGeometry = new THREE.BufferGeometry();
-  const particleCount = 500;
+  const particles = new THREE.BufferGeometry();
+  const positions = [];
+  const colors = [];
   
-  const positions = new Float32Array(particleCount * 3);
-  const colors = new Float32Array(particleCount * 3);
-  const sizes = new Float32Array(particleCount);
+  const color = new THREE.Color(config.color);
   
-  const color = new THREE.Color();
+  // Calculate number of particles based on screen size and density
+  const particleCount = Math.ceil(window.innerWidth * window.innerHeight / (10000 / config.density));
   
+  // Create the particles
   for (let i = 0; i < particleCount; i++) {
-    // Position particles in a 3D space
-    const distance = Math.random() * 100 + 50;
-    const theta = THREE.MathUtils.randFloatSpread(360); 
-    const phi = THREE.MathUtils.randFloatSpread(360);
+    // Position particles randomly in 3D space
+    const x = Math.random() * 2000 - 1000;
+    const y = Math.random() * 2000 - 1000;
+    const z = Math.random() * config.depth - (config.depth / 2);
     
-    positions[i * 3] = distance * Math.sin(theta) * Math.cos(phi);
-    positions[i * 3 + 1] = distance * Math.sin(theta) * Math.sin(phi);
-    positions[i * 3 + 2] = distance * Math.cos(theta);
+    positions.push(x, y, z);
     
-    // Generate colors in the purple spectrum
-    const h = Math.random() * 60 + 260; // Purple hue range
-    const s = 0.7 + Math.random() * 0.3; // Saturation
-    const l = 0.5 + Math.random() * 0.3; // Lightness
-    
-    color.setHSL(h/360, s, l);
-    
-    colors[i * 3] = color.r;
-    colors[i * 3 + 1] = color.g;
-    colors[i * 3 + 2] = color.b;
-    
-    // Randomize sizes
-    sizes[i] = Math.random() * 5 + 1;
+    // Add slight color variations
+    const shade = 0.8 + Math.random() * 0.4; // 0.8-1.2 range for subtle variation
+    colors.push(color.r * shade, color.g * shade, color.b * shade);
   }
   
-  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+  // Add position and color attributes to geometry
+  particles.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  particles.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
   
-  // Load a particle texture
-  const textureLoader = new THREE.TextureLoader();
-  const particleTexture = textureLoader.load('/images/particle.png', () => {
-    // Fallback to a basic circle if image fails to load
-    console.log('Particle texture loaded successfully');
-  }, undefined, () => {
-    console.warn('Failed to load particle texture, using default');
-  });
-  
-  // Create the particle material
-  const particlesMaterial = new THREE.PointsMaterial({
-    size: 5,
-    sizeAttenuation: true,
-    map: particleTexture,
-    alphaMap: particleTexture,
-    transparent: true,
+  // Create particle material
+  const particleMaterial = new THREE.PointsMaterial({
+    size: config.size,
     vertexColors: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending
+    transparent: true,
+    opacity: 0.8,
+    sizeAttenuation: true
   });
   
   // Create the particle system
-  const particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
+  const particleSystem = new THREE.Points(particles, particleMaterial);
   scene.add(particleSystem);
-
-  // Add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-  scene.add(ambientLight);
-
-  // Position camera
-  camera.position.z = 20;
-
-  // Animation variables
-  let mouseX = 0;
-  let mouseY = 0;
-  let targetX = 0;
-  let targetY = 0;
-  const windowHalfX = window.innerWidth / 2;
-  const windowHalfY = window.innerHeight / 2;
-
-  // Mouse move event handler
-  document.addEventListener('mousemove', (event) => {
-    mouseX = (event.clientX - windowHalfX) / 100;
-    mouseY = (event.clientY - windowHalfY) / 100;
+  
+  // Set up WebGL renderer
+  renderer = new THREE.WebGLRenderer({ 
+    antialias: true,
+    alpha: true 
   });
-
-  // Add scroll effect
-  let scrollY = 0;
-  let scrollTarget = 0;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0);
+  container.appendChild(renderer.domElement);
   
-  window.addEventListener('scroll', () => {
-    scrollTarget = window.scrollY;
-  });
-
-  // Create wave effect
-  const waveSpeed = 0.5;
-  const waveHeight = 5;
-
-  // Animation loop
-  const clock = new THREE.Clock();
+  // Event listeners
+  document.addEventListener('mousemove', onDocumentMouseMove, false);
+  window.addEventListener('resize', onWindowResize, false);
   
-  function animate() {
-    requestAnimationFrame(animate);
-    
-    const elapsedTime = clock.getElapsedTime();
-    
-    // Update scroll animation
-    scrollY += (scrollTarget - scrollY) * 0.05;
-    
-    // Rotate the entire particle system slowly
-    particleSystem.rotation.x = scrollY * 0.0003;
-    particleSystem.rotation.y = elapsedTime * 0.05;
-    
-    // Update particle positions based on time for wave effect
-    const positions = particleSystem.geometry.attributes.position.array;
-    
-    for (let i = 0; i < particleCount; i++) {
-      const i3 = i * 3;
-      const x = positions[i3];
-      const y = positions[i3 + 1];
-      const z = positions[i3 + 2];
-      
-      // Calculate distance from center
-      const distance = Math.sqrt(x * x + y * y + z * z);
-      
-      // Apply wave effect based on distance and time
-      const wave = Math.sin(distance * 0.05 + elapsedTime * waveSpeed) * waveHeight;
-      
-      // Normalize direction vector
-      const nx = x / distance;
-      const ny = y / distance;
-      const nz = z / distance;
-      
-      // Apply wave effect in the normalized direction
-      positions[i3] = x + nx * wave * 0.1;
-      positions[i3 + 1] = y + ny * wave * 0.1;
-      positions[i3 + 2] = z + nz * wave * 0.1;
-    }
-    
-    particleSystem.geometry.attributes.position.needsUpdate = true;
-    
-    // Update camera position based on mouse movement
-    targetX = mouseX * 0.5;
-    targetY = mouseY * 0.5;
-    
-    camera.position.x += (targetX - camera.position.x) * 0.05;
-    camera.position.y += (-targetY - camera.position.y) * 0.05;
-    camera.lookAt(scene.position);
-    
-    renderer.render(scene, camera);
-  }
+  // Start animation
+  animate(particleSystem, config.speed);
+}
 
-  animate();
+/**
+ * Handle mouse movement to control particle animation
+ */
+function onDocumentMouseMove(event) {
+  mouseX = (event.clientX - windowHalfX) * 0.05;
+  mouseY = (event.clientY - windowHalfY) * 0.05;
+}
 
-  // Handle window resize
-  function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, heroSection.offsetHeight);
-  }
-
-  window.addEventListener('resize', onWindowResize);
-
-  // Create a fallback particle texture if it fails to load
-  function createFallbackTexture() {
-    const size = 64;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    
-    const gradient = ctx.createRadialGradient(
-      size/2, size/2, 0,
-      size/2, size/2, size/2
-    );
-    
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, size, size);
-    
-    const texture = new THREE.CanvasTexture(canvas);
-    particlesMaterial.map = texture;
-    particlesMaterial.alphaMap = texture;
-    particlesMaterial.needsUpdate = true;
-  }
+/**
+ * Handle window resize
+ */
+function onWindowResize() {
+  windowHalfX = window.innerWidth / 2;
+  windowHalfY = window.innerHeight / 2;
   
-  // Call this function only if the texture load fails
-  if (!particleTexture) {
-    createFallbackTexture();
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+/**
+ * Animation loop
+ */
+function animate(particleSystem, speed) {
+  requestAnimationFrame(() => animate(particleSystem, speed));
+  
+  particleSystem.rotation.x += 0.0003;
+  particleSystem.rotation.y += 0.0005;
+  
+  // Move towards mouse position
+  camera.position.x += (mouseX - camera.position.x) * 0.05;
+  camera.position.y += (-mouseY - camera.position.y) * 0.05;
+  
+  // Apply speed to animation
+  particleSystem.rotation.y += speed * 0.001;
+  
+  renderer.render(scene, camera);
+}
+
+// Initialize with default settings if not initialized elsewhere
+document.addEventListener('DOMContentLoaded', () => {
+  // Only auto-initialize if specific pages
+  const path = window.location.pathname;
+  if (path === '/' || path === '/home' || path === '/landing') {
+    initThreeBackground();
   }
 });

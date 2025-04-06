@@ -1,0 +1,1107 @@
+<!-- website/views/server-health.ejs -->
+<% 
+  // Set variables for the template
+  var title = 'SWOOSH Bot - Server Health';
+  var activeNav = 'server-health';
+%>
+<%- include('layouts/main', { title: title, activeNav: activeNav }) %>
+
+<div class="health-dashboard">
+  <h1 class="gradient-text">Server Health Dashboard</h1>
+  <p class="dashboard-subtitle">Real-time monitoring with live updates</p>
+  
+  <!-- System Overview Section -->
+  <div class="dashboard-section">
+    <h2><i class="fas fa-info-circle"></i> System Overview</h2>
+    
+    <div class="server-stats-grid">
+      <!-- Platform Card -->
+      <div class="system-card">
+        <div class="system-card-inner">
+          <div class="system-card-front">
+            <div class="system-icon">
+              <i class="fas fa-desktop"></i>
+            </div>
+            <h3>Platform</h3>
+            <div class="system-value" id="platform-value"><%= platform %></div>
+          </div>
+          <div class="system-card-back">
+            <h3>System Details</h3>
+            <div class="system-details">
+              <div class="detail-item">
+                <span class="detail-label">Architecture:</span>
+                <span class="detail-value" id="arch-value"><%= arch %></span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Hostname:</span>
+                <span class="detail-value" id="hostname-value"><%= hostname %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Uptime Card -->
+      <div class="system-card">
+        <div class="system-card-inner">
+          <div class="system-card-front">
+            <div class="system-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <h3>Uptime</h3>
+            <div class="system-value" id="uptime-value">
+              <%= uptime.days %>d <%= uptime.hours %>h <%= uptime.minutes %>m
+            </div>
+          </div>
+          <div class="system-card-back">
+            <h3>Total Runtime</h3>
+            <div class="system-details">
+              <div class="detail-item">
+                <span class="detail-label">Started:</span>
+                <span class="detail-value">
+                  <%= new Date(Date.now() - uptime.totalSeconds * 1000).toLocaleString() %>
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Seconds:</span>
+                <span class="detail-value" id="uptime-seconds"><%= Math.floor(uptime.totalSeconds) %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- CPU Card -->
+      <div class="system-card">
+        <div class="system-card-inner">
+          <div class="system-card-front">
+            <div class="system-icon">
+              <i class="fas fa-microchip"></i>
+            </div>
+            <h3>CPU</h3>
+            <div class="system-value" id="cpu-count"><%= cpuCount %> Cores</div>
+          </div>
+          <div class="system-card-back">
+            <h3>CPU Details</h3>
+            <div class="system-details">
+              <div class="detail-item">
+                <span class="detail-label">Load Avg:</span>
+                <span class="detail-value" id="load-avg">
+                  <%= loadAverage[0].toFixed(2) %>, <%= loadAverage[1].toFixed(2) %>, <%= loadAverage[2].toFixed(2) %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Memory Card -->
+      <div class="system-card">
+        <div class="system-card-inner">
+          <div class="system-card-front">
+            <div class="system-icon">
+              <i class="fas fa-memory"></i>
+            </div>
+            <h3>Memory</h3>
+            <div class="system-value" id="memory-usage">
+              <%= (totalMemory / (1024 * 1024 * 1024)).toFixed(2) %> GB Total
+            </div>
+          </div>
+          <div class="system-card-back">
+            <h3>Memory Details</h3>
+            <div class="system-details">
+              <div class="detail-item">
+                <span class="detail-label">Free:</span>
+                <span class="detail-value" id="memory-free">
+                  <%= (freeMemory / (1024 * 1024 * 1024)).toFixed(2) %> GB
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Used:</span>
+                <span class="detail-value" id="memory-used">
+                  <%= (usedMemory / (1024 * 1024 * 1024)).toFixed(2) %> GB
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Live Metrics Section -->
+  <div class="dashboard-section">
+    <h2><i class="fas fa-chart-line"></i> Live Metrics</h2>
+    
+    <div class="metrics-container">
+      <!-- CPU Usage Gauge -->
+      <div class="gauge-container">
+        <div class="gauge" id="cpu-gauge">
+          <div class="gauge-body">
+            <div class="gauge-fill" id="cpu-gauge-fill"></div>
+            <div class="gauge-cover">
+              <div class="gauge-value" id="cpu-gauge-value">0%</div>
+              <div class="gauge-label">CPU</div>
+            </div>
+          </div>
+          <div class="cpu-particles-container" id="cpu-particles"></div>
+        </div>
+      </div>
+      
+      <!-- Memory Usage Gauge -->
+      <div class="gauge-container">
+        <div class="gauge" id="memory-gauge">
+          <div class="gauge-body">
+            <div class="gauge-fill" id="memory-gauge-fill"></div>
+            <div class="gauge-cover">
+              <div class="gauge-value" id="memory-gauge-value">0%</div>
+              <div class="gauge-label">RAM</div>
+            </div>
+          </div>
+          <div class="memory-particles-container" id="memory-particles"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Chart Container -->
+    <div class="chart-container">
+      <canvas id="health-chart"></canvas>
+    </div>
+  </div>
+  
+  <!-- Discord Stats Section -->
+  <div class="dashboard-section">
+    <h2><i class="fab fa-discord"></i> Discord Stats</h2>
+    
+    <div class="discord-stats-grid">
+      <!-- Servers Card -->
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-server"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="guilds-count"><%= guilds %></div>
+          <div class="stat-label">Servers</div>
+        </div>
+        <div class="stat-animation">
+          <div class="animated-item" id="server-animation"></div>
+        </div>
+      </div>
+      
+      <!-- Users Card -->
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="users-count"><%= users %></div>
+          <div class="stat-label">Users</div>
+        </div>
+        <div class="stat-animation">
+          <div class="animated-item" id="users-animation"></div>
+        </div>
+      </div>
+      
+      <!-- Channels Card -->
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-hashtag"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="channels-count"><%= channels %></div>
+          <div class="stat-label">Channels</div>
+        </div>
+        <div class="stat-animation">
+          <div class="animated-item" id="channels-animation"></div>
+        </div>
+      </div>
+      
+      <!-- Commands Card -->
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-terminal"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="commands-count"><%= client.commands.size + client.slashCommands.size %></div>
+          <div class="stat-label">Commands</div>
+        </div>
+        <div class="stat-animation">
+          <div class="animated-item" id="commands-animation"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Last Updated -->
+  <div class="last-updated">
+    <span>Last request: </span>
+    <span id="last-updated-time"><%= lastChecked %></span>
+    <div class="connection-status">
+      <span class="connection-dot" id="connection-indicator"></span>
+      <span id="connection-text">Connecting...</span>
+    </div>
+  </div>
+</div>
+
+<!-- Web Socket and Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+<!-- Server Health Dashboard JavaScript -->
+<script>
+  // Initialize the chart with empty data
+  const ctx = document.getElementById('health-chart').getContext('2d');
+  const maxDataPoints = 20; // Maximum number of data points to display
+  
+  // Data arrays for the chart
+  const cpuData = Array(maxDataPoints).fill(0);
+  const memoryData = Array(maxDataPoints).fill(0);
+  const labels = Array(maxDataPoints).fill('');
+  
+  // Create chart
+  const healthChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'CPU Usage (%)',
+          data: cpuData,
+          borderColor: '#9c4dff',
+          backgroundColor: 'rgba(156, 77, 255, 0.1)',
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Memory Usage (%)',
+          data: memoryData,
+          borderColor: '#ff4d94',
+          backgroundColor: 'rgba(255, 77, 148, 0.1)',
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 500
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: '#d6b4fc'
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          },
+          ticks: {
+            color: '#d6b4fc',
+            callback: function(value) {
+              return value + '%';
+            }
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          },
+          ticks: {
+            color: '#d6b4fc',
+            maxRotation: 0,
+            display: false
+          }
+        }
+      }
+    }
+  });
+  
+  // WebSocket connection
+  let socket;
+  let cpuUsage = 0;
+  let memoryUsage = 0;
+  let reconnectAttempts = 0;
+  const maxReconnectAttempts = 5;
+  
+  function connectWebSocket() {
+    // Get the protocol (ws or wss)
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    
+    // Set connection status to connecting
+    document.getElementById('connection-indicator').className = "connection-dot connecting";
+    document.getElementById('connection-text').textContent = "Connecting...";
+    
+    // Create WebSocket connection
+    socket = new WebSocket(wsUrl);
+    
+    // Connection opened
+    socket.addEventListener('open', () => {
+      console.log('Connected to server');
+      document.getElementById('connection-indicator').className = "connection-dot connected";
+      document.getElementById('connection-text').textContent = "Connected";
+      reconnectAttempts = 0; // Reset reconnect attempts on successful connection
+    });
+    
+    // Listen for messages
+    socket.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      updateDashboard(data);
+    });
+    
+    // Connection closed
+    socket.addEventListener('close', () => {
+      document.getElementById('connection-indicator').className = "connection-dot disconnected";
+      document.getElementById('connection-text').textContent = "Disconnected";
+      
+      // Attempt to reconnect if within retry limit
+      if (reconnectAttempts < maxReconnectAttempts) {
+        reconnectAttempts++;
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000); // Exponential backoff with 30s max
+        console.log(`Connection closed. Attempting to reconnect in ${delay/1000}s...`);
+        setTimeout(connectWebSocket, delay);
+      } else {
+        console.log('Maximum reconnection attempts reached. Please refresh the page.');
+        document.getElementById('connection-text').textContent = "Reconnection failed. Please refresh.";
+      }
+    });
+    
+    // Connection error
+    socket.addEventListener('error', (error) => {
+      console.error('WebSocket error:', error);
+      document.getElementById('connection-indicator').className = "connection-dot disconnected";
+      document.getElementById('connection-text').textContent = "Connection Error";
+    });
+  }
+  
+  // Update the dashboard with new data
+  function updateDashboard(data) {
+    // Update system info
+    document.getElementById('platform-value').textContent = data.system.platform;
+    document.getElementById('arch-value').textContent = data.system.arch;
+    document.getElementById('hostname-value').textContent = data.system.hostname;
+    
+    // Update uptime
+    document.getElementById('uptime-value').textContent = 
+      `${data.uptime.days}d ${data.uptime.hours}h ${data.uptime.minutes}m`;
+    document.getElementById('uptime-seconds').textContent = Math.floor(data.uptime.totalSeconds);
+    
+    // Update CPU
+    document.getElementById('cpu-count').textContent = `${data.cpu.count} Cores`;
+    document.getElementById('load-avg').textContent = 
+      `${data.cpu.loadAverage[0].toFixed(2)}, ${data.cpu.loadAverage[1].toFixed(2)}, ${data.cpu.loadAverage[2].toFixed(2)}`;
+    
+    // Update Memory
+    document.getElementById('memory-usage').textContent = 
+      `${(data.memory.total / (1024 * 1024 * 1024)).toFixed(2)} GB Total`;
+    document.getElementById('memory-free').textContent = 
+      `${(data.memory.free / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    document.getElementById('memory-used').textContent = 
+      `${(data.memory.used / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    
+    // Update Discord stats
+    document.getElementById('guilds-count').textContent = data.discord.guilds;
+    document.getElementById('users-count').textContent = data.discord.users;
+    document.getElementById('channels-count').textContent = data.discord.channels;
+    document.getElementById('commands-count').textContent = data.discord.commands;
+    
+    // Update gauges
+    cpuUsage = data.cpu.usage;
+    memoryUsage = data.memory.usedPercentage;
+    
+    // Update gauge fills and values
+    updateGauge('cpu', cpuUsage);
+    updateGauge('memory', memoryUsage);
+    
+    // Update chart
+    updateChart(cpuUsage, memoryUsage, data.system.timestamp);
+    
+    // Update animations based on new data
+    updateStatAnimations(data);
+    
+    // Update last checked time
+    document.getElementById('last-updated-time').textContent = new Date().toLocaleString();
+  }
+  
+  // Update a gauge with new value
+  function updateGauge(type, value) {
+    const fill = document.getElementById(`${type}-gauge-fill`);
+    const valueEl = document.getElementById(`${type}-gauge-value`);
+    
+    // Update the gauge fill and rotation
+    fill.style.transform = `rotate(${value * 1.8}deg)`; // 0-100% maps to 0-180 degrees
+    
+    // Update the text value
+    valueEl.textContent = `${value}%`;
+    
+    // Change color based on value
+    let color;
+    if (value < 50) {
+      color = '#43b581'; // Green
+    } else if (value < 80) {
+      color = '#faa61a'; // Yellow
+    } else {
+      color = '#f04747'; // Red
+    }
+    
+    fill.style.backgroundColor = color;
+    
+    // Update particles
+    updateParticles(type, value, color);
+  }
+  
+  // Update chart with new data
+  function updateChart(cpuValue, memoryValue, timestamp) {
+    // Add new data points
+    cpuData.push(cpuValue);
+    memoryData.push(memoryValue);
+    
+    // Format the time label
+    const time = new Date(timestamp);
+    const timeLabel = `${time.getHours()}:${time.getMinutes().toString().padStart(2, '0')}:${time.getSeconds().toString().padStart(2, '0')}`;
+    labels.push(timeLabel);
+    
+    // Remove old data points if we exceed maxDataPoints
+    if (cpuData.length > maxDataPoints) {
+      cpuData.shift();
+      memoryData.shift();
+      labels.shift();
+    }
+    
+    // Update the chart
+    healthChart.data.labels = labels;
+    healthChart.data.datasets[0].data = cpuData;
+    healthChart.data.datasets[1].data = memoryData;
+    healthChart.update();
+  }
+  
+  // Create and update particles for gauges
+  function updateParticles(type, value, color) {
+    const container = document.getElementById(`${type}-particles`);
+    container.innerHTML = ''; // Clear existing particles
+    
+    // Only create particles if value is above certain threshold
+    if (value > 30) {
+      // Number of particles based on value
+      const particleCount = Math.floor(value / 10);
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'gauge-particle';
+        
+        // Random position and animation
+        const size = Math.random() * 5 + 2;
+        const duration = Math.random() * 2 + 1;
+        const posX = Math.random() * 100;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.backgroundColor = color;
+        particle.style.left = `${posX}%`;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.opacity = Math.random() * 0.7 + 0.3;
+        
+        container.appendChild(particle);
+      }
+    }
+  }
+  
+  // Update stat animations based on data
+  function updateStatAnimations(data) {
+    // Servers animation - pulsing server stack
+    const serverAnim = document.getElementById('server-animation');
+    serverAnim.innerHTML = '';
+    
+    for (let i = 0; i < Math.min(data.discord.guilds, 5); i++) {
+      const serverIcon = document.createElement('div');
+      serverIcon.className = 'server-icon';
+      serverIcon.style.animationDelay = `${i * 0.2}s`;
+      serverAnim.appendChild(serverIcon);
+    }
+    
+    // Users animation - moving dots
+    const usersAnim = document.getElementById('users-animation');
+    usersAnim.innerHTML = '';
+    
+    for (let i = 0; i < 8; i++) {
+      const userDot = document.createElement('div');
+      userDot.className = 'user-dot';
+      userDot.style.animationDelay = `${i * 0.15}s`;
+      userDot.style.left = `${Math.random() * 80 + 10}%`;
+      usersAnim.appendChild(userDot);
+    }
+    
+    // Channels animation - hash signs
+    const channelsAnim = document.getElementById('channels-animation');
+    channelsAnim.innerHTML = '';
+    
+    for (let i = 0; i < 5; i++) {
+      const hashSign = document.createElement('div');
+      hashSign.className = 'hash-sign';
+      hashSign.textContent = '#';
+      hashSign.style.animationDelay = `${i * 0.25}s`;
+      hashSign.style.left = `${i * 20}%`;
+      channelsAnim.appendChild(hashSign);
+    }
+    
+    // Commands animation - typing effect
+    const commandsAnim = document.getElementById('commands-animation');
+    commandsAnim.innerHTML = '';
+    
+    const cmdText = document.createElement('div');
+    cmdText.className = 'cmd-text';
+    cmdText.textContent = '> /command';
+    commandsAnim.appendChild(cmdText);
+  }
+  
+  // Initialize the dashboard
+  document.addEventListener('DOMContentLoaded', () => {
+    // Setup gauges
+    updateGauge('cpu', 0);
+    updateGauge('memory', 0);
+    
+    // Set up initial animations
+    updateStatAnimations({
+      discord: {
+        guilds: parseInt(document.getElementById('guilds-count').textContent),
+        users: parseInt(document.getElementById('users-count').textContent),
+        channels: parseInt(document.getElementById('channels-count').textContent),
+        commands: parseInt(document.getElementById('commands-count').textContent)
+      }
+    });
+    
+    // Start the WebSocket connection
+    connectWebSocket();
+    
+    // Add flip functionality to system cards
+    const systemCards = document.querySelectorAll('.system-card');
+    systemCards.forEach(card => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+      });
+    });
+    
+    // Initialize Three.js background
+    initThreeBackground({
+      color: 0x9c4dff,
+      density: 60,
+      size: 1.5,
+      speed: 0.4,
+      depth: 150
+    });
+  });
+</script>
+
+<!-- Custom CSS for server health dashboard -->
+<style>
+  /* Health Dashboard Layout */
+  .health-dashboard {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto 4rem auto;
+  }
+  
+  .dashboard-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .dashboard-section {
+    background-color: rgba(37, 37, 37, 0.7);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .dashboard-section h2 {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    border-bottom: 1px solid rgba(156, 77, 255, 0.3);
+    padding-bottom: 0.5rem;
+  }
+  
+  .dashboard-section h2 i {
+    margin-right: 0.5rem;
+  }
+  
+  /* Server Stats Grid */
+  .server-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* System Card */
+  .system-card {
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.9), rgba(30, 30, 30, 0.9));
+    border-radius: var(--border-radius);
+    height: 180px;
+    perspective: 1000px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+  }
+  
+  .system-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(156, 77, 255, 0.1), transparent);
+    z-index: 0;
+  }
+  
+  .system-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+  }
+  
+  .system-card.flipped .system-card-inner {
+    transform: rotateY(180deg);
+  }
+  
+  .system-card-front, .system-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+  }
+  
+  .system-card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, rgba(50, 50, 50, 0.9), rgba(40, 40, 40, 0.9));
+  }
+  
+  .system-icon {
+    background: rgba(156, 77, 255, 0.2);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 15px rgba(156, 77, 255, 0.4);
+  }
+  
+  .system-icon i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+  }
+  
+  .system-card h3 {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+  
+  .system-value {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  .system-details {
+    width: 100%;
+  }
+  
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .detail-label {
+    color: var(--text-color);
+    opacity: 0.8;
+  }
+  
+  .detail-value {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  
+  /* Metrics Container */
+  .metrics-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* Gauge Styles */
+  .gauge-container {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .gauge {
+    width: 200px;
+    height: 120px;
+    position: relative;
+    margin-bottom: 1rem;
+    overflow: visible;
+  }
+  
+  .gauge-body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 100px 100px 0 0;
+    background-color: rgba(37, 37, 37, 0.8);
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  .gauge-fill {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background-color: #43b581;
+    transform-origin: top center;
+    transform: rotate(0deg);
+    transition: transform 0.5s ease-out, background-color 0.5s;
+  }
+  
+  .gauge-cover {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: calc(100% - 30px);
+    height: calc(100% - 15px);
+    background-color: var(--secondary-color);
+    border-radius: 85px 85px 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .gauge-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.2rem;
+  }
+  
+  .gauge-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  /* Particles for gauges */
+  .cpu-particles-container,
+  .memory-particles-container {
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    overflow: hidden;
+  }
+  
+  .gauge-particle {
+    position: absolute;
+    bottom: 0;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    animation: particleRise 2s ease-out infinite;
+  }
+  
+  @keyframes particleRise {
+    0% {
+      transform: translateY(0) scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: translateY(-60px) scale(0.2);
+      opacity: 0;
+    }
+  }
+  
+  /* Chart Container */
+  .chart-container {
+    height: 300px;
+    position: relative;
+  }
+  
+  /* Discord Stats Grid */
+  .discord-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  /* Stat Card */
+  .stat-card {
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.9), rgba(30, 30, 30, 0.9));
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    min-height: 120px;
+  }
+  
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(156, 77, 255, 0.1), transparent);
+    z-index: 0;
+  }
+  
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(156, 77, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 0 15px rgba(156, 77, 255, 0.4);
+  }
+  
+  .stat-icon i {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+  }
+  
+  .stat-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.3rem;
+  }
+  
+  .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  /* Stat animations */
+  .stat-animation {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+  }
+  
+  /* Server stack animation */
+  .server-icon {
+    position: absolute;
+    width: 20px;
+    height: 25px;
+    background-color: rgba(156, 77, 255, 0.2);
+    border-radius: 3px;
+    right: 20px;
+    animation: serverPulse 2s infinite;
+  }
+  
+  .server-icon:nth-child(1) { bottom: 20px; }
+  .server-icon:nth-child(2) { bottom: 50px; }
+  .server-icon:nth-child(3) { bottom: 80px; }
+  .server-icon:nth-child(4) { bottom: 110px; }
+  .server-icon:nth-child(5) { bottom: 140px; }
+  
+  @keyframes serverPulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+  }
+  
+  /* User dots animation */
+  .user-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: rgba(156, 77, 255, 0.4);
+    border-radius: 50%;
+    animation: userMove 3s infinite;
+  }
+  
+  .user-dot:nth-child(1) { bottom: 20px; }
+  .user-dot:nth-child(2) { bottom: 40px; }
+  .user-dot:nth-child(3) { bottom: 60px; }
+  .user-dot:nth-child(4) { bottom: 80px; }
+  .user-dot:nth-child(5) { bottom: 100px; }
+  .user-dot:nth-child(6) { bottom: 120px; }
+  .user-dot:nth-child(7) { bottom: 140px; }
+  .user-dot:nth-child(8) { bottom: 160px; }
+  
+  @keyframes userMove {
+    0% { transform: translateX(-20px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(120px); opacity: 0; }
+  }
+  
+  /* Channel hash animation */
+  .hash-sign {
+    position: absolute;
+    color: rgba(156, 77, 255, 0.6);
+    font-size: 1.2rem;
+    font-weight: bold;
+    animation: hashPulse 2.5s infinite;
+  }
+  
+  .hash-sign:nth-child(1) { bottom: 20px; }
+  .hash-sign:nth-child(2) { bottom: 50px; }
+  .hash-sign:nth-child(3) { bottom: 80px; }
+  .hash-sign:nth-child(4) { bottom: 110px; }
+  .hash-sign:nth-child(5) { bottom: 140px; }
+  
+  @keyframes hashPulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.3); opacity: 0.8; }
+  }
+  
+  /* Command text animation */
+  .cmd-text {
+    position: absolute;
+    color: rgba(156, 77, 255, 0.7);
+    font-family: monospace;
+    font-size: 1rem;
+    bottom: 50%;
+    transform: translateY(50%);
+    right: 10px;
+    animation: cmdType 3s infinite;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  
+  @keyframes cmdType {
+    0% { width: 0; opacity: 0.3; }
+    50% { width: 80px; opacity: 1; }
+    90%, 100% { width: 80px; opacity: 0.3; }
+  }
+  
+  /* Last Updated */
+  .last-updated {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    gap: 0.5rem;
+  }
+  
+  /* Connection status */
+  .connection-status {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 1rem;
+  }
+  
+  .connection-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  
+  .connection-dot.connected {
+    background-color: #43b581;
+    box-shadow: 0 0 5px #43b581;
+  }
+  
+  .connection-dot.connecting {
+    background-color: #faa61a;
+    box-shadow: 0 0 5px #faa61a;
+    animation: blink 1s infinite;
+  }
+  
+  .connection-dot.disconnected {
+    background-color: #f04747;
+    box-shadow: 0 0 5px #f04747;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .health-dashboard {
+      padding: 1rem;
+    }
+    
+    .server-stats-grid,
+    .discord-stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .metrics-container {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .gauge {
+      margin: 0 auto;
+    }
+    
+    .system-card,
+    .stat-card {
+      max-width: 350px;
+      margin: 0 auto;
+    }
+  }
+</style>

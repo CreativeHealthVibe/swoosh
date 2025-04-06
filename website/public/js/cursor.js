@@ -1,84 +1,137 @@
 /**
- * Custom cursor implementation for SWOOSH Bot website
- * Creates a smooth, animated cursor that follows mouse movement
+ * Custom Cursor Implementation
+ * Creates an interactive cursor that follows mouse movement and reacts to interactive elements
  */
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Get existing cursor elements
-  const cursorDot = document.getElementById('cursor-dot');
-  const cursorOutline = document.getElementById('cursor-outline');
+  // Create custom cursor elements
+  const cursor = document.getElementById('custom-cursor');
+  if (!cursor) return;
   
-  // Skip if elements don't exist
-  if (!cursorDot || !cursorOutline) return;
-  
-  // Variables for cursor position
+  // Track mouse position
   let mouseX = 0;
   let mouseY = 0;
-  let dotX = 0;
-  let dotY = 0;
-  let outlineX = 0;
-  let outlineY = 0;
+  let cursorX = 0;
+  let cursorY = 0;
   
-  // Track mouse movement
-  document.addEventListener('mousemove', function(e) {
+  // Find all interactive elements
+  const interactiveElements = document.querySelectorAll('a, button, .card, .feature-card, input, select, textarea, [role="button"]');
+  
+  // Update mouse position on mouse move
+  document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
     
-    // Add custom cursor class to body
-    if (!document.body.classList.contains('custom-cursor')) {
-      document.body.classList.add('custom-cursor');
-    }
+    // Hide the default cursor
+    document.body.style.cursor = 'none';
+    
+    // Show the custom cursor
+    cursor.style.display = 'block';
   });
   
-  // Handle cursor on interactive elements
-  const interactiveElements = document.querySelectorAll('a, button, .btn, .interactive, .feature-card, .stat-card, .team-member, .command-card');
+  // Handle interactive elements hover
   interactiveElements.forEach(el => {
     el.addEventListener('mouseenter', () => {
-      cursorOutline.classList.add('cursor-hover');
+      cursor.classList.add('cursor-hover');
     });
     
     el.addEventListener('mouseleave', () => {
-      cursorOutline.classList.remove('cursor-hover');
+      cursor.classList.remove('cursor-hover');
     });
   });
   
-  // Hide cursor when mouse leaves the window
-  document.addEventListener('mouseout', function(e) {
-    if (e.relatedTarget === null) {
-      cursorDot.style.opacity = 0;
-      cursorOutline.style.opacity = 0;
-    }
+  // Handle mouse clicks
+  document.addEventListener('mousedown', () => {
+    cursor.classList.add('cursor-click');
   });
   
-  // Handle touch devices
-  document.addEventListener('touchstart', function() {
-    cursorDot.style.opacity = 0;
-    cursorOutline.style.opacity = 0;
-    document.body.classList.remove('custom-cursor');
+  document.addEventListener('mouseup', () => {
+    cursor.classList.remove('cursor-click');
   });
   
-  // Animation loop for smooth cursor movement
+  // Hide cursor when mouse leaves window
+  document.addEventListener('mouseleave', () => {
+    cursor.style.display = 'none';
+  });
+  
+  document.addEventListener('mouseenter', () => {
+    cursor.style.display = 'block';
+  });
+  
+  // Smoothly animate cursor position
   function animateCursor() {
-    // Calculate smooth movement with easing
-    dotX += (mouseX - dotX) * 0.3;
-    dotY += (mouseY - dotY) * 0.3;
+    // Calculate the distance between current cursor position and target (mouse position)
+    const dx = mouseX - cursorX;
+    const dy = mouseY - cursorY;
     
-    outlineX += (mouseX - outlineX) * 0.15;
-    outlineY += (mouseY - outlineY) * 0.15;
+    // Move cursor smoothly towards mouse (easing)
+    cursorX += dx * 0.2;
+    cursorY += dy * 0.2;
     
-    // Apply positions with transform translate
-    if (cursorDot.style.opacity !== '0') {
-      cursorDot.style.opacity = 1;
-      cursorOutline.style.opacity = 1;
-      
-      // Update positions with hardware-accelerated transforms
-      cursorDot.style.transform = `translate(${dotX}px, ${dotY}px)`;
-      cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px)`;
-    }
+    // Apply positions to cursor element
+    cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
     
-    // Continue animation
+    // Continue animation loop
     requestAnimationFrame(animateCursor);
   }
   
   // Start animation
   animateCursor();
+  
+  // Add cursor styles if not already in CSS
+  if (!document.querySelector('style#cursor-styles')) {
+    const style = document.createElement('style');
+    style.id = 'cursor-styles';
+    style.textContent = `
+      .custom-cursor {
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: rgba(156, 77, 255, 0.3);
+        border: 2px solid #9c4dff;
+        pointer-events: none;
+        z-index: 9999;
+        transition: width 0.2s, height 0.2s, background-color 0.2s, transform 0.01s;
+        transform: translate(-50%, -50%);
+        mix-blend-mode: difference;
+      }
+      
+      .custom-cursor::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 4px;
+        height: 4px;
+        background-color: white;
+        border-radius: 50%;
+        transition: width 0.2s, height 0.2s;
+      }
+      
+      .cursor-hover {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(156, 77, 255, 0.2);
+        border-width: 1px;
+      }
+      
+      .cursor-hover::after {
+        width: 6px;
+        height: 6px;
+      }
+      
+      .cursor-click {
+        width: 15px;
+        height: 15px;
+        background-color: rgba(156, 77, 255, 0.7);
+      }
+      
+      body {
+        cursor: none;
+      }
+    `;
+    document.head.appendChild(style);
+  }
 });

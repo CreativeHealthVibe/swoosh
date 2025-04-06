@@ -11,6 +11,9 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const http = require('http');
+const WebSocket = require('ws');
+const os = require('os');
+const osUtils = require('os-utils');
 require('dotenv').config();
 
 // Create Discord client with required intents
@@ -23,6 +26,7 @@ const client = new Client({
     GatewayIntentBits.GuildModeration,
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildPresences, // Added for user status tracking
   ],
   partials: [Partials.Channel, Partials.Message, Partials.Reaction, Partials.User]
 });
@@ -475,6 +479,42 @@ app.get('/status', (req, res) => {
   });
 });
 
+app.get('/bot-status', (req, res) => {
+  // Render detailed bot status analytics page
+  res.render('bot-status', {
+    uptime: getBotUptime(),
+    client: client,
+    guilds: client.guilds.cache.size,
+    users: client.users.cache.size,
+    channels: client.channels.cache.size,
+    lastChecked: new Date().toLocaleString()
+  });
+});
+
+// Server Health Dashboard with real-time updates
+app.get('/server-health', (req, res) => {
+  // Get initial system stats
+  const cpuCount = os.cpus().length;
+  const memoryUsage = process.memoryUsage();
+  const totalMemory = os.totalmem();
+  const freeMemory = os.freemem();
+  
+  res.render('server-health', {
+    title: 'SWOOSH Bot - Server Health',
+    uptime: getBotUptime(),
+    cpuCount: cpuCount,
+    totalMemory: totalMemory,
+    freeMemory: freeMemory,
+    usedMemory: memoryUsage.rss,
+    platform: os.platform(),
+    arch: os.arch(),
+    hostname: os.hostname(),
+    loadAverage: os.loadavg(),
+    client: client,
+    lastChecked: new Date().toLocaleString()
+  });
+});
+
 // API routes
 app.get('/api/status', (req, res) => {
   const uptime = getBotUptime();
@@ -486,6 +526,48 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// API endpoint for server health metrics
+app.get('/api/server-health', (req, res) => {
+  // Get system stats
+  const cpuCount = os.cpus().length;
+  const memoryUsage = process.memoryUsage();
+  const totalMemory = os.totalmem();
+  const freeMemory = os.freemem();
+  
+  // Calculate used memory percentage
+  const usedMemoryPercentage = Math.round((1 - (freeMemory / totalMemory)) * 100);
+  
+  // Get current CPU usage
+  osUtils.cpuUsage((cpuUsage) => {
+    res.json({
+      uptime: getBotUptime(),
+      cpu: {
+        count: cpuCount,
+        usage: Math.round(cpuUsage * 100),
+        loadAverage: os.loadavg()
+      },
+      memory: {
+        total: totalMemory,
+        free: freeMemory,
+        used: memoryUsage.rss,
+        usedPercentage: usedMemoryPercentage
+      },
+      system: {
+        platform: os.platform(),
+        arch: os.arch(),
+        hostname: os.hostname(),
+        timestamp: new Date().toISOString()
+      },
+      discord: {
+        guilds: client.guilds.cache.size,
+        users: client.users.cache.size,
+        channels: client.channels.cache.size,
+        commands: client.commands.size + client.slashCommands.size
+      }
+    });
+  });
+});
+
 // API endpoint for team members data
 app.get('/api/team', async (req, res) => {
   try {
@@ -494,35 +576,61 @@ app.get('/api/team', async (req, res) => {
         id: '930131254106550333',
         name: 'gh_Sman',
         role: 'Bot Owner',
-        description: 'Project Lead & Core Developer'
+        description: 'Project Lead & Core Developer for SWOOSH Bot. Specializes in Discord.js implementation and user experience design.',
+        github: 'ghSman',
+        discordId: '930131254106550333',
+        twitter: 'gh_sman',
+        badge: {
+          icon: 'fas fa-crown',
+          title: 'Project Founder'
+        }
       },
       {
         id: '1196042021488570391',
         name: 'fl4ddie',
         role: 'Bot Owner',
-        description: 'Systems Engineer & Feature Developer'
+        description: 'Systems Engineer & DevOps specialist. Handles deployment, hosting, and database implementations.',
+        github: 'fl4ddie',
+        discordId: '1196042021488570391',
+        twitter: null,
+        badge: {
+          icon: 'fas fa-server',
+          title: 'Infrastructure Lead'
+        }
       },
       {
         id: '506323791140356106',
         name: 'cdn.gov',
         role: 'Bot Developer',
-        description: 'Backend Developer & Integration Specialist'
+        description: 'Backend Developer & Integration Specialist. Creates APIs and implements new bot features.',
+        github: 'cdngov',
+        discordId: '506323791140356106',
+        twitter: 'cdn_gov',
+        badge: {
+          icon: 'fas fa-code',
+          title: 'Core Developer'
+        }
       }
     ];
     
-    // Fetch avatars from Discord for each team member
+    // Fetch avatars and status from Discord for each team member
     const teamWithAvatars = await Promise.all(teamMembers.map(async (member) => {
       try {
         const user = await client.users.fetch(member.id);
+        // Get user status - if presence is not enabled, will default to 'offline'
+        const status = user.presence?.status || 'offline';
+        
         return {
           ...member,
-          avatarURL: user.displayAvatarURL({ size: 128, format: 'png' })
+          avatarURL: user.displayAvatarURL({ size: 256, format: 'png' }),
+          status: status
         };
       } catch (error) {
         console.error(`Error fetching user ${member.id}:`, error);
         return {
           ...member,
-          avatarURL: null // No avatar available
+          avatarURL: null, // No avatar available
+          status: 'offline'
         };
       }
     }));
@@ -534,6 +642,16 @@ app.get('/api/team', async (req, res) => {
   }
 });
 
+// Team page route
+app.get('/team', (req, res) => {
+  res.render('team', {
+    title: 'SWOOSH Bot - Our Team',
+    client: client
+  });
+});
+
+
+
 // Legacy status route for UptimeRobot
 app.get('/status-check', (req, res) => {
   res.status(200).send('OK');
@@ -541,9 +659,125 @@ app.get('/status-check', (req, res) => {
 
 // Start the HTTP server
 const server = http.createServer(app);
+
+// Set up WebSocket server for real-time updates
+const wss = new WebSocket.Server({ server, path: '/ws' });
+
+// Store connected clients
+const clients = new Set();
+
+// WebSocket connection handler
+wss.on('connection', (ws) => {
+  console.log('New WebSocket client connected');
+  clients.add(ws);
+  
+  // Send initial data
+  sendServerStats(ws);
+  
+  // Handle disconnection
+  ws.on('close', () => {
+    console.log('WebSocket client disconnected');
+    clients.delete(ws);
+  });
+  
+  // Handle errors
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+    clients.delete(ws);
+  });
+});
+
+// Function to broadcast server stats to all connected clients
+function broadcastServerStats() {
+  if (clients.size === 0) return; // No clients connected
+  
+  // Get CPU usage and other system stats
+  osUtils.cpuUsage((cpuUsage) => {
+    const stats = {
+      uptime: getBotUptime(),
+      cpu: {
+        count: os.cpus().length,
+        usage: Math.round(cpuUsage * 100),
+        loadAverage: os.loadavg()
+      },
+      memory: {
+        total: os.totalmem(),
+        free: os.freemem(),
+        used: process.memoryUsage().rss,
+        usedPercentage: Math.round((1 - (os.freemem() / os.totalmem())) * 100)
+      },
+      system: {
+        platform: os.platform(),
+        arch: os.arch(),
+        hostname: os.hostname(),
+        timestamp: new Date().toISOString()
+      },
+      discord: {
+        guilds: client.guilds.cache.size,
+        users: client.users.cache.size,
+        channels: client.channels.cache.size,
+        commands: client.commands.size + client.slashCommands.size
+      }
+    };
+    
+    // Send to all connected clients
+    for (const client of clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(stats));
+      }
+    }
+  });
+}
+
+// Function to send server stats to a specific client
+function sendServerStats(ws) {
+  if (ws.readyState !== WebSocket.OPEN) return;
+  
+  osUtils.cpuUsage((cpuUsage) => {
+    const stats = {
+      uptime: getBotUptime(),
+      cpu: {
+        count: os.cpus().length,
+        usage: Math.round(cpuUsage * 100),
+        loadAverage: os.loadavg()
+      },
+      memory: {
+        total: os.totalmem(),
+        free: os.freemem(),
+        used: process.memoryUsage().rss,
+        usedPercentage: Math.round((1 - (os.freemem() / os.totalmem())) * 100)
+      },
+      system: {
+        platform: os.platform(),
+        arch: os.arch(),
+        hostname: os.hostname(),
+        timestamp: new Date().toISOString()
+      },
+      discord: {
+        guilds: client.guilds.cache.size,
+        users: client.users.cache.size,
+        channels: client.channels.cache.size,
+        commands: client.commands.size + client.slashCommands.size
+      }
+    };
+    
+    ws.send(JSON.stringify(stats));
+  });
+}
+
+// Set up interval to broadcast stats every 2 seconds
+const statsInterval = setInterval(broadcastServerStats, 2000);
+
+// Clean up interval on process exit
+process.on('exit', () => {
+  clearInterval(statsInterval);
+});
+
+// Start the server
 server.listen(PORT, () => {
   console.log(`🌐 Express server running on port ${PORT}`);
   console.log(`🔗 Website URL: https://swooshfinal.onrender.com/`);
+  console.log(`📊 Real-time server health monitoring enabled`);
 });
 
 // Start bot

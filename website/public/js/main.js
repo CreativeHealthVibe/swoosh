@@ -93,22 +93,68 @@ function loadTeamMembers() {
         memberElement.className = 'team-member';
         
         // Determine role class for styling
-        const roleClass = member.role.toLowerCase().includes('owner') ? 'owner' : 'developer';
-        const roleEmoji = member.role.toLowerCase().includes('owner') ? '👑' : '💻';
+        let roleClass = 'developer';
+        if (member.role.toLowerCase().includes('owner')) {
+          roleClass = 'owner';
+        } else if (member.role.toLowerCase().includes('manager')) {
+          roleClass = 'manager';
+        }
         
         // Use the fetched avatar URL or fallback to a default
-        const avatarUrl = member.avatarURL || '/img/logo.png';
+        const avatarUrl = member.avatarURL || '/img/default-avatar.png';
+        
+        // Status indicator (online, idle, dnd, offline)
+        const statusClass = member.status ? `status-${member.status}` : 'status-offline';
+        
+        // Social links
+        const discordLink = member.discordId ? `https://discord.com/users/${member.discordId}` : null;
+        const githubLink = member.github ? `https://github.com/${member.github}` : null;
+        const twitterLink = member.twitter ? `https://twitter.com/${member.twitter}` : null;
+        
+        // Create HTML for social links
+        let socialLinks = '';
+        if (discordLink) {
+          socialLinks += `<a href="${discordLink}" class="social-link" target="_blank" title="Discord Profile"><i class="fab fa-discord"></i></a>`;
+        }
+        if (githubLink) {
+          socialLinks += `<a href="${githubLink}" class="social-link" target="_blank" title="GitHub Profile"><i class="fab fa-github"></i></a>`;
+        }
+        if (twitterLink) {
+          socialLinks += `<a href="${twitterLink}" class="social-link" target="_blank" title="Twitter Profile"><i class="fab fa-twitter"></i></a>`;
+        }
         
         memberElement.innerHTML = `
+          <div class="member-banner"></div>
           <div class="member-avatar">
-            <img src="${avatarUrl}" alt="${member.name}" class="${roleClass}-avatar">
-            <div class="role-badge ${roleClass}">${roleEmoji} ${member.role.split(' ')[1] || member.role}</div>
+            <img src="${avatarUrl}" alt="${member.name}">
+            <div class="status-indicator ${statusClass}"></div>
           </div>
-          <h3>${member.name}</h3>
-          <p>${member.description}</p>
+          ${member.badge ? `<div class="member-badge" title="${member.badge.title}"><i class="${member.badge.icon}"></i></div>` : ''}
+          <div class="member-content">
+            <h3 class="member-name">${member.name}</h3>
+            <span class="member-role ${roleClass}">${member.role}</span>
+            <p class="member-bio">${member.description || 'Team member of SWOOSH Bot'}</p>
+            <div class="member-social">
+              ${socialLinks}
+            </div>
+          </div>
         `;
         
         teamContainer.appendChild(memberElement);
+      });
+      
+      // Add animation to team members
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      document.querySelectorAll('.team-member').forEach((member) => {
+        observer.observe(member);
       });
     })
     .catch(error => {
