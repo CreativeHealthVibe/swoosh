@@ -1,0 +1,28 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9c4dff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3acd;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Base Circle -->
+  <circle cx="100" cy="100" r="90" fill="#1a0d2c" />
+  
+  <!-- Swoosh Shape -->
+  <path d="M165 75C155 50 130 35 100 35C55 35 20 70 20 115C20 160 55 195 100 195C145 195 180 160 180 115C180 105 177.5 95.5 173 87" 
+        stroke="url(#grad1)" stroke-width="12" stroke-linecap="round" fill="none" filter="url(#glow)" />
+  
+  <!-- Arrow -->
+  <path d="M165 75L145 70L155 50" stroke="url(#grad1)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />
+  
+  <!-- Central Bot Face -->
+  <circle cx="100" cy="100" r="25" fill="url(#grad1)" />
+  <circle cx="90" cy="95" r="5" fill="white" />
+  <circle cx="110" cy="95" r="5" fill="white" />
+  <path d="M90 115Q100 125 110 115" stroke="white" stroke-width="3" stroke-linecap="round" fill="none" />
+</svg>

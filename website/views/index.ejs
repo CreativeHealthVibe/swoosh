@@ -1,237 +1,75 @@
-<% 
-  // Set variables for the template
-  title = 'SWOOSH Bot - Home';
-  path = '/';
-%>
+<!-- Three.js Background -->
+<div id="home-bg" class="background-container"></div>
 
-<section class="hero">
+<div class="hero-section">
   <div class="hero-content">
-    <h1>Speed. Style. Vibe.</h1>
-    <p>Elevate your Discord server with Swoosh Bot — powerful moderation, seamless ticket management, and unique custom utilities designed to enhance your community experience.</p>
-    <div class="hero-buttons">
-      <a href="https://discord.com/oauth2/authorize?client_id=<%= client && client.user ? client && client.user ? client.user.id : "1253391043969974302" : '1253391043969974302' %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary" target="_blank">Add to Discord</a>
-      <a href="/commands" class="btn btn-secondary">View Commands</a>
-    </div>
-  </div>
-  <div class="scroll-down"></div>
-</section>
-
-<section class="features-section" id="features">
-  <div class="container">
-    <h2 class="section-title">Features</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-shield-alt"></i>
-        </div>
-        <h3>Moderation</h3>
-        <p>Powerful moderation tools including ban, kick, mute, and purge commands for effective server management.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-ticket-alt"></i>
-        </div>
-        <h3>Ticket System</h3>
-        <p>Comprehensive ticket system with transcripts, user management, and customizable categories.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-user-shield"></i>
-        </div>
-        <h3>Auto-Roles</h3>
-        <p>Automatically assign roles to new members when they join your server with customizable settings.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-image"></i>
-        </div>
-        <h3>Custom Emojis</h3>
-        <p>Create custom server emojis directly through bot commands with simple uploads or URLs.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-user-tag"></i>
-        </div>
-        <h3>User Info</h3>
-        <p>Get detailed information about users with the dynamic /whos command with special roles highlighting.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-history"></i>
-        </div>
-        <h3>AFK System</h3>
-        <p>Let your server members set their AFK status with custom messages when they're away.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="team-section">
-  <div class="container">
-    <h2 class="section-title">Meet the Team</h2>
-    <div class="team-members" id="team-members-container">
-      <!-- Team members will be loaded dynamically via JavaScript -->
-      <div class="team-loading">
-        <i class="fas fa-spinner fa-spin"></i>
-        <p>Loading team information...</p>
-      </div>
-    </div>
-    <p class="team-note">Use the <code>/developers</code> command in Discord to learn more about our team!</p>
-  </div>
-</section>
-
-<section class="statistics-section">
-  <div class="container">
-    <h2 class="section-title">Bot Statistics</h2>
-    <div class="stat-grid">
+    <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" class="hero-logo">
+    <h1 class="hero-title">Welcome to <span class="gradient-text">SWOOSH</span> Bot</h1>
+    <p class="hero-subtitle">A powerful Discord utility bot with advanced moderation tools, image processing, and more.</p>
+    
+    <div class="stats-cards">
       <div class="stat-card">
-        <div class="stat-icon">
-          <i class="fas fa-server"></i>
-        </div>
-        <div class="stat-number"><%= client.guilds.cache.size %></div>
+        <i class="fas fa-server"></i>
+        <div class="stat-value"><%= client.guilds.cache.size %></div>
         <div class="stat-label">Servers</div>
       </div>
+      
       <div class="stat-card">
-        <div class="stat-icon">
-          <i class="fas fa-hashtag"></i>
-        </div>
-        <div class="stat-number"><%= client.channels.cache.size %></div>
-        <div class="stat-label">Channels</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-number"><%= client.users.cache.size %></div>
+        <i class="fas fa-users"></i>
+        <div class="stat-value"><%= client.users.cache.size.toLocaleString() %></div>
         <div class="stat-label">Users</div>
       </div>
+      
       <div class="stat-card">
-        <div class="stat-icon">
-          <i class="fas fa-terminal"></i>
-        </div>
-        <div class="stat-number"><%= client.commands.size + client.slashCommands.size %></div>
-        <div class="stat-label">Commands</div>
+        <i class="fas fa-clock"></i>
+        <div class="stat-value"><%= uptime.days %>d <%= uptime.hours %>h</div>
+        <div class="stat-label">Uptime</div>
       </div>
     </div>
+    
+    <div class="hero-buttons">
+      <a href="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands" class="gradient-button">
+        <i class="fab fa-discord"></i> Add to Discord
+      </a>
+      <a href="/server-health" class="btn btn-secondary">
+        <i class="fas fa-chart-line"></i> Server Status
+      </a>
+    </div>
   </div>
-</section>
+</div>
 
-<section class="uptime-section">
+<section class="features-section">
   <div class="container">
-    <h2 class="section-title">Bot Uptime</h2>
-    <div class="uptime-display">
-      <div class="uptime-card">
-        <div class="uptime-value"><%= uptime.days %></div>
-        <div class="uptime-label">Days</div>
+    <h2 class="section-title text-center">Why Choose <span class="gradient-text">SWOOSH</span> Bot?</h2>
+    <p class="section-description text-center">Discover the features that make our bot stand out</p>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+        <h3 class="feature-title">Advanced Moderation</h3>
+        <p class="feature-description">Keep your server safe with powerful moderation tools including ban, kick, mute, and more.</p>
       </div>
-      <div class="uptime-card">
-        <div class="uptime-value"><%= uptime.hours %></div>
-        <div class="uptime-label">Hours</div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-image"></i></div>
+        <h3 class="feature-title">Image Processing</h3>
+        <p class="feature-description">Create custom emojis, manipulate images, and generate visual content directly in Discord.</p>
       </div>
-      <div class="uptime-card">
-        <div class="uptime-value"><%= uptime.minutes %></div>
-        <div class="uptime-label">Minutes</div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-ticket-alt"></i></div>
+        <h3 class="feature-title">Support Tickets</h3>
+        <p class="feature-description">Implement a comprehensive ticket system with transcripts and user management.</p>
       </div>
-      <div class="uptime-card">
-        <div class="uptime-value"><%= uptime.seconds %></div>
-        <div class="uptime-label">Seconds</div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-user-tag"></i></div>
+        <h3 class="feature-title">Auto-Roles</h3>
+        <p class="feature-description">Automatically assign roles to new members and create custom role assignment systems.</p>
       </div>
-    </div>
-    <p class="uptime-updated">Last checked: <%= lastChecked %></p>
-  </div>
-</section>
-
-<section class="cta-section">
-  <div class="container">
-    <div class="cta-content">
-      <h2>Ready to enhance your Discord server?</h2>
-      <p>Add SWOOSH Bot to your server today and unlock powerful moderation and utility features.</p>
-      <a href="https://discord.com/oauth2/authorize?client_id=<%= client && client.user ? client.user.id : "1253391043969974302" %>&permissions=8&scope=bot%20applications.commands" class="btn btn-primary" target="_blank">Add to Discord</a>
     </div>
   </div>
 </section>
 
-<script>
-  // Load team members data from the API
-  document.addEventListener('DOMContentLoaded', function() {
-    // Fetch team members from the API
-    fetch('/api/team')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to load team data');
-        }
-        return response.json();
-      })
-      .then(teamMembers => {
-        // Clear loading state
-        document.querySelector('.team-loading')?.remove();
-        
-        // Get role colors
-        const getRoleColor = (role) => {
-          switch(role) {
-            case 'Bot Owner':
-              return '#ffd700'; // Gold
-            case 'Bot Developer':
-              return '#9c4dff'; // Purple
-            default:
-              return '#5865f2'; // Discord blue
-          }
-        };
-        
-        // Render team members
-        const teamContainer = document.getElementById('team-members-container');
-        teamMembers.forEach(member => {
-          const memberElement = document.createElement('div');
-          memberElement.className = 'team-member';
-          memberElement.style.borderColor = getRoleColor(member.role);
-          
-          const avatarUrl = member.avatarURL || '/img/team/default-avatar.png';
-          
-          memberElement.innerHTML = `
-            <div class="member-avatar">
-              <img src="${avatarUrl}" alt="${member.name}'s Avatar">
-            </div>
-            <div class="member-info">
-              <h3>${member.name}</h3>
-              <p class="member-role">${member.role}</p>
-              <p class="member-description">${member.description}</p>
-            </div>
-          `;
-          
-          teamContainer.appendChild(memberElement);
-        });
-      })
-      .catch(error => {
-        console.error('Error loading team data:', error);
-        const teamContainer = document.getElementById('team-members-container');
-        teamContainer.innerHTML = `
-          <div class="team-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <p>Unable to load team information. Please try again later.</p>
-          </div>
-        `;
-      });
-      
-    // Animate statistics
-    const statNumbers = document.querySelectorAll('.stat-number');
-    statNumbers.forEach(element => {
-      const finalValue = parseInt(element.textContent);
-      if (isNaN(finalValue)) return;
-      
-      let startValue = 0;
-      const duration = 2000;
-      const increment = Math.ceil(finalValue / (duration / 16));
-      
-      // Start the counter
-      const counter = setInterval(() => {
-        startValue += increment;
-        if (startValue >= finalValue) {
-          element.textContent = finalValue.toLocaleString();
-          clearInterval(counter);
-        } else {
-          element.textContent = startValue.toLocaleString();
-        }
-      }, 16);
-    });
-  });
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/js/three-background.js"></script>

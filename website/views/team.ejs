@@ -1,121 +1,227 @@
-<div class="team-container">
-  <div class="team-header">
-    <h1 class="gradient-text">Meet Our Team</h1>
-    <p class="team-description">The talented developers behind SWOOSH Bot</p>
-    <div class="team-header-glow"></div>
-  </div>
-  
-  <div class="team-members-container">
-    <!-- Team members will be loaded via JavaScript -->
-    <div id="team-members-grid" class="team-members-grid">
-      <div class="team-member-card loading">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Loading team information...</div>
+<div id="team-bg" class="background-container"></div>
+
+<div class="team-page">
+  <div class="container">
+    <header class="team-header text-center">
+      <h1 class="page-title gradient-text">Meet Our Team</h1>
+      <p class="subtitle">The amazing people behind SWOOSH Bot</p>
+    </header>
+    
+    <div class="team-container">
+      <!-- Team member cards will be loaded dynamically -->
+      <div id="team-members" class="team-grid">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-pulse fa-3x"></i>
+          <p>Loading team members...</p>
+        </div>
       </div>
     </div>
   </div>
-  
-  <div class="team-join">
-    <h2>Interested in joining our team?</h2>
-    <p>We're always looking for talented developers, designers, and community managers to help make SWOOSH Bot even better.</p>
-    <a href="https://discord.gg/swoosh" class="gradient-button pulse-animation" target="_blank">
-      <i class="fab fa-discord"></i>
-      Join Our Discord
-    </a>
+</div>
+
+<!-- Team member modal template -->
+<div id="team-modal" class="member-modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <div id="modal-content"></div>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/js/team-background.js"></script>
 <script>
-  async function loadTeamMembers() {
-    try {
-      const response = await fetch('/api/team');
-      if (!response.ok) {
-        throw new Error('Failed to fetch team data');
+document.addEventListener('DOMContentLoaded', function() {
+  // Fetch team members from API
+  fetch('/api/team')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        renderTeamMembers(data.teamMembers);
+      } else {
+        showError('Failed to load team data');
       }
+    })
+    .catch(error => {
+      console.error('Error fetching team data:', error);
+      showError('An error occurred while fetching team data');
+    });
+  
+  // Render team members from API data
+  function renderTeamMembers(members) {
+    const teamContainer = document.getElementById('team-members');
+    teamContainer.innerHTML = ''; // Clear loading spinner
+    
+    members.forEach(member => {
+      // Create team member card
+      const memberCard = document.createElement('div');
+      memberCard.className = 'team-member';
+      memberCard.setAttribute('data-member-id', member.id);
       
-      const data = await response.json();
-      const teamMembers = data.team || data; // Handle both new and old API format
-      const teamGrid = document.getElementById('team-members-grid');
+      // Status indicator class based on Discord status
+      const statusClass = getStatusClass(member.status);
       
-      // Clear loading state
-      teamGrid.innerHTML = '';
+      // Generate badges HTML
+      const badgesHtml = member.badges ? member.badges.map(badge => 
+        `<span class="member-badge badge-${badge}">${formatBadgeName(badge)}</span>`
+      ).join('') : '';
       
-      // Create cards for each team member
-      teamMembers.forEach(member => {
-        const statusClass = member.status || 'offline';
-        const avatarUrl = member.avatarURL || '/img/default-avatar.svg';
-        const timeOnTeam = member.monthsOnTeam ? 
-          `<div class="member-time-badge" title="Time on team">
-            <i class="fas fa-calendar-alt"></i> ${member.monthsOnTeam} month${member.monthsOnTeam !== 1 ? 's' : ''}
-           </div>` : '';
-        
-        const memberCard = document.createElement('div');
-        memberCard.className = 'team-member-card';
-        memberCard.dataset.role = member.role.toLowerCase().replace(' ', '-');
-        
-        // Create specialty tags if available
-        let specialtyTags = '';
-        if (member.specialties && member.specialties.length > 0) {
-          specialtyTags = `
-            <div class="member-specialties">
-              ${member.specialties.map(specialty => 
-                `<span class="specialty-tag">${specialty}</span>`
-              ).join('')}
-            </div>
-          `;
-        }
-        
-        memberCard.innerHTML = `
-          <div class="card-glow"></div>
+      memberCard.innerHTML = `
+        <div class="member-card">
           <div class="member-avatar-container">
-            <div class="avatar-ring"></div>
-            <img src="${avatarUrl}" alt="${member.name}" class="member-avatar">
-            <span class="member-status ${statusClass}" title="${statusClass}"></span>
+            <img src="${member.avatar}" alt="${member.displayName}" class="member-avatar" onerror="this.src='/img/default-avatar-${member.role.toLowerCase().replace(' ', '-')}.svg'">
+            <span class="status-indicator ${statusClass}" title="${member.status}"></span>
           </div>
           <div class="member-info">
-            <h3 class="member-name">${member.name}</h3>
-            <div class="member-role">
-              <span class="role-badge">${member.role}</span>
-              ${member.badge ? `<span class="badge-icon" title="${member.badge.title}"><i class="${member.badge.icon}"></i></span>` : ''}
-              ${timeOnTeam}
-            </div>
-            <p class="member-description">${member.description}</p>
-            ${specialtyTags}
-            <div class="member-socials">
-              ${member.github ? `<a href="https://github.com/${member.github}" target="_blank" class="social-link" aria-label="GitHub Profile"><i class="fab fa-github"></i></a>` : ''}
-              ${member.twitter ? `<a href="https://twitter.com/${member.twitter}" target="_blank" class="social-link" aria-label="Twitter Profile"><i class="fab fa-twitter"></i></a>` : ''}
-              <a href="https://discord.com/users/${member.discordId}" target="_blank" class="social-link" aria-label="Discord Profile"><i class="fab fa-discord"></i></a>
-            </div>
+            <h3 class="member-name">${member.displayName}</h3>
+            <div class="member-role">${member.role}</div>
+            <div class="member-badges">${badgesHtml}</div>
           </div>
-        `;
-        
-        teamGrid.appendChild(memberCard);
-      });
-      
-    } catch (error) {
-      console.error('Error loading team members:', error);
-      const teamGrid = document.getElementById('team-members-grid');
-      teamGrid.innerHTML = `
-        <div class="error-message">
-          <i class="fas fa-exclamation-triangle"></i>
-          <p>Failed to load team information. Please try again later.</p>
+          <div class="member-footer">
+            <div class="member-time">${member.monthsOnTeam} months on team</div>
+            <button class="view-profile-btn">View Profile</button>
+          </div>
         </div>
       `;
+      
+      // Add click handler to view detailed profile
+      memberCard.querySelector('.view-profile-btn').addEventListener('click', () => {
+        showMemberModal(member);
+      });
+      
+      teamContainer.appendChild(memberCard);
+    });
+    
+    // Add animation classes after rendering
+    setTimeout(() => {
+      const memberCards = document.querySelectorAll('.team-member');
+      memberCards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.add('animated');
+        }, index * 150);
+      });
+    }, 100);
+  }
+  
+  // Show error message
+  function showError(message) {
+    const teamContainer = document.getElementById('team-members');
+    teamContainer.innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>${message}</p>
+      </div>
+    `;
+  }
+  
+  // Get status class for indicator
+  function getStatusClass(status) {
+    switch(status) {
+      case 'online': return 'status-online';
+      case 'idle': return 'status-idle';
+      case 'dnd': return 'status-dnd';
+      default: return 'status-offline';
     }
   }
   
-  // Start Three.js background
-  window.addEventListener('DOMContentLoaded', () => {
-    // Initialize the Three.js background with purple particles
-    initThreeBackground({
-      color: 0x9c4dff,
-      density: 100,
-      size: 1.5,
-      speed: 0.2,
-      depth: 80
+  // Format badge name
+  function formatBadgeName(badge) {
+    switch(badge) {
+      case 'founder': return 'Founder';
+      case 'developer': return 'Developer';
+      case 'devops': return 'DevOps';
+      default: return badge.charAt(0).toUpperCase() + badge.slice(1);
+    }
+  }
+  
+  // Show member modal with detailed info
+  function showMemberModal(member) {
+    const modal = document.getElementById('team-modal');
+    const modalContent = document.getElementById('modal-content');
+    
+    // Build specialty list
+    let specialtyHtml = '';
+    if (member.specialty && member.specialty.length > 0) {
+      specialtyHtml = `
+        <div class="modal-specialty">
+          <h4>Specialties</h4>
+          <ul>
+            ${member.specialty.map(spec => `<li>${spec}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
+    
+    // Build social links
+    let socialLinksHtml = '';
+    if (member.github || member.twitter) {
+      socialLinksHtml = `
+        <div class="modal-social">
+          <h4>Connect</h4>
+          <div class="social-icons">
+            ${member.github ? `<a href="https://github.com/${member.github}" target="_blank" class="social-icon github"><i class="fab fa-github"></i></a>` : ''}
+            ${member.twitter ? `<a href="https://twitter.com/${member.twitter}" target="_blank" class="social-icon twitter"><i class="fab fa-twitter"></i></a>` : ''}
+          </div>
+        </div>
+      `;
+    }
+    
+    // Format join date
+    const joinDate = new Date(member.joinDate);
+    const formattedDate = joinDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
     
-    // Load team members
-    loadTeamMembers();
-  });
+    // Generate badges HTML for modal
+    const badgesHtml = member.badges ? member.badges.map(badge => 
+      `<span class="member-badge badge-${badge}">${formatBadgeName(badge)}</span>`
+    ).join('') : '';
+    
+    modalContent.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-avatar-container">
+          <img src="${member.avatar}" alt="${member.displayName}" class="modal-avatar" onerror="this.src='/img/default-avatar-${member.role.toLowerCase().replace(' ', '-')}.svg'">
+          <span class="status-indicator ${getStatusClass(member.status)}" title="${member.status}"></span>
+        </div>
+        <div class="modal-title">
+          <h2>${member.displayName}</h2>
+          <div class="modal-role">${member.role}</div>
+          <div class="modal-badges">${badgesHtml}</div>
+        </div>
+      </div>
+      <div class="modal-body">
+        ${specialtyHtml}
+        
+        <div class="modal-stats">
+          <div class="stat-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Joined: ${formattedDate}</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-clock"></i>
+            <span>${member.monthsOnTeam} months on team</span>
+          </div>
+        </div>
+        
+        ${socialLinksHtml}
+      </div>
+    `;
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Add close handlers
+    const closeBtn = document.querySelector('.close-modal');
+    closeBtn.onclick = () => {
+      modal.style.display = 'none';
+    };
+    
+    window.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    };
+  }
+});
 </script>

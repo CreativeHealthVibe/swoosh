@@ -1,146 +1,132 @@
 /**
- * Three.js Background with Interactive Particles
- * Creates an animated particle background that responds to mouse movements
+ * Three.js background animation for landing page
  */
 
-// Default configuration
-const defaultConfig = {
-  color: 0x9c4dff,
-  density: 100,
-  size: 1.0,
-  speed: 0.2,
-  depth: 50,
-  responsive: true
-};
-
-// Global variables
-let container, scene, camera, renderer, particles;
-let mouseX = 0, mouseY = 0;
-let windowHalfX = window.innerWidth / 2;
-let windowHalfY = window.innerHeight / 2;
-
-/**
- * Initializes the Three.js background with custom configuration
- * @param {Object} customConfig - Override default settings
- */
-function initThreeBackground(customConfig = {}) {
-  // Merge configurations
-  const config = { ...defaultConfig, ...customConfig };
-  
-  // Find container
-  container = document.getElementById('three-background');
+document.addEventListener('DOMContentLoaded', function() {
+  const container = document.getElementById('home-bg');
   if (!container) return;
   
-  // Create scene
-  scene = new THREE.Scene();
+  let scene, camera, renderer;
+  const particlesData = [];
+  let particles;
+  const PARTICLE_COUNT = 1000;
+  const maxDistance = 150;
   
-  // Add camera
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
-  camera.position.z = 1000;
+  // Initialize mouse position variables
+  let mouseX = 0, mouseY = 0;
+  const windowHalfX = window.innerWidth / 2;
+  const windowHalfY = window.innerHeight / 2;
   
-  // Create particles
-  const particles = new THREE.BufferGeometry();
-  const positions = [];
-  const colors = [];
+  init();
+  animate();
   
-  const color = new THREE.Color(config.color);
-  
-  // Calculate number of particles based on screen size and density
-  const particleCount = Math.ceil(window.innerWidth * window.innerHeight / (10000 / config.density));
-  
-  // Create the particles
-  for (let i = 0; i < particleCount; i++) {
-    // Position particles randomly in 3D space
-    const x = Math.random() * 2000 - 1000;
-    const y = Math.random() * 2000 - 1000;
-    const z = Math.random() * config.depth - (config.depth / 2);
+  function init() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.z = 500;
     
-    positions.push(x, y, z);
+    // Create particles
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
     
-    // Add slight color variations
-    const shade = 0.8 + Math.random() * 0.4; // 0.8-1.2 range for subtle variation
-    colors.push(color.r * shade, color.g * shade, color.b * shade);
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      // Random positioning in 3D space
+      const x = Math.random() * 1000 - 500;
+      const y = Math.random() * 1000 - 500;
+      const z = Math.random() * 500 - 250;
+      
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
+      
+      // Add velocity and acceleration data
+      particlesData.push({
+        velocity: new THREE.Vector3(
+          (Math.random() - 0.5) * 0.5,
+          (Math.random() - 0.5) * 0.5,
+          (Math.random() - 0.5) * 0.5
+        ),
+        acceleration: new THREE.Vector3(0, 0, 0),
+        numConnections: 0
+      });
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    
+    // Point material with custom shader
+    const material = new THREE.PointsMaterial({
+      color: 0x9c4dff,
+      size: 3,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+    });
+    
+    particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+    
+    // Lines for connections
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x9c4dff,
+      transparent: true,
+      opacity: 0.2
+    });
+    
+    // Create renderer
+    renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+    
+    // Add window resize event
+    window.addEventListener('resize', onWindowResize);
+    
+    // Add mouse move effect
+    document.addEventListener('mousemove', onMouseMove);
   }
   
-  // Add position and color attributes to geometry
-  particles.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  particles.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
   
-  // Create particle material
-  const particleMaterial = new THREE.PointsMaterial({
-    size: config.size,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.8,
-    sizeAttenuation: true
-  });
+  function onMouseMove(event) {
+    mouseX = event.clientX - windowHalfX;
+    mouseY = event.clientY - windowHalfY;
+  }
   
-  // Create the particle system
-  const particleSystem = new THREE.Points(particles, particleMaterial);
-  scene.add(particleSystem);
+  function animate() {
+    requestAnimationFrame(animate);
+    render();
+  }
   
-  // Set up WebGL renderer
-  renderer = new THREE.WebGLRenderer({ 
-    antialias: true,
-    alpha: true 
-  });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x000000, 0);
-  container.appendChild(renderer.domElement);
-  
-  // Event listeners
-  document.addEventListener('mousemove', onDocumentMouseMove, false);
-  window.addEventListener('resize', onWindowResize, false);
-  
-  // Start animation
-  animate(particleSystem, config.speed);
-}
-
-/**
- * Handle mouse movement to control particle animation
- */
-function onDocumentMouseMove(event) {
-  mouseX = (event.clientX - windowHalfX) * 0.05;
-  mouseY = (event.clientY - windowHalfY) * 0.05;
-}
-
-/**
- * Handle window resize
- */
-function onWindowResize() {
-  windowHalfX = window.innerWidth / 2;
-  windowHalfY = window.innerHeight / 2;
-  
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-/**
- * Animation loop
- */
-function animate(particleSystem, speed) {
-  requestAnimationFrame(() => animate(particleSystem, speed));
-  
-  particleSystem.rotation.x += 0.0003;
-  particleSystem.rotation.y += 0.0005;
-  
-  // Move towards mouse position
-  camera.position.x += (mouseX - camera.position.x) * 0.05;
-  camera.position.y += (-mouseY - camera.position.y) * 0.05;
-  
-  // Apply speed to animation
-  particleSystem.rotation.y += speed * 0.001;
-  
-  renderer.render(scene, camera);
-}
-
-// Initialize with default settings if not initialized elsewhere
-document.addEventListener('DOMContentLoaded', () => {
-  // Only auto-initialize if specific pages
-  const path = window.location.pathname;
-  if (path === '/' || path === '/home' || path === '/landing') {
-    initThreeBackground();
+  function render() {
+    // Rotate based on mouse position
+    camera.position.x += (mouseX * 0.05 - camera.position.x) * 0.05;
+    camera.position.y += (-mouseY * 0.05 - camera.position.y) * 0.05;
+    camera.lookAt(scene.position);
+    
+    const positions = particles.geometry.attributes.position.array;
+    
+    // Update particles
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const ix = i * 3;
+      const particleData = particlesData[i];
+      
+      // Apply velocity
+      positions[ix] += particleData.velocity.x;
+      positions[ix + 1] += particleData.velocity.y;
+      positions[ix + 2] += particleData.velocity.z;
+      
+      // Boundary conditions
+      if (positions[ix] < -500 || positions[ix] > 500) particleData.velocity.x = -particleData.velocity.x;
+      if (positions[ix + 1] < -500 || positions[ix + 1] > 500) particleData.velocity.y = -particleData.velocity.y;
+      if (positions[ix + 2] < -250 || positions[ix + 2] > 250) particleData.velocity.z = -particleData.velocity.z;
+    }
+    
+    particles.geometry.attributes.position.needsUpdate = true;
+    
+    // Render the scene
+    renderer.render(scene, camera);
   }
 });

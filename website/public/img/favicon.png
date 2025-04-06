@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9c4dff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3acd;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Base Circle -->
+  <circle cx="32" cy="32" r="30" fill="#1a0d2c" />
+  
+  <!-- Swoosh Shape -->
+  <path d="M52 24C48 16 42 12 32 12C18 12 8 22 8 36C8 50 18 60 32 60C46 60 56 50 56 36C56 33 55.5 30 54 28" 
+        stroke="url(#grad1)" stroke-width="4" stroke-linecap="round" fill="none" />
+  
+  <!-- Arrow -->
+  <path d="M52 24L45 22L48 16" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Central Bot Face -->
+  <circle cx="32" cy="32" r="8" fill="url(#grad1)" />
+  <circle cx="29" cy="30" r="1.5" fill="white" />
+  <circle cx="35" cy="30" r="1.5" fill="white" />
+  <path d="M29 36Q32 38 35 36" stroke="white" stroke-width="1" stroke-linecap="round" fill="none" />
+</svg>

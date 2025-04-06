@@ -1,0 +1,7 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#2a1a47"/>
+  <circle cx="150" cy="105" r="55" fill="#4e2a7e"/>
+  <path d="M50,240 C50,180 100,170 150,170 C200,170 250,180 250,240 L250,300 L50,300 L50,240 Z" fill="#4e2a7e"/>
+  <path d="M150,75 L150,140 M115,105 L185,105" stroke="#00b7ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="150" y="220" font-family="Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">BOT MODERATOR</text>
+</svg>

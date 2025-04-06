@@ -14,6 +14,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const os = require('os');
 const osUtils = require('os-utils');
+const ejsLayouts = require('express-ejs-layouts');
 require('dotenv').config();
 
 // Create Discord client with required intents
@@ -429,7 +430,9 @@ function getBotUptime() {
 app.get('/', (req, res) => {
   // Render landing page
   res.render('landing', {
-    client: client
+    title: 'SWOOSH Bot - Discord Utility Bot',
+    client: client,
+    activeNav: 'home'
   });
 });
 
@@ -439,7 +442,8 @@ app.get('/home', (req, res) => {
     title: 'SWOOSH Bot - Home',
     uptime: getBotUptime(),
     client: client,
-    lastChecked: new Date().toLocaleString()
+    lastChecked: new Date().toLocaleString(),
+    activeNav: 'home'
   });
 });
 
@@ -465,7 +469,8 @@ app.get('/commands', (req, res) => {
     title: 'SWOOSH Bot - Commands',
     regularCommands,
     slashCommands,
-    prefix: config.prefix
+    prefix: config.prefix,
+    activeNav: 'commands'
   });
 });
 
@@ -478,19 +483,22 @@ app.get('/status', (req, res) => {
     guilds: client.guilds.cache.size,
     users: client.users.cache.size,
     channels: client.channels.cache.size,
-    lastChecked: new Date().toLocaleString()
+    lastChecked: new Date().toLocaleString(),
+    activeNav: 'status'
   });
 });
 
 app.get('/bot-status', (req, res) => {
   // Render detailed bot status analytics page
   res.render('bot-status', {
+    title: 'SWOOSH Bot - Status',
     uptime: getBotUptime(),
     client: client,
     guilds: client.guilds.cache.size,
     users: client.users.cache.size,
     channels: client.channels.cache.size,
-    lastChecked: new Date().toLocaleString()
+    lastChecked: new Date().toLocaleString(),
+    activeNav: 'server-health'
   });
 });
 
@@ -514,7 +522,8 @@ app.get('/server-health', (req, res) => {
     hostname: os.hostname(),
     loadAverage: os.loadavg(),
     client: client,
-    lastChecked: new Date().toLocaleString()
+    lastChecked: new Date().toLocaleString(),
+    activeNav: 'server-health'
   });
 });
 
@@ -688,11 +697,12 @@ app.get('/api/team', async (req, res) => {
 app.get('/team', (req, res) => {
   res.render('team', {
     title: 'SWOOSH Bot - Our Team',
-    client: client
+    client: client,
+    activeNav: 'team'
   });
 });
 
-
+// API endpoint for team member data
 
 // Legacy status route for UptimeRobot
 app.get('/status-check', (req, res) => {
@@ -735,37 +745,46 @@ function broadcastServerStats() {
   
   // Get CPU usage and other system stats
   osUtils.cpuUsage((cpuUsage) => {
+    // Format the stats for the dashboard
     const stats = {
-      uptime: getBotUptime(),
-      cpu: {
-        count: os.cpus().length,
-        usage: Math.round(cpuUsage * 100),
-        loadAverage: os.loadavg()
+      // Basic stats in the format expected by the dashboard
+      cpu: Math.round(cpuUsage * 100),
+      memory: Math.round((1 - (os.freemem() / os.totalmem())) * 100),
+      uptime: getBotUptime().totalSeconds,
+      ping: Math.round(client.ws.ping),
+      servers: client.guilds.cache.size,
+      users: client.users.cache.size,
+      
+      // Command usage statistics (mock data for now)
+      commandUsage: {
+        help: 42,
+        emoji: 38,
+        role: 24,
+        whos: 56,
+        ban: 12,
+        kick: 8
       },
-      memory: {
-        total: os.totalmem(),
-        free: os.freemem(),
-        used: process.memoryUsage().rss,
-        usedPercentage: Math.round((1 - (os.freemem() / os.totalmem())) * 100)
-      },
-      system: {
-        platform: os.platform(),
-        arch: os.arch(),
-        hostname: os.hostname(),
-        timestamp: new Date().toISOString()
-      },
-      discord: {
-        guilds: client.guilds.cache.size,
-        users: client.users.cache.size,
-        channels: client.channels.cache.size,
-        commands: client.commands.size + client.slashCommands.size
-      }
+      
+      // System info
+      nodeVersion: process.version,
+      discordVersion: require('discord.js').version,
+      os: `${os.platform()} ${os.release()}`,
+      
+      // Detailed stats
+      cpuCount: os.cpus().length,
+      loadAverage: os.loadavg(),
+      totalMemory: os.totalmem(),
+      freeMemory: os.freemem(),
+      usedMemory: process.memoryUsage().rss,
+      timestamp: new Date().toISOString(),
+      channels: client.channels.cache.size,
+      commands: client.commands.size + client.slashCommands.size
     };
     
     // Send to all connected clients
-    for (const client of clients) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(stats));
+    for (const wsClient of clients) {
+      if (wsClient.readyState === WebSocket.OPEN) {
+        wsClient.send(JSON.stringify(stats));
       }
     }
   });
@@ -776,31 +795,40 @@ function sendServerStats(ws) {
   if (ws.readyState !== WebSocket.OPEN) return;
   
   osUtils.cpuUsage((cpuUsage) => {
+    // Format the stats for the dashboard - same format as broadcastServerStats
     const stats = {
-      uptime: getBotUptime(),
-      cpu: {
-        count: os.cpus().length,
-        usage: Math.round(cpuUsage * 100),
-        loadAverage: os.loadavg()
+      // Basic stats in the format expected by the dashboard
+      cpu: Math.round(cpuUsage * 100),
+      memory: Math.round((1 - (os.freemem() / os.totalmem())) * 100),
+      uptime: getBotUptime().totalSeconds,
+      ping: Math.round(client.ws.ping),
+      servers: client.guilds.cache.size,
+      users: client.users.cache.size,
+      
+      // Command usage statistics
+      commandUsage: {
+        help: 42,
+        emoji: 38,
+        role: 24,
+        whos: 56,
+        ban: 12,
+        kick: 8
       },
-      memory: {
-        total: os.totalmem(),
-        free: os.freemem(),
-        used: process.memoryUsage().rss,
-        usedPercentage: Math.round((1 - (os.freemem() / os.totalmem())) * 100)
-      },
-      system: {
-        platform: os.platform(),
-        arch: os.arch(),
-        hostname: os.hostname(),
-        timestamp: new Date().toISOString()
-      },
-      discord: {
-        guilds: client.guilds.cache.size,
-        users: client.users.cache.size,
-        channels: client.channels.cache.size,
-        commands: client.commands.size + client.slashCommands.size
-      }
+      
+      // System info
+      nodeVersion: process.version,
+      discordVersion: require('discord.js').version,
+      os: `${os.platform()} ${os.release()}`,
+      
+      // Detailed stats
+      cpuCount: os.cpus().length,
+      loadAverage: os.loadavg(),
+      totalMemory: os.totalmem(),
+      freeMemory: os.freemem(),
+      usedMemory: process.memoryUsage().rss,
+      timestamp: new Date().toISOString(),
+      channels: client.channels.cache.size,
+      commands: client.commands.size + client.slashCommands.size
     };
     
     ws.send(JSON.stringify(stats));

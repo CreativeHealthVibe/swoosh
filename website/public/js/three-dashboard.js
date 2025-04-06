@@ -1,202 +1,148 @@
 /**
- * Three.js background animation for the bot status dashboard
- * Creates a dynamic 3D visualization with data packets traveling through a network
+ * Three.js background animation for dashboard
  */
 document.addEventListener('DOMContentLoaded', function() {
-  // Scene setup
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ alpha: true });
+  const container = document.getElementById('dashboard-bg');
+  if (!container) return;
   
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x000000, 0); // Transparent background
+  let scene, camera, renderer;
+  let particles, geometryParticles;
+  const particleCount = 400;
+  let time = 0;
   
-  // Add renderer to the DOM
-  const container = document.createElement('div');
-  container.className = 'three-bg-container';
-  document.body.appendChild(container);
-  container.appendChild(renderer.domElement);
+  init();
+  animate();
   
-  // Camera position
-  camera.position.z = 30;
-  
-  // Lights
-  const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
-  scene.add(ambientLight);
-  
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(1, 1, 1);
-  scene.add(directionalLight);
-  
-  // Create grid
-  const gridSize = 50;
-  const gridDivisions = 20;
-  const gridColor = 0x9c4dff; // Primary color
-  
-  const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, gridColor, gridColor);
-  gridHelper.position.y = -10;
-  scene.add(gridHelper);
-  
-  // Create nodes (connection points in network)
-  const nodes = [];
-  const nodeCount = 15;
-  const nodeGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-  const nodeMaterial = new THREE.MeshPhongMaterial({ 
-    color: 0xffffff,
-    emissive: 0x9c4dff,
-    emissiveIntensity: 0.5
-  });
-  
-  for (let i = 0; i < nodeCount; i++) {
-    const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+  function init() {
+    // Create scene
+    scene = new THREE.Scene();
     
-    // Random position within grid
-    node.position.x = (Math.random() - 0.5) * gridSize * 0.8;
-    node.position.y = (Math.random() - 0.5) * gridSize * 0.4;
-    node.position.z = (Math.random() - 0.5) * gridSize * 0.8;
+    // Set up camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 100;
     
-    nodes.push(node);
-    scene.add(node);
+    // Create particles
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    
+    // Define gradient from bottom (dark) to top (light)
+    const color1 = new THREE.Color(0x2a1052); // Dark purple
+    const color2 = new THREE.Color(0x9c4dff); // Light purple
+    
+    for (let i = 0; i < particleCount; i++) {
+      // Random position in 3D space, more concentrated on a horizontal plane
+      positions[i * 3] = (Math.random() - 0.5) * 100;      // x
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 60;   // y
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 50;   // z
+      
+      // Calculate color based on y-position (vertical gradient)
+      const yPos = positions[i * 3 + 1];
+      const normalizedY = (yPos + 30) / 60; // Normalize to 0-1 range
+      const particleColor = new THREE.Color().lerpColors(color1, color2, normalizedY);
+      
+      colors[i * 3] = particleColor.r;
+      colors[i * 3 + 1] = particleColor.g;
+      colors[i * 3 + 2] = particleColor.b;
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    // Material that uses vertex colors
+    const material = new THREE.PointsMaterial({
+      size: 0.8,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.7,
+      sizeAttenuation: true
+    });
+    
+    // Create the particle system
+    particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+    
+    // Add some grid lines to represent data flows
+    addGridLines();
+    
+    // Set up renderer
+    renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0); // Transparent background
+    container.appendChild(renderer.domElement);
+    
+    // Handle window resize
+    window.addEventListener('resize', onWindowResize);
   }
   
-  // Create connections between nodes
-  const connections = [];
-  const lineGeometry = new THREE.BufferGeometry();
-  const lineMaterial = new THREE.LineBasicMaterial({ 
-    color: 0x9c4dff,
-    opacity: 0.4,
-    transparent: true 
-  });
-  
-  // Connect each node to its closest neighbors
-  nodes.forEach((node, index) => {
-    // Find 2-3 closest nodes
-    const distances = nodes.map((otherNode, otherIndex) => {
-      if (index === otherIndex) return Infinity;
-      
-      return {
-        index: otherIndex,
-        distance: node.position.distanceTo(otherNode.position)
-      };
-    }).sort((a, b) => a.distance - b.distance);
+  function addGridLines() {
+    // Horizontal grid lines
+    const gridMaterial = new THREE.LineBasicMaterial({ 
+      color: 0x4a1e8a,
+      transparent: true,
+      opacity: 0.3
+    });
     
-    // Connect to closest 2-3 nodes
-    const connectCount = Math.floor(Math.random() * 2) + 2; // 2-3 connections
-    
-    for (let i = 0; i < connectCount && i < distances.length - 1; i++) {
-      const targetNode = nodes[distances[i].index];
-      
-      // Create a line between the nodes
-      const points = [
-        node.position.clone(),
-        targetNode.position.clone()
-      ];
-      
-      const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const line = new THREE.Line(geometry, lineMaterial);
-      
-      connections.push({
-        line: line,
-        startNode: node,
-        endNode: targetNode,
-        points: points
-      });
-      
+    // Create horizontal grid
+    for (let i = -3; i <= 3; i++) {
+      const y = i * 10;
+      const geometryLine = new THREE.BufferGeometry();
+      const positions = new Float32Array([
+        -50, y, 0,
+        50, y, 0
+      ]);
+      geometryLine.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const line = new THREE.Line(geometryLine, gridMaterial);
       scene.add(line);
     }
-  });
-  
-  // Data packets that travel along connections
-  const packets = [];
-  const packetGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-  const packetMaterial = new THREE.MeshPhongMaterial({ 
-    color: 0xffffff,
-    emissive: 0xb168ff
-  });
-  
-  function createDataPacket() {
-    // Choose a random connection
-    const connectionIndex = Math.floor(Math.random() * connections.length);
-    const connection = connections[connectionIndex];
     
-    // Create a packet
-    const packet = new THREE.Mesh(packetGeometry, packetMaterial);
-    
-    // Start at one end of the connection
-    packet.position.copy(connection.startNode.position);
-    
-    // Add to scene and packets array
-    scene.add(packet);
-    
-    packets.push({
-      mesh: packet,
-      connection: connection,
-      progress: 0,
-      speed: 0.01 + Math.random() * 0.01, // Random speed
-      active: true
-    });
-    
-    // Only keep a certain number of packets at a time
-    if (packets.length > 30) {
-      const oldPacket = packets.shift();
-      scene.remove(oldPacket.mesh);
+    // Create data flow lines that will animate
+    geometryParticles = new Float32Array(100 * 3);
+    for (let i = 0; i < 100; i++) {
+      geometryParticles[i * 3] = (Math.random() - 0.5) * 100;     // x
+      geometryParticles[i * 3 + 1] = (Math.random() - 0.5) * 60;  // y
+      geometryParticles[i * 3 + 2] = (Math.random() - 0.5) * 30;  // z
     }
   }
   
-  // Create initial packets
-  for (let i = 0; i < 10; i++) {
-    createDataPacket();
-  }
-  
-  // Animation loop
-  function animate() {
-    requestAnimationFrame(animate);
-    
-    // Rotate grid slowly
-    gridHelper.rotation.y += 0.001;
-    
-    // Move packets along connections
-    packets.forEach(packet => {
-      if (!packet.active) return;
-      
-      // Update progress
-      packet.progress += packet.speed;
-      
-      if (packet.progress >= 1) {
-        // Reached end of connection, make inactive
-        packet.active = false;
-        packet.mesh.visible = false;
-        
-        // Create a new packet
-        setTimeout(createDataPacket, Math.random() * 1000);
-      } else {
-        // Calculate position along the line
-        const startPos = packet.connection.startNode.position;
-        const endPos = packet.connection.endNode.position;
-        
-        packet.mesh.position.lerpVectors(startPos, endPos, packet.progress);
-      }
-    });
-    
-    // Pulse nodes
-    nodes.forEach((node, i) => {
-      const time = Date.now() * 0.001 + i;
-      const scale = 1 + 0.1 * Math.sin(time * 2);
-      node.scale.set(scale, scale, scale);
-    });
-    
-    renderer.render(scene, camera);
-  }
-  
-  // Handle window resize
   function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
   
-  window.addEventListener('resize', onWindowResize);
-  
-  // Start animation
-  animate();
+  function animate() {
+    requestAnimationFrame(animate);
+    
+    time += 0.005;
+    
+    // Animate particles
+    if (particles) {
+      // Gently rotate the particles
+      particles.rotation.y = time * 0.1;
+      
+      // Make particles move in a wave pattern
+      const positions = particles.geometry.attributes.position.array;
+      for (let i = 0; i < particleCount; i++) {
+        // Apply wave effect to y-position
+        positions[i * 3 + 1] += Math.sin(time + i * 0.1) * 0.03;
+        
+        // Apply slight movement in x and z directions
+        positions[i * 3] += Math.sin(time * 0.5 + i) * 0.01;
+        positions[i * 3 + 2] += Math.cos(time * 0.3 + i) * 0.01;
+        
+        // Wrap particles that go out of bounds
+        if (positions[i * 3] > 50) positions[i * 3] = -50;
+        if (positions[i * 3] < -50) positions[i * 3] = 50;
+        if (positions[i * 3 + 1] > 30) positions[i * 3 + 1] = -30;
+        if (positions[i * 3 + 1] < -30) positions[i * 3 + 1] = 30;
+        if (positions[i * 3 + 2] > 25) positions[i * 3 + 2] = -25;
+        if (positions[i * 3 + 2] < -25) positions[i * 3 + 2] = 25;
+      }
+      particles.geometry.attributes.position.needsUpdate = true;
+    }
+    
+    // Render the scene
+    renderer.render(scene, camera);
+  }
 });

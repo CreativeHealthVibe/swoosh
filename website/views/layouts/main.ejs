@@ -1,4 +1,3 @@
-<!-- website/views/layouts/main.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,92 +5,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= typeof title !== 'undefined' ? title : 'SWOOSH Bot' %></title>
   
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/purple-theme.css">
+  <!-- Favicon -->
+  <link rel="icon" href="/img/favicon.png" type="image/png">
   
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/purple-theme.css">
+  <link rel="stylesheet" href="/css/cursor.css">
 </head>
 <body>
-  <!-- Three.js Background Canvas -->
-  <div id="three-background" class="three-background"></div>
-  
   <!-- Custom Cursor -->
-  <div id="custom-cursor" class="custom-cursor"></div>
+  <div class="cursor-dot"></div>
+  <div class="cursor-outline"></div>
   
-  <!-- Header Section -->
-  <header>
-    <div class="navbar">
-      <div class="logo">
-        <img src="/img/logo.png" alt="SWOOSH Bot Logo">
-        <h1>SWOOSH Bot</h1>
-      </div>
-      <nav id="main-nav">
-        <ul>
-          <li><a href="/" class="<%= typeof activeNav !== 'undefined' && activeNav === 'home' ? 'active' : '' %>">Home</a></li>
-          <li><a href="/commands" class="<%= typeof activeNav !== 'undefined' && activeNav === 'commands' ? 'active' : '' %>">Commands</a></li>
-          <li><a href="/status" class="<%= typeof activeNav !== 'undefined' && activeNav === 'status' ? 'active' : '' %>">Status</a></li>
-          <li><a href="/bot-status" class="<%= typeof activeNav !== 'undefined' && activeNav === 'bot-status' ? 'active' : '' %>">Dashboard</a></li>
-          <li><a href="/server-health" class="<%= typeof activeNav !== 'undefined' && activeNav === 'server-health' ? 'active' : '' %>">Health</a></li>
-          <li><a href="/team" class="<%= typeof activeNav !== 'undefined' && activeNav === 'team' ? 'active' : '' %>">Team</a></li>
-          <li><a href="https://discord.gg/swoosh" class="discord-btn" target="_blank"><i class="fab fa-discord"></i> Join Discord</a></li>
-        </ul>
-      </nav>
-      <div class="mobile-menu-btn" id="mobile-menu-btn">
-        <i class="fas fa-bars"></i>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-container">
+        <a href="/" class="nav-logo">
+          <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" width="40">
+          <span>SWOOSH<span class="gradient-text">Bot</span></span>
+        </a>
+        
+        <div class="nav-links">
+          <a href="/" class="nav-link <%= locals.activeNav === 'home' ? 'active' : '' %>">
+            <i class="fas fa-home"></i> Home
+          </a>
+          <a href="/commands" class="nav-link <%= locals.activeNav === 'commands' ? 'active' : '' %>">
+            <i class="fas fa-terminal"></i> Commands
+          </a>
+          <a href="/server-health" class="nav-link <%= locals.activeNav === 'server-health' ? 'active' : '' %>">
+            <i class="fas fa-chart-line"></i> Dashboard
+          </a>
+          <a href="/team" class="nav-link <%= locals.activeNav === 'team' ? 'active' : '' %>">
+            <i class="fas fa-users"></i> Team
+          </a>
+        </div>
+        
+        <button class="mobile-menu-btn">
+          <i class="fas fa-bars"></i>
+        </button>
       </div>
     </div>
-  </header>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <div class="mobile-menu-container">
+      <div class="mobile-menu-header">
+        <div class="mobile-logo">
+          <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" width="30">
+          <span>SWOOSH<span class="gradient-text">Bot</span></span>
+        </div>
+        <button class="mobile-close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="mobile-nav-links">
+        <a href="/" class="mobile-nav-link <%= locals.activeNav === 'home' ? 'active' : '' %>">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <a href="/commands" class="mobile-nav-link <%= locals.activeNav === 'commands' ? 'active' : '' %>">
+          <i class="fas fa-terminal"></i> Commands
+        </a>
+        <a href="/server-health" class="mobile-nav-link <%= locals.activeNav === 'server-health' ? 'active' : '' %>">
+          <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a href="/team" class="mobile-nav-link <%= locals.activeNav === 'team' ? 'active' : '' %>">
+          <i class="fas fa-users"></i> Team
+        </a>
+      </div>
+      
+      <div class="mobile-footer">
+        <a href="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands" class="gradient-button mobile-cta-btn">
+          <i class="fab fa-discord"></i> Add to Discord
+        </a>
+      </div>
+    </div>
+  </div>
   
   <!-- Main Content -->
-  <main>
+  <main class="main-content">
     <%- body %>
   </main>
   
-  <!-- Footer Section -->
-  <footer>
-    <div class="footer-content">
-      <div class="footer-logo">
-        <img src="/img/logo.png" alt="SWOOSH Bot Logo">
-        <h3>SWOOSH Bot</h3>
-        <p>A sophisticated Discord bot with advanced utility tools and engaging user experiences.</p>
-      </div>
-      <div class="footer-links">
-        <h4>Quick Links</h4>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/commands">Commands</a></li>
-          <li><a href="/status">Status</a></li>
-          <li><a href="/team">Team</a></li>
-          <li><a href="https://github.com/swoosh-bot/swooshbot" target="_blank">GitHub</a></li>
-        </ul>
-      </div>
-      <div class="footer-contact">
-        <h4>Connect With Us</h4>
-        <p>Join our community to get support, suggest features, or just hang out!</p>
-        <div class="social-icons">
-          <a href="https://discord.gg/swoosh" target="_blank"><i class="fab fa-discord"></i></a>
-          <a href="https://twitter.com/swooshbot" target="_blank"><i class="fab fa-twitter"></i></a>
-          <a href="https://github.com/swoosh-bot" target="_blank"><i class="fab fa-github"></i></a>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" width="40">
+          <h3>SWOOSH<span class="gradient-text">Bot</span></h3>
+        </div>
+        
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>Navigation</h4>
+            <a href="/">Home</a>
+            <a href="/commands">Commands</a>
+            <a href="/server-health">Dashboard</a>
+            <a href="/team">Team</a>
+          </div>
+          
+          <div class="footer-column">
+            <h4>Resources</h4>
+            <a href="/docs">Documentation</a>
+            <a href="https://discord.gg/swoosh" target="_blank">Support Server</a>
+            <a href="https://github.com/swoosh-bot/swoosh" target="_blank">GitHub</a>
+          </div>
+          
+          <div class="footer-column">
+            <h4>Legal</h4>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved. | Hosted on <a href="https://render.com" target="_blank">Render</a></p>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2023-<%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="https://discord.gg/swoosh" target="_blank"><i class="fab fa-discord"></i></a>
+          <a href="https://github.com/swoosh-bot/swoosh" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://twitter.com/swooshbot" target="_blank"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
     </div>
   </footer>
   
   <!-- Scripts -->
   <script src="/js/main.js"></script>
-  <script src="/js/three-background.js"></script>
-  <script src="/js/team-background.js"></script>
   <script src="/js/cursor.js"></script>
 </body>
 </html>

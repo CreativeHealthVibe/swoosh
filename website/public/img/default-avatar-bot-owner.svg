@@ -1,13 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <circle cx="128" cy="128" r="120" fill="#252525" />
-  <circle cx="128" cy="128" r="110" fill="#333333" />
-  <path d="M128,75 C145,75 160,90 160,110 C160,130 145,145 128,145 C111,145 96,130 96,110 C96,90 111,75 128,75 Z" fill="#444444" />
-  <path d="M192,190 C192,160 150,145 128,145 C106,145 64,160 64,190" stroke="#9c4dff" stroke-width="10" fill="none" />
-  <path d="M128,50 L128,40 M158,55 L168,45 M98,55 L88,45 M175,85 L185,75 M81,85 L71,75" stroke="#FFD700" stroke-width="6" stroke-linecap="round" />
-  <path d="M128,20 L128,30 M178,35 L168,45 M78,35 L88,45 M195,85 L185,75 M61,85 L71,75" stroke="#FFD700" stroke-width="3" stroke-linecap="round" />
-  <circle cx="128" cy="25" r="5" fill="#FFD700" />
-  <circle cx="173" cy="40" r="5" fill="#FFD700" />
-  <circle cx="83" cy="40" r="5" fill="#FFD700" />
-  <circle cx="190" cy="80" r="5" fill="#FFD700" />
-  <circle cx="66" cy="80" r="5" fill="#FFD700" />
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8A2BE2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DA70D6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="128" fill="url(#grad1)"/>
+  <g fill="#ffffff">
+    <circle cx="128" cy="96" r="42" opacity="0.9"/>
+    <path d="M128,256 C166,256 200,235 218,204 C218,168 173,152 128,152 C83,152 38,168 38,204 C56,235 90,256 128,256 Z" opacity="0.9"/>
+    <path d="M84,84 L92,76 L100,84 L108,76 L116,84" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <path d="M140,84 L148,76 L156,84 L164,76 L172,84" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <path d="M84,48 L172,48" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <path d="M128,48 L128,30" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="128" cy="24" r="6" fill="#FFD700"/>
+  </g>
 </svg>
