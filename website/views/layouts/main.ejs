@@ -22,7 +22,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://swooshfinal.onrender.com/">
 </head>
-<body class="custom-cursor">
+<body>
   <!-- Custom cursor elements -->
   <div class="cursor-dot" id="cursor-dot"></div>
   <div class="cursor-outline" id="cursor-outline"></div>
@@ -87,15 +87,16 @@
   <script src="/js/main.js"></script>
   
   <!-- Three.js Background Scripts -->
-  <% if (typeof path !== "undefined") { %>
-    <% if (path === "/" || path === "/home") { %>
+  <% if (typeof path !== 'undefined') { %>
+    <% if (path === '/') { %>
       <script src="/js/three-background.js"></script>
-    <% } else if (path === "/commands") { %>
+    <% } else if (path === '/commands') { %>
       <script src="/js/three-commands.js"></script>
-    <% } else if (path === "/status") { %>
+    <% } else if (path === '/status') { %>
       <script src="/js/three-status.js"></script>
     <% } %>
   <% } %>
+  
   <!-- Custom Cursor -->
   <script src="/js/cursor.js"></script>
   
