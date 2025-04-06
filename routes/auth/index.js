@@ -9,7 +9,8 @@ const { redirectIfAuthenticated } = require('../../middlewares/auth');
  */
 router.get('/login', redirectIfAuthenticated, (req, res) => {
   const clientId = process.env.DISCORD_CLIENT_ID;
-  const redirectUri = encodeURIComponent(process.env.WEBSITE_URL + process.env.DISCORD_CALLBACK_URL);
+  // Use a fixed, properly encoded redirect URI that exactly matches what's in your Discord Developer Portal
+  const redirectUri = "https%3A%2F%2Fswooshfinal.onrender.com%2Fauth%2Fdiscord%2Fcallback";
   const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=guilds.join+identify`;
   
   console.log('OAuth URL generated:', oauthUrl);
