@@ -9,8 +9,11 @@ const { redirectIfAuthenticated } = require('../../middlewares/auth');
  */
 router.get('/login', redirectIfAuthenticated, (req, res) => {
   const clientId = process.env.DISCORD_CLIENT_ID;
-  // Use a fixed, properly encoded redirect URI that exactly matches what's in your Discord Developer Portal
-  const redirectUri = "https%3A%2F%2Fswooshfinal.onrender.com%2Fauth%2Fdiscord%2Fcallback";
+  // Use a redirect URI based on environment
+  const baseUrl = process.env.NODE_ENV === 'production' 
+                ? "https://swooshfinal.onrender.com" 
+                : "http://localhost:5000";
+  const redirectUri = encodeURIComponent(`${baseUrl}/auth/discord/callback`);
   const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+guilds+gdm.join+guilds.join`;
   
   console.log('OAuth URL generated:', oauthUrl);
@@ -43,7 +46,7 @@ router.get('/discord/callback',
     // Successful authentication
     console.log('OAuth authentication successful, user:', req.user.username);
     
-    // Redirect to the welcome page with time-based greeting
+    // Redirect to admin welcome page with time-based greeting
     const redirectUrl = req.session.returnTo || '/admin/welcome';
     delete req.session.returnTo;
     res.redirect(redirectUrl);

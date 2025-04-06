@@ -22,6 +22,14 @@ function getTimeBasedGreeting() {
 router.use(isAdmin);
 
 /**
+ * GET /admin
+ * Root admin route - redirects to welcome page
+ */
+router.get('/', (req, res) => {
+  res.redirect('/admin/welcome');
+});
+
+/**
  * GET /admin/dashboard
  * Admin dashboard home
  */
@@ -246,7 +254,7 @@ router.get('/welcome', (req, res) => {
   
   res.render('admin/welcome', {
     title: 'Welcome | SWOOSH Bot',
-    greeting: `${greeting}, @${username}!`,
+    greeting: `${greeting}`,
     user: req.user,
     layout: 'layouts/admin'
   });

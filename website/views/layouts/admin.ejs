@@ -20,20 +20,37 @@
   <link rel="stylesheet" href="/css/admin.css">
   
   <style>
-    /* Admin layout styles */
+    /* Admin layout styles - Using the main website purple theme */
     :root {
-      --primary-color: #7289da;
-      --primary-hover: #5e77d4;
-      --secondary-color: #4f5660;
-      --dark-color: #2f3136;
-      --light-color: #f6f6f7;
-      --danger-color: #fa3e3e;
-      --success-color: #43b581;
-      --warning-color: #faa61a;
-      --info-color: #00b0f4;
+      /* Base colors - Match the main website theme */
+      --primary-color: #9c4dff;
+      --primary-hover: #7c3acd;
+      --primary-light: #b76eff;
+      --accent-color: #00e5ff;
+      
+      /* Text colors */
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+      
+      /* Background colors */
+      --background: #14101f;
+      --background-light: #1e1532;
+      --card-bg: rgba(30, 15, 50, 0.5);
+      
+      --secondary-color: var(--text-secondary);
+      --dark-color: var(--background);
+      --light-color: var(--background-light);
+      --danger-color: #ED4245;
+      --success-color: #57F287;
+      --warning-color: #FEE75C;
+      --info-color: var(--accent-color);
+      
       --font-primary: 'Inter', sans-serif;
       --font-secondary: 'Poppins', sans-serif;
-      --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      --card-shadow: var(--shadow);
+      --border-radius: 12px;
     }
     
     * {
@@ -44,8 +61,8 @@
     
     body {
       font-family: var(--font-primary);
-      background-color: #f9f9fa;
-      color: var(--secondary-color);
+      background-color: var(--background);
+      color: var(--text-primary);
       line-height: 1.6;
       min-height: 100vh;
       display: flex;
@@ -54,8 +71,10 @@
     
     /* Admin Header */
     .admin-header {
-      background-color: #fff;
-      box-shadow: var(--shadow);
+      background: rgba(20, 16, 31, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(156, 77, 255, 0.2);
       padding: 0.75rem 1.5rem;
       display: flex;
       justify-content: space-between;
@@ -74,7 +93,7 @@
       display: flex;
       align-items: center;
       text-decoration: none;
-      color: var(--dark-color);
+      color: var(--text-primary);
       font-weight: 700;
       font-size: 1.2rem;
     }
@@ -82,6 +101,11 @@
     .admin-logo {
       height: 32px;
       margin-right: 0.75rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .admin-header-brand a:hover .admin-logo {
+      transform: rotate(10deg);
     }
     
     /* Admin Navigation */
@@ -93,17 +117,34 @@
     
     .admin-nav a {
       text-decoration: none;
-      color: var(--secondary-color);
+      color: var(--text-secondary);
       font-weight: 500;
       display: flex;
       align-items: center;
       gap: 0.5rem;
       padding: 0.5rem 0;
+      position: relative;
       transition: color 0.3s ease;
     }
     
+    .admin-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary-color);
+      transition: width 0.3s ease;
+    }
+    
     .admin-nav a:hover {
-      color: var(--primary-color);
+      color: var(--text-primary);
+    }
+    
+    .admin-nav a:hover::after,
+    .admin-nav a.active::after {
+      width: 100%;
     }
     
     /* User Menu */
@@ -122,13 +163,14 @@
     }
     
     .user-info:hover {
-      background-color: var(--light-color);
+      background-color: var(--background-light);
     }
     
     .user-avatar {
       width: 32px;
       height: 32px;
       border-radius: 50%;
+      border: 2px solid var(--primary-color);
     }
     
     .user-avatar-placeholder {
@@ -145,15 +187,19 @@
     
     .username {
       font-weight: 600;
+      color: var(--text-primary);
     }
     
     .dropdown-menu {
       position: absolute;
       top: 100%;
       right: 0;
-      background-color: #fff;
-      border-radius: 8px;
+      background: var(--background-light);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
       box-shadow: var(--shadow);
+      border: 1px solid rgba(156, 77, 255, 0.2);
       width: 180px;
       overflow: hidden;
       display: none;
@@ -170,12 +216,14 @@
       gap: 0.75rem;
       padding: 0.75rem 1rem;
       text-decoration: none;
-      color: var(--secondary-color);
-      transition: background-color 0.3s ease;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
     }
     
     .dropdown-menu a:hover {
-      background-color: var(--light-color);
+      background-color: rgba(156, 77, 255, 0.15);
+      color: var(--text-primary);
+      transform: translateX(5px);
     }
     
     /* Admin Content */
@@ -189,12 +237,57 @@
     
     /* Admin Footer */
     .admin-footer {
-      background-color: #fff;
+      background: var(--background-light);
       padding: 1.5rem;
       text-align: center;
       font-size: 0.9rem;
-      color: var(--secondary-color);
-      border-top: 1px solid rgba(0,0,0,0.05);
+      color: var(--text-secondary);
+      border-top: 1px solid rgba(156, 77, 255, 0.2);
+    }
+    
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(156, 77, 255, 0.3);
+    }
+    
+    .btn-secondary {
+      background-color: rgba(156, 77, 255, 0.15);
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+    }
+    
+    .btn-secondary:hover {
+      background-color: rgba(156, 77, 255, 0.25);
+      transform: translateY(-3px);
     }
     
     /* Responsive styles */
@@ -227,5 +320,24 @@
   <% if (typeof scripts !== 'undefined') { %>
     <%- scripts %>
   <% } %>
+  
+  <script>
+    // Toggle dropdown menu
+    document.addEventListener('DOMContentLoaded', function() {
+      const userMenu = document.querySelector('.admin-user-menu');
+      if (userMenu) {
+        userMenu.addEventListener('click', function() {
+          this.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+          if (!userMenu.contains(event.target)) {
+            userMenu.classList.remove('active');
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>

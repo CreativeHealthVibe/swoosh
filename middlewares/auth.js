@@ -50,7 +50,7 @@ const isAdmin = (req, res, next) => {
  */
 const redirectIfAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
-    return res.redirect('/admin/dashboard');
+    return res.redirect('/admin/welcome');
   }
   next();
 };

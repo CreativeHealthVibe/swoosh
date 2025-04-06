@@ -1,19 +1,26 @@
 :root {
-  --primary-color: #5865F2;
-  --primary-hover: #4752C4;
-  --discord-dark: #36393F;
-  --discord-darker: #2F3136;
+  /* Match the main website theme */
+  --primary-color: #9c4dff;
+  --primary-hover: #7c3acd;
+  --primary-light: #b76eff;
+  --accent-color: #00e5ff;
+  
+  --discord-dark: #14101f;
+  --discord-darker: #1e1532;
   --discord-light: #FFFFFF;
-  --discord-gray: #72767D;
-  --discord-bg: #36393f;
-  --discord-highlight: #40444b;
+  --discord-gray: rgba(255, 255, 255, 0.7);
+  --discord-bg: #14101f;
+  --discord-highlight: #1e1532;
+  
+  --card-bg: rgba(30, 15, 50, 0.5);
   --success-color: #57F287;
   --warning-color: #FEE75C;
   --danger-color: #ED4245;
-  --info-color: #5865F2;
+  --info-color: #00e5ff;
+  
   --sidebar-width: 250px;
   --header-height: 60px;
-  --border-radius: 8px;
+  --border-radius: 12px;
 }
 
 /* Admin Layout */

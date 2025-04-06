@@ -803,7 +803,7 @@ const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 
 // Direct callback handler for OAuth redirect to /admin
-app.get('/admin', (req, res) => {
+app.get('/admin', (req, res, next) => {
   // If there's a code parameter, it's an OAuth callback
   if (req.query.code) {
     // Log OAuth callback received
@@ -815,10 +815,10 @@ app.get('/admin', (req, res) => {
     return res.redirect(callbackUrl);
   }
   
-  // Otherwise redirect to dashboard if authenticated
+  // Otherwise redirect to welcome page if authenticated
   if (req.isAuthenticated()) {
-    console.log('User already authenticated, redirecting to dashboard');
-    return res.redirect('/admin/dashboard');
+    console.log('User already authenticated, redirecting to welcome page');
+    return res.redirect('/admin/welcome');
   }
   
   // If not authenticated, redirect to login
