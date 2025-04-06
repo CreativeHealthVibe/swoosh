@@ -702,6 +702,16 @@ app.get('/team', (req, res) => {
   });
 });
 
+// Demo page route for showcasing Three.js animations
+app.get('/demo', (req, res) => {
+  res.render('demo', {
+    title: 'SWOOSH Bot - Demo',
+    client: client,
+    activeNav: 'demo',
+    layout: false // Render without layout to have full control
+  });
+});
+
 // API endpoint for team member data
 
 // Legacy status route for UptimeRobot

@@ -68,13 +68,13 @@ document.addEventListener('DOMContentLoaded', function() {
       memberCard.innerHTML = `
         <div class="member-card">
           <div class="member-avatar-container">
-            <img src="${member.avatarURL}" alt="${member.name}" class="member-avatar" onerror="this.src='/img/default-avatar-${member.role.toLowerCase().replace(' ', '-')}.svg'">
+            <img src="${member.avatar}" alt="${member.displayName}" class="member-avatar" onerror="this.src='/img/default-avatar-${member.role.toLowerCase().replace(' ', '-')}.svg'">
             <span class="status-indicator ${statusClass}" title="${member.status}"></span>
           </div>
           <div class="member-info">
-            <h3 class="member-name">${member.name}</h3>
+            <h3 class="member-name">${member.displayName}</h3>
             <div class="member-role">${member.role}</div>
-            <div class="member-badges">${badgeHtml}</div>
+            <div class="member-badges">${badgesHtml}</div>
           </div>
           <div class="member-footer">
             <div class="member-time">${member.monthsOnTeam} months on team</div>
@@ -123,6 +123,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+  // Format badge name
+  function formatBadgeName(badge) {
+    switch(badge) {
+      case 'founder': return 'Founder';
+      case 'developer': return 'Developer';
+      case 'devops': return 'DevOps';
+      default: return badge.charAt(0).toUpperCase() + badge.slice(1);
+    }
+  }
+  
   // Show member modal with detailed info
   function showMemberModal(member) {
     const modal = document.getElementById('team-modal');
@@ -130,12 +140,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Build specialty list
     let specialtyHtml = '';
-    if (member.specialties && member.specialties.length > 0) {
+    if (member.specialty && member.specialty.length > 0) {
       specialtyHtml = `
         <div class="modal-specialty">
           <h4>Specialties</h4>
           <ul>
-            ${member.specialties.map(spec => `<li>${spec}</li>`).join('')}
+            ${member.specialty.map(spec => `<li>${spec}</li>`).join('')}
           </ul>
         </div>
       `;
@@ -156,28 +166,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Format join date
-    const joinDate = new Date(member.joinedAt);
+    const joinDate = new Date(member.joinDate);
     const formattedDate = joinDate.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
     
-    // Generate badge HTML for modal
+    // Generate badges HTML for modal
     const badgeHtml = member.badge ? 
-      `<span class="member-badge" title="${member.badge.title}"><i class="${member.badge.icon}"></i> ${member.badge.title}</span>` 
-      : '';
+      `<span class="member-badge" title="${member.badge.title}"><i class="${member.badge.icon}"></i> ${member.badge.title}</span>`
+    ).join('') : '';
     
     modalContent.innerHTML = `
       <div class="modal-header">
         <div class="modal-avatar-container">
-          <img src="${member.avatarURL}" alt="${member.name}" class="modal-avatar" onerror="this.src='/img/default-avatar-${member.role.toLowerCase().replace(' ', '-')}.svg'">
+          <img src="${member.avatar}" alt="${member.displayName}" class="modal-avatar" onerror="this.src='/img/default-avatar-${member.role.toLowerCase().replace(' ', '-')}.svg'">
           <span class="status-indicator ${getStatusClass(member.status)}" title="${member.status}"></span>
         </div>
         <div class="modal-title">
-          <h2>${member.name}</h2>
+          <h2>${member.displayName}</h2>
           <div class="modal-role">${member.role}</div>
-          <div class="modal-badges">${badgeHtml}</div>
+          <div class="modal-badges">${badgesHtml}</div>
         </div>
       </div>
       <div class="modal-body">
