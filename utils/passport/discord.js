@@ -2,7 +2,7 @@ const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 
 // Define the scopes we need from Discord
-const scopes = ['identify', 'guilds.join'];
+const scopes = ['identify', 'guilds', 'gdm.join', 'guilds.join'];
 
 // Configure Discord authentication strategy
 const setupDiscordStrategy = () => {

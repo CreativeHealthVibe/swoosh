@@ -11,7 +11,7 @@ router.get('/login', redirectIfAuthenticated, (req, res) => {
   const clientId = process.env.DISCORD_CLIENT_ID;
   // Use a fixed, properly encoded redirect URI that exactly matches what's in your Discord Developer Portal
   const redirectUri = "https%3A%2F%2Fswooshfinal.onrender.com%2Fauth%2Fdiscord%2Fcallback";
-  const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=guilds.join+identify`;
+  const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+guilds+gdm.join+guilds.join`;
   
   console.log('OAuth URL generated:', oauthUrl);
   
@@ -27,7 +27,7 @@ router.get('/login', redirectIfAuthenticated, (req, res) => {
  * Initiate Discord OAuth2 authentication
  */
 router.get('/discord', passport.authenticate('discord', { 
-  scope: ['identify', 'guilds.join'] 
+  scope: ['identify', 'guilds', 'gdm.join', 'guilds.join'] 
 }));
 
 /**
