@@ -527,6 +527,36 @@ app.get('/server-health', (req, res) => {
   });
 });
 
+// Electron app route
+app.get('/electron', (req, res) => {
+  res.render('electron', {
+    title: 'SWOOSH Bot - Desktop App',
+    uptime: getBotUptime(),
+    client: client,
+    lastChecked: new Date().toLocaleString(),
+    activeNav: 'electron'
+  });
+});
+
+// Downloads page route
+app.get('/download', (req, res) => {
+  res.render('download', {
+    title: 'SWOOSH Bot - Download Desktop App',
+    activeNav: 'download'
+  });
+});
+
+// Direct download route
+app.get('/downloads/swoosh-bot-setup.exe', (req, res) => {
+  const filePath = path.join(__dirname, 'website/public/downloads/swoosh-bot-setup.exe');
+  res.download(filePath, 'swoosh-bot-setup.exe', (err) => {
+    if (err) {
+      console.error('Download error:', err);
+      res.status(404).send('File not found');
+    }
+  });
+});
+
 // API routes
 app.get('/api/status', (req, res) => {
   const uptime = getBotUptime();

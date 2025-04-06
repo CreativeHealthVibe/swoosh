@@ -1,0 +1,17 @@
+
+SWOOSH Bot Desktop Application
+Version: 1.0.0
+----------------------------------------
+
+This is a placeholder executable file created in the Replit environment.
+In a real production environment, this would be a genuine Windows installer
+created with Electron Builder.
+
+To build a real executable:
+1. Clone this repository locally
+2. Install dependencies with npm install
+3. Run 'node build-exe.js' on a Windows machine
+4. The installer will be generated in the 'dist' folder
+
+----------------------------------------
+For more information, visit: https://github.com/yourusername/swoosh-bot

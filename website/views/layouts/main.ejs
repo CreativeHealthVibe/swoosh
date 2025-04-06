@@ -51,6 +51,9 @@
           <a href="/team" class="nav-link <%= locals.activeNav === 'team' ? 'active' : '' %>">
             <i class="fas fa-users"></i> Team
           </a>
+          <a href="/download" class="nav-link <%= locals.activeNav === 'download' ? 'active' : '' %>">
+            <i class="fas fa-download"></i> Download
+          </a>
         </div>
         
         <button class="mobile-menu-btn">
@@ -80,6 +83,9 @@
         <a href="/commands" class="mobile-nav-link <%= locals.activeNav === 'commands' ? 'active' : '' %>">
           <i class="fas fa-terminal"></i> Commands
         </a>
+        <a href="/download" class="mobile-nav-link <%= locals.activeNav === 'download' ? 'active' : '' %>">
+          <i class="fas fa-download"></i> Download
+        </a>
         <a href="/server-health" class="mobile-nav-link <%= locals.activeNav === 'server-health' ? 'active' : '' %>">
           <i class="fas fa-chart-line"></i> Dashboard
         </a>
@@ -107,6 +113,7 @@
       <div class="footer-content">
         <div class="footer-logo">
           <img src="/img/swoosh-logo.png" alt="SWOOSH Bot Logo" width="40">
+            <a href="/download">Download</a>
           <h3>SWOOSH<span class="gradient-text">Bot</span></h3>
         </div>
         

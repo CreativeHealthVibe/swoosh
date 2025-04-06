@@ -1,0 +1,36 @@
+appId: "com.swoosh.bot"
+productName: "SWOOSH Bot"
+copyright: "Copyright © 2025 SWOOSH Team"
+
+directories:
+  output: "dist"
+  buildResources: "build"
+
+files:
+  - "electron-main.js"
+  - "electron-preload.js"
+  - "index.js"
+  - "config.js"
+  - "package.json"
+  - "node_modules/**/*"
+  - "handlers/**/*"
+  - "modules/**/*"
+  - "utils/**/*"
+  - "commands/**/*"
+  - "data/**/*"
+  - "website/**/*"
+
+win:
+  target: 
+    - "nsis"
+  icon: "website/public/img/logo.ico"
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: "SWOOSH Bot"
+  uninstallDisplayName: "SWOOSH Bot"
+
+publish: null
