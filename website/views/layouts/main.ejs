@@ -20,6 +20,9 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/purple-theme.css">
   <link rel="stylesheet" href="/css/cursor.css">
+  <% if (locals.activeNav === 'commands') { %>
+    <link rel="stylesheet" href="/css/commands-styles.css">
+  <% } %>
 </head>
 <body>
   <!-- Custom Cursor -->
@@ -143,10 +146,11 @@
   </footer>
   
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/cursor.js"></script>
   <% if (locals.activeNav === 'commands') { %>
+    <!-- Single Three.js import for commands page -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
     <script src="/js/three-commands.js"></script>
   <% } %>
 </body>

@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 2rem;
   margin-top: 2rem;
 }
 
@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(156, 77, 255, 0.2);
-  padding: 1.5rem;
+  padding: 1.5rem 1.5rem 2rem;
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
@@ -463,6 +463,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .metric-card {
   grid-column: span 1;
+  min-height: 330px;
 }
 
 .discord-card {
@@ -494,23 +495,27 @@ document.addEventListener('DOMContentLoaded', function() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 0;
+  padding: 1.5rem 0 0.5rem;
   flex-grow: 1;
 }
 
 .gauge-container {
   position: relative;
-  width: 180px;
-  height: 180px;
+  width: 200px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 10px;
+}
+  margin-bottom: 10px;
 }
 
 .gauge-value {
   position: absolute;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-weight: 700;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .uptime-display {
@@ -543,6 +548,8 @@ document.addEventListener('DOMContentLoaded', function() {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 1rem;
   font-size: 0.9rem;
+  margin-top: 10px;
+  clear: both;
 }
 
 .detail-item,
@@ -555,6 +562,12 @@ document.addEventListener('DOMContentLoaded', function() {
 .detail-label,
 .info-label {
   color: var(--text-secondary);
+  font-weight: 500;
+\n.detail-value,
+.info-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
 }
 
 .discord-metrics {

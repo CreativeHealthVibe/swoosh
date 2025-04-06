@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
   
+  console.log("THREE object available:", THREE);
+  
   console.log("Initializing Three.js background for commands page");
   
   // Create canvas container

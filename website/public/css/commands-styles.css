@@ -1,0 +1,192 @@
+/**
+ * Commands page specific styles for SWOOSH Bot Website
+ */
+
+/* Commands Page Styles */
+.commands-header {
+  text-align: center;
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(30, 15, 50, 0.7) 0%, rgba(20, 10, 35, 0.7) 100%);
+  z-index: 1;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.commands-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.commands-container {
+  padding: 3rem 0;
+  position: relative;
+}
+
+.commands-nav {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 2rem;
+}
+
+.search-bar {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(156, 77, 255, 0.2);
+  background: rgba(30, 15, 50, 0.3);
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.search-bar i {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+.category-filter h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+#category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+#category-list li {
+  padding: 0.5rem 1rem;
+  background: rgba(156, 77, 255, 0.1);
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#category-list li:hover {
+  background: rgba(156, 77, 255, 0.2);
+}
+
+#category-list li.active {
+  background: var(--primary);
+  color: var(--text-light);
+}
+
+.command-section {
+  margin-bottom: 3rem;
+}
+
+.command-section h2 {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.prefix-badge {
+  background: var(--primary);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.commands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.command-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-left: 4px solid var(--primary);
+  height: 100%;
+}
+
+.command-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.command-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-family: 'Consolas', monospace;
+  color: var(--primary-light);
+}
+
+.command-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.command-usage {
+  background: rgba(30, 15, 50, 0.5);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-family: 'Consolas', monospace;
+  overflow-x: auto;
+  white-space: nowrap;
+  color: var(--text-light);
+}
+
+@media (max-width: 992px) {
+  .commands-content {
+    padding: 0 1rem;
+  }
+  
+  .commands-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .commands-nav {
+    flex-direction: column;
+  }
+  
+  #category-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    gap: 0.75rem;
+  }
+  
+  .commands-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .command-card {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
