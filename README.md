@@ -1,71 +1,68 @@
-# SWOOSH Discord Bot
+# Swoosh Discord Bot - Desktop Application
 
-A Discord bot with moderation tools, ticket system, blacklist management, and more. Available as both a web service and a desktop application.
+A desktop application wrapper for the Swoosh Discord bot, built with Electron.
 
 ## Features
 
-- Ticket management system with transcript generation
-- User blacklisting
-- Server moderation tools (kick, ban, mute)
-- Role management
-- Logging system
-- AFK status tracking
-- Desktop application for managing your bot
-- Web dashboard for monitoring and control
+- Easy-to-use graphical interface to control your Discord bot
+- Start, stop, and restart the bot with a single click
+- Real-time bot status monitoring
+- View CPU usage, memory consumption, and uptime statistics
+- Live log viewing directly in the application
+- Stays in the system tray when closed
+- Starts automatically with Windows (optional)
 
-## Web Service Setup
+## Installation
 
-1. Clone this repository
-2. Install dependencies with `npm install`
-3. Create a `.env` file with your configuration (see `.env.sample`)
-4. Start the bot with `node index.js`
+### Prerequisites
 
-## Desktop Application
+- Windows 10 or later
+- [Node.js](https://nodejs.org/) v16 or later
+- Admin privileges (for the build process)
 
-The SWOOSH Bot is also available as a desktop application, making it easier to manage your bot directly from your computer.
+### Setting Up
 
-### Desktop App Features
+1. Clone the repository:
+   ```
+   git clone https://github.com/ghsammo/swoosh-win-app.git
+   cd swoosh-win-app
+   ```
 
-- Real-time bot metrics and server statistics
-- Command management interface
-- Live activity logs
-- Desktop notifications for important events
-- One-click bot restart
-- System tray integration
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-### Building the Desktop App
+3. Create a `.env` file in the root directory based on `.env.sample`:
+   ```
+   # Copy the sample environment file
+   cp .env.sample .env
+   
+   # Edit the .env file with your Discord bot credentials
+   # DISCORD_TOKEN=your_token_here
+   # CLIENT_ID=your_client_id_here
+   # GUILD_ID=your_guild_id_here
+   ```
 
-#### Windows
-1. Clone this repository
-2. Install dependencies with `npm install`
-3. Run the build script: `build.bat`
-4. The installer will be created in the `dist` folder
+### Building the Application
 
-#### macOS/Linux
-1. Clone this repository
-2. Install dependencies with `npm install`
-3. Make the build script executable: `chmod +x build.sh`
-4. Run the build script: `./build.sh`
-5. The installer will be created in the `dist` folder
+1. Build the executable:
+   ```
+   npm run build
+   ```
 
-### Requirements for Building
+2. Find the installer in the `dist` folder.
 
-- Node.js 18 or newer
-- npm 8 or newer
-- Windows, macOS, or Linux operating system
-- At least 4GB of RAM and 100MB of free disk space
+## Development
 
-## Environment Variables
+To run the application in development mode:
 
-- `DISCORD_TOKEN` - Your Discord bot token
-- `EMBED_COLOR` - Color for embeds (hex code)
-- `TICKET_CATEGORY` - Category name for tickets
-- `LOG_CHANNEL_ID` - Channel ID for logging
+```
+npm run dev
+```
 
-## Web Deployment
+This will start the application with DevTools enabled.
 
-This bot is configured for deployment on Render and includes a web dashboard at `/` path.
+## Support
 
-## Downloads
-
-You can download the pre-built desktop application from our website at `/download`.
+For support, join our [Discord server](https://discord.gg/) or open an issue on GitHub.

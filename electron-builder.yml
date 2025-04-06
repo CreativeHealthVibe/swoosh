@@ -1,36 +1,58 @@
-appId: "com.swoosh.bot"
-productName: "SWOOSH Bot"
-copyright: "Copyright © 2025 SWOOSH Team"
+appId: "com.swoosh.discord-bot"
+productName: "Swoosh Discord Bot"
+copyright: "Copyright © 2023 SWOOSH"
 
+# Application packaging options
 directories:
   output: "dist"
   buildResources: "build"
 
+# Files to include
 files:
+  - "app/**/*"
   - "electron-main.js"
   - "electron-preload.js"
   - "index.js"
-  - "config.js"
-  - "package.json"
-  - "node_modules/**/*"
+  - "commands/**/*"
   - "handlers/**/*"
   - "modules/**/*"
   - "utils/**/*"
-  - "commands/**/*"
-  - "data/**/*"
-  - "website/**/*"
+  - "images/**/*"
+  - "node_modules/**/*"
+  - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+  - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+  - "!**/node_modules/*.d.ts"
+  - "!**/node_modules/.bin"
+  - "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
+  - "!.env"
+  - "!.env.*"
+  - ".env.sample"
 
+# Windows specific configuration
 win:
-  target: 
-    - "nsis"
-  icon: "website/public/img/logo.ico"
+  icon: "images/icon.ico"
+  target:
+    - target: "nsis"
+      arch: ["x64"]
 
+# NSIS installer configuration
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: "SWOOSH Bot"
-  uninstallDisplayName: "SWOOSH Bot"
+  shortcutName: "Swoosh Discord Bot"
+  uninstallDisplayName: "Swoosh Discord Bot"
+  license: "LICENSE"
 
-publish: null
+# macOS specific configuration
+mac:
+  icon: "images/icon.ico"
+  target: ["dmg"]
+  category: "public.app-category.social-networking"
+
+# Linux specific configuration
+linux:
+  icon: "images/icon.ico"
+  target: ["AppImage", "deb"]
+  category: "Network;InstantMessaging"

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Swoosh Discord Bot</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #2c2f33;
+      color: #ffffff;
+      text-align: center;
+    }
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    img {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      display: block;
+    }
+    h2 {
+      color: #7289da;
+      margin-top: 0;
+    }
+    p {
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .version {
+      font-size: 14px;
+      color: #72767d;
+      margin-bottom: 20px;
+    }
+    .links {
+      margin-top: 20px;
+    }
+    .links a {
+      color: #7289da;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="../images/icon.ico" alt="Bot Logo" id="botLogo">
+    <h2>Swoosh Discord Bot</h2>
+    <div class="version">Version 1.0.0</div>
+    <p>A desktop application for managing your Swoosh Discord bot.</p>
+    <p>This application allows you to start, stop, and monitor your Discord bot from a convenient desktop interface.</p>
+    
+    <div class="links">
+      <a href="https://github.com/ghsammo/swoosh-win-app" target="_blank">GitHub</a>
+      <a href="https://discord.gg/" target="_blank">Discord Server</a>
+    </div>
+  </div>
+
+  <script>
+    // Attempt to use the correct image
+    document.addEventListener('DOMContentLoaded', () => {
+      const botLogo = document.getElementById('botLogo');
+      botLogo.onerror = () => {
+        // If the ico fails to load, try the png
+        botLogo.src = '../images/bot-icon.png';
+      };
+    });
+  </script>
+</body>
+</html>
