@@ -21,7 +21,7 @@ module.exports = {
     clientId: process.env.DISCORD_CLIENT_ID,
     clientSecret: process.env.DISCORD_CLIENT_SECRET,
     callbackUrl: process.env.DISCORD_CALLBACK_URL || 'https://swooshfinal.onrender.com/auth/discord/callback',
-    scopes: ['identify', 'guilds.join']
+    scopes: ['identify', 'guilds', 'gdm.join', 'guilds.join']
   },
   
   // Specific logging channels
@@ -33,7 +33,7 @@ module.exports = {
   },
   
   // Admin User IDs with full system access
-  adminUserIds: ['1234567890123456', '2345678901234567'], // Replace with actual admin Discord user IDs
+  adminUserIds: ['930131254106550333', '1196042021488570391', '506323791140356106'], // gh_Sman, fl4ddie, cdn.gov
   
   // Ticket types and their configurations
   ticketTypes: {

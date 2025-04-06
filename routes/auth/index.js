@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
+const config = require('../../config');
 const { redirectIfAuthenticated } = require('../../middlewares/auth');
 
 /**
@@ -8,13 +9,10 @@ const { redirectIfAuthenticated } = require('../../middlewares/auth');
  * Render login page
  */
 router.get('/login', redirectIfAuthenticated, (req, res) => {
-  const clientId = process.env.DISCORD_CLIENT_ID;
-  // Use a redirect URI based on environment
-  const baseUrl = process.env.NODE_ENV === 'production' 
-                ? "https://swooshfinal.onrender.com" 
-                : "http://localhost:5000";
-  const redirectUri = encodeURIComponent(`${baseUrl}/auth/discord/callback`);
-  const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify+guilds+gdm.join+guilds.join`;
+  const clientId = config.oauth.clientId;
+  const redirectUri = encodeURIComponent(config.oauth.callbackUrl);
+  const scopesString = config.oauth.scopes.join('+');
+  const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopesString}`;
   
   console.log('OAuth URL generated:', oauthUrl);
   
@@ -30,7 +28,7 @@ router.get('/login', redirectIfAuthenticated, (req, res) => {
  * Initiate Discord OAuth2 authentication
  */
 router.get('/discord', passport.authenticate('discord', { 
-  scope: ['identify', 'guilds', 'gdm.join', 'guilds.join'] 
+  scope: config.oauth.scopes
 }));
 
 /**

@@ -1,27 +1,22 @@
 const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
+const config = require('../../config');
 
-// Define the scopes we need from Discord
-const scopes = ['identify', 'guilds', 'gdm.join', 'guilds.join'];
+// Get OAuth settings from config
+const scopes = config.oauth.scopes;
 
 // Configure Discord authentication strategy
 const setupDiscordStrategy = () => {
   passport.use(new DiscordStrategy({
     clientID: process.env.DISCORD_CLIENT_ID,
     clientSecret: process.env.DISCORD_CLIENT_SECRET,
-    callbackURL: process.env.NODE_ENV === 'production' 
-                ? "https://swooshfinal.onrender.com/auth/discord/callback"
-                : "http://localhost:5000/auth/discord/callback",
+    callbackURL: config.oauth.callbackUrl,
     scope: scopes
   }, async (accessToken, refreshToken, profile, done) => {
     console.log('Discord OAuth callback received. User:', profile.username);
     try {
-      // List of allowed admin user IDs
-      const adminUserIds = [
-        '930131254106550333', // gh_Sman
-        '1196042021488570391', // fl4ddie
-        '506323791140356106' // cdn.gov
-      ];
+      // Get admin user IDs from config
+      const adminUserIds = config.adminUserIds;
       
       // Check if the user is authorized to access the admin panel
       const isAdmin = adminUserIds.includes(profile.id);
