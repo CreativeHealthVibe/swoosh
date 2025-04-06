@@ -1,9 +1,22 @@
 // Three.js animated background for the commands page
 document.addEventListener('DOMContentLoaded', function() {
+  console.log("Commands page Three.js script loaded");
+  
   // Only initialize if on the commands page
   const commandsHeader = document.querySelector('.commands-header');
-  if (!commandsHeader) return;
+  if (!commandsHeader) {
+    console.log("Commands header not found, aborting Three.js initialization");
+    return;
+  }
 
+  // Check if THREE is available
+  if (typeof THREE === 'undefined') {
+    console.error("THREE.js is not loaded properly");
+    return;
+  }
+  
+  console.log("Initializing Three.js background for commands page");
+  
   // Create canvas container
   const canvasContainer = document.createElement('div');
   canvasContainer.className = 'commands-background';
@@ -154,4 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   window.addEventListener('resize', onWindowResize);
+  
+  console.log("Three.js background initialized successfully");
 });

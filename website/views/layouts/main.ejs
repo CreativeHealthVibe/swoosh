@@ -31,7 +31,7 @@
     <div class="container">
       <div class="nav-container">
         <a href="/" class="nav-logo">
-          <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" width="40">
+          <img src="/img/swoosh-logo.png" alt="SWOOSH Bot Logo" width="40">
           <span>SWOOSH<span class="gradient-text">Bot</span></span>
         </a>
         
@@ -62,7 +62,7 @@
     <div class="mobile-menu-container">
       <div class="mobile-menu-header">
         <div class="mobile-logo">
-          <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" width="30">
+          <img src="/img/swoosh-logo.png" alt="SWOOSH Bot Logo" width="30">
           <span>SWOOSH<span class="gradient-text">Bot</span></span>
         </div>
         <button class="mobile-close-btn">
@@ -103,7 +103,7 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-logo">
-          <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" width="40">
+          <img src="/img/swoosh-logo.png" alt="SWOOSH Bot Logo" width="40">
           <h3>SWOOSH<span class="gradient-text">Bot</span></h3>
         </div>
         
@@ -143,7 +143,11 @@
   </footer>
   
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
   <script src="/js/main.js"></script>
   <script src="/js/cursor.js"></script>
+  <% if (locals.activeNav === 'commands') { %>
+    <script src="/js/three-commands.js"></script>
+  <% } %>
 </body>
 </html>
