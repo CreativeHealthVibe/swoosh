@@ -1,0 +1,326 @@
+/* Server Health Dashboard Styles */
+
+/* Background and container */
+.dashboard-page {
+  min-height: 100vh;
+  padding: 2rem 0 4rem;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.last-updated {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.last-updated.disconnected {
+  color: #f04747;
+}
+
+/* Dashboard grid layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Card styles */
+.dashboard-card {
+  background: rgba(30, 15, 50, 0.7);
+  border-radius: var(--border-radius);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(156, 77, 255, 0.2);
+  padding: 1.5rem 1.5rem 2rem;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(156, 77, 255, 0.2);
+}
+
+.metric-card {
+  grid-column: span 1;
+  min-height: 330px;
+}
+
+.discord-card {
+  grid-column: span 3;
+}
+
+.system-card {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+
+.commands-card {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+/* Card headers */
+.metric-header h3,
+.card-header h3 {
+  font-size: 1.1rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+}
+
+.metric-header h3 i,
+.card-header h3 i {
+  margin-right: 0.6rem;
+  color: #9c4dff;
+}
+
+/* Gauge styles */
+.metric-value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 1.5rem 0;
+}
+
+.gauge-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 5px rgba(156, 77, 255, 0.5);
+}
+
+/* Uptime display */
+.uptime-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.uptime-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #9c4dff;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.uptime-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.uptime-time {
+  font-size: 1.2rem;
+  font-family: monospace;
+  padding: 0.3rem 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  color: var(--text-secondary);
+}
+
+/* Metric details */
+.metric-details {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  font-family: monospace;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+/* Discord metrics */
+.discord-metrics {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 1.5rem 0;
+}
+
+.discord-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.metric-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(156, 77, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.8rem;
+  color: #9c4dff;
+  font-size: 1.5rem;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.discord-metric:hover .metric-circle {
+  background: rgba(156, 77, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.metric-info {
+  text-align: center;
+}
+
+.metric-info .metric-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  padding: 0;
+  margin-bottom: 0.2rem;
+}
+
+.metric-info .metric-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* System info */
+.system-info {
+  padding: 1rem 0;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.info-value {
+  font-family: monospace;
+  color: var(--text-primary);
+}
+
+/* Commands chart */
+.commands-chart-container {
+  flex-grow: 1;
+  position: relative;
+  min-height: 200px;
+  margin-top: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .discord-card {
+    grid-column: span 2;
+  }
+  
+  .system-card {
+    grid-column: span 2;
+  }
+  
+  .commands-card {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .metric-card,
+  .discord-card,
+  .system-card,
+  .commands-card {
+    grid-column: span 1;
+  }
+  
+  .discord-metrics {
+    flex-wrap: wrap;
+  }
+  
+  .discord-metric {
+    width: 50%;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .metric-value {
+    padding: 1rem 0;
+  }
+  
+  .gauge-container {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .discord-metric {
+    width: 100%;
+  }
+  
+  .uptime-value {
+    font-size: 2.2rem;
+  }
+}

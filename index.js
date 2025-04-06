@@ -742,6 +742,35 @@ app.get('/team', (req, res) => {
   });
 });
 
+// Server Health Dashboard route
+app.get('/server-health', (req, res) => {
+  // Get system information
+  const cpuCount = os.cpus().length;
+  const loadAverage = os.loadavg();
+  const totalMemory = os.totalmem();
+  const freeMemory = os.freemem();
+  const usedMemory = process.memoryUsage().rss;
+  const platform = os.platform();
+  const arch = os.arch();
+  const hostname = os.hostname();
+
+  // Render server health dashboard
+  res.render('server-health', {
+    title: 'SWOOSH Bot - Server Health',
+    client: client,
+    uptime: getBotUptime(),
+    cpuCount,
+    loadAverage,
+    totalMemory,
+    freeMemory,
+    usedMemory,
+    platform,
+    arch,
+    hostname,
+    activeNav: 'server-health'
+  });
+});
+
 // Messages page route
 app.get('/messages', (req, res) => {
   // Get all available guilds and their channels for the dropdown

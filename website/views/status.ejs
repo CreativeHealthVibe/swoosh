@@ -4,369 +4,161 @@
   path = '/status';
 %>
 
-<div class="status-container">
-  <h1 class="gradient-text">Bot Status Analytics</h1>
-  
-  <div class="status-cards-grid">
-    <!-- Uptime Card -->
-    <div class="status-card">
-      <div class="status-card-header">
-        <i class="fas fa-clock"></i>
-        <h3>Uptime</h3>
-      </div>
-      <div class="status-card-content">
-        <div class="uptime-display">
-          <div class="uptime-metric">
-            <span class="metric-value"><%= uptime.days %></span>
-            <span class="metric-label">Days</span>
-          </div>
-          <div class="uptime-metric">
-            <span class="metric-value"><%= uptime.hours %></span>
-            <span class="metric-label">Hours</span>
-          </div>
-          <div class="uptime-metric">
-            <span class="metric-value"><%= uptime.minutes %></span>
-            <span class="metric-label">Minutes</span>
-          </div>
-          <div class="uptime-metric">
-            <span class="metric-value"><%= uptime.seconds %></span>
-            <span class="metric-label">Seconds</span>
-          </div>
-        </div>
-        <div class="uptime-bar">
-          <div class="progress-bar" style="width: 99.9%"></div>
-        </div>
-        <div class="uptime-percentage">99.9% Uptime</div>
-      </div>
-    </div>
-    
-    <!-- Server Stats Card -->
-    <div class="status-card">
-      <div class="status-card-header">
-        <i class="fas fa-server"></i>
-        <h3>Server Stats</h3>
-      </div>
-      <div class="status-card-content">
-        <div class="stats-grid">
-          <div class="stat-item">
-            <i class="fas fa-users"></i>
-            <div class="stat-info">
-              <span class="stat-value"><%= users %></span>
-              <span class="stat-label">Users</span>
-            </div>
-          </div>
-          <div class="stat-item">
-            <i class="fas fa-hashtag"></i>
-            <div class="stat-info">
-              <span class="stat-value"><%= channels %></span>
-              <span class="stat-label">Channels</span>
-            </div>
-          </div>
-          <div class="stat-item">
-            <i class="fas fa-globe"></i>
-            <div class="stat-info">
-              <span class="stat-value"><%= guilds %></span>
-              <span class="stat-label">Servers</span>
-            </div>
-          </div>
-          <div class="stat-item">
-            <i class="fas fa-terminal"></i>
-            <div class="stat-info">
-              <span class="stat-value"><%= client.commands.size %></span>
-              <span class="stat-label">Commands</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Host Status Card -->
-    <div class="status-card">
-      <div class="status-card-header">
-        <i class="fas fa-cloud"></i>
-        <h3>Host Status</h3>
-      </div>
-      <div class="status-card-content">
-        <div class="host-status">
-          <div class="host-info">
-            <img src="/img/render-logo.svg" alt="Render Logo" class="host-logo" onerror="this.src='/img/logo.png'; this.alt='Hosting Provider'">
-            <div class="host-details">
-              <h4>Render</h4>
-              <span class="host-status-badge online">Online</span>
-            </div>
-          </div>
-          <div class="host-metrics">
-            <div class="host-metric">
-              <span class="metric-label">Last Checked</span>
-              <span class="metric-value"><%= lastChecked %></span>
-            </div>
-            <div class="host-metric">
-              <span class="metric-label">Response Time</span>
-              <span class="metric-value">54ms</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Recent Logs Card -->
-    <div class="status-card logs-card">
-      <div class="status-card-header">
-        <i class="fas fa-list"></i>
-        <h3>Recent Activity</h3>
-      </div>
-      <div class="status-card-content">
-        <div class="logs-container">
-          <div class="log-entry">
-            <span class="log-time"><%- new Date(Date.now() - 60000).toLocaleTimeString() %></span>
-            <span class="log-type command">Command</span>
-            <span class="log-message">User used <code>/help</code> command</span>
-          </div>
-          <div class="log-entry">
-            <span class="log-time"><%- new Date(Date.now() - 180000).toLocaleTimeString() %></span>
-            <span class="log-type info">Info</span>
-            <span class="log-message">New user joined server</span>
-          </div>
-          <div class="log-entry">
-            <span class="log-time"><%- new Date(Date.now() - 300000).toLocaleTimeString() %></span>
-            <span class="log-type command">Command</span>
-            <span class="log-message">Moderator used <code>/ban</code> command</span>
-          </div>
-          <div class="log-entry">
-            <span class="log-time"><%- new Date(Date.now() - 600000).toLocaleTimeString() %></span>
-            <span class="log-type system">System</span>
-            <span class="log-message">Bot restarted successfully</span>
-          </div>
-          <div class="log-entry">
-            <span class="log-time"><%- new Date(Date.now() - 1200000).toLocaleTimeString() %></span>
-            <span class="log-type ticket">Ticket</span>
-            <span class="log-message">Ticket #1234 was closed</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- System Resources Chart -->
-  <div class="status-card full-width">
-    <div class="status-card-header">
-      <i class="fas fa-microchip"></i>
-      <h3>System Resources</h3>
-    </div>
-    <div class="status-card-content chart-container">
-      <canvas id="resourcesChart"></canvas>
-    </div>
-  </div>
-  
-  <!-- Memory Usage Chart -->
-  <div class="status-card full-width">
-    <div class="status-card-header">
-      <i class="fas fa-memory"></i>
-      <h3>Memory Usage</h3>
-    </div>
-    <div class="status-card-content chart-container">
-      <canvas id="memoryChart"></canvas>
-    </div>
-  </div>
-  
-  <div class="status-note">
-    <i class="fas fa-sync-alt"></i> Live updates every 2 seconds via WebSocket
-  </div>
-</div>
+<section class="status-header">
+  <h1>Bot Status</h1>
+  <p>Current status and performance metrics for SWOOSH Bot</p>
+</section>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="/js/status-background.js"></script>
+<section class="status-overview">
+  <div class="container">
+    <div class="status-card main-status">
+      <div class="status-icon online">
+        <i class="fas fa-circle"></i>
+      </div>
+      <div class="status-info">
+        <h2>Online</h2>
+        <p>SWOOSH Bot is up and running</p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="status-card">
+        <div class="status-title">
+          <i class="fas fa-server"></i>
+          <h3>Uptime</h3>
+        </div>
+        <div class="status-value">
+          <%= uptime.days %>d <%= uptime.hours %>h <%= uptime.minutes %>m <%= uptime.seconds %>s
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-title">
+          <i class="fas fa-users"></i>
+          <h3>Servers</h3>
+        </div>
+        <div class="status-value">
+          <%= guilds %>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-title">
+          <i class="fas fa-user"></i>
+          <h3>Users</h3>
+        </div>
+        <div class="status-value">
+          <%= users %>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-title">
+          <i class="fas fa-hashtag"></i>
+          <h3>Channels</h3>
+        </div>
+        <div class="status-value">
+          <%= channels %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="system-info">
+  <div class="container">
+    <h2 class="section-title">System Information</h2>
+    <div class="system-stats">
+      <div class="system-card">
+        <div class="system-title">Memory Usage</div>
+        <div class="system-value"><%= Math.round(process.memoryUsage().heapUsed / 1024 / 1024) %> MB</div>
+        <div class="progress-bar">
+          <div class="progress" style="width: <%= Math.min(100, Math.round(process.memoryUsage().heapUsed / process.memoryUsage().heapTotal * 100)) %>%"></div>
+        </div>
+      </div>
+      
+      <div class="system-card">
+        <div class="system-title">Discord API Latency</div>
+        <div class="system-value"><%= client.ws.ping %> ms</div>
+        <div class="latency-indicator <%= client.ws.ping < 100 ? 'good' : client.ws.ping < 300 ? 'medium' : 'poor' %>"></div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-title">Node.js Version</div>
+        <div class="system-value"><%= process.version %></div>
+      </div>
+
+      <div class="system-card">
+        <div class="system-title">Platform</div>
+        <div class="system-value"><%= process.platform %></div>
+      </div>
+    </div>
+    <div class="last-updated">
+      Last updated: <%= lastChecked %>
+      <button id="refresh-status" class="btn btn-small">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="hosting-info">
+  <div class="container">
+    <h2 class="section-title">Hosting Information</h2>
+    <div class="hosting-details">
+      <div class="hosting-logo">
+        <img src="/img/render-logo.png" alt="Render Logo" onerror="this.src='/img/logo.png'; this.alt='Hosting Provider'">
+      </div>
+      <div class="hosting-text">
+        <h3>Hosted on Render</h3>
+        <p>SWOOSH Bot is hosted on Render's cloud platform for reliable 24/7 uptime and performance.</p>
+        <p>Visit our bot at: <a href="https://swooshfinal.onrender.com" target="_blank">swooshfinal.onrender.com</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Set up WebSocket connection for real-time updates
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    let socket;
-    
-    // Connection status indicator
-    let connectionLost = false;
-    
-    // CPU usage history for chart
-    const cpuHistory = [0, 0, 0, 0, 0, 0, 0];
-    
-    // Initialize Charts
-    // Resource Usage Chart
-    const resourcesCtx = document.getElementById('resourcesChart').getContext('2d');
-    const resourcesChart = new Chart(resourcesCtx, {
-      type: 'line',
-      data: {
-        labels: ['6s ago', '5s ago', '4s ago', '3s ago', '2s ago', '1s ago', 'Now'],
-        datasets: [{
-          label: 'CPU Usage (%)',
-          data: cpuHistory,
-          borderColor: '#9c4dff',
-          backgroundColor: 'rgba(156, 77, 255, 0.1)',
-          tension: 0.4,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            labels: {
-              color: '#d6b4fc'
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            },
-            ticks: {
-              color: '#d6b4fc'
-            }
-          },
-          x: {
-            grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            },
-            ticks: {
-              color: '#d6b4fc'
-            }
-          }
-        },
-        animation: {
-          duration: 1000
-        }
-      }
-    });
-    
-    // Memory Usage Chart
-    const memoryCtx = document.getElementById('memoryChart').getContext('2d');
-    const memoryChart = new Chart(memoryCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Used', 'Free'],
-        datasets: [{
-          data: [30, 70],
-          backgroundColor: [
-            '#9c4dff',
-            '#333333'
-          ],
-          borderColor: 'rgba(0, 0, 0, 0.1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              color: '#d6b4fc'
-            }
-          }
-        },
-        animation: {
-          duration: 1000
-        }
-      }
-    });
-    
-    // Connect to WebSocket
-    connectWebSocket();
-    
-    function connectWebSocket() {
-      socket = new WebSocket(wsUrl);
-      
-      // Handle WebSocket opening
-      socket.onopen = () => {
-        console.log('WebSocket connection established');
-        connectionLost = false;
-      };
-      
-      // Handle incoming messages
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        updateDashboard(data);
-      };
-      
-      // Handle WebSocket closing
-      socket.onclose = () => {
-        console.log('WebSocket connection closed');
-        if (!connectionLost) {
-          connectionLost = true;
-        }
+    // Refresh button functionality
+    const refreshButton = document.getElementById('refresh-status');
+    if (refreshButton) {
+      refreshButton.addEventListener('click', function() {
+        // Add loading spinner
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        this.disabled = true;
         
-        // Try to reconnect after 3 seconds
-        setTimeout(connectWebSocket, 3000);
-      };
-      
-      // Handle WebSocket errors
-      socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-    }
-    
-    // Update dashboard with new data
-    function updateDashboard(data) {
-      // Update uptime
-      if (data.uptime !== undefined) {
-        const days = Math.floor(data.uptime / 86400);
-        const hours = Math.floor((data.uptime % 86400) / 3600);
-        const minutes = Math.floor((data.uptime % 3600) / 60);
-        const seconds = Math.floor(data.uptime % 60);
-        
-        document.querySelectorAll('.uptime-metric .metric-value')[0].textContent = days;
-        document.querySelectorAll('.uptime-metric .metric-value')[1].textContent = hours;
-        document.querySelectorAll('.uptime-metric .metric-value')[2].textContent = minutes;
-        document.querySelectorAll('.uptime-metric .metric-value')[3].textContent = seconds;
-      }
-      
-      // Update server stats
-      if (data.servers !== undefined) {
-        document.querySelectorAll('.stat-item .stat-value')[2].textContent = data.servers;
-      }
-      
-      if (data.users !== undefined) {
-        document.querySelectorAll('.stat-item .stat-value')[0].textContent = data.users;
-      }
-      
-      if (data.channels !== undefined) {
-        document.querySelectorAll('.stat-item .stat-value')[1].textContent = data.channels;
-      }
-      
-      // Update CPU usage chart
-      if (data.cpu !== undefined) {
-        // Shift array and add new data point
-        cpuHistory.shift();
-        cpuHistory.push(data.cpu);
-        resourcesChart.data.datasets[0].data = cpuHistory;
-        resourcesChart.update();
-      }
-      
-      // Update memory usage chart
-      if (data.memory !== undefined && data.totalMemory !== undefined && data.freeMemory !== undefined) {
-        const usedGB = (data.usedMemory / (1024 * 1024 * 1024)).toFixed(1);
-        const totalGB = (data.totalMemory / (1024 * 1024 * 1024)).toFixed(1);
-        
-        memoryChart.data.datasets[0].data = [data.memory, 100 - data.memory];
-        memoryChart.data.labels = [`Used (${usedGB} GB)`, `Free (${(totalGB - usedGB).toFixed(1)} GB)`];
-        memoryChart.update();
-      }
-    }
-    
-    // Start Three.js background animation if available
-    if (typeof initThreeBackground === 'function') {
-      initThreeBackground({
-        color: 0x9c4dff,
-        density: 60,
-        size: 1.2,
-        speed: 0.2,
-        depth: 100
+        // Reload the page
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       });
     }
+    
+    // Animated counters for stats
+    const statusValues = document.querySelectorAll('.status-value');
+    
+    statusValues.forEach(value => {
+      // Skip the uptime counter
+      if (value.textContent.includes('d')) return;
+      
+      const finalValue = parseInt(value.textContent.trim());
+      if (isNaN(finalValue)) return;
+      
+      let startValue = 0;
+      const duration = 1500;
+      const increment = Math.ceil(finalValue / (duration / 16));
+      
+      const counter = setInterval(() => {
+        startValue += increment;
+        
+        if (startValue >= finalValue) {
+          value.textContent = finalValue;
+          clearInterval(counter);
+        } else {
+          value.textContent = startValue;
+        }
+      }, 16);
+    });
   });
 </script>

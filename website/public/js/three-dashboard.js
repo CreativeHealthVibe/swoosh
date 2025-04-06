@@ -1,148 +1,198 @@
 /**
- * Three.js background animation for dashboard
+ * Three.js dashboard background effect
+ * Creates a particle field with grid-like patterns
  */
-document.addEventListener('DOMContentLoaded', function() {
-  const container = document.getElementById('dashboard-bg');
+
+// Default configuration
+const DEFAULT_CONFIG = {
+  color: 0x9c4dff,        // Primary color (purple)
+  density: 80,            // Number of particles
+  size: 1.5,              // Particle size
+  speed: 0.3,             // Animation speed
+  depth: 100              // Z-depth of the scene
+};
+
+// Global variables
+let scene, camera, renderer, particles;
+let container, containerWidth, containerHeight;
+let animationFrame;
+
+// Initialize Three.js background
+function initThreeBackground(config = {}) {
+  // Merge default config with provided options
+  const options = { ...DEFAULT_CONFIG, ...config };
+  
+  // Get container
+  container = document.getElementById('dashboard-bg');
   if (!container) return;
   
-  let scene, camera, renderer;
-  let particles, geometryParticles;
-  const particleCount = 400;
-  let time = 0;
+  // Set up container dimensions
+  containerWidth = container.offsetWidth;
+  containerHeight = container.offsetHeight;
   
-  init();
+  // Create scene
+  scene = new THREE.Scene();
+  
+  // Create camera
+  const fov = 75;
+  const aspect = containerWidth / containerHeight;
+  const near = 0.1;
+  const far = 1000;
+  camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.z = 50;
+  
+  // Create renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(containerWidth, containerHeight);
+  renderer.setClearColor(0x000000, 0);
+  container.appendChild(renderer.domElement);
+  
+  // Create particles
+  createParticles(options);
+  
+  // Create grid
+  createGrid(options);
+  
+  // Add event listeners
+  window.addEventListener('resize', onWindowResize);
+  
+  // Start animation loop
   animate();
+}
+
+// Create particle field
+function createParticles(options) {
+  const geometry = new THREE.BufferGeometry();
+  const vertices = [];
   
-  function init() {
-    // Create scene
-    scene = new THREE.Scene();
+  const particleTexture = new THREE.TextureLoader().load('/img/particle.png');
+  
+  // Generate random positions
+  for (let i = 0; i < options.density; i++) {
+    const x = Math.random() * containerWidth - containerWidth / 2;
+    const y = Math.random() * containerHeight - containerHeight / 2;
+    const z = Math.random() * options.depth - options.depth / 2;
     
-    // Set up camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 100;
-    
-    // Create particles
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-    
-    // Define gradient from bottom (dark) to top (light)
-    const color1 = new THREE.Color(0x2a1052); // Dark purple
-    const color2 = new THREE.Color(0x9c4dff); // Light purple
-    
-    for (let i = 0; i < particleCount; i++) {
-      // Random position in 3D space, more concentrated on a horizontal plane
-      positions[i * 3] = (Math.random() - 0.5) * 100;      // x
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 60;   // y
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 50;   // z
-      
-      // Calculate color based on y-position (vertical gradient)
-      const yPos = positions[i * 3 + 1];
-      const normalizedY = (yPos + 30) / 60; // Normalize to 0-1 range
-      const particleColor = new THREE.Color().lerpColors(color1, color2, normalizedY);
-      
-      colors[i * 3] = particleColor.r;
-      colors[i * 3 + 1] = particleColor.g;
-      colors[i * 3 + 2] = particleColor.b;
-    }
-    
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    
-    // Material that uses vertex colors
-    const material = new THREE.PointsMaterial({
-      size: 0.8,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.7,
-      sizeAttenuation: true
-    });
-    
-    // Create the particle system
-    particles = new THREE.Points(geometry, material);
-    scene.add(particles);
-    
-    // Add some grid lines to represent data flows
-    addGridLines();
-    
-    // Set up renderer
-    renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0); // Transparent background
-    container.appendChild(renderer.domElement);
-    
-    // Handle window resize
-    window.addEventListener('resize', onWindowResize);
+    vertices.push(x, y, z);
   }
   
-  function addGridLines() {
-    // Horizontal grid lines
-    const gridMaterial = new THREE.LineBasicMaterial({ 
-      color: 0x4a1e8a,
-      transparent: true,
-      opacity: 0.3
-    });
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  
+  // Create material
+  const material = new THREE.PointsMaterial({
+    size: options.size,
+    sizeAttenuation: true,
+    color: options.color,
+    transparent: true,
+    opacity: 0.8,
+    map: particleTexture
+  });
+  
+  // Create point cloud
+  particles = new THREE.Points(geometry, material);
+  scene.add(particles);
+}
+
+// Create grid effect
+function createGrid(options) {
+  // Create grid material
+  const gridMaterial = new THREE.LineBasicMaterial({
+    color: options.color,
+    transparent: true,
+    opacity: 0.2
+  });
+  
+  // Create horizontal grid lines
+  const horizontalGridSize = 20;
+  const horizontalGridStep = containerHeight / horizontalGridSize;
+  const horizontalGridHalfSize = containerHeight / 2;
+  
+  for (let i = -horizontalGridHalfSize; i <= horizontalGridHalfSize; i += horizontalGridStep) {
+    const horizontalGridGeometry = new THREE.BufferGeometry();
     
-    // Create horizontal grid
-    for (let i = -3; i <= 3; i++) {
-      const y = i * 10;
-      const geometryLine = new THREE.BufferGeometry();
-      const positions = new Float32Array([
-        -50, y, 0,
-        50, y, 0
-      ]);
-      geometryLine.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      const line = new THREE.Line(geometryLine, gridMaterial);
-      scene.add(line);
-    }
+    const horizontalGridVertices = [
+      -containerWidth / 2, i, -10,
+      containerWidth / 2, i, -10
+    ];
     
-    // Create data flow lines that will animate
-    geometryParticles = new Float32Array(100 * 3);
-    for (let i = 0; i < 100; i++) {
-      geometryParticles[i * 3] = (Math.random() - 0.5) * 100;     // x
-      geometryParticles[i * 3 + 1] = (Math.random() - 0.5) * 60;  // y
-      geometryParticles[i * 3 + 2] = (Math.random() - 0.5) * 30;  // z
-    }
+    horizontalGridGeometry.setAttribute('position', new THREE.Float32BufferAttribute(horizontalGridVertices, 3));
+    const horizontalGridLine = new THREE.Line(horizontalGridGeometry, gridMaterial);
+    scene.add(horizontalGridLine);
   }
   
-  function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
+  // Create vertical grid lines
+  const verticalGridSize = 20;
+  const verticalGridStep = containerWidth / verticalGridSize;
+  const verticalGridHalfSize = containerWidth / 2;
   
-  function animate() {
-    requestAnimationFrame(animate);
+  for (let i = -verticalGridHalfSize; i <= verticalGridHalfSize; i += verticalGridStep) {
+    const verticalGridGeometry = new THREE.BufferGeometry();
     
-    time += 0.005;
+    const verticalGridVertices = [
+      i, -containerHeight / 2, -10,
+      i, containerHeight / 2, -10
+    ];
     
-    // Animate particles
-    if (particles) {
-      // Gently rotate the particles
-      particles.rotation.y = time * 0.1;
+    verticalGridGeometry.setAttribute('position', new THREE.Float32BufferAttribute(verticalGridVertices, 3));
+    const verticalGridLine = new THREE.Line(verticalGridGeometry, gridMaterial);
+    scene.add(verticalGridLine);
+  }
+}
+
+// Animation loop
+function animate() {
+  animationFrame = requestAnimationFrame(animate);
+  
+  // Rotate particles slightly
+  if (particles) {
+    particles.rotation.x += 0.0005;
+    particles.rotation.y += 0.001;
+    
+    // Move particles up slowly
+    const positions = particles.geometry.attributes.position.array;
+    
+    for (let i = 0; i < positions.length; i += 3) {
+      // Y position (up/down)
+      positions[i + 1] += 0.05;
       
-      // Make particles move in a wave pattern
-      const positions = particles.geometry.attributes.position.array;
-      for (let i = 0; i < particleCount; i++) {
-        // Apply wave effect to y-position
-        positions[i * 3 + 1] += Math.sin(time + i * 0.1) * 0.03;
-        
-        // Apply slight movement in x and z directions
-        positions[i * 3] += Math.sin(time * 0.5 + i) * 0.01;
-        positions[i * 3 + 2] += Math.cos(time * 0.3 + i) * 0.01;
-        
-        // Wrap particles that go out of bounds
-        if (positions[i * 3] > 50) positions[i * 3] = -50;
-        if (positions[i * 3] < -50) positions[i * 3] = 50;
-        if (positions[i * 3 + 1] > 30) positions[i * 3 + 1] = -30;
-        if (positions[i * 3 + 1] < -30) positions[i * 3 + 1] = 30;
-        if (positions[i * 3 + 2] > 25) positions[i * 3 + 2] = -25;
-        if (positions[i * 3 + 2] < -25) positions[i * 3 + 2] = 25;
+      // Reset if particle goes too far up
+      if (positions[i + 1] > containerHeight / 2) {
+        positions[i + 1] = -containerHeight / 2;
       }
-      particles.geometry.attributes.position.needsUpdate = true;
     }
     
-    // Render the scene
-    renderer.render(scene, camera);
+    particles.geometry.attributes.position.needsUpdate = true;
   }
-});
+  
+  // Render scene
+  renderer.render(scene, camera);
+}
+
+// Handle window resize
+function onWindowResize() {
+  containerWidth = container.offsetWidth;
+  containerHeight = container.offsetHeight;
+  
+  camera.aspect = containerWidth / containerHeight;
+  camera.updateProjectionMatrix();
+  
+  renderer.setSize(containerWidth, containerHeight);
+}
+
+// Clean up resources on page unload
+function cleanupThreeBackground() {
+  if (animationFrame) {
+    cancelAnimationFrame(animationFrame);
+  }
+  
+  if (renderer) {
+    renderer.dispose();
+  }
+  
+  // Remove event listeners
+  window.removeEventListener('resize', onWindowResize);
+}
+
+// Export functions
+window.initThreeBackground = initThreeBackground;
+window.cleanupThreeBackground = cleanupThreeBackground;
