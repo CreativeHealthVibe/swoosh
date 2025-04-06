@@ -12,8 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Three.js Library -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <!-- Three.js Library removed as requested -->
   <!-- Meta Description -->
   <meta name="description" content="SWOOSH Bot - A powerful Discord bot with moderation, utility, and fun commands to enhance your server experience.">
   <!-- Open Graph / Social Media -->
@@ -22,13 +21,10 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://swooshfinal.onrender.com/">
 </head>
-<body class="custom-cursor">
+<body class="">
   <!-- Custom cursor elements -->
-  <div class="cursor-dot" id="cursor-dot"></div>
-  <div class="cursor-outline" id="cursor-outline"></div>
   
   <!-- Particle container -->
-  <canvas id="particle-canvas" class="particle-canvas"></canvas>
   
   <header>
     <div class="navbar">
@@ -86,21 +82,7 @@
   <!-- Main Javascript -->
   <script src="/js/main.js"></script>
   
-  <!-- Three.js Background Scripts -->
-  <% if (typeof path !== "undefined") { %>
-    <% if (path === "/" || path === "/home") { %>
-      <script src="/js/three-background.js"></script>
-    <% } else if (path === "/commands") { %>
-      <script src="/js/three-commands.js"></script>
-    <% } else if (path === "/status") { %>
-      <script src="/js/three-status.js"></script>
-    <% } %>
-  <% } %>
-  <!-- Custom Cursor -->
-  <script src="/js/cursor.js"></script>
-  
-  <!-- Particle Effects -->
-  <script src="/js/create-particle.js"></script>
+  <!-- No special effects - minimal design as requested -->
   
   <!-- Smooth Scroll -->
   <script>
