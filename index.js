@@ -69,6 +69,7 @@ for (const file of commandFiles) {
 // Bot login event
 client.once('ready', async () => {
   console.log(`🚀 ${client.user.tag} is online!`);
+  console.log(`Bot client ID: ${client.user.id}`);
   
   // Set custom bot status
   client.user.setPresence({
@@ -94,7 +95,7 @@ client.once('ready', async () => {
       console.log('📄 Created autoroles configuration file');
     }
     // Register slash commands
-    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN);
     console.log('Started refreshing application (/) commands.');
     
     const guilds = client.guilds.cache;
@@ -897,7 +898,7 @@ server.listen(PORT, () => {
 });
 
 // Start bot
-client.login(process.env.DISCORD_TOKEN)
+client.login(process.env.DISCORD_BOT_TOKEN)
   .then(() => console.log('Bot successfully logged in'))
   .catch(error => {
     console.error('❌ Login Failed:', error);
