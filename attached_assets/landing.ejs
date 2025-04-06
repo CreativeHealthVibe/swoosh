@@ -1,0 +1,152 @@
+<div id="home-bg" class="background-container"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/js/three-background.js"></script>
+
+<div class="hero-section">
+  <div class="hero-content">
+    <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" class="hero-logo">
+    <h1 class="hero-title">SWOOSH<span class="hero-highlight">Bot</span></h1>
+    <p class="hero-subtitle">A powerful Discord utility bot with advanced moderation tools, image processing, and more.</p>
+    
+    <div class="hero-buttons">
+      <a href="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands" class="gradient-button">
+        <i class="fas fa-rocket"></i> Add to Discord
+      </a>
+      <a href="/commands" class="btn btn-secondary">
+        <i class="fas fa-terminal"></i> View Commands
+      </a>
+    </div>
+    
+    <div class="hero-stats">
+      <div class="stat-item">
+        <i class="fas fa-server"></i>
+        <span class="stat-value"><%= client.guilds.cache.size %></span>
+        <span class="stat-label">Servers</span>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-users"></i>
+        <span class="stat-value"><%= client.users.cache.size.toLocaleString() %></span>
+        <span class="stat-label">Users</span>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-terminal"></i>
+        <span class="stat-value"><%= client.commands ? client.commands.size : 0 %></span>
+        <span class="stat-label">Commands</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="scroll-indicator">
+    <a href="#features">
+      <i class="fas fa-chevron-down"></i>
+    </a>
+  </div>
+</div>
+
+<section id="features" class="section features-section">
+  <div class="container">
+    <h2 class="section-title text-center">
+      Awesome <span class="gradient-text">Features</span>
+    </h2>
+    <p class="section-description text-center">Discover what makes SWOOSH Bot special</p>
+    
+    <div class="features-grid">
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h3 class="feature-title">Advanced Moderation</h3>
+        <p class="feature-description">Keep your server safe with powerful moderation tools including ban, kick, mute, and more.</p>
+      </div>
+      
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">
+          <i class="fas fa-image"></i>
+        </div>
+        <h3 class="feature-title">Image Processing</h3>
+        <p class="feature-description">Create custom emojis, process images, and generate visual content directly in Discord.</p>
+      </div>
+      
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">
+          <i class="fas fa-ticket-alt"></i>
+        </div>
+        <h3 class="feature-title">Ticket System</h3>
+        <p class="feature-description">Manage support tickets with our comprehensive ticket system including transcripts.</p>
+      </div>
+      
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">
+          <i class="fas fa-cogs"></i>
+        </div>
+        <h3 class="feature-title">Utility Commands</h3>
+        <p class="feature-description">Access a wide range of utility commands designed to make server management easier.</p>
+      </div>
+      
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <h3 class="feature-title">Custom Notifications</h3>
+        <p class="feature-description">Set up custom alerts and notifications for your server events and milestones.</p>
+      </div>
+      
+      <div class="feature-card animate-on-scroll">
+        <div class="feature-icon">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <h3 class="feature-title">Bounty System</h3>
+        <p class="feature-description">Create and manage bounties for community challenges and tasks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section cta-section">
+  <div class="container">
+    <div class="cta-container">
+      <div class="cta-content">
+        <h2 class="cta-title">Ready to enhance your Discord server?</h2>
+        <p class="cta-description">Join thousands of servers already using SWOOSH Bot</p>
+        
+        <div class="cta-buttons">
+          <a href="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands" class="gradient-button">
+            <i class="fas fa-rocket"></i> Add to Discord
+          </a>
+          <a href="https://discord.gg/swoosh" target="_blank" class="btn btn-secondary">
+            <i class="fab fa-discord"></i> Join Support Server
+          </a>
+        </div>
+      </div>
+      
+      <div class="cta-image">
+        <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" width="200">
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="/js/three-background.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Animate elements when they come into view
+  const animatedElements = document.querySelectorAll('.animate-on-scroll');
+  
+  function checkScroll() {
+    animatedElements.forEach(element => {
+      const elementTop = element.getBoundingClientRect().top;
+      const elementVisible = 150; // Show when element is 150px from viewport top
+      
+      if (elementTop < window.innerHeight - elementVisible) {
+        element.classList.add('animated');
+      }
+    });
+  }
+  
+  // Run once at load
+  checkScroll();
+  
+  // Run on scroll
+  window.addEventListener('scroll', checkScroll);
+});
+</script>

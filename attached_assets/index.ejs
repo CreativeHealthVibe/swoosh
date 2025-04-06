@@ -1,0 +1,75 @@
+<!-- Three.js Background -->
+<div id="home-bg" class="background-container"></div>
+
+<div class="hero-section">
+  <div class="hero-content">
+    <img src="/img/swoosh-logo.svg" alt="SWOOSH Bot Logo" class="hero-logo">
+    <h1 class="hero-title">Welcome to <span class="gradient-text">SWOOSH</span> Bot</h1>
+    <p class="hero-subtitle">A powerful Discord utility bot with advanced moderation tools, image processing, and more.</p>
+    
+    <div class="stats-cards">
+      <div class="stat-card">
+        <i class="fas fa-server"></i>
+        <div class="stat-value"><%= client.guilds.cache.size %></div>
+        <div class="stat-label">Servers</div>
+      </div>
+      
+      <div class="stat-card">
+        <i class="fas fa-users"></i>
+        <div class="stat-value"><%= client.users.cache.size.toLocaleString() %></div>
+        <div class="stat-label">Users</div>
+      </div>
+      
+      <div class="stat-card">
+        <i class="fas fa-clock"></i>
+        <div class="stat-value"><%= uptime.days %>d <%= uptime.hours %>h</div>
+        <div class="stat-label">Uptime</div>
+      </div>
+    </div>
+    
+    <div class="hero-buttons">
+      <a href="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands" class="gradient-button">
+        <i class="fab fa-discord"></i> Add to Discord
+      </a>
+      <a href="/server-health" class="btn btn-secondary">
+        <i class="fas fa-chart-line"></i> Server Status
+      </a>
+    </div>
+  </div>
+</div>
+
+<section class="features-section">
+  <div class="container">
+    <h2 class="section-title text-center">Why Choose <span class="gradient-text">SWOOSH</span> Bot?</h2>
+    <p class="section-description text-center">Discover the features that make our bot stand out</p>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+        <h3 class="feature-title">Advanced Moderation</h3>
+        <p class="feature-description">Keep your server safe with powerful moderation tools including ban, kick, mute, and more.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-image"></i></div>
+        <h3 class="feature-title">Image Processing</h3>
+        <p class="feature-description">Create custom emojis, manipulate images, and generate visual content directly in Discord.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-ticket-alt"></i></div>
+        <h3 class="feature-title">Support Tickets</h3>
+        <p class="feature-description">Implement a comprehensive ticket system with transcripts and user management.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-user-tag"></i></div>
+        <h3 class="feature-title">Auto-Roles</h3>
+        <p class="feature-description">Automatically assign roles to new members and create custom role assignment systems.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/js/three-background.js"></script>

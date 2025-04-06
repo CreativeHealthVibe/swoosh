@@ -1,11 +1,7 @@
 <% 
   // Set variables for the template
-  title = 'SWOOSH Bot - Status';
-  path = '/status';
-  
-  // Format the start time
-  const startTime = new Date(Date.now() - (uptime.days * 24 * 60 * 60 * 1000) - (uptime.hours * 60 * 60 * 1000) - (uptime.minutes * 60 * 1000) - (uptime.seconds * 1000));
-  const formattedStartTime = startTime.toLocaleString();
+  title = 'SWOOSH Bot - Dashboard';
+  path = '/dashboard';
 %>
 
 <div class="dashboard-container">
@@ -37,11 +33,11 @@
         <div class="gauge-details">
           <div class="detail-item">
             <span class="detail-label">Cores:</span>
-            <span class="detail-value" id="cpu-cores">8</span>
+            <span class="detail-value" id="cpu-cores">0</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Load Avg:</span>
-            <span class="detail-value" id="load-avg">7.82, 7.05, 7.10</span>
+            <span class="detail-value" id="load-avg">0.00, 0.00, 0.00</span>
           </div>
         </div>
       </div>
@@ -65,11 +61,11 @@
         <div class="gauge-details">
           <div class="detail-item">
             <span class="detail-label">Total:</span>
-            <span class="detail-value" id="memory-total">30.65 GB</span>
+            <span class="detail-value" id="memory-total">0 GB</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Used:</span>
-            <span class="detail-value" id="memory-used">0.09 GB</span>
+            <span class="detail-value" id="memory-used">0 GB</span>
           </div>
         </div>
       </div>
@@ -83,16 +79,16 @@
       <div class="card-content uptime-content">
         <div class="uptime-display">
           <div class="uptime-days">
-            <span class="uptime-number" id="uptime-days"><%= uptime.days %></span>
+            <span class="uptime-number" id="uptime-days">0</span>
             <span class="uptime-label">Days</span>
           </div>
           <div class="uptime-time" id="uptime-time">
-            <%= uptime.hours.toString().padStart(2, '0') %>:<%= uptime.minutes.toString().padStart(2, '0') %>:<%= uptime.seconds.toString().padStart(2, '0') %>
+            00:00:00
           </div>
         </div>
         <div class="uptime-started">
           <span class="detail-label">Started:</span>
-          <span class="detail-value" id="start-time"><%= formattedStartTime %></span>
+          <span class="detail-value" id="start-time"><%= new Date().toLocaleString() %></span>
         </div>
       </div>
     </div>
@@ -165,13 +161,6 @@
       </div>
     </div>
   </div>
-
-  <div class="last-updated">
-    Last updated: <%= lastChecked %>
-    <button id="refresh-status" class="btn btn-small">
-      <i class="fas fa-sync-alt"></i> Refresh
-    </button>
-  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -181,7 +170,24 @@
     updateCPUGauge(54);
     updateMemoryGauge(78);
     
-    // Init command usage chart
+    // Set system info
+    document.getElementById('cpu-cores').textContent = '8';
+    document.getElementById('load-avg').textContent = '7.82, 7.05, 7.10';
+    document.getElementById('memory-total').textContent = '30.65 GB';
+    document.getElementById('memory-used').textContent = '0.09 GB';
+    
+    // Set uptime info
+    document.getElementById('uptime-days').textContent = '0';
+    document.getElementById('uptime-time').textContent = '02:13:00';
+    document.getElementById('start-time').textContent = '4/6/2025, 5:06:35 PM';
+    
+    // Set Discord stats
+    document.getElementById('server-count').textContent = '<%= guilds %>';
+    document.getElementById('user-count').textContent = '<%= users %>';
+    document.getElementById('channel-count').textContent = '<%= channels %>';
+    document.getElementById('ping-value').textContent = '<%= client.ws.ping %> ms';
+    
+    // Command usage chart
     const commandCtx = document.getElementById('commandUsageChart').getContext('2d');
     const commandChart = new Chart(commandCtx, {
       type: 'bar',
@@ -224,6 +230,45 @@
         }
       }
     });
+    
+    // Live updates
+    let uptimeSec = 0;
+    let uptimeMin = 13;
+    let uptimeHour = 2;
+    let uptimeDay = 0;
+    
+    function updateUptime() {
+      uptimeSec++;
+      if (uptimeSec >= 60) {
+        uptimeSec = 0;
+        uptimeMin++;
+        if (uptimeMin >= 60) {
+          uptimeMin = 0;
+          uptimeHour++;
+          if (uptimeHour >= 24) {
+            uptimeHour = 0;
+            uptimeDay++;
+          }
+        }
+      }
+      
+      const formattedTime = 
+        `${uptimeHour.toString().padStart(2, '0')}:${uptimeMin.toString().padStart(2, '0')}:${uptimeSec.toString().padStart(2, '0')}`;
+      document.getElementById('uptime-days').textContent = uptimeDay;
+      document.getElementById('uptime-time').textContent = formattedTime;
+    }
+    
+    function updateStats() {
+      // Simulate CPU and memory fluctuations
+      const cpuValue = Math.floor(50 + Math.sin(Date.now() / 10000) * 7);
+      const memValue = Math.floor(75 + Math.sin(Date.now() / 15000) * 5);
+      
+      updateCPUGauge(cpuValue);
+      updateMemoryGauge(memValue);
+      
+      const pingValue = Math.floor(80 + Math.sin(Date.now() / 5000) * 20);
+      document.getElementById('ping-value').textContent = `${pingValue} ms`;
+    }
     
     // Update CPU gauge
     function updateCPUGauge(value) {
@@ -271,35 +316,8 @@
       gauge.style.setProperty('--gauge-color', color);
     }
     
-    // Live updates
-    function updateStats() {
-      // Simulate CPU and memory fluctuations
-      const cpuValue = Math.floor(50 + Math.sin(Date.now() / 10000) * 7);
-      const memValue = Math.floor(75 + Math.sin(Date.now() / 15000) * 5);
-      
-      updateCPUGauge(cpuValue);
-      updateMemoryGauge(memValue);
-      
-      const pingValue = Math.floor(80 + Math.sin(Date.now() / 5000) * 20);
-      document.getElementById('ping-value').textContent = `${pingValue} ms`;
-    }
-    
     // Start live updates
     setInterval(updateStats, 2000);
-    
-    // Refresh button functionality
-    const refreshButton = document.getElementById('refresh-status');
-    if (refreshButton) {
-      refreshButton.addEventListener('click', function() {
-        // Add loading spinner
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-        this.disabled = true;
-        
-        // Reload the page
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      });
-    }
+    setInterval(updateUptime, 1000);
   });
 </script>

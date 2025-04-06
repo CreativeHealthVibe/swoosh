@@ -1,0 +1,258 @@
+
+<div class="status-container">
+  <h1 class="gradient-text">Bot Status Analytics</h1>
+  
+  <div class="status-cards-grid">
+    <!-- Uptime Card -->
+    <div class="status-card">
+      <div class="status-card-header">
+        <i class="fas fa-clock"></i>
+        <h3>Uptime</h3>
+      </div>
+      <div class="status-card-content">
+        <div class="uptime-display">
+          <div class="uptime-metric">
+            <span class="metric-value"><%= uptime.days %></span>
+            <span class="metric-label">Days</span>
+          </div>
+          <div class="uptime-metric">
+            <span class="metric-value"><%= uptime.hours %></span>
+            <span class="metric-label">Hours</span>
+          </div>
+          <div class="uptime-metric">
+            <span class="metric-value"><%= uptime.minutes %></span>
+            <span class="metric-label">Minutes</span>
+          </div>
+          <div class="uptime-metric">
+            <span class="metric-value"><%= uptime.seconds %></span>
+            <span class="metric-label">Seconds</span>
+          </div>
+        </div>
+        <div class="uptime-bar">
+          <div class="progress-bar" style="width: 99.9%"></div>
+        </div>
+        <div class="uptime-percentage">99.9% Uptime</div>
+      </div>
+    </div>
+    
+    <!-- Server Stats Card -->
+    <div class="status-card">
+      <div class="status-card-header">
+        <i class="fas fa-server"></i>
+        <h3>Server Stats</h3>
+      </div>
+      <div class="status-card-content">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <i class="fas fa-users"></i>
+            <div class="stat-info">
+              <span class="stat-value"><%= users %></span>
+              <span class="stat-label">Users</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-hashtag"></i>
+            <div class="stat-info">
+              <span class="stat-value"><%= channels %></span>
+              <span class="stat-label">Channels</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-globe"></i>
+            <div class="stat-info">
+              <span class="stat-value"><%= guilds %></span>
+              <span class="stat-label">Servers</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-terminal"></i>
+            <div class="stat-info">
+              <span class="stat-value"><%= client.commands.size %></span>
+              <span class="stat-label">Commands</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Host Status Card -->
+    <div class="status-card">
+      <div class="status-card-header">
+        <i class="fas fa-cloud"></i>
+        <h3>Host Status</h3>
+      </div>
+      <div class="status-card-content">
+        <div class="host-status">
+          <div class="host-info">
+            <img src="/img/render-logo.svg" alt="Render Logo" class="host-logo">
+            <div class="host-details">
+              <h4>Render</h4>
+              <span class="host-status-badge online">Online</span>
+            </div>
+          </div>
+          <div class="host-metrics">
+            <div class="host-metric">
+              <span class="metric-label">Last Checked</span>
+              <span class="metric-value"><%= lastChecked %></span>
+            </div>
+            <div class="host-metric">
+              <span class="metric-label">Response Time</span>
+              <span class="metric-value">54ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Logs Card -->
+    <div class="status-card logs-card">
+      <div class="status-card-header">
+        <i class="fas fa-list"></i>
+        <h3>Recent Activity</h3>
+      </div>
+      <div class="status-card-content">
+        <div class="logs-container">
+          <div class="log-entry">
+            <span class="log-time"><%- new Date(Date.now() - 60000).toLocaleTimeString() %></span>
+            <span class="log-type command">Command</span>
+            <span class="log-message">User used <code>/help</code> command</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time"><%- new Date(Date.now() - 180000).toLocaleTimeString() %></span>
+            <span class="log-type info">Info</span>
+            <span class="log-message">New user joined server</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time"><%- new Date(Date.now() - 300000).toLocaleTimeString() %></span>
+            <span class="log-type command">Command</span>
+            <span class="log-message">Moderator used <code>/ban</code> command</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time"><%- new Date(Date.now() - 600000).toLocaleTimeString() %></span>
+            <span class="log-type system">System</span>
+            <span class="log-message">Bot restarted successfully</span>
+          </div>
+          <div class="log-entry">
+            <span class="log-time"><%- new Date(Date.now() - 1200000).toLocaleTimeString() %></span>
+            <span class="log-type ticket">Ticket</span>
+            <span class="log-message">Ticket #1234 was closed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- System Resources Chart -->
+  <div class="status-card full-width">
+    <div class="status-card-header">
+      <i class="fas fa-microchip"></i>
+      <h3>System Resources</h3>
+    </div>
+    <div class="status-card-content chart-container">
+      <canvas id="resourcesChart"></canvas>
+    </div>
+  </div>
+  
+  <!-- Memory Usage Chart -->
+  <div class="status-card full-width">
+    <div class="status-card-header">
+      <i class="fas fa-memory"></i>
+      <h3>Memory Usage</h3>
+    </div>
+    <div class="status-card-content chart-container">
+      <canvas id="memoryChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Resource Usage Chart
+  const resourcesCtx = document.getElementById('resourcesChart').getContext('2d');
+  const resourcesChart = new Chart(resourcesCtx, {
+    type: 'line',
+    data: {
+      labels: ['24h ago', '20h ago', '16h ago', '12h ago', '8h ago', '4h ago', 'Now'],
+      datasets: [{
+        label: 'CPU Usage (%)',
+        data: [15, 22, 18, 35, 28, 20, 25],
+        borderColor: '#9c4dff',
+        backgroundColor: 'rgba(156, 77, 255, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: '#d6b4fc'
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          },
+          ticks: {
+            color: '#d6b4fc'
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          },
+          ticks: {
+            color: '#d6b4fc'
+          }
+        }
+      }
+    }
+  });
+  
+  // Memory Usage Chart
+  const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+  const memoryChart = new Chart(memoryCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Used', 'Free'],
+      datasets: [{
+        data: [256, 768],
+        backgroundColor: [
+          '#9c4dff',
+          '#333333'
+        ],
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#d6b4fc'
+          }
+        }
+      }
+    }
+  });
+
+  // Start Three.js background
+  window.addEventListener('DOMContentLoaded', () => {
+    initThreeBackground({
+      color: 0x9c4dff,
+      density: 80,
+      size: 1.5,
+      speed: 0.3,
+      depth: 100
+    });
+  });
+</script>
