@@ -423,22 +423,28 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Set up session management
+// Set up session management with MongoDB
+const MongoStore = require('connect-mongo');
 app.use(session({
   secret: process.env.SESSION_SECRET || 'swoosh-bot-dashboard-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 // 1 day
-  }
+  },
+  store: process.env.MONGODB_URI ? 
+    MongoStore.create({ 
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: 'sessions',
+      ttl: 60 * 60 * 24 // 1 day in seconds
+    }) : 
+    null // If no MongoDB URI, use default memory store
 }));
 
 // Initialize Passport authentication
-const passport = require('passport');
-const initPassport = require('./utils/passport');
+const passport = require('./utils/passport');
 app.use(passport.initialize());
 app.use(passport.session());
-initPassport(app);
 
 // Make client available to routes
 app.locals.client = client;

@@ -1,4 +1,4 @@
-// Admin utilities
+// Admin utilities for the dashboard
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -8,22 +8,24 @@ const path = require('path');
  * @returns {Object} System statistics
  */
 function getSystemStats() {
+  const cpuUsage = getCpuUsage();
   const totalMemory = os.totalmem();
   const freeMemory = os.freemem();
   const usedMemory = totalMemory - freeMemory;
+  const memoryPercentage = Math.round((usedMemory / totalMemory) * 100);
   
   return {
-    cpuUsage: getCpuUsage(),
+    platform: os.platform(),
+    arch: os.arch(),
+    hostname: os.hostname(),
+    cpuUsage: cpuUsage,
+    uptime: formatUptime(os.uptime()),
     memoryUsage: {
       total: formatBytes(totalMemory),
       used: formatBytes(usedMemory),
       free: formatBytes(freeMemory),
-      percentage: Math.round((usedMemory / totalMemory) * 100)
-    },
-    uptime: formatUptime(os.uptime()),
-    platform: os.platform(),
-    arch: os.arch(),
-    hostname: os.hostname()
+      percentage: memoryPercentage
+    }
   };
 }
 
@@ -32,23 +34,17 @@ function getSystemStats() {
  * @returns {Number} CPU usage percentage
  */
 function getCpuUsage() {
-  try {
-    const cpus = os.cpus();
-    let totalIdle = 0;
-    let totalTick = 0;
-    
-    for (const cpu of cpus) {
-      for (const type in cpu.times) {
-        totalTick += cpu.times[type];
-      }
-      totalIdle += cpu.times.idle;
-    }
-    
-    return Math.round(100 - (totalIdle / totalTick * 100));
-  } catch (error) {
-    console.error('Error getting CPU usage:', error);
-    return 0;
-  }
+  // This is a simplified version since getting real-time CPU usage requires sampling over time
+  // For a real implementation, consider using the 'os-utils' package
+  const cpus = os.cpus();
+  const usages = cpus.map(cpu => {
+    const total = Object.values(cpu.times).reduce((acc, time) => acc + time, 0);
+    const idle = cpu.times.idle;
+    return 100 - (idle / total * 100);
+  });
+  
+  // Average CPU usage across all cores
+  return Math.round(usages.reduce((acc, usage) => acc + usage, 0) / cpus.length);
 }
 
 /**
@@ -60,7 +56,7 @@ function formatBytes(bytes) {
   if (bytes === 0) return '0 Bytes';
   
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
@@ -72,12 +68,18 @@ function formatBytes(bytes) {
  * @returns {String} Formatted string
  */
 function formatUptime(seconds) {
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
+  const days = Math.floor(seconds / (3600 * 24));
+  const hours = Math.floor((seconds % (3600 * 24)) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
   
-  return `${days}d ${hours}h ${minutes}m ${secs}s`;
+  let result = '';
+  if (days > 0) result += `${days}d `;
+  if (hours > 0) result += `${hours}h `;
+  if (minutes > 0) result += `${minutes}m `;
+  if (secs > 0) result += `${secs}s`;
+  
+  return result.trim();
 }
 
 /**
@@ -88,18 +90,24 @@ function formatUptime(seconds) {
 function getBotStats(client) {
   if (!client) {
     return {
+      status: 'Offline',
+      ping: 0,
       guilds: 0,
       users: 0,
       channels: 0,
-      commands: 0
+      commands: 0,
+      uptime: '0s'
     };
   }
   
   return {
-    guilds: client.guilds.cache.size,
-    users: client.users.cache.size,
-    channels: client.channels.cache.size,
-    commands: getCommandCount()
+    status: client.user?.presence?.status || 'Offline',
+    ping: client.ws?.ping || 0,
+    guilds: client.guilds?.cache?.size || 0,
+    users: client.users?.cache?.size || 0,
+    channels: client.channels?.cache?.size || 0,
+    commands: getCommandCount(),
+    uptime: formatUptime(client.uptime ? client.uptime / 1000 : 0)
   };
 }
 
@@ -109,10 +117,11 @@ function getBotStats(client) {
  */
 function getCommandCount() {
   try {
-    const commandsPath = path.join(__dirname, '..', 'commands');
-    return fs.readdirSync(commandsPath).filter(file => file.endsWith('.js')).length;
+    const commandsDir = path.join(__dirname, '..', 'commands');
+    const commandFiles = fs.readdirSync(commandsDir).filter(file => file.endsWith('.js'));
+    return commandFiles.length;
   } catch (error) {
-    console.error('Error counting commands:', error);
+    console.error('Error getting command count:', error);
     return 0;
   }
 }
@@ -123,28 +132,32 @@ function getCommandCount() {
  */
 function getLogFiles() {
   try {
-    const logsPath = path.join(__dirname, '..', 'logs');
+    const logsDir = path.join(__dirname, '..', 'logs');
     
-    if (!fs.existsSync(logsPath)) {
-      return [];
+    // Create logs directory if it doesn't exist
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+      return []; // Return empty array since we just created the directory
     }
     
-    return fs.readdirSync(logsPath)
-      .filter(file => file.endsWith('.log'))
-      .map(file => {
-        const filePath = path.join(logsPath, file);
-        const stats = fs.statSync(filePath);
-        
-        return {
-          name: file,
-          path: filePath,
-          size: formatBytes(stats.size),
-          sizeBytes: stats.size,
-          modified: stats.mtime,
-          created: stats.birthtime
-        };
-      })
-      .sort((a, b) => b.modified - a.modified);
+    const files = fs.readdirSync(logsDir).filter(file => file.endsWith('.log'));
+    
+    const logFiles = files.map(file => {
+      const filePath = path.join(logsDir, file);
+      const stats = fs.statSync(filePath);
+      
+      return {
+        name: file,
+        path: filePath,
+        size: formatBytes(stats.size),
+        created: stats.birthtime,
+        modified: stats.mtime,
+        sizeBytes: stats.size
+      };
+    });
+    
+    // Sort by modification date (newest first)
+    return logFiles.sort((a, b) => b.modified - a.modified);
   } catch (error) {
     console.error('Error getting log files:', error);
     return [];

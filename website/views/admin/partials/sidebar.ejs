@@ -1,0 +1,83 @@
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+  <div class="position-sticky pt-3">
+    <div class="text-center mb-4">
+      <div class="admin-avatar">
+        <% if (user && user.avatar) { %>
+          <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=128" alt="Admin Avatar" class="img-fluid rounded-circle">
+        <% } else { %>
+          <i class="fas fa-user-circle fa-5x text-secondary"></i>
+        <% } %>
+      </div>
+      <div class="admin-info mt-2">
+        <h6 class="mb-0"><%= user ? user.username : 'Admin' %></h6>
+        <span class="badge bg-primary">Administrator</span>
+      </div>
+    </div>
+    
+    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+      <span>Management</span>
+    </h6>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link <%= activeNav === 'admin-dashboard' ? 'active' : '' %>" href="/admin/dashboard">
+          <i class="fas fa-tachometer-alt"></i>
+          Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= activeNav === 'admin-blacklist' ? 'active' : '' %>" href="/admin/blacklist">
+          <i class="fas fa-ban"></i>
+          Blacklist Management
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= activeNav === 'admin-settings' ? 'active' : '' %>" href="/admin/settings">
+          <i class="fas fa-cog"></i>
+          Settings
+        </a>
+      </li>
+    </ul>
+
+    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+      <span>Monitoring</span>
+    </h6>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link <%= activeNav === 'admin-stats' ? 'active' : '' %>" href="/admin/stats">
+          <i class="fas fa-chart-bar"></i>
+          Statistics
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= activeNav === 'admin-logs' ? 'active' : '' %>" href="/admin/logs">
+          <i class="fas fa-clipboard-list"></i>
+          Logs
+        </a>
+      </li>
+    </ul>
+
+    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+      <span>Navigation</span>
+    </h6>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" href="/auth/profile">
+          <i class="fas fa-user"></i>
+          Your Profile
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/">
+          <i class="fas fa-home"></i>
+          Main Website
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/auth/logout">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

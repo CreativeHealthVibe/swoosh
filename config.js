@@ -16,7 +16,7 @@ module.exports = {
   },
   
   // Admin User IDs with full system access
-  adminUserIds: ['1234567890123456', '2345678901234567'], // Replace with actual admin Discord user IDs
+  adminUserIds: ['930131254106550333', '1196042021488570391', '506323791140356106'], // Core team members
   
   // Ticket types and their configurations
   ticketTypes: {

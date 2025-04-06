@@ -1,0 +1,42 @@
+    <footer class="footer mt-auto py-3 bg-dark text-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>SWOOSH Bot</h5>
+                    <p class="text-muted">A powerful Discord bot platform for advanced server management.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-light">Home</a></li>
+                        <li><a href="/commands" class="text-light">Commands</a></li>
+                        <li><a href="/invite" class="text-light">Invite</a></li>
+                        <li><a href="/support" class="text-light">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Connect</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="https://discord.gg/swoosh" class="text-light"><i class="fab fa-discord"></i> Discord</a></li>
+                        <li><a href="https://github.com/yourusername/swoosh-bot" class="text-light"><i class="fab fa-github"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p class="mb-0">&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+    <% if (typeof additionalJs !== 'undefined') { %>
+        <% additionalJs.forEach(function(jsFile) { %>
+            <script src="<%= jsFile %>"></script>
+        <% }); %>
+    <% } %>
+</body>
+</html>
