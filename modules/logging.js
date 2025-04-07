@@ -126,6 +126,40 @@ module.exports = {
           module.exports.logDeletedMessage(message);
         }
       });
+      
+      // Setup message update listener
+      client.on('messageUpdate', (oldMessage, newMessage) => {
+        if (oldMessage.author && !oldMessage.author.bot && oldMessage.content !== newMessage.content) {
+          module.exports.logEditedMessage(oldMessage, newMessage);
+        }
+      });
+      
+      // Setup bulk message deletion listener
+      client.on('messageDeleteBulk', messages => {
+        module.exports.logBulkDeletedMessages(messages);
+      });
+      
+      // Track guild member additions
+      client.on('guildMemberAdd', member => {
+        module.exports.logMemberJoin(member);
+        
+        // Track in database if available
+        try {
+          const database = require('../utils/database');
+          database.trackServerMember({
+            guild_id: member.guild.id,
+            user_id: member.id,
+            username: member.user.tag,
+            joined_at: member.joinedAt,
+            metadata: {
+              avatar: member.user.displayAvatarURL({ dynamic: true }),
+              isBot: member.user.bot
+            }
+          }).catch(err => console.error('Failed to track member join in database:', err));
+        } catch (error) {
+          // Database module might not be available, ignore
+        }
+      });
 
       console.log(`✅ Logging system initialized`);
     } catch (error) {
@@ -408,6 +442,280 @@ module.exports = {
       setTimeout(() => module.exports.logBotStatus(client), 60 * 60 * 1000);
     } catch (error) {
       console.error('Failed to log bot status:', error);
+    }
+  },
+  
+  /**
+   * Log an edited message
+   * @param {Object} oldMessage - The original message
+   * @param {Object} newMessage - The edited message
+   */
+  logEditedMessage: async (oldMessage, newMessage) => {
+    try {
+      if (!deletedMessagesChannel) return;
+      
+      // Create embed for edited message log
+      const embed = new EmbedBuilder()
+        .setTitle('✏️ Message Edited')
+        .addFields(
+          { name: 'Author', value: `<@${oldMessage.author.id}> (${oldMessage.author.tag})`, inline: true },
+          { name: 'Channel', value: `<#${oldMessage.channel.id}>`, inline: true },
+          { name: 'Edited At', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: true },
+          { name: 'Original Content', value: oldMessage.content ? oldMessage.content.substring(0, 1024) : 'No content', inline: false },
+          { name: 'New Content', value: newMessage.content ? newMessage.content.substring(0, 1024) : 'No content', inline: false }
+        )
+        .setColor('#ffcc00')
+        .setTimestamp();
+      
+      // Add link to the message
+      if (newMessage.url) {
+        embed.setDescription(`[Jump to Message](${newMessage.url})`);
+      }
+      
+      // Send log
+      await deletedMessagesChannel.send({ embeds: [embed] });
+      
+      // Log to database if available
+      try {
+        const database = require('../utils/database');
+        database.addServerLog({
+          guild_id: oldMessage.guild.id,
+          event_type: 'MESSAGE_EDIT',
+          user_id: oldMessage.author.id,
+          content: `Message edited in <#${oldMessage.channel.id}>`,
+          metadata: {
+            channel_id: oldMessage.channel.id,
+            message_id: oldMessage.id,
+            old_content: oldMessage.content,
+            new_content: newMessage.content,
+            has_attachments: oldMessage.attachments.size > 0 || newMessage.attachments.size > 0
+          }
+        }).catch(err => console.error('Failed to log message edit to database:', err));
+      } catch (error) {
+        // Database module might not be available, ignore
+      }
+    } catch (error) {
+      console.error('Failed to log edited message:', error);
+    }
+  },
+  
+  /**
+   * Log bulk deleted messages
+   * @param {Collection} messages - Collection of deleted messages
+   */
+  logBulkDeletedMessages: async (messages) => {
+    try {
+      if (!deletedMessagesChannel) return;
+      
+      const messageCount = messages.size;
+      const channel = messages.first().channel;
+      const guild = messages.first().guild;
+      
+      // Create embed for bulk deletion log
+      const embed = new EmbedBuilder()
+        .setTitle('🗑️ Bulk Messages Deleted')
+        .setDescription(`**${messageCount}** messages were deleted in <#${channel.id}>`)
+        .addFields(
+          { name: 'Channel', value: `<#${channel.id}>`, inline: true },
+          { name: 'Message Count', value: messageCount.toString(), inline: true },
+          { name: 'Deleted At', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: true }
+        )
+        .setColor('#ff4d4d')
+        .setTimestamp();
+      
+      // Create detailed log of all messages
+      let messageLog = '# Deleted Messages Log\n\n';
+      messages.forEach((message, id) => {
+        if (message.author) {
+          const timestamp = new Date(message.createdTimestamp).toISOString();
+          messageLog += `## Message ID: ${id}\n`;
+          messageLog += `- Author: ${message.author.tag} (${message.author.id})\n`;
+          messageLog += `- Sent at: ${timestamp}\n`;
+          messageLog += `- Content: ${message.content || 'No text content'}\n`;
+          
+          if (message.attachments.size > 0) {
+            messageLog += '- Attachments:\n';
+            message.attachments.forEach(attachment => {
+              messageLog += `  - [${attachment.name}](${attachment.url})\n`;
+            });
+          }
+          
+          messageLog += '\n';
+        }
+      });
+      
+      // Save the log as a text file
+      const tempFilePath = path.join(__dirname, `../temp_bulk_deleted_${Date.now()}.md`);
+      fs.writeFileSync(tempFilePath, messageLog);
+      
+      // Send log with attachment
+      await deletedMessagesChannel.send({
+        embeds: [embed],
+        files: [tempFilePath]
+      });
+      
+      // Clean up temp file after sending
+      fs.unlinkSync(tempFilePath);
+      
+      // Log to database if available
+      try {
+        const database = require('../utils/database');
+        
+        // Log the overall event
+        database.addServerLog({
+          guild_id: guild.id,
+          event_type: 'BULK_MESSAGE_DELETE',
+          content: `${messageCount} messages bulk deleted in <#${channel.id}>`,
+          metadata: {
+            channel_id: channel.id,
+            message_count: messageCount
+          }
+        }).catch(err => console.error('Failed to log bulk message delete to database:', err));
+        
+        // Log individual messages
+        messages.forEach(message => {
+          if (message.author) {
+            database.addServerLog({
+              guild_id: guild.id,
+              event_type: 'MESSAGE_DELETE',
+              user_id: message.author.id,
+              content: message.content || '[No content]',
+              metadata: {
+                channel_id: channel.id,
+                message_id: message.id,
+                bulk_delete: true,
+                has_attachments: message.attachments.size > 0,
+                attachments: message.attachments.size > 0 ? 
+                  message.attachments.map(a => ({ name: a.name, url: a.url })) : []
+              }
+            }).catch(err => console.error('Failed to log individual message in bulk delete to database:', err));
+          }
+        });
+      } catch (error) {
+        // Database module might not be available, ignore
+      }
+    } catch (error) {
+      console.error('Failed to log bulk deleted messages:', error);
+    }
+  },
+  
+  /**
+   * Log member join
+   * @param {Object} member - The guild member who joined
+   */
+  logMemberJoin: async (member) => {
+    try {
+      // Find an appropriate channel to log this event
+      const logChannel = member.guild.channels.cache.find(
+        channel => channel.name === 'member-log' || channel.name === 'joins' || channel.name === 'logs'
+      );
+      
+      if (!logChannel) return;
+      
+      // Account age calculation
+      const createdAt = member.user.createdAt;
+      const now = new Date();
+      const accountAge = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24)); // in days
+      
+      // Create embed for member join log
+      const embed = new EmbedBuilder()
+        .setTitle('👋 Member Joined')
+        .setDescription(`<@${member.id}> joined the server`)
+        .addFields(
+          { name: 'User', value: `${member.user.tag} (${member.id})`, inline: true },
+          { name: 'Account Created', value: `<t:${Math.floor(createdAt.getTime() / 1000)}:R>`, inline: true },
+          { name: 'Account Age', value: `${accountAge} days`, inline: true }
+        )
+        .setColor('#00ff00')
+        .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+        .setTimestamp();
+      
+      // Add warning for new accounts
+      if (accountAge < 7) {
+        embed.addFields({ 
+          name: '⚠️ New Account Warning', 
+          value: `This account was created only ${accountAge} days ago`, 
+          inline: false 
+        });
+        embed.setColor('#ff9900');
+      }
+      
+      // Send log
+      await logChannel.send({ embeds: [embed] });
+      
+      // Log to database if available
+      try {
+        const database = require('../utils/database');
+        database.addServerLog({
+          guild_id: member.guild.id,
+          event_type: 'MEMBER_JOIN',
+          user_id: member.id,
+          content: `${member.user.tag} joined the server`,
+          metadata: {
+            user_tag: member.user.tag,
+            avatar: member.user.displayAvatarURL({ dynamic: true }),
+            account_created: member.user.createdAt.toISOString(),
+            account_age_days: accountAge,
+            is_bot: member.user.bot
+          }
+        }).catch(err => console.error('Failed to log member join to database:', err));
+      } catch (error) {
+        // Database module might not be available, ignore
+      }
+    } catch (error) {
+      console.error('Failed to log member join:', error);
+    }
+  },
+  
+  /**
+   * Log interaction command usage
+   * @param {Object} interaction - The interaction object
+   */
+  logInteractionCommand: async (interaction) => {
+    try {
+      if (!commandUsageChannel) return;
+      
+      const commandName = interaction.commandName;
+      const user = interaction.user;
+      let options = '';
+      
+      // Format command options if any
+      if (interaction.options && interaction.options.data.length > 0) {
+        options = interaction.options.data.map(option => {
+          // Handle different option types
+          if (option.type === 'SUB_COMMAND') {
+            return `${option.name} ${option.options ? option.options.map(o => `${o.name}:${o.value}`).join(' ') : ''}`;
+          }
+          return `${option.name}:${option.value}`;
+        }).join(' ');
+      }
+      
+      // Create message for command usage
+      const message = `<@${user.id}> used slash command \`/${commandName}\` ${options ? `with options: \`${options}\`` : ''}`;
+      
+      // Send log
+      await commandUsageChannel.send(message);
+      
+      // Log to database if available
+      try {
+        const database = require('../utils/database');
+        database.addServerLog({
+          guild_id: interaction.guild ? interaction.guild.id : 'DM',
+          event_type: 'COMMAND_USE',
+          user_id: user.id,
+          content: `Used /${commandName} command`,
+          metadata: {
+            command: commandName,
+            options: interaction.options ? interaction.options.data : [],
+            channel_id: interaction.channel ? interaction.channel.id : null,
+            is_slash_command: true
+          }
+        }).catch(err => console.error('Failed to log command usage to database:', err));
+      } catch (error) {
+        // Database module might not be available, ignore
+      }
+    } catch (error) {
+      console.error('Failed to log interaction command:', error);
     }
   }
 };

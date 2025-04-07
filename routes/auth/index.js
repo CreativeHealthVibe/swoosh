@@ -19,7 +19,8 @@ router.get('/login', redirectIfAuthenticated, (req, res) => {
   res.render('auth/login', {
     title: 'Login | SWOOSH Bot Admin',
     oauthUrl,
-    layout: 'layouts/auth'
+    layout: 'layouts/auth',
+    flashMessages: req.flash()
   });
 });
 
@@ -50,6 +51,40 @@ router.get('/discord/callback',
     res.redirect(redirectUrl);
   }
 );
+
+/**
+ * POST /auth/login
+ * Handle local authentication
+ */
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      console.error('Local auth error:', err);
+      req.flash('error', 'An error occurred during authentication.');
+      return res.redirect('/auth/login');
+    }
+    
+    if (!user) {
+      req.flash('error', info.message || 'Invalid username or password.');
+      return res.redirect('/auth/login');
+    }
+    
+    req.login(user, (loginErr) => {
+      if (loginErr) {
+        console.error('Login session error:', loginErr);
+        req.flash('error', 'An error occurred during login.');
+        return res.redirect('/auth/login');
+      }
+      
+      console.log('Local authentication successful, user:', user.username);
+      
+      // Redirect to admin welcome page or original destination
+      const redirectUrl = req.session.returnTo || '/admin/welcome';
+      delete req.session.returnTo;
+      res.redirect(redirectUrl);
+    });
+  })(req, res, next);
+});
 
 /**
  * GET /auth/logout

@@ -1,6 +1,7 @@
 const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const config = require('../../config');
+const db = require('../database');
 
 // Get OAuth settings from config
 const scopes = config.oauth.scopes;
@@ -32,24 +33,78 @@ const setupDiscordStrategy = () => {
         discriminator: profile.discriminator,
         avatar: profile.avatar,
         isAdmin: isAdmin,
+        userType: 'discord', // Add user type for differentiation
         accessToken: accessToken,
         refreshToken: refreshToken
       };
       
+      // Check if this Discord user is linked to a local user account
+      const localUser = await db.getLocalUserByDiscordId(profile.id);
+      if (localUser) {
+        // Enhance user object with local user permissions if available
+        user.permissions = localUser.permissions;
+        user.is_super_admin = localUser.is_super_admin;
+        
+        console.log(`Discord user ${profile.username} is linked to local account with ID ${localUser.id}`);
+      }
+      
       return done(null, user);
     } catch (error) {
+      console.error('Discord auth error:', error);
       return done(error, null);
     }
   }));
 
-  // Serialize user to store in session
+  // Set up session serialization for all user types
   passport.serializeUser((user, done) => {
-    done(null, user);
+    // Check if it's a Discord user or local user
+    const userType = user.discriminator ? 'discord' : 'local';
+    
+    done(null, {
+      id: user.id,
+      type: userType
+    });
   });
 
-  // Deserialize user from session
-  passport.deserializeUser((user, done) => {
-    done(null, user);
+  // Set up session deserialization for all user types
+  passport.deserializeUser(async (obj, done) => {
+    try {
+      // Handle different user types
+      if (obj.type === 'discord') {
+        // For Discord users, we can simply return the stored user object
+        // Check if user is still authorized in latest config
+        const adminUserIds = config.adminUserIds;
+        const isStillAdmin = adminUserIds.includes(obj.id);
+        
+        if (!isStillAdmin) {
+          return done(null, false);
+        }
+        
+        // Fetch latest user details from Discord API (simplified for now)
+        // In a real implementation, you might want to refresh the data occasionally
+        return done(null, {
+          id: obj.id,
+          isAdmin: true,
+          userType: 'discord'
+        });
+      } else if (obj.type === 'local') {
+        // Local user - retrieve from database
+        const user = await db.getLocalUserById(obj.id);
+        if (user) {
+          // Remove sensitive data
+          delete user.password;
+          user.userType = 'local';
+          return done(null, user);
+        }
+        return done(null, false);
+      } else {
+        // Unknown user type
+        return done(new Error('Unknown user type'), null);
+      }
+    } catch (error) {
+      console.error('Passport deserialization error:', error);
+      done(error, null);
+    }
   });
 };
 

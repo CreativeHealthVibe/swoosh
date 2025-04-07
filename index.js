@@ -39,6 +39,7 @@ const blacklistManager = require('./handlers/blacklistManager');
 const logging = require('./modules/logging');
 const config = require('./config');
 const adminUtils = require('./utils/admin');
+const database = require('./utils/database');
 
 // Path to autoroles configuration
 const autrolesConfigPath = path.join(__dirname, 'data/autoroles.json');
@@ -93,6 +94,14 @@ client.once('ready', async () => {
     if (!fs.existsSync(autrolesConfigPath)) {
       fs.writeFileSync(autrolesConfigPath, JSON.stringify({}, null, 2));
       console.log('📄 Created autoroles configuration file');
+    }
+    
+    // Initialize database
+    try {
+      await database.initDatabase();
+      console.log('✅ Database initialized successfully');
+    } catch (dbError) {
+      console.error('❌ Database initialization error:', dbError);
     }
     // Register slash commands
     const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN);
@@ -213,6 +222,10 @@ client.on('interactionCreate', async interaction => {
       if (!command) return;
       
       try {
+        // Log command usage
+        logging.logInteractionCommand(interaction);
+        
+        // Execute the command
         await command.execute(interaction, client);
       } catch (error) {
         console.error(`Slash Command Error (${interaction.commandName}):`, error);
@@ -405,15 +418,14 @@ process.on('uncaughtException', error => {
 // Create an Express application for the website
 const app = express();
 const PORT = process.env.PORT || 5000;
-const expressLayouts = require('express-ejs-layouts');
+const flash = require('express-flash');
 const session = require('express-session');
 const passport = require('passport');
-const flash = require('express-flash');
 
 // Set up EJS as the view engine with layouts
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'website/views'));
-app.use(expressLayouts);
+app.use(ejsLayouts);
 app.set('layout', 'layouts/main');
 
 // Set up static file serving
@@ -423,8 +435,20 @@ app.use(express.static(path.join(__dirname, 'website/public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set up session middleware with memory store
+// Set up session middleware with PostgreSQL store
+const pgSession = require('connect-pg-simple')(session);
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
 app.use(session({
+  store: new pgSession({
+    pool,
+    tableName: 'session', // Use a custom table name
+    createTableIfMissing: true // Create table if it doesn't exist
+  }),
   secret: process.env.SESSION_SECRET || 'swoosh-admin-dashboard-secret',
   resave: false,
   saveUninitialized: false,
@@ -441,8 +465,9 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Configure Discord authentication strategy
+// Configure authentication strategies
 require('./utils/passport/discord')();
+require('./utils/passport/local')();
 
 // Make client object available to routes
 app.set('client', client);

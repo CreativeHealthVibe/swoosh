@@ -4,10 +4,59 @@
 
 <h1 class="auth-title">Admin Dashboard Login</h1>
 
-<p class="text-center mb-4">
-  Sign in with your Discord account to access the admin dashboard. Only authorized administrators can access this area.
-</p>
+<% if (flashMessages && flashMessages.error) { %>
+  <div class="alert alert-danger mb-3">
+    <%= flashMessages.error[0] %>
+  </div>
+<% } %>
 
-<a href="<%= oauthUrl %>" class="auth-btn">
-  <i class="fab fa-discord"></i> Login with Discord
-</a>
+<% if (flashMessages && flashMessages.success) { %>
+  <div class="alert alert-success mb-3">
+    <%= flashMessages.success[0] %>
+  </div>
+<% } %>
+
+<div class="mb-4 text-center">Choose your login method:</div>
+
+<div class="login-options">
+  <!-- Local Admin Login -->
+  <div class="local-login card">
+    <div class="card-header">
+      <h3>Admin Login</h3>
+    </div>
+    <div class="card-body">
+      <form action="/auth/login" method="POST">
+        <div class="form-group mb-3">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+        
+        <div class="form-group mb-4">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Discord OAuth Login -->
+  <div class="oauth-login card">
+    <div class="card-header">
+      <h3>Discord Login</h3>
+    </div>
+    <div class="card-body text-center">
+      <p>Sign in with your Discord account to access admin features.</p>
+      <a href="<%= oauthUrl %>" class="auth-btn">
+        <i class="fab fa-discord"></i> Login with Discord
+      </a>
+    </div>
+  </div>
+</div>
+
+<p class="text-center mt-4 text-muted">
+  Only authorized administrators can access this area.
+</p>
