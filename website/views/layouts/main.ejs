@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'SWOOSH Bot' %></title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="/img/favicon.png" type="image/png">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/purple-theme.css">
+  <link rel="stylesheet" href="/css/cursor.css">
+  <% if (locals.activeNav === 'commands') { %>
+    <link rel="stylesheet" href="/css/commands-styles.css">
+  <% } %>
+</head>
+<body>
+  <!-- Custom Cursor -->
+  <div class="cursor-dot"></div>
+  <div class="cursor-outline"></div>
+  
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-container">
+        <a href="/" class="nav-logo">
+          <img src="/img/swoosh-logo.png" alt="SWOOSH Bot Logo" width="40">
+          <span>SWOOSH<span class="gradient-text">Bot</span></span>
+        </a>
+        
+        <div class="nav-links">
+          <a href="/" class="nav-link <%= locals.activeNav === 'home' ? 'active' : '' %>">
+            <i class="fas fa-home"></i> Home
+          </a>
+          <a href="/commands" class="nav-link <%= locals.activeNav === 'commands' ? 'active' : '' %>">
+            <i class="fas fa-terminal"></i> Commands
+          </a>
+          <a href="/server-health" class="nav-link <%= locals.activeNav === 'server-health' ? 'active' : '' %>">
+            <i class="fas fa-chart-line"></i> Dashboard
+          </a>
+          <a href="/team" class="nav-link <%= locals.activeNav === 'team' ? 'active' : '' %>">
+            <i class="fas fa-users"></i> Team
+          </a>
+          <a href="/download" class="nav-link <%= locals.activeNav === 'download' ? 'active' : '' %>">
+            <i class="fas fa-download"></i> Download
+          </a>
+          <a href="/backup" class="nav-link <%= locals.activeNav === 'backup' ? 'active' : '' %>">
+            <i class="fas fa-shield-alt"></i> Backup
+          </a>
+          <a href="/leaderboard" class="nav-link <%= locals.activeNav === 'leaderboard' ? 'active' : '' %>">
+            <i class="fas fa-trophy"></i> Leaderboard
+          </a>
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <div class="mobile-menu-container">
+      <div class="mobile-menu-header">
+        <div class="mobile-logo">
+          <img src="/img/swoosh-logo.png" alt="SWOOSH Bot Logo" width="30">
+          <span>SWOOSH<span class="gradient-text">Bot</span></span>
+        </div>
+        <button class="mobile-close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="mobile-nav-links">
+        <a href="/" class="mobile-nav-link <%= locals.activeNav === 'home' ? 'active' : '' %>">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <a href="/commands" class="mobile-nav-link <%= locals.activeNav === 'commands' ? 'active' : '' %>">
+          <i class="fas fa-terminal"></i> Commands
+        </a>
+        <a href="/download" class="mobile-nav-link <%= locals.activeNav === 'download' ? 'active' : '' %>">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <a href="/server-health" class="mobile-nav-link <%= locals.activeNav === 'server-health' ? 'active' : '' %>">
+          <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a href="/leaderboard" class="mobile-nav-link <%= locals.activeNav === "leaderboard" ? "active" : "" %>">
+          <i class="fas fa-trophy"></i> Leaderboard
+        </a>
+        <a href="/team" class="mobile-nav-link <%= locals.activeNav === 'team' ? 'active' : '' %>">
+          <i class="fas fa-users"></i> Team
+        </a>
+        <a href="/backup" class="mobile-nav-link <%= locals.activeNav === 'backup' ? 'active' : '' %>">
+          <i class="fas fa-shield-alt"></i> Backup
+        </a>
+      </div>
+      
+      <div class="mobile-footer">
+        <a href="https://discord.com/oauth2/authorize?client_id=1358747103563743414&permissions=8&scope=bot%20applications.commands" class="gradient-button mobile-cta-btn">
+          <i class="fab fa-discord"></i> Add to Discord
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <main class="main-content">
+    <%- body %>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="/img/swoosh-logo.png" alt="SWOOSH Bot Logo" width="40">
+            <a href="/download">Download</a>
+          <h3>SWOOSH<span class="gradient-text">Bot</span></h3>
+        </div>
+        
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>Navigation</h4>
+            <a href="/">Home</a>
+            <a href="/commands">Commands</a>
+            <a href="/server-health">Dashboard</a>
+            <a href="/team">Team</a>
+          </div>
+          
+          <div class="footer-column">
+            <h4>Resources</h4>
+            <a href="/leaderboard">Leaderboard</a>
+            <a href="/docs">Documentation</a>
+            <a href="https://discord.gg/swoosh" target="_blank">Support Server</a>
+            <a href="https://github.com/swoosh-bot/swoosh" target="_blank">GitHub</a>
+          </div>
+          
+          <div class="footer-column">
+            <h4>Legal</h4>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2023-<%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="https://discord.gg/swoosh" target="_blank"><i class="fab fa-discord"></i></a>
+          <a href="https://github.com/swoosh-bot/swoosh" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://twitter.com/swooshbot" target="_blank"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- Scripts -->
+  <script src="/js/main.js"></script>
+  <script src="/js/cursor.js"></script>
+  <% if (locals.activeNav === 'commands') { %>
+    <!-- Single Three.js import for commands page -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+    <script src="/js/three-commands.js"></script>
+  <% } %>
+</body>
+</html>

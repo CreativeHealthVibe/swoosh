@@ -1,0 +1,122 @@
+<div class="team-container">
+<div class="team-container">
+  <div class="team-header">
+    <h1 class="gradient-text">Meet Our Team</h1>
+    <p class="team-description">The talented developers behind SWOOSH Bot</p>
+    <div class="team-header-glow"></div>
+  </div>
+  
+  <div class="team-members-container">
+    <!-- Team members will be loaded via JavaScript -->
+    <div id="team-members-grid" class="team-members-grid">
+      <div class="team-member-card loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading team information...</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="team-join">
+    <h2>Interested in joining our team?</h2>
+    <p>We're always looking for talented developers, designers, and community managers to help make SWOOSH Bot even better.</p>
+    <a href="https://discord.gg/swoosh" class="gradient-button pulse-animation" target="_blank">
+      <i class="fab fa-discord"></i>
+      Join Our Discord
+    </a>
+  </div>
+</div>
+
+<script>
+  async function loadTeamMembers() {
+    try {
+      const response = await fetch('/api/team');
+      if (!response.ok) {
+        throw new Error('Failed to fetch team data');
+      }
+      
+      const data = await response.json();
+      const teamMembers = data.team || data; // Handle both new and old API format
+      const teamGrid = document.getElementById('team-members-grid');
+      
+      // Clear loading state
+      teamGrid.innerHTML = '';
+      
+      // Create cards for each team member
+      teamMembers.forEach(member => {
+        const statusClass = member.status || 'offline';
+        const avatarUrl = member.avatarURL || '/img/default-avatar.svg';
+        const timeOnTeam = member.monthsOnTeam ? 
+          `<div class="member-time-badge" title="Time on team">
+            <i class="fas fa-calendar-alt"></i> ${member.monthsOnTeam} month${member.monthsOnTeam !== 1 ? 's' : ''}
+           </div>` : '';
+        
+        const memberCard = document.createElement('div');
+        memberCard.className = 'team-member-card';
+        memberCard.dataset.role = member.role.toLowerCase().replace(' ', '-');
+        
+        // Create specialty tags if available
+        let specialtyTags = '';
+        if (member.specialties && member.specialties.length > 0) {
+          specialtyTags = `
+            <div class="member-specialties">
+              ${member.specialties.map(specialty => 
+                `<span class="specialty-tag">${specialty}</span>`
+              ).join('')}
+            </div>
+          `;
+        }
+        
+        memberCard.innerHTML = `
+          <div class="card-glow"></div>
+          <div class="member-avatar-container">
+            <div class="avatar-ring"></div>
+            <img src="${avatarUrl}" alt="${member.name}" class="member-avatar">
+            <span class="member-status ${statusClass}" title="${statusClass}"></span>
+          </div>
+          <div class="member-info">
+            <h3 class="member-name">${member.name}</h3>
+            <div class="member-role">
+              <span class="role-badge">${member.role}</span>
+              ${member.badge ? `<span class="badge-icon" title="${member.badge.title}"><i class="${member.badge.icon}"></i></span>` : ''}
+              ${timeOnTeam}
+            </div>
+            <p class="member-description">${member.description}</p>
+            ${specialtyTags}
+            <div class="member-socials">
+              ${member.github ? `<a href="https://github.com/${member.github}" target="_blank" class="social-link" aria-label="GitHub Profile"><i class="fab fa-github"></i></a>` : ''}
+              ${member.twitter ? `<a href="https://twitter.com/${member.twitter}" target="_blank" class="social-link" aria-label="Twitter Profile"><i class="fab fa-twitter"></i></a>` : ''}
+              <a href="https://discord.com/users/${member.discordId}" target="_blank" class="social-link" aria-label="Discord Profile"><i class="fab fa-discord"></i></a>
+            </div>
+          </div>
+        `;
+        
+        teamGrid.appendChild(memberCard);
+      });
+      
+    } catch (error) {
+      console.error('Error loading team members:', error);
+      const teamGrid = document.getElementById('team-members-grid');
+      teamGrid.innerHTML = `
+        <div class="error-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>Failed to load team information. Please try again later.</p>
+        </div>
+      `;
+    }
+  }
+  
+  // Start Three.js background
+  window.addEventListener('DOMContentLoaded', () => {
+    // Initialize the Three.js background with purple particles
+    initThreeBackground({
+      color: 0x9c4dff,
+      density: 100,
+      size: 1.5,
+      speed: 0.2,
+      depth: 80
+    });
+    
+    // Load team members
+    loadTeamMembers();
+  });
+</script>

@@ -1,0 +1,47 @@
+<div class="log-viewer-container">
+  <div class="card">
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Log File: <%= filename %></h5>
+        <div>
+          <a href="/admin/logs/<%= filename %>?download=true" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-download"></i> Download
+          </a>
+          <a href="/admin/logs" class="btn btn-sm btn-outline-secondary ms-2">
+            <i class="fas fa-arrow-left"></i> Back to Logs
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="log-content">
+        <% if (logContent.length === 0) { %>
+          <div class="empty-state">
+            <i class="fas fa-file-alt"></i>
+            <p>This log file is empty.</p>
+          </div>
+        <% } else { %>
+          <table class="table table-sm table-hover mb-0">
+            <tbody>
+              <% logContent.forEach((entry, index) => { %>
+                <% if (entry.raw) { %>
+                  <tr>
+                    <td class="log-number"><%= index + 1 %></td>
+                    <td class="log-entry" colspan="3"><%= entry.raw %></td>
+                  </tr>
+                <% } else { %>
+                  <tr>
+                    <td class="log-number"><%= index + 1 %></td>
+                    <td class="log-timestamp"><%= entry.timestamp %></td>
+                    <td class="log-level <%= entry.levelClass %>"><%= entry.level %></td>
+                    <td class="log-message"><%= entry.message %></td>
+                  </tr>
+                <% } %>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

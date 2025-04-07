@@ -1,0 +1,37 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "canvas": "^3.1.0",
+    "connect-mongo": "^5.1.0",
+    "connect-pg-simple": "^10.0.0",
+    "discord-html-transcripts": "^3.2.0",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "electron": "^35.1.4",
+    "electron-builder": "^26.0.12",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "express-flash": "^0.0.2",
+    "express-session": "^1.18.1",
+    "node-cron": "^3.0.3",
+    "os-utils": "^0.0.14",
+    "passport": "^0.7.0",
+    "passport-discord": "^0.1.4",
+    "passport-local": "^1.0.0",
+    "pg": "^8.14.1",
+    "pkg": "^5.8.1",
+    "sharp": "^0.34.0",
+    "three": "^0.175.0",
+    "ws": "^8.18.1"
+  }
+}

@@ -1,0 +1,45 @@
+PS C:\Users\Salman G\Desktop\win app\swoosh-win-app> node build-exe.js
+Starting build process...
+Building Electron application...
+  • electron-builder  version=26.0.12 os=10.0.19045
+  • loaded configuration  file=C:\Users\Salman G\Desktop\win app\swoosh-win-app\electron-builder.yml
+  • writing effective config  file=dist\builder-effective-config.yaml
+  • executing @electron/rebuild  electronVersion=35.1.4 arch=x64 buildFromSource=false appDir=./
+  • installing native dependencies  arch=x64
+  • preparing       moduleName=canvas arch=x64
+  • finished        moduleName=canvas arch=x64
+  • completed installing native dependencies
+  • packaging       platform=win32 arch=x64 electron=35.1.4 appOutDir=dist\win-unpacked
+  • updating asar integrity executable resource  executablePath=dist\win-unpacked\Swoosh Discord Bot.exe
+  • downloading     url=https://github.com/electron-userland/electron-builder-binaries/releases/download/winCodeSign-2.6.0/winCodeSign-2.6.0.7z size=5.6 MB parts=1
+  • downloaded      url=https://github.com/electron-userland/electron-builder-binaries/releases/download/winCodeSign-2.6.0/winCodeSign-2.6.0.7z duration=1.773s
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build\icon.ico'
+    Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2024 Swoosh' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-icon 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 3 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build\icon.ico'
+    Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2024 Swoosh' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-icon 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 3 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build\icon.ico'
+    Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2024 Swoosh' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-icon 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 3 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build\icon.ico'
+    Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2024 Swoosh' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-icon 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 3 more times
+Build failed: Command failed: npx electron-builder --win --config.win.icon=false
+PS C:\Users\Salman G\Desktop\win app\swoosh-win-app> 

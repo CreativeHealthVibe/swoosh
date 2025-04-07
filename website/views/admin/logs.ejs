@@ -1,0 +1,50 @@
+<div class="logs-container">
+  <div class="card">
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Bot Log Files</h5>
+        <span class="badge bg-primary"><%= logFiles.length %> Files</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <% if (logFiles.length === 0) { %>
+        <div class="empty-state">
+          <i class="fas fa-file-alt"></i>
+          <p>No log files found.</p>
+        </div>
+      <% } else { %>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Size</th>
+                <th>Last Modified</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% logFiles.forEach(file => { %>
+                <tr>
+                  <td><%= file.name %></td>
+                  <td><%= formatFileSize(file.size) %></td>
+                  <td><%= file.mtime.toLocaleString() %></td>
+                  <td>
+                    <a href="<%= file.path %>" class="btn btn-sm btn-primary">
+                      <i class="fas fa-eye"></i> View
+                    </a>
+                    <a href="<%= file.path %>?download=true" class="btn btn-sm btn-outline-secondary">
+                      <i class="fas fa-download"></i> Download
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+

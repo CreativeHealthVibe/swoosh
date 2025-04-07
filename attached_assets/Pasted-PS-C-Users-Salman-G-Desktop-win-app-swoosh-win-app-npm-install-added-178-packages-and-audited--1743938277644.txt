@@ -1,0 +1,48 @@
+PS C:\Users\Salman G\Desktop\win app\swoosh-win-app> npm install
+
+added 178 packages, and audited 179 packages in 2m
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+PS C:\Users\Salman G\Desktop\win app\swoosh-win-app> 
+PS C:\Users\Salman G\Desktop\win app\swoosh-win-app> npm install -g electron-builder
+npm warn skipping integrity check for git dependency ssh://git@github.com/electron/node-gyp.git
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and testnpm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated @npmcli/move-file@2.0.1: This functionality has been moved to @npmcli/fs
+npm warn deprecated glob@8.1.0: Glob versions prior to v9 are no longer supported
+npm warn deprecated glob@8.1.0: Glob versions prior to v9 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+
+added 306 packages in 51s
+56 packages are looking for funding
+  run `npm fund` for details
+PS C:\Users\Salman G\Desktop\win app\swoosh-win-app> build.bat
+build.bat : The term 'build.bat' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of     
+the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ build.bat
++ ~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (build.bat:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+PS C:\Users\Salman G\Desktop\win app\swoosh-win-app> node build-exe.js
+node:internal/modules/cjs/loader:1247
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\Salman G\Desktop\win app\swoosh-win-app\build-exe.js'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)
+    at Function._load (node:internal/modules/cjs/loader:1070:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.13.1
+PS C:\Users\Salman G\Desktop\win app\swoosh-win-app>

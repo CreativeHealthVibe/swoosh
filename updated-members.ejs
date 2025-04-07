@@ -1,0 +1,1171 @@
+<%- include('../partials/admin-header-fixed') %>
+
+<div class="admin-page-header">
+  <div class="header-content">
+    <h1><i class="fas fa-users"></i> Member Tracker</h1>
+    <p>Track server members across all servers your bot is in.</p>
+  </div>
+</div>
+
+<% if (error) { %>
+  <div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i> Error: <%= error %>
+  </div>
+<% } %>
+
+<div class="stats-overview">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fas fa-users"></i></div>
+    <div class="stat-content">
+      <h3>Total Members</h3>
+      <div class="stat-value"><%= totalMembers.toLocaleString() %></div>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fas fa-signal"></i></div>
+    <div class="stat-content">
+      <h3>Online Members</h3>
+      <div class="stat-value"><%= totalOnline.toLocaleString() %></div>
+      <div class="stat-subtitle"><%= Math.round((totalOnline / totalMembers) * 100) || 0 %>% online</div>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fas fa-calendar-plus"></i></div>
+    <div class="stat-content">
+      <h3>New This Week</h3>
+      <div class="stat-value"><%= newMembers.length.toLocaleString() %></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>New Members (Last 7 Days)</h2>
+    <p>The most recent members to join your servers.</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Display Name</th>
+            <th>Server</th>
+            <th>Joined</th>
+            <th>Type</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (newMembers.length === 0) { %>
+            <tr>
+              <td colspan="6" class="text-center">No new members in the last 7 days.</td>
+            </tr>
+          <% } else { %>
+            <% newMembers.forEach((member, index) => { %>
+              <tr>
+                <td class="user-cell">
+                  <div class="user-avatar">
+                    <img src="<%= member.avatarURL %>" alt="<%= member.username %>'s avatar" onerror="this.onerror=null; this.src='/images/default-avatar.png';">
+                  </div>
+                  <div class="user-info">
+                    <%= member.username %>
+                    <span class="user-id"><%= member.id %></span>
+                  </div>
+                </td>
+                <td><%= member.displayName %></td>
+                <td><%= member.guildName %></td>
+                <td>
+                  <span title="<%= member.joinedAt.toLocaleString() %>">
+                    <%= new Date(member.joinedAt).toLocaleDateString() %>
+                  </span>
+                </td>
+                <td>
+                  <% if (member.bot) { %>
+                    <span class="badge bot">Bot</span>
+                  <% } else { %>
+                    <span class="badge user">User</span>
+                  <% } %>
+                </td>
+                <td>
+                  <div class="member-actions" data-member-id="<%= member.id %>" data-username="<%= member.username %>" data-guild-name="<%= member.guildName %>">
+                    <button class="actions-btn"><i class="fas fa-ellipsis-v"></i></button>
+                    <div class="actions-dropdown">
+                      <div class="actions-dropdown-item" onclick="openDmModal('<%= member.id %>', '<%= member.username %>')">
+                        <i class="fas fa-envelope"></i> Send DM
+                      </div>
+                      <div class="actions-dropdown-item warning" onclick="openTimeoutModal('<%= member.id %>', '<%= member.username %>', '<%= member.guildName %>')">
+                        <i class="fas fa-clock"></i> Timeout
+                      </div>
+                      <div class="actions-dropdown-item warning" onclick="openWarnModal('<%= member.id %>', '<%= member.username %>')">
+                        <i class="fas fa-exclamation-triangle"></i> Warn
+                      </div>
+                      <div class="actions-dropdown-item" onclick="viewWarnings('<%= member.id %>', '<%= member.username %>')">
+                        <i class="fas fa-history"></i> View Warnings
+                      </div>
+                      <div class="actions-dropdown-item danger" onclick="openKickModal('<%= member.id %>', '<%= member.username %>', '<%= member.guildName %>')">
+                        <i class="fas fa-user-minus"></i> Kick
+                      </div>
+                      <div class="actions-dropdown-item danger" onclick="openBanModal('<%= member.id %>', '<%= member.username %>', '<%= member.guildName %>')">
+                        <i class="fas fa-gavel"></i> Ban
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Server Overview</h2>
+    <p>Member counts for each server the bot is in.</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Server</th>
+            <th>Owner</th>
+            <th>Region</th>
+            <th>Members</th>
+            <th>Online</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (memberData.length === 0) { %>
+            <tr>
+              <td colspan="5" class="text-center">No servers available.</td>
+            </tr>
+          <% } else { %>
+            <% memberData.forEach(guild => { %>
+              <tr>
+                <td class="server-cell">
+                  <% if (guild.iconURL) { %>
+                    <img src="<%= guild.iconURL %>" alt="<%= guild.name %> icon" class="server-icon" 
+                         onerror="this.onerror=null; this.src='/images/default-server.png';">
+                  <% } else { %>
+                    <div class="server-icon-placeholder">
+                      <%= guild.name.charAt(0).toUpperCase() %>
+                    </div>
+                  <% } %>
+                  <%= guild.name %>
+                </td>
+                <td><%= guild.owner %></td>
+                <td><%= guild.region %></td>
+                <td><%= guild.totalMembers.toLocaleString() %></td>
+                <td>
+                  <%= guild.onlineMembers.toLocaleString() %> 
+                  (<%= Math.round((guild.onlineMembers / guild.totalMembers) * 100) %>%)
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DM Modal -->
+<div id="dmModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Send DM to <span id="dmUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('dmModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <textarea id="dmContent" class="modal-textarea" placeholder="Enter your message..."></textarea>
+      <input type="hidden" id="dmUserId">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('dmModal')">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="sendDm()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kick Modal -->
+<div id="kickModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Kick <span id="kickUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('kickModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Select a server to kick this user from:</p>
+      <select id="kickServerSelect" class="modal-input">
+        <option value="">Loading servers...</option>
+      </select>
+      <input type="text" id="kickReason" class="modal-input" placeholder="Reason (optional)" style="margin-top: 10px;">
+      <input type="hidden" id="kickUserId">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('kickModal')">Cancel</button>
+      <button class="modal-btn modal-btn-danger" onclick="kickUser()">Kick User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ban Modal -->
+<div id="banModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Ban <span id="banUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('banModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Select a server to ban this user from:</p>
+      <select id="banServerSelect" class="modal-input">
+        <option value="">Loading servers...</option>
+      </select>
+      <input type="text" id="banReason" class="modal-input" placeholder="Reason (optional)" style="margin-top: 10px;">
+      <div style="margin: 15px 0;">
+        <label>
+          <input type="checkbox" id="banDeleteMessages"> Delete recent messages
+        </label>
+      </div>
+      <input type="hidden" id="banUserId">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('banModal')">Cancel</button>
+      <button class="modal-btn modal-btn-danger" onclick="banUser()">Ban User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Timeout Modal -->
+<div id="timeoutModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Timeout <span id="timeoutUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('timeoutModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Select a server and set a timeout duration for this user:</p>
+      <select id="timeoutServerSelect" class="modal-input">
+        <option value="">Loading servers...</option>
+      </select>
+      <select id="timeoutDuration" class="modal-input" style="margin-top: 10px;">
+        <option value="60000">1 minute</option>
+        <option value="300000">5 minutes</option>
+        <option value="900000">15 minutes</option>
+        <option value="1800000">30 minutes</option>
+        <option value="3600000">1 hour</option>
+        <option value="21600000">6 hours</option>
+        <option value="86400000">1 day</option>
+        <option value="604800000">1 week</option>
+      </select>
+      <input type="text" id="timeoutReason" class="modal-input" placeholder="Reason (optional)" style="margin-top: 10px;">
+      <input type="hidden" id="timeoutUserId">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('timeoutModal')">Cancel</button>
+      <button class="modal-btn modal-btn-warning" onclick="timeoutUser()">Timeout User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Warn Modal -->
+<div id="warnModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Warn <span id="warnUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('warnModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Send a warning to this user:</p>
+      <input type="text" id="warnReason" class="modal-input" placeholder="Warning reason (required)" required>
+      <input type="hidden" id="warnUserId">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('warnModal')">Cancel</button>
+      <button class="modal-btn modal-btn-warning" onclick="warnUser()">Warn User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Warnings Modal -->
+<div id="warningsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Warnings for <span id="warningsUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('warningsModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="warningsContent">
+        <p class="text-center">Loading warnings...</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('warningsModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Member tracker specific styles */
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .stat-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    color: var(--primary-color);
+    width: 50px;
+    height: 50px;
+    background: rgba(156, 77, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .stat-content h3 {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+    color: var(--text-primary);
+  }
+  
+  .stat-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+  }
+  
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .card-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+  }
+  
+  .card-header p {
+    margin: 0.5rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .data-table th, 
+  .data-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+  }
+  
+  .data-table th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+  
+  .data-table tbody tr {
+    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  .data-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  
+  .data-table tbody tr:hover {
+    background-color: rgba(156, 77, 255, 0.05);
+  }
+  
+  .user-cell, .server-cell {
+    display: flex;
+    align-items: center;
+  }
+  
+  .user-avatar img, .server-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    object-fit: cover;
+  }
+  
+  .server-icon-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-id {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  
+  .badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+  }
+  
+  .badge.bot {
+    background-color: rgba(81, 154, 186, 0.2);
+    color: #51AABE;
+  }
+  
+  .badge.user {
+    background-color: rgba(87, 242, 135, 0.2);
+    color: #57F287;
+  }
+  
+  .alert {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+  }
+  
+  .alert i {
+    margin-right: 0.75rem;
+  }
+  
+  .alert-danger {
+    background-color: rgba(237, 66, 69, 0.2);
+    border: 1px solid rgba(237, 66, 69, 0.5);
+    color: #ED4245;
+  }
+  
+  .admin-page-header {
+    margin-bottom: 2rem;
+  }
+  
+  .admin-page-header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .admin-page-header h1 i {
+    margin-right: 0.75rem;
+    color: var(--primary-color);
+  }
+  
+  .admin-page-header p {
+    margin: 0.5rem 0 0;
+    color: var(--text-secondary);
+  }
+  
+  .member-actions {
+    position: relative;
+  }
+  
+  .actions-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .actions-btn:hover {
+    background-color: rgba(156, 77, 255, 0.1);
+    color: var(--primary-color);
+  }
+  
+  .actions-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 180px;
+    z-index: 100;
+    overflow: hidden;
+    display: none;
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .member-actions.active .actions-dropdown {
+    display: block;
+  }
+  
+  .actions-dropdown-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .actions-dropdown-item i {
+    margin-right: 0.5rem;
+    width: 16px;
+    text-align: center;
+  }
+  
+  .actions-dropdown-item:hover {
+    background-color: rgba(156, 77, 255, 0.1);
+  }
+  
+  .actions-dropdown-item.warning {
+    color: #FAA61A;
+  }
+  
+  .actions-dropdown-item.warning:hover {
+    background-color: rgba(250, 166, 26, 0.1);
+  }
+  
+  .actions-dropdown-item.danger {
+    color: #ED4245;
+  }
+  
+  .actions-dropdown-item.danger:hover {
+    background-color: rgba(237, 66, 69, 0.1);
+  }
+  
+  /* Close dropdowns when clicking elsewhere */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal.active {
+    display: flex;
+  }
+  
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+  
+  .modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+  }
+  
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+  }
+  
+  .modal-close:hover {
+    color: var(--primary-color);
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .modal-footer {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid rgba(156, 77, 255, 0.2);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  
+  .modal-btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .modal-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .modal-btn-primary:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .modal-btn-cancel {
+    background-color: rgba(156, 77, 255, 0.1);
+    color: var(--text-secondary);
+  }
+  
+  .modal-btn-cancel:hover {
+    background-color: rgba(156, 77, 255, 0.2);
+  }
+  
+  .modal-btn-danger {
+    background-color: #ED4245;
+    color: white;
+  }
+  
+  .modal-btn-danger:hover {
+    background-color: #A12D2F;
+  }
+  
+  .modal-btn-warning {
+    background-color: #FAA61A;
+    color: white;
+  }
+  
+  .modal-btn-warning:hover {
+    background-color: #C67A00;
+  }
+  
+  .modal-input,
+  .modal-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    resize: vertical;
+  }
+  
+  .modal-textarea {
+    min-height: 100px;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .warnings-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .warning-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+  }
+  
+  .warning-item:last-child {
+    border-bottom: none;
+  }
+  
+  .warning-reason {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .warning-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .no-warnings {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set up action buttons
+    const actionButtons = document.querySelectorAll('.actions-btn');
+    
+    actionButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const parentAction = this.closest('.member-actions');
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.member-actions.active').forEach(el => {
+          if (el !== parentAction) {
+            el.classList.remove('active');
+          }
+        });
+        
+        // Toggle this dropdown
+        parentAction.classList.toggle('active');
+      });
+    });
+    
+    // Close dropdowns when clicking elsewhere
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.member-actions.active').forEach(el => {
+        el.classList.remove('active');
+      });
+    });
+  });
+  
+  function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+  }
+  
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+  }
+  
+  function openDmModal(userId, username) {
+    document.getElementById('dmUserId').value = userId;
+    document.getElementById('dmUsername').textContent = username;
+    openModal('dmModal');
+  }
+  
+  function sendDm() {
+    const userId = document.getElementById('dmUserId').value;
+    const content = document.getElementById('dmContent').value;
+    
+    if (!content) {
+      alert('Please enter a message');
+      return;
+    }
+    
+    fetch('/api/admin/members/send-dm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        content
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.dmStatus || 'Message sent successfully');
+        closeModal('dmModal');
+        document.getElementById('dmContent').value = '';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error sending DM:', error);
+      alert('An error occurred while sending the message');
+    });
+  }
+  
+  function openKickModal(userId, username, guildName) {
+    document.getElementById('kickUserId').value = userId;
+    document.getElementById('kickUsername').textContent = username;
+    
+    // Load all servers the bot is in
+    fetch('/api/admin/members/servers')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const serverSelect = document.getElementById('kickServerSelect');
+          serverSelect.innerHTML = '';
+          
+          data.servers.forEach(server => {
+            const option = document.createElement('option');
+            option.value = server.id;
+            option.textContent = server.name;
+            
+            // If a guildName was provided, select that one by default
+            if (server.name === guildName) {
+              option.selected = true;
+            }
+            
+            serverSelect.appendChild(option);
+          });
+        } else {
+          const serverSelect = document.getElementById('kickServerSelect');
+          serverSelect.innerHTML = '<option value="">Failed to load servers</option>';
+        }
+      })
+      .catch(error => {
+        console.error('Error loading servers:', error);
+        const serverSelect = document.getElementById('kickServerSelect');
+        serverSelect.innerHTML = '<option value="">Error loading servers</option>';
+      });
+    
+    openModal('kickModal');
+  }
+  
+  function kickUser() {
+    const userId = document.getElementById('kickUserId').value;
+    const serverSelect = document.getElementById('kickServerSelect');
+    const guildId = serverSelect.value;
+    const reason = document.getElementById('kickReason').value;
+    
+    if (!guildId) {
+      alert('Please select a server');
+      return;
+    }
+    
+    fetch('/api/admin/members/kick', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        guildId,
+        reason
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('User kicked successfully');
+        closeModal('kickModal');
+        document.getElementById('kickReason').value = '';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error kicking user:', error);
+      alert('An error occurred while kicking the user');
+    });
+  }
+  
+  function openBanModal(userId, username, guildName) {
+    document.getElementById('banUserId').value = userId;
+    document.getElementById('banUsername').textContent = username;
+    
+    // Load all servers the bot is in
+    fetch('/api/admin/members/servers')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const serverSelect = document.getElementById('banServerSelect');
+          serverSelect.innerHTML = '';
+          
+          data.servers.forEach(server => {
+            const option = document.createElement('option');
+            option.value = server.id;
+            option.textContent = server.name;
+            
+            // If a guildName was provided, select that one by default
+            if (server.name === guildName) {
+              option.selected = true;
+            }
+            
+            serverSelect.appendChild(option);
+          });
+        } else {
+          const serverSelect = document.getElementById('banServerSelect');
+          serverSelect.innerHTML = '<option value="">Failed to load servers</option>';
+        }
+      })
+      .catch(error => {
+        console.error('Error loading servers:', error);
+        const serverSelect = document.getElementById('banServerSelect');
+        serverSelect.innerHTML = '<option value="">Error loading servers</option>';
+      });
+    
+    openModal('banModal');
+  }
+  
+  function banUser() {
+    const userId = document.getElementById('banUserId').value;
+    const serverSelect = document.getElementById('banServerSelect');
+    const guildId = serverSelect.value;
+    const reason = document.getElementById('banReason').value;
+    const deleteMessages = document.getElementById('banDeleteMessages').checked;
+    
+    if (!guildId) {
+      alert('Please select a server');
+      return;
+    }
+    
+    fetch('/api/admin/members/ban', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        guildId,
+        reason,
+        deleteMessages
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('User banned successfully');
+        closeModal('banModal');
+        document.getElementById('banReason').value = '';
+        document.getElementById('banDeleteMessages').checked = false;
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error banning user:', error);
+      alert('An error occurred while banning the user');
+    });
+  }
+  
+  function openTimeoutModal(userId, username, guildName) {
+    document.getElementById('timeoutUserId').value = userId;
+    document.getElementById('timeoutUsername').textContent = username;
+    
+    // Load all servers the bot is in
+    fetch('/api/admin/members/servers')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const serverSelect = document.getElementById('timeoutServerSelect');
+          serverSelect.innerHTML = '';
+          
+          data.servers.forEach(server => {
+            const option = document.createElement('option');
+            option.value = server.id;
+            option.textContent = server.name;
+            
+            // If a guildName was provided, select that one by default
+            if (server.name === guildName) {
+              option.selected = true;
+            }
+            
+            serverSelect.appendChild(option);
+          });
+        } else {
+          const serverSelect = document.getElementById('timeoutServerSelect');
+          serverSelect.innerHTML = '<option value="">Failed to load servers</option>';
+        }
+      })
+      .catch(error => {
+        console.error('Error loading servers:', error);
+        const serverSelect = document.getElementById('timeoutServerSelect');
+        serverSelect.innerHTML = '<option value="">Error loading servers</option>';
+      });
+    
+    openModal('timeoutModal');
+  }
+  
+  function timeoutUser() {
+    const userId = document.getElementById('timeoutUserId').value;
+    const serverSelect = document.getElementById('timeoutServerSelect');
+    const guildId = serverSelect.value;
+    const reason = document.getElementById('timeoutReason').value;
+    const duration = document.getElementById('timeoutDuration').value;
+    
+    if (!guildId) {
+      alert('Please select a server');
+      return;
+    }
+    
+    fetch('/api/admin/members/timeout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        guildId,
+        reason,
+        duration
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('User timed out successfully');
+        closeModal('timeoutModal');
+        document.getElementById('timeoutReason').value = '';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error timing out user:', error);
+      alert('An error occurred while timing out the user');
+    });
+  }
+  
+  function openWarnModal(userId, username) {
+    document.getElementById('warnUserId').value = userId;
+    document.getElementById('warnUsername').textContent = username;
+    openModal('warnModal');
+  }
+  
+  function warnUser() {
+    const userId = document.getElementById('warnUserId').value;
+    const reason = document.getElementById('warnReason').value;
+    
+    if (!reason) {
+      alert('Please provide a reason for the warning');
+      return;
+    }
+    
+    fetch('/api/admin/members/warn', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        reason
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.dmStatus || 'Warning recorded successfully');
+        closeModal('warnModal');
+        document.getElementById('warnReason').value = '';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error warning user:', error);
+      alert('An error occurred while recording the warning');
+    });
+  }
+  
+  function viewWarnings(userId, username) {
+    document.getElementById('warningsUsername').textContent = username;
+    document.getElementById('warningsContent').innerHTML = '<p class="text-center">Loading warnings...</p>';
+    
+    openModal('warningsModal');
+    
+    fetch(`/api/admin/members/warnings/${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          if (data.warnings.length === 0) {
+            document.getElementById('warningsContent').innerHTML = `
+              <div class="no-warnings">
+                <p>No warnings found for this user.</p>
+              </div>
+            `;
+          } else {
+            let html = '<div class="warnings-list">';
+            
+            data.warnings.forEach(warning => {
+              const date = new Date(warning.timestamp).toLocaleString();
+              
+              html += `
+                <div class="warning-item">
+                  <div class="warning-reason">${warning.reason}</div>
+                  <div class="warning-meta">
+                    <span>By: ${warning.issuer}</span>
+                    <span>${date}</span>
+                  </div>
+                </div>
+              `;
+            });
+            
+            html += '</div>';
+            document.getElementById('warningsContent').innerHTML = html;
+          }
+        } else {
+          document.getElementById('warningsContent').innerHTML = `
+            <div class="no-warnings">
+              <p>Error loading warnings: ${data.message}</p>
+            </div>
+          `;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching warnings:', error);
+        document.getElementById('warningsContent').innerHTML = `
+          <div class="no-warnings">
+            <p>An error occurred while loading warnings.</p>
+          </div>
+        `;
+      });
+  }
+</script>

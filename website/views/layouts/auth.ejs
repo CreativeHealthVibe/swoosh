@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+  <style>
+    :root {
+      --primary-color: #5865F2;
+      --primary-light: #7289DA;
+      --primary-dark: #4752C4;
+      --discord-dark: #36393F;
+      --discord-light: #FFFFFF;
+      --discord-gray: #72767D;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--discord-dark);
+      color: var(--discord-light);
+      margin: 0;
+      padding: 0;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 800px;
+      padding: 40px;
+      background-color: #2F3136;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .auth-logo img {
+      max-width: 140px;
+      height: auto;
+    }
+    
+    .auth-title {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--discord-light);
+    }
+    
+    .auth-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 12px 16px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      text-decoration: none;
+    }
+    
+    .auth-btn:hover {
+      background-color: var(--primary-dark);
+      color: white;
+    }
+    
+    .auth-btn i {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 30px;
+      color: var(--discord-gray);
+      font-size: 14px;
+    }
+    
+    .auth-footer a {
+      color: var(--primary-light);
+      text-decoration: none;
+    }
+    
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .alert {
+      margin-bottom: 20px;
+    }
+    
+    .alert-success {
+      background-color: #43B581;
+      color: white;
+      border: none;
+    }
+    
+    .alert-danger {
+      background-color: #F04747;
+      color: white;
+      border: none;
+    }
+    
+    /* Login options styling */
+    .login-options {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .login-options {
+        flex-direction: column;
+      }
+    }
+    
+    .login-options .card {
+      flex: 1;
+      background-color: #36393F;
+      border: 1px solid #42464D;
+      border-radius: 5px;
+    }
+    
+    .login-options .card-header {
+      background-color: rgba(0,0,0,0.1);
+      border-bottom: 1px solid #42464D;
+      padding: 12px 16px;
+    }
+    
+    .login-options .card-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .login-options .card-body {
+      padding: 20px;
+    }
+    
+    .form-control {
+      background-color: #2F3136;
+      border: 1px solid #42464D;
+      color: white;
+      padding: 10px 12px;
+    }
+    
+    .form-control:focus {
+      background-color: #2F3136;
+      color: white;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.25);
+    }
+    
+    label {
+      color: #B9BBBE;
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <!-- Flash messages -->
+    <% if (typeof messages !== 'undefined' && Object.keys(messages).length > 0) { %>
+      <% if (messages.error) { %>
+        <div class="alert alert-danger">
+          <%= messages.error %>
+        </div>
+      <% } %>
+      <% if (messages.success) { %>
+        <div class="alert alert-success">
+          <%= messages.success %>
+        </div>
+      <% } %>
+    <% } %>
+    
+    <%- body %>
+    
+    <div class="auth-footer">
+      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot | All rights reserved</p>
+      <p>Need help? <a href="https://discord.gg/your-server" target="_blank">Join our Discord</a></p>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(() => {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+        alert.style.opacity = '0';
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 500);
+      });
+    }, 5000);
+  </script>
+</body>
+</html>

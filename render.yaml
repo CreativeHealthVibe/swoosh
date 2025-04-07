@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: swoosh-discord-bot
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    plan: free
+    healthCheckPath: /status-check
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: PORT
+        value: 10000
+      - key: EMBED_COLOR
+        value: "#5865f2"
+      - key: TICKET_CATEGORY
+        value: "SWOOSH | Tickets"
+      - key: LOG_CHANNEL_ID
+        sync: false
+    autoDeploy: true

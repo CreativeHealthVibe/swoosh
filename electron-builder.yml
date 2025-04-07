@@ -1,0 +1,58 @@
+appId: "com.swoosh.discord-bot"
+productName: "Swoosh Discord Bot"
+copyright: "Copyright © 2023 SWOOSH"
+
+# Application packaging options
+directories:
+  output: "dist"
+  buildResources: "build"
+
+# Files to include
+files:
+  - "app/**/*"
+  - "electron-main.js"
+  - "electron-preload.js"
+  - "index.js"
+  - "commands/**/*"
+  - "handlers/**/*"
+  - "modules/**/*"
+  - "utils/**/*"
+  - "images/**/*"
+  - "node_modules/**/*"
+  - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+  - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+  - "!**/node_modules/*.d.ts"
+  - "!**/node_modules/.bin"
+  - "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
+  - "!.env"
+  - "!.env.*"
+  - ".env.sample"
+
+# Windows specific configuration
+win:
+  icon: "images/icon.ico"
+  target:
+    - target: "nsis"
+      arch: ["x64"]
+
+# NSIS installer configuration
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: "Swoosh Discord Bot"
+  uninstallDisplayName: "Swoosh Discord Bot"
+  license: "LICENSE"
+
+# macOS specific configuration
+mac:
+  icon: "images/icon.ico"
+  target: ["dmg"]
+  category: "public.app-category.social-networking"
+
+# Linux specific configuration
+linux:
+  icon: "images/icon.ico"
+  target: ["AppImage", "deb"]
+  category: "Network;InstantMessaging"

@@ -1,0 +1,32 @@
+500
+/opt/render/project/src/website/views/admin/welcome.ejs:1 >> 1| <%- include('../partials/admin-header') %> 2| 3| <div class="welcome-container"> 4| <div class="welcome-card"> /opt/render/project/src/website/views/partials/admin-header.ejs:27 25| <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=32" alt="<%= user.username %>'s Avatar" class="user-avatar"> 26| <% } else { %> >> 27| <div class="user-avatar-placeholder"><%= user.username.charAt(0).toUpperCase() %></div> 28| <% } %> 29| <span class="username"><%= user.username %></span> 30| </div> Cannot read properties of undefined (reading 'charAt')
+Sorry, something went wrong on our end. We're working to fix the issue.
+
+Go to Homepage
+Go Back
+Error Stack:
+TypeError: /opt/render/project/src/website/views/admin/welcome.ejs:1
+ >> 1| <%- include('../partials/admin-header') %>
+    2| 
+    3| <div class="welcome-container">
+    4|   <div class="welcome-card">
+
+/opt/render/project/src/website/views/partials/admin-header.ejs:27
+    25|         <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=32" alt="<%= user.username %>'s Avatar" class="user-avatar">
+    26|       <% } else { %>
+ >> 27|         <div class="user-avatar-placeholder"><%= user.username.charAt(0).toUpperCase() %></div>
+    28|       <% } %>
+    29|       <span class="username"><%= user.username %></span>
+    30|     </div>
+
+Cannot read properties of undefined (reading 'charAt')
+    at eval ("/opt/render/project/src/website/views/partials/admin-header.ejs":25:40)
+    at admin-header (/opt/render/project/src/node_modules/ejs/lib/ejs.js:703:17)
+    at include (/opt/render/project/src/node_modules/ejs/lib/ejs.js:701:39)
+    at eval ("/opt/render/project/src/website/views/admin/welcome.ejs":10:17)
+    at welcome (/opt/render/project/src/node_modules/ejs/lib/ejs.js:703:17)
+    at tryHandleCache (/opt/render/project/src/node_modules/ejs/lib/ejs.js:274:36)
+    at exports.renderFile [as engine] (/opt/render/project/src/node_modules/ejs/lib/ejs.js:491:10)
+    at View.render (/opt/render/project/src/node_modules/express/lib/view.js:139:8)
+    at tryRender (/opt/render/project/src/node_modules/express/lib/application.js:627:10)
+    at Function.render (/opt/render/project/src/node_modules/expres

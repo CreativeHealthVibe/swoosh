@@ -1,0 +1,114 @@
+PS C:\Users\Salman G\Downloads\swoosh-main> .\build.bat
+Starting SWOOSH Bot desktop app build process
+---------------------------------------------
+Running Electron builder...
+Starting build process...
+Installing dependencies...
+
+added 41 packages, removed 265 packages, changed 27 packages, and audited 335 packages in 44s
+
+56 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+Creating icon file...
+node:internal/modules/cjs/loader:1247
+  throw err;
+  ^
+
+Error: Cannot find module 'canvas'
+Require stack:
+- C:\Users\Salman G\Downloads\swoosh-main\create-ico.js
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)
+    at Function._load (node:internal/modules/cjs/loader:1070:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+    at Module.require (node:internal/modules/cjs/loader:1335:12)
+    at require (node:internal/modules/helpers:136:16)
+    at Object.<anonymous> (C:\Users\Salman G\Downloads\swoosh-main\create-ico.js:1:37)
+    at Module._compile (node:internal/modules/cjs/loader:1562:14)
+    at Object..js (node:internal/modules/cjs/loader:1699:10)
+    at Module.load (node:internal/modules/cjs/loader:1313:32) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [ 'C:\\Users\\Salman G\\Downloads\\swoosh-main\\create-ico.js' ]
+}
+
+Node.js v22.13.1
+Failed to create icon file: Error: Command failed: node create-ico.js
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at checkExecSyncError (node:child_process:882:11)
+    at execSync (node:child_process:954:15)
+    at Object.<anonymous> (C:\Users\Salman G\Downloads\swoosh-main\build-exe.js:20:5)
+    at Module._compile (node:internal/modules/cjs/loader:1562:14)
+    at Object..js (node:internal/modules/cjs/loader:1699:10)
+    at Module.load (node:internal/modules/cjs/loader:1313:32)
+    at Function._load (node:internal/modules/cjs/loader:1123:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 21864,
+  stdout: null,
+  stderr: null
+}
+Continuing with default icon...
+Building executable...
+  • electron-builder  version=24.13.3 os=10.0.19045
+  • loaded configuration  file=C:\Users\Salman G\Downloads\swoosh-main\electron-builder.yml
+  • writing effective config  file=dist\builder-effective-config.yaml
+  • packaging       platform=win32 arch=x64 electron=28.3.3 appOutDir=dist\win-unpacked
+  • downloading     url=https://github.com/electron/electron/releases/download/v28.3.3/electron-v28.3.3-win32-x64.zip size=108 MB parts=8
+  • downloaded      url=https://github.com/electron/electron/releases/download/v28.3.3/electron-v28.3.3-win32-x64.zip duration=8.144s
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'      
+Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Downloads\swoosh-main\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string 
+ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2023 SWOOSH' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-version-string CompanyName 'SWOOSH Team' --set-icon 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 3 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'      
+Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Downloads\swoosh-main\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string 
+ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2023 SWOOSH' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-version-string CompanyName 'SWOOSH Team' --set-icon 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 2 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'      
+Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Downloads\swoosh-main\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string 
+ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2023 SWOOSH' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-version-string CompanyName 'SWOOSH Team' --set-icon 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 1 more times
+  ⨯ cannot execute  cause=exit status 1
+                    errorOut=Reserved header is not 0 or image type is not icon for 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'      
+Fatal error: Unable to set icon
+
+                    command='C:\Users\Salman G\AppData\Local\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\rcedit-x64.exe' 'C:\Users\Salman G\Downloads\swoosh-main\dist\win-unpacked\Swoosh Discord Bot.exe' --set-version-string FileDescription 'Swoosh Discord Bot' --set-version-string 
+ProductName 'Swoosh Discord Bot' --set-version-string LegalCopyright 'Copyright © 2023 SWOOSH' --set-file-version 1.0.0 --set-product-version 1.0.0.0 --set-version-string InternalName 'Swoosh Discord Bot' --set-version-string OriginalFilename '' --set-version-string CompanyName 'SWOOSH Team' --set-icon 'C:\Users\Salman G\Downloads\swoosh-main\build\icon.ico'
+                    workingDir=
+  • Above command failed, retrying 0 more times
+Build failed: Error: Command failed: npx electron-builder build --win
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at checkExecSyncError (node:child_process:882:11)
+    at execSync (node:child_process:954:15)
+    at Object.<anonymous> (C:\Users\Salman G\Downloads\swoosh-main\build-exe.js:36:3)
+    at Module._compile (node:internal/modules/cjs/loader:1562:14)
+    at Object..js (node:internal/modules/cjs/loader:1699:10)
+    at Module.load (node:internal/modules/cjs/loader:1313:32)
+    at Function._load (node:internal/modules/cjs/loader:1123:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 19828,
+  stdout: null,
+  stderr: null
+}
+ERROR: Build failed
+PS C:\Users\Salman G\Downloads\swoosh-main> 
