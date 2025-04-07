@@ -721,6 +721,18 @@
   color: var(--discord-light);
 }
 
+/* Logout link */
+.logout-link {
+  color: var(--discord-gray);
+  margin-left: 10px;
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.logout-link:hover {
+  color: var(--danger-color);
+}
+
 .form-control:focus {
   background-color: var(--discord-highlight);
   border-color: var(--primary-color);
@@ -789,4 +801,16 @@
 
 .badge {
   animation: pulse 2s infinite;
+}
+
+/* Logout link */
+.logout-link {
+  color: var(--discord-gray);
+  margin-left: 10px;
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.logout-link:hover {
+  color: var(--danger-color);
 }

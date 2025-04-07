@@ -29,11 +29,12 @@
         <% } else { %>
           <div class="user-avatar-placeholder">A</div>
         <% } %>
-        <span class="username"><%= user.username || 'Admin' %></span>
+        <span class="username"><%= user.username || 'Admin' %></span><a href="/auth/logout" class="logout-link" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
       <% } else { %>
         <div class="user-avatar-placeholder">A</div>
         <span class="username">Admin</span>
       <% } %>
+      <a href="/auth/logout" class="logout-link" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
     </div>
     <div class="dropdown-menu">
       <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>

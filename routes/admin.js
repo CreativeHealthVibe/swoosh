@@ -132,6 +132,17 @@ router.get('/settings', (req, res) => {
 router.get('/logs', (req, res) => {
   const logsDir = path.join(__dirname, '../logs');
   
+  // Helper function to format file size
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
   // Get list of log files
   let logFiles = [];
   try {
@@ -152,6 +163,7 @@ router.get('/logs', (req, res) => {
     title: 'Bot Logs | SWOOSH Bot',
     logFiles,
     user: req.user,
+    formatFileSize, // Pass the helper function to the template
     layout: 'layouts/admin'
   });
 });
