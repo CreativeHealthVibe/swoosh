@@ -74,7 +74,7 @@
       <p class="server-members"></p>
     </div>
     <div class="server-actions">
-      <a href="#" class="server-join-btn" target="_blank">Join</a>
+      <a href="#" class="server-join-btn" target="_blank"><i class="fas fa-sign-in-alt"></i> Join Server</a>
     </div>
   </div>
 </template>
@@ -386,8 +386,12 @@
         // Set join button if invite URL is available
         const joinBtn = item.querySelector('.server-join-btn');
         
-        // For now we'll hide the join button since we don't have invite links
-        joinBtn.style.display = 'none';
+        if (server.inviteUrl) {
+          joinBtn.href = server.inviteUrl;
+          joinBtn.style.display = 'inline-block';
+        } else {
+          joinBtn.style.display = 'none';
+        }
         
         // Add to the leaderboard
         leaderboardList.appendChild(item);

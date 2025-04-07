@@ -50,11 +50,43 @@ router.get('/top-servers', async (req, res) => {
     const topGuilds = sortedGuilds.slice(0, 5);
     
     // Format the server data for the leaderboard
-    const servers = topGuilds.map(guild => {
+    const servers = await Promise.all(topGuilds.map(async guild => {
       // Format guild icon URL or use null if no icon is available
       let iconUrl = null;
       if (guild.icon) {
         iconUrl = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
+      }
+      
+      // Try to get an invite for the guild
+      let inviteUrl = null;
+      try {
+        // Try to find the system or general channel first
+        let channel = guild.channels.cache.find(
+          c => c.name.toLowerCase().includes('general') && 
+               c.type === 0 && // 0 is text channel
+               c.permissionsFor(client.user).has(["CreateInstantInvite"])
+        );
+        
+        // If no general channel, try any text channel
+        if (!channel) {
+          channel = guild.channels.cache.find(
+            c => c.type === 0 && 
+                 c.permissionsFor(client.user).has(["CreateInstantInvite"])
+          );
+        }
+        
+        // If we found a suitable channel, create an invite
+        if (channel) {
+          const invite = await channel.createInvite({
+            maxAge: 86400, // 24 hours
+            maxUses: 0, // unlimited uses
+            unique: false
+          });
+          inviteUrl = invite.url;
+        }
+      } catch (error) {
+        console.error(`Could not create invite for ${guild.name}:`, error);
+        // Don't throw error, just continue without an invite
       }
       
       return {
@@ -62,10 +94,9 @@ router.get('/top-servers', async (req, res) => {
         name: guild.name,
         memberCount: guild.memberCount,
         icon: iconUrl,
-        // Don't include invite links for security and privacy
-        // Users should get invites directly from the server owners
+        inviteUrl: inviteUrl
       };
-    });
+    }));
     
     // Return the server data
     res.json({
