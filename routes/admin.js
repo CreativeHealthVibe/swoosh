@@ -4,6 +4,7 @@ const path = require('path');
 const router = express.Router();
 const { isAdmin } = require('../middlewares/auth');
 const blacklistManager = require('../handlers/blacklistManager');
+const config = require('../config');
 
 // Helper function to get appropriate greeting based on time of day
 function getTimeBasedGreeting() {
@@ -249,6 +250,95 @@ router.get('/stats', (req, res) => {
 });
 
 /**
+ * GET /admin/members
+ * Member tracker
+ */
+router.get('/members', async (req, res) => {
+  const client = req.app.get('client');
+  let memberData = [];
+  let totalMembers = 0;
+  let totalOnline = 0;
+  let newMembers = [];
+  let errorMessage = null;
+  
+  try {
+    if (!client) {
+      throw new Error('Discord client not available');
+    }
+    
+    // Get all guilds the bot is in
+    const guilds = client.guilds.cache;
+    
+    // For each guild, get member info
+    for (const [guildId, guild] of guilds) {
+      try {
+        // Fetch all members (this might take time for large servers)
+        await guild.members.fetch();
+        
+        // Count total and online members
+        const guildTotalMembers = guild.members.cache.size;
+        const guildOnlineMembers = guild.members.cache.filter(m => 
+          m.presence?.status === 'online' || 
+          m.presence?.status === 'idle' || 
+          m.presence?.status === 'dnd'
+        ).size;
+        
+        totalMembers += guildTotalMembers;
+        totalOnline += guildOnlineMembers;
+        
+        // Get new members (joined in last 7 days)
+        const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        const recentMembers = guild.members.cache
+          .filter(m => m.joinedTimestamp > oneWeekAgo)
+          .map(m => ({
+            id: m.id,
+            username: m.user.username,
+            displayName: m.displayName,
+            joinedAt: m.joinedAt,
+            avatarURL: m.user.displayAvatarURL({ dynamic: true }),
+            bot: m.user.bot,
+            guildName: guild.name
+          }))
+          .sort((a, b) => b.joinedAt - a.joinedAt); // Sort newest first
+        
+        newMembers = [...newMembers, ...recentMembers];
+        
+        // Add to member data array
+        memberData.push({
+          id: guildId,
+          name: guild.name,
+          iconURL: guild.iconURL({ dynamic: true }),
+          totalMembers: guildTotalMembers,
+          onlineMembers: guildOnlineMembers,
+          owner: guild.members.cache.get(guild.ownerId)?.user?.username || 'Unknown',
+          region: guild.preferredLocale
+        });
+      } catch (error) {
+        console.error(`Error fetching members for guild ${guild.name}:`, error);
+      }
+    }
+    
+    // Sort guilds by member count
+    memberData.sort((a, b) => b.totalMembers - a.totalMembers);
+    
+  } catch (error) {
+    console.error('Error getting member data:', error);
+    errorMessage = error.message;
+  }
+  
+  res.render('admin/members', {
+    title: 'Member Tracker | SWOOSH Bot',
+    user: req.user,
+    memberData,
+    totalMembers,
+    totalOnline,
+    newMembers: newMembers.slice(0, 50), // Limit to 50 newest members
+    error: errorMessage,
+    layout: 'layouts/admin'
+  });
+});
+
+/**
  * GET /admin/welcome
  * Welcome page with time-based greeting
  */
@@ -262,6 +352,159 @@ router.get('/welcome', (req, res) => {
     user: req.user,
     layout: 'layouts/admin'
   });
+});
+
+/**
+ * GET /admin/users
+ * Admin user management
+ */
+router.get('/users', (req, res) => {
+  // Parse admin users from config
+  const adminUsers = config.adminUserIds.map(id => {
+    // Extract comment from the config.js file structure (if available)
+    const configContent = fs.readFileSync('./config.js', 'utf8');
+    const commentMatch = new RegExp(`'${id}'[^,]*// ([^\\n]*)`, 'i').exec(configContent);
+    const comment = commentMatch ? commentMatch[1].trim() : 'No comment';
+    
+    return {
+      id,
+      comment
+    };
+  });
+  
+  res.render('admin/user-management', {
+    title: 'Admin User Management | SWOOSH Bot',
+    user: req.user,
+    adminUsers,
+    error: req.flash('error'),
+    success: req.flash('success'),
+    layout: 'layouts/admin'
+  });
+});
+
+/**
+ * POST /admin/users/add
+ * Add a new admin user
+ */
+router.post('/users/add', (req, res) => {
+  try {
+    const { userId, comment } = req.body;
+    
+    // Validate input
+    if (!userId || !comment) {
+      req.flash('error', 'User ID and comment are required');
+      return res.redirect('/admin/users');
+    }
+    
+    // Check if user ID is already in the admin list
+    if (config.adminUserIds.includes(userId)) {
+      req.flash('error', 'This user is already an admin');
+      return res.redirect('/admin/users');
+    }
+    
+    // Create a new admin user ID list
+    const newAdminUserIds = [...config.adminUserIds, userId];
+    
+    // Read the current config file
+    let configContent = fs.readFileSync('./config.js', 'utf8');
+    
+    // Update the admin user IDs section
+    const adminUserIdsSection = `  // Admin User IDs with full system access
+  adminUserIds: [
+    '${config.adminUserIds.join('\', // Admin user\n    \'')}', // Admin user
+    '${userId}', // ${comment}
+  ],`;
+    
+    // Replace the admin user IDs section in the config file
+    configContent = configContent.replace(
+      /^\s*\/\/\s*Admin User IDs[^\[]*\[[^\]]*\],/m,
+      adminUserIdsSection
+    );
+    
+    // Write the updated config file
+    fs.writeFileSync('./config.js', configContent);
+    
+    // Clear the require cache for config.js
+    delete require.cache[require.resolve('../config')];
+    
+    // Log the action
+    console.log(`Admin ${req.user.username} (${req.user.id}) added new admin user ${userId} (${comment})`);
+    
+    req.flash('success', `Admin user ${comment} (${userId}) added successfully`);
+    return res.redirect('/admin/users');
+  } catch (error) {
+    console.error('Error adding admin user:', error);
+    req.flash('error', 'Failed to add admin user: ' + error.message);
+    return res.redirect('/admin/users');
+  }
+});
+
+/**
+ * POST /admin/users/remove
+ * Remove an admin user
+ */
+router.post('/users/remove', (req, res) => {
+  try {
+    const { userId } = req.body;
+    
+    // Validate input
+    if (!userId) {
+      req.flash('error', 'User ID is required');
+      return res.redirect('/admin/users');
+    }
+    
+    // Check if user ID is in the admin list
+    if (!config.adminUserIds.includes(userId)) {
+      req.flash('error', 'This user is not an admin');
+      return res.redirect('/admin/users');
+    }
+    
+    // Prevent removing the last admin
+    if (config.adminUserIds.length <= 1) {
+      req.flash('error', 'Cannot remove the last admin user');
+      return res.redirect('/admin/users');
+    }
+    
+    // Prevent removing yourself
+    if (userId === req.user.id) {
+      req.flash('error', 'Cannot remove yourself from admin users');
+      return res.redirect('/admin/users');
+    }
+    
+    // Create a new admin user ID list without the removed user
+    const newAdminUserIds = config.adminUserIds.filter(id => id !== userId);
+    
+    // Read the current config file
+    let configContent = fs.readFileSync('./config.js', 'utf8');
+    
+    // Update the admin user IDs section
+    const adminUserIdsSection = `  // Admin User IDs with full system access
+  adminUserIds: [
+    '${newAdminUserIds.join('\',\n    \'')}',
+  ],`;
+    
+    // Replace the admin user IDs section in the config file
+    configContent = configContent.replace(
+      /^\s*\/\/\s*Admin User IDs[^\[]*\[[^\]]*\],/m,
+      adminUserIdsSection
+    );
+    
+    // Write the updated config file
+    fs.writeFileSync('./config.js', configContent);
+    
+    // Clear the require cache for config.js
+    delete require.cache[require.resolve('../config')];
+    
+    // Log the action
+    console.log(`Admin ${req.user.username} (${req.user.id}) removed admin user ${userId}`);
+    
+    req.flash('success', `Admin user ${userId} removed successfully`);
+    return res.redirect('/admin/users');
+  } catch (error) {
+    console.error('Error removing admin user:', error);
+    req.flash('error', 'Failed to remove admin user: ' + error.message);
+    return res.redirect('/admin/users');
+  }
 });
 
 /**

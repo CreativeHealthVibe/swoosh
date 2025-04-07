@@ -43,8 +43,13 @@ module.exports = {
       }
 
       // Check if the role is manageable by the bot
-      if (!role.manageable) {
-        return interaction.editReply('❌ I cannot assign this role as it\'s higher than my highest role.');
+      // Get bot's highest role
+      const botMember = interaction.guild.members.me;
+      const botHighestRole = botMember.roles.highest;
+        
+      // Compare role positions (higher roles have lower position numbers)
+      if (role.position >= botHighestRole.position) {
+        return interaction.editReply(`❌ I cannot assign the role \`${role.name}\` as it's higher than or equal to my highest role \`${botHighestRole.name}\`. Please move my role above this role in the server settings.`);
       }
 
       // Check if the user already has the role

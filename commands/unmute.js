@@ -60,16 +60,23 @@ module.exports = {
         // Unmute the user by setting timeout to null
         await targetMember.timeout(null, `Unmuted by ${message.author.tag} | Reason: ${reason}`);
         
-        // Create embed response
+        // Format the current time
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const timeString = `Today at ${hours}:${minutes}`;
+        
+        // Create embed response without pinging users
         const embed = new EmbedBuilder()
-          .setTitle('User Unmuted')
-          .setDescription(`${targetMember.toString()} has been unmuted.`)
+          .setTitle('🔊 User Unmuted')
+          .setDescription(`${targetMember.user.username} has been unmuted.`)
           .addFields(
-            { name: 'User', value: `${targetMember.user.tag} (${targetMember.id})`, inline: true },
-            { name: 'Unmuted By', value: message.author.toString(), inline: true },
-            { name: 'Reason', value: reason }
+            { name: 'User', value: `${targetMember.user.username} (${targetMember.id})`, inline: false },
+            { name: 'Unmuted By', value: message.author.username, inline: false },
+            { name: 'Reason', value: reason, inline: false }
           )
-          .setColor(config.embedColor)
+          .setFooter({ text: timeString })
+          .setColor('#43b581')
           .setTimestamp();
         
         await message.reply({ embeds: [embed] });

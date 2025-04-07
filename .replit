@@ -27,11 +27,11 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node simpleServer.js"
+args = "npm install && node index.js"
 waitForPort = 5000
 
 [deployment]
-run = ["sh", "-c", "node simpleServer.js"]
+run = ["sh", "-c", "npm install && node index.js"]
 
 [[ports]]
 localPort = 5000

@@ -33,7 +33,13 @@ module.exports = {
   },
   
   // Admin User IDs with full system access
-  adminUserIds: ['930131254106550333', '1196042021488570391', '506323791140356106'], // gh_Sman, fl4ddie, cdn.gov
+  adminUserIds: [
+    '930131254106550333', // gh_Sman
+    '1196042021488570391', // fl4ddie
+    '506323791140356106', // cdn.gov
+    // Add your additional admin user IDs below
+    // Format: 'userId', // username
+  ],
   
   // Ticket types and their configurations
   ticketTypes: {

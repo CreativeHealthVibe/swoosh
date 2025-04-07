@@ -1,0 +1,374 @@
+<%- include('../partials/admin-header') %>
+
+<div class="admin-page-header">
+  <div class="header-content">
+    <h1><i class="fas fa-users"></i> Member Tracker</h1>
+    <p>Track server members across all servers your bot is in.</p>
+  </div>
+</div>
+
+<% if (error) { %>
+  <div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i> Error: <%= error %>
+  </div>
+<% } %>
+
+<div class="stats-overview">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fas fa-users"></i></div>
+    <div class="stat-content">
+      <h3>Total Members</h3>
+      <div class="stat-value"><%= totalMembers.toLocaleString() %></div>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fas fa-signal"></i></div>
+    <div class="stat-content">
+      <h3>Online Members</h3>
+      <div class="stat-value"><%= totalOnline.toLocaleString() %></div>
+      <div class="stat-subtitle"><%= Math.round((totalOnline / totalMembers) * 100) || 0 %>% online</div>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fas fa-calendar-plus"></i></div>
+    <div class="stat-content">
+      <h3>New This Week</h3>
+      <div class="stat-value"><%= newMembers.length.toLocaleString() %></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>New Members (Last 7 Days)</h2>
+    <p>The most recent members to join your servers.</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Display Name</th>
+            <th>Server</th>
+            <th>Joined</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (newMembers.length === 0) { %>
+            <tr>
+              <td colspan="5" class="text-center">No new members in the last 7 days.</td>
+            </tr>
+          <% } else { %>
+            <% newMembers.forEach(member => { %>
+              <tr>
+                <td class="user-cell">
+                  <div class="user-avatar">
+                    <img src="<%= member.avatarURL %>" alt="<%= member.username %>'s avatar" onerror="this.onerror=null; this.src='/images/default-avatar.png';">
+                  </div>
+                  <div class="user-info">
+                    <%= member.username %>
+                    <span class="user-id"><%= member.id %></span>
+                  </div>
+                </td>
+                <td><%= member.displayName %></td>
+                <td><%= member.guildName %></td>
+                <td>
+                  <span title="<%= member.joinedAt.toLocaleString() %>">
+                    <%= new Date(member.joinedAt).toLocaleDateString() %>
+                  </span>
+                </td>
+                <td>
+                  <% if (member.bot) { %>
+                    <span class="badge bot">Bot</span>
+                  <% } else { %>
+                    <span class="badge user">User</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Server Overview</h2>
+    <p>Member counts for each server the bot is in.</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Server</th>
+            <th>Owner</th>
+            <th>Region</th>
+            <th>Members</th>
+            <th>Online</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (memberData.length === 0) { %>
+            <tr>
+              <td colspan="5" class="text-center">No servers available.</td>
+            </tr>
+          <% } else { %>
+            <% memberData.forEach(guild => { %>
+              <tr>
+                <td class="server-cell">
+                  <% if (guild.iconURL) { %>
+                    <img src="<%= guild.iconURL %>" alt="<%= guild.name %> icon" class="server-icon" 
+                         onerror="this.onerror=null; this.src='/images/default-server.png';">
+                  <% } else { %>
+                    <div class="server-icon-placeholder">
+                      <%= guild.name.charAt(0).toUpperCase() %>
+                    </div>
+                  <% } %>
+                  <%= guild.name %>
+                </td>
+                <td><%= guild.owner %></td>
+                <td><%= guild.region %></td>
+                <td><%= guild.totalMembers.toLocaleString() %></td>
+                <td>
+                  <%= guild.onlineMembers.toLocaleString() %> 
+                  (<%= Math.round((guild.onlineMembers / guild.totalMembers) * 100) %>%)
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Member tracker specific styles */
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .stat-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    color: var(--primary-color);
+    width: 50px;
+    height: 50px;
+    background: rgba(156, 77, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .stat-content h3 {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+    color: var(--text-primary);
+  }
+  
+  .stat-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+  }
+  
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .card-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+  }
+  
+  .card-header p {
+    margin: 0.5rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .data-table th, 
+  .data-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+  }
+  
+  .data-table th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+  
+  .data-table tbody tr {
+    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  .data-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  
+  .data-table tbody tr:hover {
+    background-color: rgba(156, 77, 255, 0.05);
+  }
+  
+  .user-cell, .server-cell {
+    display: flex;
+    align-items: center;
+  }
+  
+  .user-avatar img, .server-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    object-fit: cover;
+  }
+  
+  .server-icon-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-id {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  
+  .badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+  }
+  
+  .badge.bot {
+    background-color: rgba(81, 154, 186, 0.2);
+    color: #51AABE;
+  }
+  
+  .badge.user {
+    background-color: rgba(87, 242, 135, 0.2);
+    color: #57F287;
+  }
+  
+  .alert {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+  }
+  
+  .alert i {
+    margin-right: 0.75rem;
+  }
+  
+  .alert-danger {
+    background-color: rgba(237, 66, 69, 0.2);
+    border: 1px solid rgba(237, 66, 69, 0.5);
+    color: #ED4245;
+  }
+  
+  .admin-page-header {
+    margin-bottom: 2rem;
+  }
+  
+  .admin-page-header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .admin-page-header h1 i {
+    margin-right: 0.75rem;
+    color: var(--primary-color);
+  }
+  
+  .admin-page-header p {
+    margin: 0.5rem 0 0;
+    color: var(--text-secondary);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .stats-overview {
+      grid-template-columns: 1fr;
+    }
+    
+    .data-table {
+      min-width: 600px;
+    }
+  }
+</style>
+
+<%- include('../partials/admin-footer') %>

@@ -47,7 +47,7 @@ module.exports = {
         return message.reply('❌ You cannot mute this user as they have higher or equal permissions to you.');
       }
       
-      // Find or create muted role
+      // Find or create timeout role (Discord's timeout feature is preferred, but using role for compatibility)
       let mutedRole = message.guild.roles.cache.find(role => role.name === 'Muted');
       
       if (!mutedRole) {
@@ -60,7 +60,6 @@ module.exports = {
           });
           
           // Set permissions for the role
-          // This loop might take some time for servers with many channels
           await message.reply('⏳ Creating muted role and setting permissions. This may take a moment...');
           
           // Update channel permissions for all channels
@@ -97,20 +96,44 @@ module.exports = {
         }
       }
       
-      // Apply the muted role
       try {
-        await targetUser.roles.add(mutedRole, `Muted by ${message.author.tag} | ${reason}`);
+        // Try to use Discord's built-in timeout feature first
+        let timeoutApplied = false;
         
-        // Create success embed
+        if (duration) {
+          const durationMs = convertDurationToMs(duration);
+          if (durationMs && durationMs <= 2419200000) { // Discord's max timeout is 28 days
+            try {
+              await targetUser.timeout(durationMs, `${reason} | Muted by ${message.author.tag}`);
+              timeoutApplied = true;
+            } catch (timeoutError) {
+              console.error('Failed to apply Discord timeout, falling back to role:', timeoutError);
+            }
+          }
+        }
+        
+        // If timeout didn't work or no duration specified, use the role method
+        if (!timeoutApplied) {
+          await targetUser.roles.add(mutedRole, `Muted by ${message.author.tag} | ${reason}`);
+        }
+        
+        // Format the current time
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const timeString = `Today at ${hours}:${minutes}`;
+        
+        // Create success embed with the requested format
         const successEmbed = new EmbedBuilder()
           .setTitle('🔇 User Muted')
-          .setDescription(`${targetUser.toString()} has been muted.`)
+          .setDescription(`${targetUser.user.username} has been muted.`)
           .addFields(
-            { name: 'Reason', value: reason },
-            { name: 'Duration', value: duration || 'Indefinite' },
-            { name: 'Muted by', value: message.author.toString() }
+            { name: 'Reason', value: reason, inline: false },
+            { name: 'Duration', value: duration || 'Indefinite', inline: false },
+            { name: 'Muted by', value: message.author.username, inline: false }
           )
-          .setColor(config.embedColor)
+          .setFooter({ text: timeString })
+          .setColor('#808080')
           .setTimestamp();
         
         await message.channel.send({ embeds: [successEmbed] });
@@ -118,11 +141,12 @@ module.exports = {
         // Log the action
         logging.logAction('User Muted', targetUser.user, message.author, {
           reason: reason,
-          duration: duration || 'Indefinite'
+          duration: duration || 'Indefinite',
+          method: timeoutApplied ? 'Discord Timeout' : 'Muted Role'
         });
         
-        // If duration is specified, set up timeout to unmute
-        if (duration) {
+        // If duration is specified and we're using the role method, set up timeout to unmute
+        if (duration && !timeoutApplied) {
           // Convert duration string to milliseconds
           const durationMs = convertDurationToMs(duration);
           
@@ -133,18 +157,31 @@ module.exports = {
                 if (targetUser.roles.cache.has(mutedRole.id)) {
                   await targetUser.roles.remove(mutedRole, 'Automatic unmute after timed mute');
                   
-                  // Create unmute embed
+                  // Format the current time for unmute
+                  const now = new Date();
+                  const hours = now.getHours().toString().padStart(2, '0');
+                  const minutes = now.getMinutes().toString().padStart(2, '0');
+                  const timeString = `Today at ${hours}:${minutes}`;
+                  
+                  // Create unmute embed without mentions
                   const unmuteEmbed = new EmbedBuilder()
                     .setTitle('🔊 User Unmuted')
-                    .setDescription(`${targetUser.toString()} has been automatically unmuted.`)
-                    .setColor(config.embedColor)
+                    .setDescription(`${targetUser.user.username} has been automatically unmuted.`)
+                    .addFields(
+                      { name: 'Duration', value: duration, inline: false },
+                      { name: 'Action', value: 'Automatic unmute after timeout', inline: false }
+                    )
+                    .setFooter({ text: timeString })
+                    .setColor('#43b581')
                     .setTimestamp();
                   
                   // Send to log channel if available, otherwise send to the current channel
-                  if (config.logChannelId) {
-                    const logChannel = client.channels.cache.get(config.logChannelId);
+                  if (config.loggingChannels && config.loggingChannels.commandUsage) {
+                    const logChannel = client.channels.cache.get(config.loggingChannels.commandUsage);
                     if (logChannel) {
                       await logChannel.send({ embeds: [unmuteEmbed] });
+                    } else {
+                      await message.channel.send({ embeds: [unmuteEmbed] });
                     }
                   } else {
                     await message.channel.send({ embeds: [unmuteEmbed] });
@@ -163,7 +200,7 @@ module.exports = {
           }
         }
       } catch (error) {
-        console.error('Error applying muted role:', error);
+        console.error('Error applying mute:', error);
         message.reply('❌ Failed to mute the user. Please check my permissions and try again.');
       }
     } catch (error) {

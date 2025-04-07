@@ -1,0 +1,180 @@
+<%- include('../partials/admin-header') %>
+
+<div class="admin-page-header">
+  <div class="header-content">
+    <h1><i class="fas fa-user-shield"></i> Admin User Management</h1>
+    <p>Manage users who have access to the admin panel.</p>
+  </div>
+</div>
+
+<% if (success) { %>
+  <div class="alert alert-success">
+    <i class="fas fa-check-circle"></i> <%= success %>
+  </div>
+<% } %>
+
+<% if (error) { %>
+  <div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i> <%= error %>
+  </div>
+<% } %>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Current Admin Users</h2>
+    <p>The following users have access to the admin panel.</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Username (Comment)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% adminUsers.forEach(user => { %>
+            <tr>
+              <td><code><%= user.id %></code></td>
+              <td><%= user.comment %></td>
+              <td>
+                <form action="/admin/users/remove" method="POST" class="inline-form">
+                  <input type="hidden" name="userId" value="<%= user.id %>">
+                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this admin user?')">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Add New Admin User</h2>
+    <p>Add a new user who can access the admin panel.</p>
+  </div>
+  <div class="card-body">
+    <form action="/admin/users/add" method="POST">
+      <div class="form-group">
+        <label for="userId">Discord User ID</label>
+        <input type="text" id="userId" name="userId" class="form-control" pattern="^\d{17,19}$" required>
+        <small class="form-text text-muted">Enter the Discord User ID (17-19 digit number). To get a user's ID, enable Developer Mode in Discord settings, then right-click on a user and select "Copy ID".</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="comment">Username or Comment</label>
+        <input type="text" id="comment" name="comment" class="form-control" required>
+        <small class="form-text text-muted">Add a username or note to identify this user (e.g., "john_doe" or "Community Manager").</small>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i> Add Admin User
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>How to Get User IDs</h2>
+    <p>Follow these steps to get a Discord User ID</p>
+  </div>
+  <div class="card-body">
+    <ol class="mb-4">
+      <li>Open Discord settings</li>
+      <li>Go to <strong>Advanced</strong> and enable <strong>Developer Mode</strong></li>
+      <li>Right-click on a user's name in a server or DM</li>
+      <li>Click <strong>Copy ID</strong></li>
+      <li>Paste the ID in the form above</li>
+    </ol>
+    <div class="alert alert-warning">
+      <i class="fas fa-info-circle"></i> Note: Users will need to log in with Discord OAuth to access the admin panel. Make sure they have a Discord account.
+    </div>
+  </div>
+</div>
+
+<style>
+  .inline-form {
+    display: inline-block;
+  }
+  
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+  }
+  
+  .btn-danger {
+    background-color: #ED4245;
+    color: white;
+    border: none;
+  }
+  
+  .btn-danger:hover {
+    background-color: #c03537;
+  }
+  
+  .alert-success {
+    background-color: rgba(87, 242, 135, 0.2);
+    border: 1px solid rgba(87, 242, 135, 0.5);
+    color: #2caa58;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-control {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--input-bg);
+    background-clip: padding-box;
+    border: 1px solid var(--input-border);
+    border-radius: var(--border-radius);
+    transition: border-color 0.15s ease-in-out;
+  }
+  
+  .form-control:focus {
+    border-color: #9c4dff;
+    outline: 0;
+  }
+  
+  .form-text {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+  
+  label {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .btn-primary {
+    background-color: #9c4dff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+  }
+  
+  .btn-primary:hover {
+    background-color: #8a2be2;
+  }
+</style>
+
+<%- include('../partials/admin-footer') %>

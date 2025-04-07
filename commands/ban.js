@@ -37,79 +37,39 @@ module.exports = {
       // Get reason for ban (any text after the mention)
       const reasonArray = args.slice(1);
       const reason = reasonArray.length > 0 ? reasonArray.join(' ') : 'No reason provided';
-      
-      // Create confirmation embed
-      const confirmEmbed = new EmbedBuilder()
-        .setTitle('⚠️ Ban Confirmation')
-        .setDescription(`Are you sure you want to ban ${targetUser.toString()}?\nReason: ${reason}`)
-        .setColor('#FF0000')
-        .setFooter({ text: 'This action is irreversible' });
-      
-      // Send confirmation message
-      const confirmMsg = await message.reply({ embeds: [confirmEmbed] });
-      
-      // Add reaction for confirmation
-      await confirmMsg.react('✅');
-      await confirmMsg.react('❌');
-      
-      // Create filter for reaction collector
-      const filter = (reaction, user) => {
-        return ['✅', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
-      };
-      
-      // Create collector
-      const collector = confirmMsg.createReactionCollector({ 
-        filter, 
-        time: 30000, // 30 seconds timeout
-        max: 1 // Only collect one reaction
-      });
-      
-      // Handle reactions
-      collector.on('collect', async (reaction, user) => {
-        if (reaction.emoji.name === '✅') {
-          try {
-            // Ban the user
-            await targetUser.ban({ reason: `${reason} | Banned by ${message.author.tag}` });
-            
-            // Create success embed
-            const successEmbed = new EmbedBuilder()
-              .setTitle('✅ User Banned')
-              .setDescription(`${targetUser.user.tag} has been banned from the server.`)
-              .addFields(
-                { name: 'Reason', value: reason },
-                { name: 'Banned by', value: message.author.toString() }
-              )
-              .setColor(config.embedColor)
-              .setTimestamp();
-            
-            await message.channel.send({ embeds: [successEmbed] });
-            
-            // Log the action
-            logging.logAction('User Banned', targetUser.user, message.author, {
-              reason: reason
-            });
-          } catch (error) {
-            console.error('Ban execution error:', error);
-            message.reply('❌ An error occurred while trying to ban the user.');
-          }
-        } else {
-          // Ban cancelled
-          const cancelEmbed = new EmbedBuilder()
-            .setTitle('❌ Ban Cancelled')
-            .setDescription('The ban action has been cancelled.')
-            .setColor(config.embedColor);
-          
-          await message.channel.send({ embeds: [cancelEmbed] });
-        }
-      });
-      
-      // Handle collector end
-      collector.on('end', collected => {
-        if (collected.size === 0) {
-          // No reaction, timeout
-          message.channel.send('⏱️ Ban command timed out. Please try again if you still want to ban the user.');
-        }
-      });
+
+      try {
+        // Ban the user immediately without confirmation
+        await targetUser.ban({ reason: `${reason} | Banned by ${message.author.tag}` });
+        
+        // Format the current time
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const timeString = `Today at ${hours}:${minutes}`;
+        
+        // Create success embed with the requested format
+        const successEmbed = new EmbedBuilder()
+          .setTitle('🔨 User Banned')
+          .setDescription(`${targetUser.user.username} has been banned from the server.`)
+          .addFields(
+            { name: 'Reason', value: reason, inline: false },
+            { name: 'Banned by', value: message.author.username, inline: false }
+          )
+          .setFooter({ text: timeString })
+          .setColor('#FF0000')
+          .setTimestamp();
+        
+        await message.channel.send({ embeds: [successEmbed] });
+        
+        // Log the action
+        logging.logAction('User Banned', targetUser.user, message.author, {
+          reason: reason
+        });
+      } catch (error) {
+        console.error('Ban execution error:', error);
+        message.reply('❌ An error occurred while trying to ban the user.');
+      }
     } catch (error) {
       console.error('Ban Command Error:', error);
       message.reply('❌ An error occurred while executing the ban command.');
