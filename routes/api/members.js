@@ -6,7 +6,6 @@ const express = require('express');
 const router = express.Router();
 const { isAdmin } = require('../../middlewares/auth');
 const logging = require('../../modules/logging');
-const db = require('../../utils/database');
 
 // Protect all routes with admin middleware
 router.use(isAdmin);
@@ -31,20 +30,39 @@ router.post('/send-dm', async (req, res) => {
     }
     
     // Send the DM
-    await user.send(content);
+    let dmSent = true;
+    try {
+      await user.send(content);
+    } catch (dmError) {
+      dmSent = false;
+      console.warn(`Failed to send DM to ${user.username} (${userId}): ${dmError.message}`);
+      // Continue even if DM fails - this is normal behavior when users have DMs disabled
+    }
     
     // Log the action
-    console.info(`Admin ${req.user.username} sent DM to ${user.username} (${userId})`);
+    console.info(`Admin ${req.user.username} sent DM to ${user.username} (${userId}) - ${dmSent ? 'Delivered' : 'Failed to deliver'}`);
     
     // Log using the logging module
     logging.logAction('DM Sent', user, req.user, {
-      content: content.substring(0, 100) + (content.length > 100 ? '...' : '')
+      content: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+      delivered: dmSent ? 'Yes' : 'No'
     });
     
-    return res.json({ success: true, message: 'Message sent successfully' });
+    return res.json({ 
+      success: true, 
+      message: dmSent ? 'Message sent successfully' : 'Message could not be delivered',
+      dmSent: dmSent,
+      dmStatus: dmSent 
+        ? 'DM was successfully sent to the user' 
+        : 'DM could not be sent to the user (they likely have DMs disabled)'
+    });
   } catch (error) {
-    console.error(`Error sending DM to user ${userId}: ${error.message}`);
-    return res.status(500).json({ success: false, message: 'Failed to send message: ' + error.message });
+    console.error(`Error processing DM request for user ${userId}: ${error.message}`);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to process DM request: ' + error.message,
+      dmStatus: 'An error occurred while trying to process the DM request. The message may not have been sent.'
+    });
   }
 });
 
@@ -53,23 +71,25 @@ router.post('/send-dm', async (req, res) => {
  * Kick a user from a guild
  */
 router.post('/kick', async (req, res) => {
-  const { userId, guildName, reason } = req.body;
+  const { userId, guildId, reason } = req.body;
   const client = req.app.get('client');
   
-  if (!userId || !guildName) {
+  if (!userId || !guildId) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
   
   try {
-    // Find the guild by name
-    const guild = client.guilds.cache.find(g => g.name === guildName);
+    // Find the guild by ID
+    const guild = client.guilds.cache.get(guildId);
     if (!guild) {
       return res.status(404).json({ success: false, message: 'Guild not found' });
     }
     
     // Get the member
-    const member = await guild.members.fetch(userId);
-    if (!member) {
+    let member;
+    try {
+      member = await guild.members.fetch(userId);
+    } catch (fetchError) {
       return res.status(404).json({ success: false, message: 'Member not found in this guild' });
     }
     
@@ -82,17 +102,17 @@ router.post('/kick', async (req, res) => {
     await member.kick(reason || 'No reason provided');
     
     // Log the action
-    console.info(`Admin ${req.user.username} kicked ${member.user.username} (${userId}) from ${guildName}${reason ? ` for: ${reason}` : ''}`);
+    console.info(`Admin ${req.user.username} kicked ${member.user.username} (${userId}) from ${guild.name}${reason ? ` for: ${reason}` : ''}`);
     
     // Log using the logging module
     logging.logAction('User Kicked', member.user, req.user, {
       reason: reason || 'No reason provided',
-      guild: guildName
+      guild: guild.name
     });
     
     return res.json({ success: true, message: 'User kicked successfully' });
   } catch (error) {
-    console.error(`Error kicking user ${userId} from ${guildName}: ${error.message}`);
+    console.error(`Error kicking user ${userId} from guild ${guildId}: ${error.message}`);
     return res.status(500).json({ success: false, message: 'Failed to kick user: ' + error.message });
   }
 });
@@ -102,16 +122,16 @@ router.post('/kick', async (req, res) => {
  * Ban a user from a guild
  */
 router.post('/ban', async (req, res) => {
-  const { userId, guildName, reason, deleteMessages } = req.body;
+  const { userId, guildId, reason, deleteMessages } = req.body;
   const client = req.app.get('client');
   
-  if (!userId || !guildName) {
+  if (!userId || !guildId) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
   
   try {
-    // Find the guild by name
-    const guild = client.guilds.cache.find(g => g.name === guildName);
+    // Find the guild by ID
+    const guild = client.guilds.cache.get(guildId);
     if (!guild) {
       return res.status(404).json({ success: false, message: 'Guild not found' });
     }
@@ -152,27 +172,27 @@ router.post('/ban', async (req, res) => {
     await guild.members.ban(userId, banOptions);
     
     // Log the action
-    console.info(`Admin ${req.user.username} banned ${username} (${userId}) from ${guildName}${reason ? ` for: ${reason}` : ''}`);
+    console.info(`Admin ${req.user.username} banned ${username} (${userId}) from ${guild.name}${reason ? ` for: ${reason}` : ''}`);
     
     // Log using the logging module
     if (user) {
       logging.logAction('User Banned', user, req.user, {
         reason: reason || 'No reason provided',
-        guild: guildName,
+        guild: guild.name,
         deleteMessages: deleteMessages ? 'Yes (24h)' : 'No'
       });
     } else {
       // If we couldn't get user object, create a minimal one for logging
       logging.logAction('User Banned', { id: userId, tag: username }, req.user, {
         reason: reason || 'No reason provided',
-        guild: guildName,
+        guild: guild.name,
         deleteMessages: deleteMessages ? 'Yes (24h)' : 'No'
       });
     }
     
     return res.json({ success: true, message: 'User banned successfully' });
   } catch (error) {
-    console.error(`Error banning user ${userId} from ${guildName}: ${error.message}`);
+    console.error(`Error banning user ${userId} from guild ${guildId}: ${error.message}`);
     return res.status(500).json({ success: false, message: 'Failed to ban user: ' + error.message });
   }
 });
@@ -182,23 +202,25 @@ router.post('/ban', async (req, res) => {
  * Timeout a user in a guild
  */
 router.post('/timeout', async (req, res) => {
-  const { userId, guildName, reason, duration } = req.body;
+  const { userId, guildId, reason, duration } = req.body;
   const client = req.app.get('client');
   
-  if (!userId || !guildName || !duration) {
+  if (!userId || !guildId || !duration) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
   
   try {
-    // Find the guild by name
-    const guild = client.guilds.cache.find(g => g.name === guildName);
+    // Find the guild by ID (more reliable than name)
+    const guild = client.guilds.cache.get(guildId);
     if (!guild) {
       return res.status(404).json({ success: false, message: 'Guild not found' });
     }
     
     // Get the member
-    const member = await guild.members.fetch(userId);
-    if (!member) {
+    let member;
+    try {
+      member = await guild.members.fetch(userId);
+    } catch (fetchError) {
       return res.status(404).json({ success: false, message: 'Member not found in this guild' });
     }
     
@@ -228,18 +250,18 @@ router.post('/timeout', async (req, res) => {
     }
     
     // Log the action
-    console.info(`Admin ${req.user.username} timed out ${member.user.username} (${userId}) in ${guildName} for ${formattedDuration}${reason ? `. Reason: ${reason}` : ''}`);
+    console.info(`Admin ${req.user.username} timed out ${member.user.username} (${userId}) in ${guild.name} for ${formattedDuration}${reason ? `. Reason: ${reason}` : ''}`);
     
     // Log using the logging module
     logging.logAction('User Timed Out', member.user, req.user, {
       reason: reason || 'No reason provided',
-      guild: guildName,
+      guild: guild.name,
       duration: formattedDuration
     });
     
     return res.json({ success: true, message: 'User timed out successfully' });
   } catch (error) {
-    console.error(`Error timing out user ${userId} in ${guildName}: ${error.message}`);
+    console.error(`Error timing out user ${userId} in guild ${guildId}: ${error.message}`);
     return res.status(500).json({ success: false, message: 'Failed to timeout user: ' + error.message });
   }
 });
@@ -270,24 +292,27 @@ router.post('/warn', async (req, res) => {
     }
     
     // Send DM to the user with the warning
+    let dmSent = true;
     try {
       await user.send(`⚠️ **Warning**\nYou have been warned. Reason: ${reason}`);
     } catch (dmError) {
+      dmSent = false;
       console.warn(`Failed to send warning DM to ${user.username} (${userId}): ${dmError.message}`);
-      // Continue even if DM fails
+      // Continue even if DM fails - this is normal behavior when users have DMs disabled
     }
     
-    // Record the warning in the database
+    // Record the warning in the Discord database
+    const warningId = `${userId}-${Date.now()}`;
     const warningData = {
       userId: userId,
       username: user.username,
       reason: reason,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       issuer: req.user.username,
       issuerId: req.user.id
     };
     
-    await db.addToCollection('warnings', warningData);
+    await client.discordDB.setDocument('warnings', warningId, warningData);
     
     // Log the action
     console.info(`Admin ${req.user.username} warned ${user.username} (${userId}). Reason: ${reason}`);
@@ -297,10 +322,21 @@ router.post('/warn', async (req, res) => {
       reason: reason
     });
     
-    return res.json({ success: true, message: 'Warning sent and recorded' });
+    return res.json({ 
+      success: true, 
+      message: 'Warning recorded successfully', 
+      dmSent: dmSent, 
+      dmStatus: dmSent 
+        ? 'Warning DM was successfully sent to the user' 
+        : 'Warning was recorded but the DM could not be sent (user likely has DMs disabled)'
+    });
   } catch (error) {
     console.error(`Error warning user ${userId}: ${error.message}`);
-    return res.status(500).json({ success: false, message: 'Failed to warn user: ' + error.message });
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to complete warning process: ' + error.message,
+      dmStatus: 'The warning DM may or may not have been sent, but there was an error completing the warning process.'
+    });
   }
 });
 
@@ -310,14 +346,22 @@ router.post('/warn', async (req, res) => {
  */
 router.get('/warnings/:userId', async (req, res) => {
   const { userId } = req.params;
+  const client = req.app.get('client');
   
   if (!userId) {
     return res.status(400).json({ success: false, message: 'Missing user ID' });
   }
   
   try {
-    // Get warnings from database
-    const warnings = await db.getFromCollection('warnings', { userId: userId });
+    // Check if Discord database is initialized
+    if (!client.discordDB || !client.discordDB.initialized) {
+      return res.status(503).json({ success: false, message: 'Discord database not initialized' });
+    }
+    
+    // Get warnings from Discord database
+    const warnings = client.discordDB.findDocuments('warnings', (doc) => {
+      return doc.userId === userId;
+    });
     
     // Sort by timestamp, newest first
     warnings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -326,6 +370,32 @@ router.get('/warnings/:userId', async (req, res) => {
   } catch (error) {
     console.error(`Error fetching warnings for user ${userId}: ${error.message}`);
     return res.status(500).json({ success: false, message: 'Failed to fetch warnings: ' + error.message });
+  }
+});
+
+/**
+ * GET /api/admin/members/servers
+ * Get list of all servers the bot is in
+ */
+router.get('/servers', async (req, res) => {
+  const client = req.app.get('client');
+  
+  try {
+    // Get all guilds the bot is in
+    const servers = client.guilds.cache.map(guild => ({
+      id: guild.id,
+      name: guild.name,
+      memberCount: guild.memberCount,
+      icon: guild.iconURL({ dynamic: true })
+    }));
+    
+    // Sort by member count (largest first)
+    servers.sort((a, b) => b.memberCount - a.memberCount);
+    
+    return res.json({ success: true, servers });
+  } catch (error) {
+    console.error(`Error fetching servers: ${error.message}`);
+    return res.status(500).json({ success: false, message: 'Failed to fetch servers: ' + error.message });
   }
 });
 

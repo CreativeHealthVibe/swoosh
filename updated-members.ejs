@@ -213,6 +213,8 @@
       <button class="modal-btn modal-btn-danger" onclick="kickUser()">Kick User</button>
     </div>
   </div>
+</div>
+
 <!-- Ban Modal -->
 <div id="banModal" class="modal">
   <div class="modal-content">
@@ -237,6 +239,9 @@
       <button class="modal-btn modal-btn-cancel" onclick="closeModal('banModal')">Cancel</button>
       <button class="modal-btn modal-btn-danger" onclick="banUser()">Ban User</button>
     </div>
+  </div>
+</div>
+
 <!-- Timeout Modal -->
 <div id="timeoutModal" class="modal">
   <div class="modal-content">
@@ -261,15 +266,6 @@
       </select>
       <input type="text" id="timeoutReason" class="modal-input" placeholder="Reason (optional)" style="margin-top: 10px;">
       <input type="hidden" id="timeoutUserId">
-    </div>
-    <div class="modal-footer">
-      <button class="modal-btn modal-btn-cancel" onclick="closeModal('timeoutModal')">Cancel</button>
-      <button class="modal-btn modal-btn-warning" onclick="timeoutUser()">Timeout User</button>
-    </div>
-  </div>
-</div>
-      <input type="hidden" id="timeoutUserId">
-      <input type="hidden" id="timeoutGuild">
     </div>
     <div class="modal-footer">
       <button class="modal-btn modal-btn-cancel" onclick="closeModal('timeoutModal')">Cancel</button>
@@ -525,19 +521,246 @@
     color: var(--text-secondary);
   }
   
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .stats-overview {
-      grid-template-columns: 1fr;
-    }
-    
-    .data-table {
-      min-width: 600px;
-    }
+  .member-actions {
+    position: relative;
+  }
+  
+  .actions-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .actions-btn:hover {
+    background-color: rgba(156, 77, 255, 0.1);
+    color: var(--primary-color);
+  }
+  
+  .actions-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 180px;
+    z-index: 100;
+    overflow: hidden;
+    display: none;
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .member-actions.active .actions-dropdown {
+    display: block;
+  }
+  
+  .actions-dropdown-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .actions-dropdown-item i {
+    margin-right: 0.5rem;
+    width: 16px;
+    text-align: center;
+  }
+  
+  .actions-dropdown-item:hover {
+    background-color: rgba(156, 77, 255, 0.1);
+  }
+  
+  .actions-dropdown-item.warning {
+    color: #FAA61A;
+  }
+  
+  .actions-dropdown-item.warning:hover {
+    background-color: rgba(250, 166, 26, 0.1);
+  }
+  
+  .actions-dropdown-item.danger {
+    color: #ED4245;
+  }
+  
+  .actions-dropdown-item.danger:hover {
+    background-color: rgba(237, 66, 69, 0.1);
+  }
+  
+  /* Close dropdowns when clicking elsewhere */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal.active {
+    display: flex;
+  }
+  
+  .modal-content {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+  
+  .modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+  }
+  
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+  }
+  
+  .modal-close:hover {
+    color: var(--primary-color);
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .modal-footer {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid rgba(156, 77, 255, 0.2);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  
+  .modal-btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .modal-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .modal-btn-primary:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .modal-btn-cancel {
+    background-color: rgba(156, 77, 255, 0.1);
+    color: var(--text-secondary);
+  }
+  
+  .modal-btn-cancel:hover {
+    background-color: rgba(156, 77, 255, 0.2);
+  }
+  
+  .modal-btn-danger {
+    background-color: #ED4245;
+    color: white;
+  }
+  
+  .modal-btn-danger:hover {
+    background-color: #A12D2F;
+  }
+  
+  .modal-btn-warning {
+    background-color: #FAA61A;
+    color: white;
+  }
+  
+  .modal-btn-warning:hover {
+    background-color: #C67A00;
+  }
+  
+  .modal-input,
+  .modal-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    resize: vertical;
+  }
+  
+  .modal-textarea {
+    min-height: 100px;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .warnings-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .warning-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+  }
+  
+  .warning-item:last-child {
+    border-bottom: none;
+  }
+  
+  .warning-reason {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .warning-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .no-warnings {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
   }
 </style>
-
-<link rel="stylesheet" href="/css/member-actions.css">
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -562,16 +785,13 @@
     });
     
     // Close dropdowns when clicking elsewhere
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.member-actions')) {
-        document.querySelectorAll('.member-actions.active').forEach(el => {
-          el.classList.remove('active');
-        });
-      }
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.member-actions.active').forEach(el => {
+        el.classList.remove('active');
+      });
     });
   });
   
-  // Modal functions
   function openModal(modalId) {
     document.getElementById(modalId).classList.add('active');
   }
@@ -588,7 +808,7 @@
   
   function sendDm() {
     const userId = document.getElementById('dmUserId').value;
-    const content = document.getElementById('dmContent').value.trim();
+    const content = document.getElementById('dmContent').value;
     
     if (!content) {
       alert('Please enter a message');
@@ -608,7 +828,7 @@
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert('Message sent successfully');
+        alert(data.dmStatus || 'Message sent successfully');
         closeModal('dmModal');
         document.getElementById('dmContent').value = '';
       } else {
@@ -641,7 +861,6 @@
             // If a guildName was provided, select that one by default
             if (server.name === guildName) {
               option.selected = true;
-              document.getElementById('kickGuildName').textContent = server.name;
             }
             
             serverSelect.appendChild(option);
@@ -782,7 +1001,7 @@
     document.getElementById('timeoutUsername').textContent = username;
     
     // Load all servers the bot is in
-    fetch('/api/admin/servers')
+    fetch('/api/admin/members/servers')
       .then(response => response.json())
       .then(data => {
         if (data.success) {
@@ -791,7 +1010,7 @@
           
           data.servers.forEach(server => {
             const option = document.createElement('option');
-            option.value = server.name;
+            option.value = server.id;
             option.textContent = server.name;
             
             // If a guildName was provided, select that one by default
@@ -818,11 +1037,11 @@
   function timeoutUser() {
     const userId = document.getElementById('timeoutUserId').value;
     const serverSelect = document.getElementById('timeoutServerSelect');
-    const guildName = serverSelect.value;
+    const guildId = serverSelect.value;
     const reason = document.getElementById('timeoutReason').value;
     const duration = document.getElementById('timeoutDuration').value;
     
-    if (!guildName) {
+    if (!guildId) {
       alert('Please select a server');
       return;
     }
@@ -834,7 +1053,7 @@
       },
       body: JSON.stringify({
         userId,
-        guildName,
+        guildId,
         reason,
         duration
       })
@@ -863,7 +1082,7 @@
   
   function warnUser() {
     const userId = document.getElementById('warnUserId').value;
-    const reason = document.getElementById('warnReason').value.trim();
+    const reason = document.getElementById('warnReason').value;
     
     if (!reason) {
       alert('Please provide a reason for the warning');
@@ -883,7 +1102,7 @@
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert('Warning sent successfully');
+        alert(data.dmStatus || 'Warning recorded successfully');
         closeModal('warnModal');
         document.getElementById('warnReason').value = '';
       } else {
@@ -892,16 +1111,13 @@
     })
     .catch(error => {
       console.error('Error warning user:', error);
-      alert('An error occurred while warning the user');
+      alert('An error occurred while recording the warning');
     });
   }
   
   function viewWarnings(userId, username) {
     document.getElementById('warningsUsername').textContent = username;
-    
-    // Clear previous content and show loading
-    const warningsContent = document.getElementById('warningsContent');
-    warningsContent.innerHTML = '<p class="text-center">Loading warnings...</p>';
+    document.getElementById('warningsContent').innerHTML = '<p class="text-center">Loading warnings...</p>';
     
     openModal('warningsModal');
     
@@ -909,97 +1125,47 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          const warnings = data.warnings;
-          
-          if (warnings.length === 0) {
-            warningsContent.innerHTML = '<p class="text-center">No warnings found for this user.</p>';
-            return;
-          }
-          
-          let html = '<div class="warnings-list">';
-          warnings.forEach((warning, index) => {
-            const date = new Date(warning.timestamp).toLocaleString();
-            html += `
-              <div class="warning-item">
-                <div class="warning-header">
-                  <span class="warning-number">#${index + 1}</span>
-                  <span class="warning-date">${date}</span>
-                </div>
-                <div class="warning-reason">${warning.reason}</div>
-                <div class="warning-issuer">Issued by: ${warning.issuer}</div>
+          if (data.warnings.length === 0) {
+            document.getElementById('warningsContent').innerHTML = `
+              <div class="no-warnings">
+                <p>No warnings found for this user.</p>
               </div>
             `;
-          });
-          html += '</div>';
-          
-          warningsContent.innerHTML = html;
+          } else {
+            let html = '<div class="warnings-list">';
+            
+            data.warnings.forEach(warning => {
+              const date = new Date(warning.timestamp).toLocaleString();
+              
+              html += `
+                <div class="warning-item">
+                  <div class="warning-reason">${warning.reason}</div>
+                  <div class="warning-meta">
+                    <span>By: ${warning.issuer}</span>
+                    <span>${date}</span>
+                  </div>
+                </div>
+              `;
+            });
+            
+            html += '</div>';
+            document.getElementById('warningsContent').innerHTML = html;
+          }
         } else {
-          warningsContent.innerHTML = `<p class="text-center text-error">Error: ${data.message}</p>`;
+          document.getElementById('warningsContent').innerHTML = `
+            <div class="no-warnings">
+              <p>Error loading warnings: ${data.message}</p>
+            </div>
+          `;
         }
       })
       .catch(error => {
         console.error('Error fetching warnings:', error);
-        warningsContent.innerHTML = '<p class="text-center text-error">An error occurred while fetching warnings</p>';
+        document.getElementById('warningsContent').innerHTML = `
+          <div class="no-warnings">
+            <p>An error occurred while loading warnings.</p>
+          </div>
+        `;
       });
   }
 </script>
-
-<style>
-  .warnings-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .warning-item {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    padding: 15px;
-    border-left: 3px solid var(--warning-color);
-  }
-  
-  .warning-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  
-  .warning-number {
-    font-weight: 600;
-    color: var(--warning-color);
-  }
-  
-  .warning-date {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
-  
-  .warning-reason {
-    font-size: 1rem;
-    margin-bottom: 8px;
-  }
-  
-  .warning-issuer {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  
-  .text-error {
-    color: var(--danger-color);
-  }
-  
-  .modal-btn-warning {
-    background: var(--warning-color);
-    color: #000000;
-  }
-  
-  .modal-btn-warning:hover {
-    background: #d8c64f;
-  }
-</style>
-
-<%- include('../partials/admin-footer') %>
