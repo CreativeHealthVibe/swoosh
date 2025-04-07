@@ -36,6 +36,7 @@ const client = new Client({
 const ticketManager = require('./handlers/ticketManager');
 const bountyManager = require('./handlers/bountyManager');
 const blacklistManager = require('./handlers/blacklistManager');
+const DiscordDatabaseManager = require('./handlers/discordDatabaseManager');
 const logging = require('./modules/logging');
 const config = require('./config');
 const adminUtils = require('./utils/admin');
@@ -129,6 +130,31 @@ client.once('ready', async () => {
     ticketManager.init(client);
     bountyManager.init(client);
     console.log('✅ Ticket and Bounty systems initialized');
+    
+    // Initialize Discord Database Manager
+    console.log('📊 Initializing Discord-based database system...');
+    client.discordDB = new DiscordDatabaseManager(client);
+    const dbInitResult = await client.discordDB.initialize();
+    
+    if (dbInitResult) {
+      console.log('✅ Discord database initialized - using channel as storage');
+      
+      // Log database statistics
+      const collections = Object.keys(client.discordDB.dataCache);
+      const totalDocuments = collections.reduce((total, coll) => {
+        return total + Object.keys(client.discordDB.dataCache[coll]).length;
+      }, 0);
+      
+      console.log(`📊 Discord DB Stats: ${collections.length} collections, ${totalDocuments} total documents`);
+      console.log(`📁 Channel ID: ${client.discordDB.databaseChannelId}`);
+      
+      // Log a warning if no documents were found
+      if (totalDocuments === 0) {
+        console.warn('⚠️ Database initialized but no documents found. This may be expected for new installations.');
+      }
+    } else {
+      console.error('❌ Failed to initialize Discord database - check channel permissions');
+    }
     
     // Post initial bot status
     logging.logBotStatus(client);
@@ -638,6 +664,151 @@ app.get('/api/status', (req, res) => {
     uptime: uptime,
     guilds: client.guilds.cache.size,
     timestamp: new Date().toISOString()
+  });
+});
+
+// Discord Database API endpoints
+app.get('/api/db/collections', (req, res) => {
+  if (!client.discordDB || !client.discordDB.initialized) {
+    return res.status(503).json({ error: 'Discord database not initialized' });
+  }
+  
+  const collections = Object.keys(client.discordDB.dataCache);
+  const collectionStats = {};
+  let totalDocuments = 0;
+  
+  // Get count of documents in each collection
+  for (const collection of collections) {
+    const count = Object.keys(client.discordDB.dataCache[collection]).length;
+    collectionStats[collection] = count;
+    totalDocuments += count;
+  }
+  
+  // Calculate total size of data in memory (approximate)
+  let totalSizeBytes = 0;
+  for (const collection of collections) {
+    const collectionData = client.discordDB.getCollection(collection);
+    totalSizeBytes += Buffer.byteLength(JSON.stringify(collectionData));
+  }
+  
+  // Convert bytes to human-readable format
+  const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
+  
+  res.json({
+    collections: collections,
+    stats: collectionStats,
+    totalDocuments: totalDocuments,
+    totalCollections: collections.length,
+    databaseChannel: client.discordDB.databaseChannelId,
+    memoryUsage: {
+      sizeBytes: totalSizeBytes,
+      sizeMB: `${totalSizeMB} MB`
+    },
+    status: "healthy",
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api/db/:collection', (req, res) => {
+  if (!client.discordDB || !client.discordDB.initialized) {
+    return res.status(503).json({ error: 'Discord database not initialized' });
+  }
+  
+  const collection = req.params.collection;
+  const data = client.discordDB.getCollection(collection);
+  
+  if (!data || Object.keys(data).length === 0) {
+    return res.status(404).json({ error: `Collection ${collection} not found or empty` });
+  }
+  
+  res.json({
+    collection: collection,
+    count: Object.keys(data).length,
+    data: data,
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api/db/:collection/:id', (req, res) => {
+  if (!client.discordDB || !client.discordDB.initialized) {
+    return res.status(503).json({ error: 'Discord database not initialized' });
+  }
+  
+  const collection = req.params.collection;
+  const id = req.params.id;
+  const data = client.discordDB.getDocument(collection, id);
+  
+  if (!data) {
+    return res.status(404).json({ error: `Document ${collection}/${id} not found` });
+  }
+  
+  res.json({
+    collection: collection,
+    id: id,
+    data: data,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// POST endpoint to add/update documents
+app.post('/api/db/:collection/:id', async (req, res) => {
+  if (!client.discordDB || !client.discordDB.initialized) {
+    return res.status(503).json({ error: 'Discord database not initialized' });
+  }
+  
+  // Check if request has data
+  if (!req.body) {
+    return res.status(400).json({ error: 'No data provided' });
+  }
+  
+  const collection = req.params.collection;
+  const id = req.params.id;
+  const data = req.body;
+  
+  // Add metadata
+  data._metadata = {
+    updatedAt: new Date().toISOString(),
+    updatedBy: 'API',
+    apiSource: req.headers['user-agent'] || 'Unknown'
+  };
+  
+  // Save document
+  const success = await client.discordDB.setDocument(collection, id, data);
+  
+  if (!success) {
+    return res.status(500).json({ error: 'Failed to save document' });
+  }
+  
+  res.status(201).json({
+    success: true,
+    collection: collection,
+    id: id,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// DELETE endpoint to remove documents
+app.delete('/api/db/:collection/:id', async (req, res) => {
+  if (!client.discordDB || !client.discordDB.initialized) {
+    return res.status(503).json({ error: 'Discord database not initialized' });
+  }
+  
+  const collection = req.params.collection;
+  const id = req.params.id;
+  
+  // Delete document
+  const success = await client.discordDB.deleteDocument(collection, id);
+  
+  if (!success) {
+    return res.status(404).json({ error: `Document ${collection}/${id} not found or could not be deleted` });
+  }
+  
+  res.json({
+    success: true,
+    collection: collection,
+    id: id,
+    timestamp: new Date().toISOString(),
+    message: `Document ${collection}/${id} successfully deleted`
   });
 });
 
