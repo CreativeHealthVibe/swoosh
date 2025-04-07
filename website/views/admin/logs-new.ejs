@@ -1,0 +1,357 @@
+<div class="logs-container">
+  <div class="page-header">
+    <h1 class="page-title">System Logs</h1>
+    <p class="page-subtitle">Review bot activity and performance logs</p>
+  </div>
+
+  <div class="custom-card gradient-border">
+    <div class="card-header-custom">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <div class="header-icon">
+            <i class="fas fa-terminal"></i>
+          </div>
+          <h5 class="card-title ms-2">Bot Log Files</h5>
+        </div>
+        <span class="custom-badge"><%= logFiles.length %> Files</span>
+      </div>
+    </div>
+    <div class="card-body-custom">
+      <% if (logFiles.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <p>No log files found</p>
+          <small>Bot activity logs will appear here when generated</small>
+        </div>
+      <% } else { %>
+        <div class="log-files-grid">
+          <% logFiles.forEach(file => { %>
+            <div class="log-file-card">
+              <div class="log-file-icon">
+                <i class="fas fa-file-code"></i>
+              </div>
+              <div class="log-file-info">
+                <h5 class="log-file-name"><%= file.name %></h5>
+                <div class="log-file-meta">
+                  <span class="log-file-size"><i class="fas fa-hdd me-1"></i> <%= formatFileSize(file.size) %></span>
+                  <span class="log-file-date"><i class="fas fa-clock me-1"></i> <%= file.mtime.toLocaleString() %></span>
+                </div>
+              </div>
+              <div class="log-file-actions">
+                <a href="<%= file.path %>" class="action-btn view-btn" title="View log file">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a href="<%= file.path %>?download=true" class="action-btn download-btn" title="Download log file">
+                  <i class="fas fa-download"></i>
+                </a>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .logs-container {
+    padding: 1.5rem;
+  }
+  
+  .page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #9c4dff, #26d0ce);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .page-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+  }
+  
+  .custom-card {
+    background: rgba(30, 30, 40, 0.7);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1.5rem;
+    position: relative;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .gradient-border {
+    position: relative;
+    z-index: 0;
+    border-radius: 10px;
+    padding: 1px;
+  }
+  
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: 10px;
+    padding: 1px;
+    background: linear-gradient(135deg, #9c4dff, #26d0ce);
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  
+  .card-header-custom {
+    background: rgba(20, 20, 30, 0.5);
+    padding: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .card-body-custom {
+    padding: 1.5rem;
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+  }
+  
+  .header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #9c4dff, #26d0ce);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  
+  .custom-badge {
+    background: linear-gradient(135deg, #9c4dff, #26d0ce);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: rgba(156, 77, 255, 0.7);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(156, 77, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+  
+  .log-files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .log-file-card {
+    background: rgba(40, 40, 50, 0.5);
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .log-file-card:hover {
+    transform: translateY(-5px);
+    background: rgba(50, 50, 60, 0.5);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-color: rgba(156, 77, 255, 0.2);
+  }
+  
+  .log-file-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(156, 77, 255, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #9c4dff;
+    margin-right: 1rem;
+  }
+  
+  .log-file-info {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .log-file-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white;
+  }
+  
+  .log-file-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .log-file-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .view-btn {
+    background: rgba(156, 77, 255, 0.2);
+    color: #9c4dff;
+  }
+  
+  .view-btn:hover {
+    background: rgba(156, 77, 255, 0.3);
+  }
+  
+  .download-btn {
+    background: rgba(38, 208, 206, 0.2);
+    color: #26d0ce;
+  }
+  
+  .download-btn:hover {
+    background: rgba(38, 208, 206, 0.3);
+  }
+  
+  /* Terminal-inspired styles for the log viewer */
+  .log-viewer {
+    background: rgba(30, 30, 40, 0.9);
+    border-radius: 10px;
+    padding: 1rem;
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: #e0e0e0;
+    overflow-x: auto;
+    margin-top: 1.5rem;
+  }
+  
+  .log-entry {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    overflow-x: hidden;
+  }
+  
+  .log-entry:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .log-timestamp {
+    color: #26d0ce;
+    margin-right: 1rem;
+    min-width: 180px;
+  }
+  
+  .log-level {
+    font-weight: bold;
+    min-width: 70px;
+    margin-right: 1rem;
+  }
+  
+  .log-message {
+    flex: 1;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  .log-error {
+    color: #ff416c;
+  }
+  
+  .log-warn {
+    color: #ffa500;
+  }
+  
+  .log-info {
+    color: #9c4dff;
+  }
+  
+  .log-debug {
+    color: #26d0ce;
+  }
+  
+  @media (max-width: 768px) {
+    .logs-container {
+      padding: 1rem;
+    }
+    
+    .page-title {
+      font-size: 1.75rem;
+    }
+    
+    .log-files-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .log-file-card {
+      flex-wrap: wrap;
+    }
+    
+    .log-file-icon {
+      margin-bottom: 0.5rem;
+    }
+    
+    .log-file-actions {
+      flex-direction: row;
+      width: 100%;
+      margin-top: 1rem;
+      justify-content: flex-end;
+    }
+  }
+</style>

@@ -31,6 +31,120 @@ router.get('/', (req, res) => {
 });
 
 /**
+ * GET /admin/test-ui
+ * Test page for new UI templates
+ */
+router.get('/test-ui', (req, res) => {
+  res.render('admin/test-new-ui', {
+    title: 'Test New UI | SWOOSH Bot',
+    user: req.user,
+    layout: 'layouts/admin'
+  });
+});
+
+/**
+ * GET /admin/blacklist-new
+ * New blacklist UI for testing
+ */
+router.get('/blacklist-new', (req, res) => {
+  const blacklistedUsers = blacklistManager.getBlacklist();
+  
+  res.render('admin/blacklist-new', {
+    title: 'Modern Blacklist | SWOOSH Bot',
+    blacklistedUsers,
+    user: req.user,
+    layout: 'layouts/admin'
+  });
+});
+
+/**
+ * GET /admin/logs-new
+ * New logs UI for testing
+ */
+router.get('/logs-new', (req, res) => {
+  const logsDir = path.join(__dirname, '../logs');
+  
+  // Helper function to format file size
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  // Get list of log files
+  let logFiles = [];
+  try {
+    logFiles = fs.readdirSync(logsDir)
+      .filter(file => file.endsWith('.log'))
+      .map(file => ({
+        name: file,
+        path: `/admin/logs/${file}`,
+        size: fs.statSync(path.join(logsDir, file)).size,
+        mtime: fs.statSync(path.join(logsDir, file)).mtime
+      }))
+      .sort((a, b) => b.mtime - a.mtime); // Sort by modification time, newest first
+  } catch (error) {
+    console.error('Error reading log directory:', error);
+  }
+  
+  res.render('admin/logs-new', {
+    title: 'Modern Logs | SWOOSH Bot',
+    logFiles,
+    user: req.user,
+    formatFileSize, // Pass the helper function to the template
+    layout: 'layouts/admin'
+  });
+});
+
+/**
+ * GET /admin/settings-new
+ * New settings UI for testing
+ */
+router.get('/settings-new', (req, res) => {
+  // Get the bot configuration
+  const config = require('../config');
+  
+  // Get member data for bot management section
+  const client = req.app.get('client');
+  let memberData = [];
+  
+  if (client) {
+    try {
+      // Get guilds data for server management section
+      const guilds = client.guilds.cache;
+      
+      for (const [guildId, guild] of guilds) {
+        memberData.push({
+          id: guildId,
+          name: guild.name,
+          iconURL: guild.iconURL({ dynamic: true }),
+          totalMembers: guild.memberCount,
+          region: guild.preferredLocale,
+          owner: guild.members.cache.get(guild.ownerId)?.user?.username || 'Unknown'
+        });
+      }
+      
+      // Sort guilds by member count
+      memberData.sort((a, b) => b.totalMembers - a.totalMembers);
+    } catch (error) {
+      console.error('Error fetching guild data:', error);
+    }
+  }
+  
+  res.render('admin/settings-new', {
+    title: 'Modern Settings | SWOOSH Bot',
+    user: req.user,
+    config: config,
+    memberData,
+    layout: 'layouts/admin'
+  });
+});
+
+/**
  * GET /admin/dashboard
  * Admin dashboard home
  */
@@ -49,12 +163,24 @@ router.get('/dashboard', (req, res) => {
 router.get('/blacklist', (req, res) => {
   const blacklistedUsers = blacklistManager.getBlacklist();
   
-  res.render('admin/blacklist', {
-    title: 'Blacklist Management | SWOOSH Bot',
-    blacklistedUsers,
-    user: req.user,
-    layout: 'layouts/admin'
-  });
+  // First try to render the new template
+  try {
+    res.render('admin/blacklist-new', {
+      title: 'Blacklist Management | SWOOSH Bot',
+      blacklistedUsers,
+      user: req.user,
+      layout: 'layouts/admin'
+    });
+  } catch (err) {
+    // Fall back to the original template if there's an error
+    console.error('Error rendering new blacklist template:', err);
+    res.render('admin/blacklist', {
+      title: 'Blacklist Management | SWOOSH Bot',
+      blacklistedUsers,
+      user: req.user,
+      layout: 'layouts/admin'
+    });
+  }
 });
 
 /**
@@ -117,12 +243,52 @@ router.get('/settings', (req, res) => {
   // Get the bot configuration
   const config = require('../config');
   
-  res.render('admin/settings', {
-    title: 'Bot Settings | SWOOSH Bot',
-    user: req.user,
-    config: config,
-    layout: 'layouts/admin'
-  });
+  // Get member data for bot management section
+  const client = req.app.get('client');
+  let memberData = [];
+  
+  if (client) {
+    try {
+      // Get guilds data for server management section
+      const guilds = client.guilds.cache;
+      
+      for (const [guildId, guild] of guilds) {
+        memberData.push({
+          id: guildId,
+          name: guild.name,
+          iconURL: guild.iconURL({ dynamic: true }),
+          totalMembers: guild.memberCount,
+          region: guild.preferredLocale,
+          owner: guild.members.cache.get(guild.ownerId)?.user?.username || 'Unknown'
+        });
+      }
+      
+      // Sort guilds by member count
+      memberData.sort((a, b) => b.totalMembers - a.totalMembers);
+    } catch (error) {
+      console.error('Error fetching guild data:', error);
+    }
+  }
+  
+  // First try to render the new template
+  try {
+    res.render('admin/settings-new', {
+      title: 'Bot Settings | SWOOSH Bot',
+      user: req.user,
+      config: config,
+      memberData,
+      layout: 'layouts/admin'
+    });
+  } catch (err) {
+    // Fall back to the original template if there's an error
+    console.error('Error rendering new settings template:', err);
+    res.render('admin/settings', {
+      title: 'Bot Settings | SWOOSH Bot',
+      user: req.user,
+      config: config,
+      layout: 'layouts/admin'
+    });
+  }
 });
 
 /**
@@ -159,13 +325,26 @@ router.get('/logs', (req, res) => {
     console.error('Error reading log directory:', error);
   }
   
-  res.render('admin/logs', {
-    title: 'Bot Logs | SWOOSH Bot',
-    logFiles,
-    user: req.user,
-    formatFileSize, // Pass the helper function to the template
-    layout: 'layouts/admin'
-  });
+  // First try to render the new template
+  try {
+    res.render('admin/logs-new', {
+      title: 'System Logs | SWOOSH Bot',
+      logFiles,
+      user: req.user,
+      formatFileSize, // Pass the helper function to the template
+      layout: 'layouts/admin'
+    });
+  } catch (err) {
+    // Fall back to the original template if there's an error
+    console.error('Error rendering new logs template:', err);
+    res.render('admin/logs', {
+      title: 'Bot Logs | SWOOSH Bot',
+      logFiles,
+      user: req.user,
+      formatFileSize, // Pass the helper function to the template
+      layout: 'layouts/admin'
+    });
+  }
 });
 
 /**
