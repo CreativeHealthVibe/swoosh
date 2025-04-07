@@ -3,15 +3,21 @@
 <div class="welcome-container">
   <div class="welcome-card">
     <div class="welcome-avatar">
-      <% if (user.avatar) { %>
-        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=128" alt="<%= user.username %>'s Avatar">
+      <% if (typeof user !== 'undefined' && user) { %>
+        <% if (user.avatar) { %>
+          <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=128" alt="<%= user.username %>'s Avatar">
+        <% } else if (user.username) { %>
+          <div class="avatar-placeholder"><%= user.username.charAt(0).toUpperCase() %></div>
+        <% } else { %>
+          <div class="avatar-placeholder">A</div>
+        <% } %>
       <% } else { %>
-        <div class="avatar-placeholder"><%= user.username.charAt(0).toUpperCase() %></div>
+        <div class="avatar-placeholder">A</div>
       <% } %>
     </div>
     
     <div class="welcome-message">
-      <h1 class="gradient-text"><%= greeting %> @<%= user.username %></h1>
+      <h1 class="gradient-text"><%= greeting %> <%= typeof user !== 'undefined' && user && user.username ? '@'+user.username : 'Admin' %></h1>
       <p>Welcome to the SWOOSH Bot admin panel.</p>
       <p>You now have access to administrative controls for the bot.</p>
     </div>

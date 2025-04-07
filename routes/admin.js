@@ -344,14 +344,19 @@ router.get('/members', async (req, res) => {
  */
 router.get('/welcome', (req, res) => {
   const greeting = getTimeBasedGreeting();
-  const username = req.user.username || 'Admin';
   
-  res.render('admin/welcome', {
-    title: 'Welcome | SWOOSH Bot',
-    greeting: `${greeting}`,
-    user: req.user,
-    layout: 'layouts/admin'
-  });
+  // Make sure user is defined before accessing properties
+  try {
+    res.render('admin/welcome-fixed', {
+      title: 'Welcome | SWOOSH Bot',
+      greeting: `${greeting}`,
+      user: req.user || null,
+      layout: 'layouts/admin'
+    });
+  } catch (error) {
+    console.error('Error rendering welcome page:', error);
+    res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
+  }
 });
 
 /**

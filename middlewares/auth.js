@@ -23,26 +23,41 @@ const isAuthenticated = (req, res, next) => {
  * If not, show an error page
  */
 const isAdmin = (req, res, next) => {
-  if (req.isAuthenticated() && req.user.isAdmin) {
-    return next();
+  // First ensure that the user is authenticated
+  if (!req.isAuthenticated()) {
+    // User is not authenticated
+    req.session.returnTo = req.originalUrl;
+    req.flash('error', 'Please log in to access this page');
+    return res.redirect('/auth/login');
   }
   
-  if (req.isAuthenticated()) {
-    // User is authenticated but not an admin
-    return res.status(403).render('error', {
-      title: 'Access Denied',
-      message: 'You do not have permission to access this page',
+  // Check if req.user exists and has the isAdmin property
+  if (!req.user) {
+    console.error('User object is undefined or null in isAdmin middleware');
+    return res.status(500).render('error', {
+      title: 'Session Error',
+      message: 'Your session appears to be invalid. Please try logging in again.',
       error: {
-        status: 403,
-        stack: process.env.NODE_ENV === 'development' ? 'Not authorized' : ''
+        status: 500,
+        stack: process.env.NODE_ENV === 'development' ? 'Invalid user session' : ''
       }
     });
   }
   
-  // User is not authenticated
-  req.session.returnTo = req.originalUrl;
-  req.flash('error', 'Please log in to access this page');
-  res.redirect('/auth/login');
+  // Check if the user is an admin
+  if (req.user.isAdmin) {
+    return next();
+  }
+  
+  // User is authenticated but not an admin
+  return res.status(403).render('error', {
+    title: 'Access Denied',
+    message: 'You do not have permission to access this page',
+    error: {
+      status: 403,
+      stack: process.env.NODE_ENV === 'development' ? 'Not authorized' : ''
+    }
+  });
 };
 
 /**
