@@ -44,8 +44,8 @@ const isAdmin = (req, res, next) => {
     });
   }
   
-  // Check if the user is an admin
-  if (req.user.isAdmin) {
+  // Check if the user is an admin (handle both property naming conventions)
+  if (req.user.isAdmin || req.user.is_admin) {
     return next();
   }
   
