@@ -29,6 +29,8 @@ const initDatabase = async () => {
         password VARCHAR(255) NOT NULL,
         discord_id VARCHAR(255),
         email VARCHAR(255),
+        avatar VARCHAR(255),
+        display_name VARCHAR(255),
         is_admin BOOLEAN DEFAULT false,
         is_super_admin BOOLEAN DEFAULT false,
         permissions JSONB DEFAULT '{}',
@@ -163,12 +165,12 @@ const generateSecurePassword = (length = 12) => {
  * @returns {Promise<Object>} - Created user
  */
 const createLocalUser = async (userData) => {
-  const { username, password, discord_id, email, is_admin, permissions } = userData;
+  const { username, password, discord_id, email, is_admin, permissions, avatar, display_name } = userData;
   const hashedPassword = await hashPassword(password);
   
   const result = await pool.query(
-    'INSERT INTO local_users (username, password, discord_id, email, is_admin, permissions) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [username, hashedPassword, discord_id, email, is_admin, JSON.stringify(permissions || {})]
+    'INSERT INTO local_users (username, password, discord_id, email, is_admin, permissions, avatar, display_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+    [username, hashedPassword, discord_id, email, is_admin, JSON.stringify(permissions || {}), avatar, display_name || username]
   );
   
   return result.rows[0];
@@ -209,7 +211,7 @@ const getLocalUserById = async (id) => {
  * @returns {Promise<Object>} - Updated user
  */
 const updateLocalUser = async (id, userData) => {
-  const { username, password, discord_id, email, is_admin, is_super_admin, permissions } = userData;
+  const { username, password, discord_id, email, is_admin, is_super_admin, permissions, avatar, display_name } = userData;
   
   // Build query dynamically based on provided fields
   let query = 'UPDATE local_users SET updated_at = CURRENT_TIMESTAMP';
@@ -250,6 +252,16 @@ const updateLocalUser = async (id, userData) => {
   if (permissions !== undefined) {
     query += `, permissions = $${paramCounter++}`;
     values.push(JSON.stringify(permissions));
+  }
+  
+  if (avatar !== undefined) {
+    query += `, avatar = $${paramCounter++}`;
+    values.push(avatar);
+  }
+  
+  if (display_name !== undefined) {
+    query += `, display_name = $${paramCounter++}`;
+    values.push(display_name);
   }
   
   query += ' WHERE id = $1 RETURNING *';

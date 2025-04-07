@@ -60,10 +60,21 @@ const setupDiscordStrategy = () => {
     // Check if it's a Discord user or local user
     const userType = user.discriminator ? 'discord' : 'local';
     
-    done(null, {
-      id: user.id,
-      type: userType
-    });
+    // Store all profile data if it's a Discord user
+    if (userType === 'discord') {
+      done(null, {
+        id: user.id,
+        type: userType,
+        username: user.username,
+        discriminator: user.discriminator,
+        avatar: user.avatar
+      });
+    } else {
+      done(null, {
+        id: user.id,
+        type: userType
+      });
+    }
   });
 
   // Set up session deserialization for all user types
@@ -80,10 +91,12 @@ const setupDiscordStrategy = () => {
           return done(null, false);
         }
         
-        // Fetch latest user details from Discord API (simplified for now)
-        // In a real implementation, you might want to refresh the data occasionally
+        // Use the profile data that was stored during serialization
         return done(null, {
           id: obj.id,
+          username: obj.username || 'Discord Admin',
+          discriminator: obj.discriminator,
+          avatar: obj.avatar,
           isAdmin: true,
           userType: 'discord'
         });

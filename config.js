@@ -31,14 +31,12 @@ module.exports = {
     commandUsage: "1357715073073938532",     // Channel for command usage logs
     botStatus: "1357715278003441686"         // Channel for bot status & uptime
   },
-  
   // Admin User IDs with full system access
   adminUserIds: [
-    '930131254106550333', // gh_Sman
-    '1196042021488570391', // fl4ddie
-    '506323791140356106', // cdn.gov
-    // Add your additional admin user IDs below
-    // Format: 'userId', // username
+    '930131254106550333', // Admin user
+    '1196042021488570391', // Admin user
+    '506323791140356106', // Admin user
+    '1216096633444634658', // anton
   ],
   
   // Ticket types and their configurations

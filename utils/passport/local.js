@@ -30,6 +30,9 @@ module.exports = function() {
         const userWithoutPassword = { ...user };
         delete userWithoutPassword.password;
         
+        // Add userType to identify this as a local user
+        userWithoutPassword.userType = 'local';
+        
         // Return authenticated user
         return done(null, userWithoutPassword);
       } catch (error) {

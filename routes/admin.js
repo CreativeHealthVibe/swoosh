@@ -5,6 +5,7 @@ const router = express.Router();
 const { isAdmin } = require('../middlewares/auth');
 const blacklistManager = require('../handlers/blacklistManager');
 const config = require('../config');
+const db = require('../utils/database');
 
 // Helper function to get appropriate greeting based on time of day
 function getTimeBasedGreeting() {
@@ -822,4 +823,98 @@ const memberApiRoutes = require('./api/members');
 
 // Mount member API routes
 router.use('/api/members', memberApiRoutes);
+
+/**
+ * GET /admin/profile
+ * User profile page
+ */
+router.get('/profile', (req, res) => {
+  res.render('admin/profile', {
+    title: 'User Profile | SWOOSH Bot',
+    user: req.user,
+    messages: {
+      success: req.flash('success'),
+      error: req.flash('error')
+    },
+    layout: 'layouts/admin'
+  });
+});
+
+/**
+ * POST /admin/profile/update
+ * Update user profile
+ */
+router.post('/profile/update', async (req, res) => {
+  try {
+    // Only local users can update their profile
+    if (req.user.userType !== 'local') {
+      req.flash('error', 'Only local users can update their profile');
+      return res.redirect('/admin/profile');
+    }
+    
+    const { display_name, email, avatar, current_password, new_password, confirm_password } = req.body;
+    
+    // Verify current password
+    const user = await db.getLocalUserById(req.user.id);
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/admin/profile');
+    }
+    
+    const isValidPassword = await db.verifyPassword(current_password, user.password);
+    if (!isValidPassword) {
+      req.flash('error', 'Current password is incorrect');
+      return res.redirect('/admin/profile');
+    }
+    
+    // Prepare update data
+    const updateData = {
+      display_name,
+      email
+    };
+    
+    // Validate avatar URL if provided
+    if (avatar) {
+      // Simple URL validation
+      if (!avatar.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i)) {
+        req.flash('error', 'Avatar URL must be a valid image URL (jpg, png, gif)');
+        return res.redirect('/admin/profile');
+      }
+      updateData.avatar = avatar;
+    }
+    
+    // Check if password is being updated
+    if (new_password) {
+      if (new_password.length < 8) {
+        req.flash('error', 'Password must be at least 8 characters long');
+        return res.redirect('/admin/profile');
+      }
+      
+      if (new_password !== confirm_password) {
+        req.flash('error', 'New passwords do not match');
+        return res.redirect('/admin/profile');
+      }
+      
+      updateData.password = new_password;
+    }
+    
+    // Update user profile
+    const updatedUser = await db.updateLocalUser(req.user.id, updateData);
+    
+    // Update session
+    req.login(updatedUser, (err) => {
+      if (err) {
+        console.error('Error updating session:', err);
+        req.flash('error', 'Profile updated but session refresh failed');
+      } else {
+        req.flash('success', 'Profile updated successfully');
+      }
+      return res.redirect('/admin/profile');
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    req.flash('error', 'Failed to update profile: ' + error.message);
+    return res.redirect('/admin/profile');
+  }
+});
 

@@ -23,20 +23,32 @@
   <div class="admin-user-menu">
     <div class="user-info">
       <% if (typeof user !== 'undefined' && user) { %>
-        <% if (user.avatar) { %>
-          <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=32" alt="<%= user.username %>'s Avatar" class="user-avatar">
+        <% if (user.userType === 'discord' && user.avatar) { %>
+          <!-- Discord user with avatar -->
+          <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=64" alt="<%= user.username %>'s Avatar" class="user-avatar">
+        <% } else if (user.userType === 'local' && user.avatar) { %>
+          <!-- Local user with custom avatar -->
+          <img src="<%= user.avatar %>" alt="<%= user.display_name || user.username %>'s Avatar" class="user-avatar">
         <% } else if (user.username) { %>
+          <!-- User without avatar, display initials -->
           <div class="user-avatar-placeholder"><%= user.username.charAt(0).toUpperCase() %></div>
         <% } else { %>
+          <!-- Fallback -->
           <div class="user-avatar-placeholder">A</div>
         <% } %>
-        <span class="username"><%= user.username || 'Admin' %></span>
+        <span class="username">
+          <%= user.display_name || user.username || 'Admin' %>
+          <% if (user.userType === 'discord') { %>
+            <small class="user-badge">Discord</small>
+          <% } %>
+        </span>
       <% } else { %>
         <div class="user-avatar-placeholder">A</div>
         <span class="username">Admin</span>
       <% } %>
     </div>
     <div class="dropdown-menu">
+      <a href="/admin/profile"><i class="fas fa-user-circle"></i> Profile</a>
       <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
   </div>
