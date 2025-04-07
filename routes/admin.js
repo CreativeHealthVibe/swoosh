@@ -556,18 +556,42 @@ router.get('/welcome', (req, res) => {
  * Admin user management
  */
 router.get('/users', async (req, res) => {
+  // Get Discord client from Express app
+  const client = req.app.get('client');
+  
   // Parse admin users from config
-  const adminUsers = config.adminUserIds.map(id => {
+  const adminUsers = await Promise.all(config.adminUserIds.map(async id => {
     // Extract comment from the config.js file structure (if available)
     const configContent = fs.readFileSync('./config.js', 'utf8');
     const commentMatch = new RegExp(`'${id}'[^,]*// ([^\\n]*)`, 'i').exec(configContent);
     const comment = commentMatch ? commentMatch[1].trim() : 'No comment';
     
+    // If Discord client is available, fetch user data
+    let username = null;
+    let displayName = null;
+    let avatarUrl = null;
+    
+    if (client) {
+      try {
+        const user = await client.users.fetch(id).catch(e => null);
+        if (user) {
+          username = user.username;
+          displayName = user.globalName || user.username;
+          avatarUrl = user.displayAvatarURL({ dynamic: true });
+        }
+      } catch (error) {
+        console.error(`Failed to fetch Discord user data for ID ${id}:`, error);
+      }
+    }
+    
     return {
       id,
-      comment
+      comment,
+      username,
+      displayName,
+      avatarUrl
     };
-  });
+  }));
   
   // Get all local admin users
   let localAdminUsers = [];
