@@ -1,0 +1,445 @@
+<!-- Leaderboard Page -->
+<div class="container leaderboard-container">
+  <div class="page-header">
+    <h1 class="gradient-text">Server Leaderboard</h1>
+    <p class="lead">Top Discord servers using SWOOSH Bot</p>
+  </div>
+
+  <div class="leaderboard-content">
+    <div class="card-container">
+      <div class="card leaderboard-card">
+        <div class="card-header">
+          <h2><i class="fas fa-trophy"></i> Top Servers</h2>
+          <p>Ranked by member count</p>
+        </div>
+        <div class="card-body">
+          <div class="leaderboard-loading" id="leaderboard-loading">
+            <div class="spinner"></div>
+            <p>Loading server data...</p>
+          </div>
+          
+          <div class="leaderboard-list" id="leaderboard-list" style="display: none;">
+            <!-- Leaderboard items will be inserted here by JavaScript -->
+          </div>
+          
+          <div class="leaderboard-error" id="leaderboard-error" style="display: none;">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>Failed to load server data. Please try again later.</p>
+          </div>
+        </div>
+        <div class="card-footer">
+          <p class="text-muted">Last updated: <span id="last-updated">Now</span></p>
+        </div>
+      </div>
+      
+      <div class="card info-card">
+        <div class="card-header">
+          <h2><i class="fas fa-info-circle"></i> About the Leaderboard</h2>
+        </div>
+        <div class="card-body">
+          <p>This leaderboard showcases the top Discord servers using SWOOSH Bot, ranked by member count.</p>
+          <p>Want your server to appear here? Invite SWOOSH Bot to your server using the button below and start growing your community!</p>
+          
+          <div class="cta-buttons">
+            <a href="https://discord.com/oauth2/authorize?client_id=1358747103563743414&permissions=8&scope=bot%20applications.commands" class="gradient-button">
+              <i class="fab fa-discord"></i> Add to Discord
+            </a>
+          </div>
+          
+          <div class="leaderboard-stats">
+            <div class="stat-item">
+              <h3>Total Servers</h3>
+              <p id="total-server-count">Loading...</p>
+            </div>
+            <div class="stat-item">
+              <h3>Total Users</h3>
+              <p id="total-user-count">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard template (hidden) -->
+<template id="leaderboard-item-template">
+  <div class="leaderboard-item">
+    <div class="rank"></div>
+    <div class="server-icon">
+      <img src="" alt="">
+    </div>
+    <div class="server-info">
+      <h3 class="server-name"></h3>
+      <p class="server-members"></p>
+    </div>
+    <div class="server-actions">
+      <a href="#" class="server-join-btn" target="_blank">Join</a>
+    </div>
+  </div>
+</template>
+
+<!-- Leaderboard CSS -->
+<link rel="stylesheet" href="/css/leaderboard.css">
+<style>
+  .leaderboard-container {
+    padding: 2rem 0;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .card-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  @media (min-width: 992px) {
+    .card-container {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+  
+  .leaderboard-card, .info-card {
+    background: rgba(30, 30, 40, 0.6);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+  
+  .card-header {
+    background: rgba(60, 60, 80, 0.5);
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .card-header h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+  }
+  
+  .card-header i {
+    color: #a47dff;
+  }
+  
+  .card-header p {
+    margin: 0.5rem 0 0;
+    opacity: 0.7;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .card-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+  }
+  
+  .leaderboard-loading, .leaderboard-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+  
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-left-color: #a47dff;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .leaderboard-error i {
+    font-size: 3rem;
+    color: #ff6b6b;
+    margin-bottom: 1rem;
+  }
+  
+  .leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+  }
+  
+  .leaderboard-item:last-child {
+    border-bottom: none;
+  }
+  
+  .leaderboard-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .rank {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    margin-right: 1rem;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  .rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ff9500);
+    color: #333;
+  }
+  
+  .rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+    color: #333;
+  }
+  
+  .rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #8B4513);
+    color: #fff;
+  }
+  
+  .server-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 1rem;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .server-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .server-info {
+    flex: 1;
+  }
+  
+  .server-name {
+    margin: 0 0 0.25rem;
+    font-size: 1.1rem;
+  }
+  
+  .server-members {
+    margin: 0;
+    opacity: 0.7;
+    font-size: 0.9rem;
+  }
+  
+  .server-actions {
+    margin-left: 1rem;
+  }
+  
+  .server-join-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #a47dff, #7559da);
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+  
+  .server-join-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(164, 125, 255, 0.4);
+  }
+  
+  .cta-buttons {
+    display: flex;
+    margin: 1.5rem 0;
+    justify-content: center;
+  }
+  
+  .leaderboard-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+    text-align: center;
+  }
+  
+  .stat-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .stat-item h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    opacity: 0.8;
+  }
+  
+  .stat-item p {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #a47dff, #7559da);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+</style>
+
+
+<!-- Leaderboard JavaScript -->
+<script src="/js/leaderboard.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Elements
+    const leaderboardList = document.getElementById('leaderboard-list');
+    const leaderboardLoading = document.getElementById('leaderboard-loading');
+    const leaderboardError = document.getElementById('leaderboard-error');
+    const lastUpdated = document.getElementById('last-updated');
+    const totalServerCount = document.getElementById('total-server-count');
+    const totalUserCount = document.getElementById('total-user-count');
+    const template = document.getElementById('leaderboard-item-template');
+    
+    // Fetch server data from API
+    fetchLeaderboardData();
+    
+    // Auto refresh every 2 minutes
+    setInterval(fetchLeaderboardData, 120000);
+    
+    // Helper function to fetch and render leaderboard data
+    function fetchLeaderboardData() {
+      fetch('/api/leaderboard/top-servers')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('API request failed');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success && data.servers && data.servers.length > 0) {
+            renderLeaderboard(data.servers);
+            updateStats();
+            showLeaderboard();
+          } else {
+            showError();
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching leaderboard data:', error);
+          showError();
+        });
+    }
+    
+    // Display leaderboard data
+    function renderLeaderboard(servers) {
+      // Clear existing items
+      leaderboardList.innerHTML = '';
+      
+      // Add each server to the list
+      servers.forEach((server, index) => {
+        const item = template.content.cloneNode(true);
+        const rank = index + 1;
+        
+        // Set rank
+        const rankEl = item.querySelector('.rank');
+        rankEl.textContent = rank;
+        rankEl.classList.add(`rank-${rank}`);
+        
+        // Set server icon
+        const iconImg = item.querySelector('.server-icon img');
+        if (server.icon) {
+          iconImg.src = server.icon;
+          iconImg.alt = `${server.name} icon`;
+        } else {
+          // Use first letter of server name as fallback
+          iconImg.remove();
+          const iconContainer = item.querySelector('.server-icon');
+          iconContainer.textContent = server.name.charAt(0).toUpperCase();
+        }
+        
+        // Set server info
+        item.querySelector('.server-name').textContent = server.name;
+        item.querySelector('.server-members').textContent = formatNumber(server.memberCount) + ' members';
+        
+        // Set join button if invite URL is available
+        const joinBtn = item.querySelector('.server-join-btn');
+        
+        // For now we'll hide the join button since we don't have invite links
+        joinBtn.style.display = 'none';
+        
+        // Add to the leaderboard
+        leaderboardList.appendChild(item);
+      });
+      
+      // Update last updated time
+      lastUpdated.textContent = new Date().toLocaleString();
+    }
+    
+    // Fetch and update global stats
+    function updateStats() {
+      fetch('/api/status')
+        .then(response => response.json())
+        .then(data => {
+          totalServerCount.textContent = formatNumber(data.guilds);
+          // For the user count, we'll get this from our websocket
+          fetch('/api/server-health')
+            .then(response => response.json())
+            .then(healthData => {
+              if (healthData.discord && healthData.discord.users) {
+                totalUserCount.textContent = formatNumber(healthData.discord.users);
+              } else {
+                totalUserCount.textContent = 'N/A';
+              }
+            })
+            .catch(() => {
+              totalUserCount.textContent = 'N/A';
+            });
+        })
+        .catch(error => {
+          console.error('Error fetching stats:', error);
+        });
+    }
+    
+    // Show leaderboard, hide loading and error
+    function showLeaderboard() {
+      leaderboardLoading.style.display = 'none';
+      leaderboardError.style.display = 'none';
+      leaderboardList.style.display = 'block';
+    }
+    
+    // Show error message, hide loading and leaderboard
+    function showError() {
+      leaderboardLoading.style.display = 'none';
+      leaderboardError.style.display = 'flex';
+      leaderboardList.style.display = 'none';
+    }
+    
+    // Format numbers with commas (e.g., 1,234,567)
+    function formatNumber(num) {
+      return new Intl.NumberFormat().format(num);
+    }
+  });
+</script>
+

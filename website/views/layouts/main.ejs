@@ -57,9 +57,9 @@
           <a href="/backup" class="nav-link <%= locals.activeNav === 'backup' ? 'active' : '' %>">
             <i class="fas fa-shield-alt"></i> Backup
           </a>
-        </div>
-        
-        <button class="mobile-menu-btn">
+          <a href="/leaderboard" class="nav-link <%= locals.activeNav === 'leaderboard' ? 'active' : '' %>">
+            <i class="fas fa-trophy"></i> Leaderboard
+          </a>
           <i class="fas fa-bars"></i>
         </button>
       </div>
@@ -91,6 +91,9 @@
         </a>
         <a href="/server-health" class="mobile-nav-link <%= locals.activeNav === 'server-health' ? 'active' : '' %>">
           <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a href="/leaderboard" class="mobile-nav-link <%= locals.activeNav === "leaderboard" ? "active" : "" %>">
+          <i class="fas fa-trophy"></i> Leaderboard
         </a>
         <a href="/team" class="mobile-nav-link <%= locals.activeNav === 'team' ? 'active' : '' %>">
           <i class="fas fa-users"></i> Team
@@ -134,6 +137,7 @@
           
           <div class="footer-column">
             <h4>Resources</h4>
+            <a href="/leaderboard">Leaderboard</a>
             <a href="/docs">Documentation</a>
             <a href="https://discord.gg/swoosh" target="_blank">Support Server</a>
             <a href="https://github.com/swoosh-bot/swoosh" target="_blank">GitHub</a>

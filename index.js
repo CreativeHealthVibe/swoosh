@@ -654,6 +654,14 @@ app.get('/download', (req, res) => {
   });
 });
 
+// Leaderboard page route
+app.get('/leaderboard', (req, res) => {
+  res.render('leaderboard', {
+    title: 'SWOOSH Bot - Server Leaderboard',
+    activeNav: 'leaderboard'
+  });
+});
+
 // Direct download route
 app.get('/downloads/swoosh-bot-setup.exe', (req, res) => {
   const filePath = path.join(__dirname, 'website/public/downloads/swoosh-bot-setup.exe');
@@ -1008,6 +1016,8 @@ const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const apiAuthRoutes = require('./routes/api/auth');
 const apiMemberRoutes = require('./routes/api/members');
+const apiLeaderboardRoutes = require('./routes/api/leaderboard');
+const leaderboardRoutes = require('./routes/leaderboard');
 
 // Direct callback handler for OAuth redirect to /admin
 app.get('/admin', (req, res, next) => {
@@ -1038,6 +1048,8 @@ app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api', apiAuthRoutes);
 app.use('/api/admin/members', apiMemberRoutes);
+app.use('/api/leaderboard', apiLeaderboardRoutes);
+app.use('/leaderboard', leaderboardRoutes);
 
 // Error handling middleware
 app.use((req, res, next) => {
