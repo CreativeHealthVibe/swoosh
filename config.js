@@ -12,7 +12,7 @@ module.exports = {
     sessionSecret: process.env.SESSION_SECRET || 'swoosh-admin-dashboard-secret',
     sessionExpiry: 86400000, // 24 hours in milliseconds
     mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/swoosh',
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 5000,
     url: process.env.WEBSITE_URL || 'https://swooshfinal.onrender.com'
   },
   

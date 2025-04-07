@@ -994,8 +994,8 @@ process.on('exit', () => {
 });
 
 // Start the server
-server.listen(PORT, () => {
-  console.log(`🌐 Express server running on port ${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🌐 Express server running on 0.0.0.0:${PORT}`);
   console.log(`🔗 Website URL: ${process.env.WEBSITE_URL}`);
   console.log(`📊 Real-time server health monitoring enabled`);
 });
