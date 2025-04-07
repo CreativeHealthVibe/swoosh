@@ -26,6 +26,11 @@ let botStatusChannel = null;
 let webhook = null;
 const logDir = path.join(__dirname, '../logs');
 
+// Create logs directory if it doesn't exist
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
 // Bot start time for uptime tracking
 const BOT_START_TIME = Date.now();
 
@@ -431,6 +436,83 @@ module.exports = {
   },
   
   /**
+   * Get recent activity logs for the dashboard
+   * @param {number} limit - Number of items to retrieve (default: 10)
+   * @returns {Array} - Array of recent activity objects
+   */
+  getRecentActivityLogs: (limit = 5) => {
+    try {
+      // Read the actions log file
+      const logPath = path.join(logDir, 'actions.log');
+      if (!fs.existsSync(logPath)) {
+        return [];
+      }
+      
+      // Read the last 50 lines of the log file to parse recent actions
+      const logContent = fs.readFileSync(logPath, 'utf8').split('\n').filter(Boolean);
+      const recentLogs = logContent.slice(-50); // Get last 50 entries to parse
+      
+      const parsedLogs = [];
+      
+      for (const logLine of recentLogs) {
+        try {
+          // Parse log line format: [timestamp] action | User: info | Executor: info | Details: JSON
+          const timestampMatch = logLine.match(/\[(.*?)\]/);
+          const actionMatch = logLine.match(/\] (.*?) \|/);
+          const detailsMatch = logLine.match(/Details: ({.*})/);
+          
+          if (timestampMatch && actionMatch) {
+            const timestamp = new Date(timestampMatch[1]);
+            const action = actionMatch[1];
+            const details = detailsMatch ? JSON.parse(detailsMatch[1]) : {};
+            
+            // Determine icon and type based on action
+            let icon = 'info-circle';
+            let type = 'blue';
+            
+            if (action.includes('Ban') || action.includes('Kick') || action.includes('Mute')) {
+              icon = 'ban';
+              type = 'red';
+            } else if (action.includes('Ticket')) {
+              icon = 'ticket-alt';
+              type = 'green';
+            } else if (action.includes('Command')) {
+              icon = 'terminal';
+              type = 'purple';
+            } else if (action.includes('Error') || action.includes('Failed')) {
+              icon = 'exclamation-triangle';
+              type = 'orange';
+            } else if (action.includes('Blacklist')) {
+              icon = 'user-slash';
+              type = 'red';
+            } else if (action.includes('Config') || action.includes('Setting')) {
+              icon = 'cog';
+              type = 'blue';
+            }
+            
+            // Create activity object
+            parsedLogs.push({
+              message: action + (details.reason ? `: ${details.reason}` : ''),
+              time: getRelativeTime(timestamp),
+              icon,
+              type
+            });
+          }
+        } catch (parseError) {
+          console.error('Error parsing log line:', parseError);
+          // Continue to next line if there's an error
+        }
+      }
+      
+      // Return the most recent logs based on limit
+      return parsedLogs.slice(-limit).reverse();
+    } catch (error) {
+      console.error('Failed to get recent activity logs:', error);
+      return [];
+    }
+  },
+  
+  /**
    * Log bot status and system information
    * @param {Object} client - Discord client
    */
@@ -760,3 +842,29 @@ module.exports = {
     }
   }
 };
+
+/**
+ * Get relative time string from timestamp
+ * @param {Date} timestamp - The timestamp to convert
+ * @returns {string} - A human-readable relative time string (e.g., "5 minutes ago")
+ */
+function getRelativeTime(timestamp) {
+  const now = new Date();
+  const diffMs = now - timestamp;
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  
+  if (diffSeconds < 60) {
+    return 'Just now';
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  } else if (diffDays < 7) {
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  } else {
+    return timestamp.toLocaleDateString();
+  }
+}
