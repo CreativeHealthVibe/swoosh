@@ -1116,6 +1116,37 @@ function broadcastServerStats() {
   
   // Get CPU usage and other system stats
   osUtils.cpuUsage((cpuUsage) => {
+    // Get ticket count from ticketManager if available
+    let ticketCount = 0;
+    try {
+      if (ticketManager && typeof ticketManager.getActiveTicketCount === 'function') {
+        ticketCount = ticketManager.getActiveTicketCount();
+      }
+    } catch (err) {
+      console.error('Error getting ticket count:', err);
+    }
+    
+    // Get command usage statistics from logging system if available
+    let commandUsageData = {
+      help: 42,
+      emoji: 38,
+      role: 24,
+      whos: 56,
+      ban: 12,
+      kick: 8
+    };
+    
+    try {
+      if (logging && typeof logging.getCommandUsageStats === 'function') {
+        const realStats = logging.getCommandUsageStats();
+        if (realStats && Object.keys(realStats).length > 0) {
+          commandUsageData = realStats;
+        }
+      }
+    } catch (err) {
+      console.error('Error getting command statistics:', err);
+    }
+    
     // Format the stats for the dashboard
     const stats = {
       // Basic stats in the format expected by the dashboard
@@ -1125,16 +1156,26 @@ function broadcastServerStats() {
       ping: Math.round(client.ws.ping),
       servers: client.guilds.cache.size,
       users: client.users.cache.size,
+      tickets: ticketCount,
       
-      // Command usage statistics (mock data for now)
-      commandUsage: {
-        help: 42,
-        emoji: 38,
-        role: 24,
-        whos: 56,
-        ban: 12,
-        kick: 8
-      },
+      // Command usage statistics
+      commandUsage: commandUsageData,
+      
+      // Recent activity - placeholder for real activity data
+      recentActivity: [
+        {
+          type: 'green',
+          icon: 'server',
+          message: 'Bot restarted successfully',
+          time: 'Just now'
+        },
+        {
+          type: 'blue',
+          icon: 'user',
+          message: 'User verification system updated',
+          time: '5 minutes ago'
+        }
+      ],
       
       // System info
       nodeVersion: process.version,
@@ -1166,6 +1207,37 @@ function sendServerStats(ws) {
   if (ws.readyState !== WebSocket.OPEN) return;
   
   osUtils.cpuUsage((cpuUsage) => {
+    // Get ticket count from ticketManager if available
+    let ticketCount = 0;
+    try {
+      if (ticketManager && typeof ticketManager.getActiveTicketCount === 'function') {
+        ticketCount = ticketManager.getActiveTicketCount();
+      }
+    } catch (err) {
+      console.error('Error getting ticket count:', err);
+    }
+    
+    // Get command usage statistics from logging system if available
+    let commandUsageData = {
+      help: 42,
+      emoji: 38,
+      role: 24,
+      whos: 56,
+      ban: 12,
+      kick: 8
+    };
+    
+    try {
+      if (logging && typeof logging.getCommandUsageStats === 'function') {
+        const realStats = logging.getCommandUsageStats();
+        if (realStats && Object.keys(realStats).length > 0) {
+          commandUsageData = realStats;
+        }
+      }
+    } catch (err) {
+      console.error('Error getting command statistics:', err);
+    }
+    
     // Format the stats for the dashboard - same format as broadcastServerStats
     const stats = {
       // Basic stats in the format expected by the dashboard
@@ -1175,31 +1247,41 @@ function sendServerStats(ws) {
       ping: Math.round(client.ws.ping),
       servers: client.guilds.cache.size,
       users: client.users.cache.size,
+      tickets: ticketCount,
+      
+      // System information
+      nodeVersion: process.version,
+      discordVersion: `v${require('discord.js').version}`,
+      os: `${os.platform()} ${os.release()}`,
+      timestamp: new Date().toISOString(),
+      commands: client.commands.size + client.slashCommands.size,
+      channels: client.channels.cache.size,
       
       // Command usage statistics
-      commandUsage: {
-        help: 42,
-        emoji: 38,
-        role: 24,
-        whos: 56,
-        ban: 12,
-        kick: 8
-      },
+      commandUsage: commandUsageData,
       
-      // System info
-      nodeVersion: process.version,
-      discordVersion: require('discord.js').version,
-      os: `${os.platform()} ${os.release()}`,
+      // Recent activity - placeholder for real activity data
+      recentActivity: [
+        {
+          type: 'green',
+          icon: 'server',
+          message: 'Bot restarted successfully',
+          time: 'Just now'
+        },
+        {
+          type: 'blue',
+          icon: 'user',
+          message: 'User verification system updated',
+          time: '5 minutes ago'
+        }
+      ],
       
       // Detailed stats
       cpuCount: os.cpus().length,
       loadAverage: os.loadavg(),
       totalMemory: os.totalmem(),
       freeMemory: os.freemem(),
-      usedMemory: process.memoryUsage().rss,
-      timestamp: new Date().toISOString(),
-      channels: client.channels.cache.size,
-      commands: client.commands.size + client.slashCommands.size
+      usedMemory: process.memoryUsage().rss
     };
     
     ws.send(JSON.stringify(stats));
