@@ -782,7 +782,7 @@
     document.getElementById('timeoutUsername').textContent = username;
     
     // Load all servers the bot is in
-    fetch('/api/admin/servers')
+    fetch('/api/admin/members/servers')
       .then(response => response.json())
       .then(data => {
         if (data.success) {
@@ -791,7 +791,7 @@
           
           data.servers.forEach(server => {
             const option = document.createElement('option');
-            option.value = server.name;
+            option.value = server.id;
             option.textContent = server.name;
             
             // If a guildName was provided, select that one by default
@@ -818,11 +818,11 @@
   function timeoutUser() {
     const userId = document.getElementById('timeoutUserId').value;
     const serverSelect = document.getElementById('timeoutServerSelect');
-    const guildName = serverSelect.value;
+    const guildId = serverSelect.value;
     const reason = document.getElementById('timeoutReason').value;
     const duration = document.getElementById('timeoutDuration').value;
     
-    if (!guildName) {
+    if (!guildId) {
       alert('Please select a server');
       return;
     }
@@ -834,7 +834,7 @@
       },
       body: JSON.stringify({
         userId,
-        guildName,
+        guildId,
         reason,
         duration
       })
