@@ -8,6 +8,17 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize any interactive components
   initializeComponents();
+  
+  // Set up heartbeat ping to keep WebSocket alive
+  setInterval(() => {
+    if (window.dashboardSocket && window.dashboardSocket.readyState === WebSocket.OPEN) {
+      console.log('Sending ping to keep connection alive');
+      window.dashboardSocket.send(JSON.stringify({ 
+        type: 'ping', 
+        timestamp: new Date().toISOString() 
+      }));
+    }
+  }, 30000); // Send ping every 30 seconds
 });
 
 /**
@@ -24,34 +35,93 @@ function setupWebSocket() {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${protocol}//${window.location.host}/ws`;
   
-  const ws = new WebSocket(wsUrl);
+  console.log('Connecting WebSocket to:', wsUrl);
   
-  ws.onopen = function() {
-    console.log('WebSocket connection established');
-  };
+  // Create WebSocket connection
+  try {
+    const ws = new WebSocket(wsUrl);
+    
+    ws.onopen = function() {
+      console.log('WebSocket connection established');
+      
+      // Set a visual indicator that connection is established
+      const connectionElement = document.getElementById('ws-connection-status');
+      if (connectionElement) {
+        connectionElement.textContent = 'Connected';
+        connectionElement.className = 'ws-connected';
+      }
+      
+      // Request initial stats
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'get_stats' }));
+        console.log('Requested initial stats');
+      }
+    };
+    
+    ws.onmessage = function(event) {
+      // Parse the message data
+      try {
+        console.log('WebSocket message received:', event.data.substring(0, 100) + '...');
+        const data = JSON.parse(event.data);
+        console.log('Parsed WebSocket data:', data);
+        handleWebSocketMessage(data);
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+    
+    ws.onclose = function(event) {
+      console.log('WebSocket connection closed:', event.code, event.reason);
+      
+      // Update visual indicator
+      const connectionElement = document.getElementById('ws-connection-status');
+      if (connectionElement) {
+        connectionElement.textContent = 'Disconnected';
+        connectionElement.className = 'ws-disconnected';
+      }
+      
+      // Attempt to reconnect after a delay
+      setTimeout(() => {
+        console.log('Attempting to reconnect WebSocket...');
+        setupWebSocket();
+      }, 5000);
+    };
+    
+    ws.onerror = function(error) {
+      console.error('WebSocket error:', error);
+      
+      // Update visual indicator
+      const connectionElement = document.getElementById('ws-connection-status');
+      if (connectionElement) {
+        connectionElement.textContent = 'Error';
+        connectionElement.className = 'ws-error';
+      }
+    };
+    
+    // Store the WebSocket connection globally
+    window.dashboardSocket = ws;
+    
+  } catch (error) {
+    console.error('Error setting up WebSocket:', error);
+  }
   
-  ws.onmessage = function(event) {
-    // Parse the message data
-    try {
-      const data = JSON.parse(event.data);
-      handleWebSocketMessage(data);
-    } catch (error) {
-      console.error('Error parsing WebSocket message:', error);
-    }
-  };
-  
-  ws.onclose = function() {
-    console.log('WebSocket connection closed');
-    // Attempt to reconnect after a delay
-    setTimeout(() => {
-      console.log('Attempting to reconnect WebSocket...');
-      setupWebSocket();
-    }, 5000);
-  };
-  
-  ws.onerror = function(error) {
-    console.error('WebSocket error:', error);
-  };
+  // Add a small indicator for WebSocket connection status
+  if (!document.getElementById('ws-connection-status')) {
+    const statusIndicator = document.createElement('div');
+    statusIndicator.id = 'ws-connection-status';
+    statusIndicator.className = 'ws-connecting';
+    statusIndicator.textContent = 'Connecting...';
+    statusIndicator.style.position = 'fixed';
+    statusIndicator.style.bottom = '5px';
+    statusIndicator.style.right = '5px';
+    statusIndicator.style.fontSize = '10px';
+    statusIndicator.style.padding = '3px 6px';
+    statusIndicator.style.borderRadius = '3px';
+    statusIndicator.style.color = '#fff';
+    statusIndicator.style.backgroundColor = '#999';
+    statusIndicator.style.zIndex = '9999';
+    document.body.appendChild(statusIndicator);
+  }
 }
 
 /**
@@ -61,23 +131,58 @@ function setupWebSocket() {
 function handleWebSocketMessage(data) {
   console.log('WebSocket data received:', data);
   
-  // Handle dashboard stats on welcome page
-  updateDashboardStats(data);
+  // Handle welcome message from server
+  if (data.type === 'welcome') {
+    console.log('Connection established with server:', data.message);
+    
+    // Update connection status indicator
+    const statusElement = document.getElementById('ws-connection-status');
+    if (statusElement) {
+      statusElement.textContent = 'Connected';
+      statusElement.className = 'ws-connected';
+    }
+    
+    // Request latest stats
+    if (window.dashboardSocket && window.dashboardSocket.readyState === WebSocket.OPEN) {
+      window.dashboardSocket.send(JSON.stringify({ type: 'get_stats' }));
+    }
+    
+    return;
+  }
   
-  // Handle different message types
-  switch (data.type) {
-    case 'stats':
-      updateStatsDisplay(data);
-      break;
-    case 'log':
-      handleLogMessage(data);
-      break;
-    case 'blacklist':
-      handleBlacklistUpdate(data);
-      break;
-    default:
-      // Process general server stats
-      updateStatsDisplay(data);
+  // Handle pong from server
+  if (data.type === 'pong') {
+    console.log('Received pong from server, latency:', new Date() - new Date(data.timestamp));
+    return;
+  }
+  
+  // Handle stats data
+  if (data.type === 'stats') {
+    // Update all dashboard stats
+    updateDashboardStats(data);
+    
+    // Also update detailed stats display
+    updateStatsDisplay(data);
+    return;
+  }
+  
+  // Handle log messages
+  if (data.type === 'log') {
+    handleLogMessage(data);
+    return;
+  }
+  
+  // Handle blacklist updates
+  if (data.type === 'blacklist') {
+    handleBlacklistUpdate(data);
+    return;
+  }
+  
+  // For backward compatibility, if no type is specified, assume it's stats data
+  if (!data.type) {
+    console.warn('Received WebSocket data without type, assuming stats:', data);
+    updateDashboardStats(data);
+    updateStatsDisplay(data);
   }
 }
 

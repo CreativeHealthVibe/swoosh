@@ -1090,16 +1090,35 @@ const wss = new WebSocket.Server({ server, path: '/ws' });
 const clients = new Set();
 
 // WebSocket connection handler
-wss.on('connection', (ws) => {
-  console.log('New WebSocket client connected');
+wss.on('connection', (ws, req) => {
+  const clientIp = req.socket.remoteAddress;
+  console.log(`New WebSocket client connected from ${clientIp}`);
   clients.add(ws);
   
   // Send initial data
   sendServerStats(ws);
   
+  // Handle client messages
+  ws.on('message', (message) => {
+    try {
+      console.log(`Received WebSocket message: ${message.toString()}`);
+      const data = JSON.parse(message.toString());
+      
+      // Handle different message types
+      if (data.type === 'get_stats') {
+        console.log('Client requested stats');
+        sendServerStats(ws);
+      } else if (data.type === 'ping') {
+        ws.send(JSON.stringify({ type: 'pong', timestamp: new Date().toISOString() }));
+      }
+    } catch (error) {
+      console.error('Error processing WebSocket message:', error);
+    }
+  });
+  
   // Handle disconnection
-  ws.on('close', () => {
-    console.log('WebSocket client disconnected');
+  ws.on('close', (code, reason) => {
+    console.log(`WebSocket client disconnected. Code: ${code}, Reason: ${reason || 'No reason provided'}`);
     clients.delete(ws);
   });
   
@@ -1108,6 +1127,13 @@ wss.on('connection', (ws) => {
     console.error('WebSocket error:', error);
     clients.delete(ws);
   });
+  
+  // Send a welcome message to confirm connection
+  ws.send(JSON.stringify({
+    type: 'welcome',
+    message: 'Connected to SWOOSH Bot WebSocket server',
+    timestamp: new Date().toISOString()
+  }));
 });
 
 // Function to broadcast server stats to all connected clients
@@ -1150,6 +1176,9 @@ function broadcastServerStats() {
 
     // Format the stats for the dashboard
     const stats = {
+      // Message type for client-side routing
+      type: 'stats',
+      
       // Basic stats in the format expected by the dashboard
       cpu: Math.round(cpuUsage * 100),
       memory: Math.round((1 - (os.freemem() / os.totalmem())) * 100),
@@ -1181,10 +1210,22 @@ function broadcastServerStats() {
       commands: client.commands.size + client.slashCommands.size
     };
     
+    const statsJson = JSON.stringify(stats);
+    
+    // Only log if there are active connections
+    if (clients.size > 0) {
+      console.log(`Broadcasting stats to ${clients.size} clients (${statsJson.length} bytes)`);
+    }
+    
     // Send to all connected clients
     for (const wsClient of clients) {
       if (wsClient.readyState === WebSocket.OPEN) {
-        wsClient.send(JSON.stringify(stats));
+        try {
+          wsClient.send(statsJson);
+        } catch (error) {
+          console.error('Error sending stats to WebSocket client:', error);
+          clients.delete(wsClient);
+        }
       }
     }
   });
@@ -1192,7 +1233,10 @@ function broadcastServerStats() {
 
 // Function to send server stats to a specific client
 function sendServerStats(ws) {
-  if (ws.readyState !== WebSocket.OPEN) return;
+  if (ws.readyState !== WebSocket.OPEN) {
+    console.log('Cannot send stats: WebSocket is not open');
+    return;
+  }
   
   osUtils.cpuUsage((cpuUsage) => {
     // Get ticket count from ticketManager if available
@@ -1229,6 +1273,9 @@ function sendServerStats(ws) {
 
     // Format the stats for the dashboard - same format as broadcastServerStats
     const stats = {
+      // Message type for client-side routing
+      type: 'stats',
+      
       // Basic stats in the format expected by the dashboard
       cpu: Math.round(cpuUsage * 100),
       memory: Math.round((1 - (os.freemem() / os.totalmem())) * 100),
@@ -1260,12 +1307,20 @@ function sendServerStats(ws) {
       usedMemory: process.memoryUsage().rss
     };
     
-    ws.send(JSON.stringify(stats));
+    const statsJson = JSON.stringify(stats);
+    console.log(`Sending stats to client (${statsJson.length} bytes)`);
+    
+    try {
+      ws.send(statsJson);
+    } catch (error) {
+      console.error('Error sending stats to WebSocket client:', error);
+      clients.delete(ws);
+    }
   });
 }
 
-// Set up interval to broadcast stats every 2 seconds
-const statsInterval = setInterval(broadcastServerStats, 2000);
+// Set up interval to broadcast stats every 5 seconds (reduced frequency to lower server load)
+const statsInterval = setInterval(broadcastServerStats, 5000);
 
 // Clean up interval on process exit
 process.on('exit', () => {
