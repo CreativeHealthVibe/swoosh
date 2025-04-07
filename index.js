@@ -1127,14 +1127,7 @@ function broadcastServerStats() {
     }
     
     // Get command usage statistics from logging system if available
-    let commandUsageData = {
-      help: 42,
-      emoji: 38,
-      role: 24,
-      whos: 56,
-      ban: 12,
-      kick: 8
-    };
+    let commandUsageData = {};
     
     try {
       if (logging && typeof logging.getCommandUsageStats === 'function') {
@@ -1147,6 +1140,14 @@ function broadcastServerStats() {
       console.error('Error getting command statistics:', err);
     }
     
+    // Get recent activity logs
+    let recentActivity = [];
+    try {
+      recentActivity = logging.getRecentActivityLogs(5);
+    } catch (err) {
+      console.error('Error getting recent activity logs:', err);
+    }
+
     // Format the stats for the dashboard
     const stats = {
       // Basic stats in the format expected by the dashboard
@@ -1161,8 +1162,8 @@ function broadcastServerStats() {
       // Command usage statistics
       commandUsage: commandUsageData,
       
-      // Recent activity - placeholder for real activity data
-      recentActivity: require('./modules/logging').getRecentActivityLogs(5),
+      // Recent activity logs from the logging module
+      recentActivity: recentActivity,
       
       // System info
       nodeVersion: process.version,
@@ -1204,15 +1205,8 @@ function sendServerStats(ws) {
       console.error('Error getting ticket count:', err);
     }
     
-    // Get command usage statistics from logging system if available
-    let commandUsageData = {
-      help: 42,
-      emoji: 38,
-      role: 24,
-      whos: 56,
-      ban: 12,
-      kick: 8
-    };
+    // Get command usage statistics from logging system
+    let commandUsageData = {};
     
     try {
       if (logging && typeof logging.getCommandUsageStats === 'function') {
@@ -1225,6 +1219,14 @@ function sendServerStats(ws) {
       console.error('Error getting command statistics:', err);
     }
     
+    // Get recent activity logs
+    let recentActivity = [];
+    try {
+      recentActivity = logging.getRecentActivityLogs(5);
+    } catch (err) {
+      console.error('Error getting recent activity logs:', err);
+    }
+
     // Format the stats for the dashboard - same format as broadcastServerStats
     const stats = {
       // Basic stats in the format expected by the dashboard
@@ -1247,8 +1249,8 @@ function sendServerStats(ws) {
       // Command usage statistics
       commandUsage: commandUsageData,
       
-      // Recent activity from real logs
-      recentActivity: require('./modules/logging').getRecentActivityLogs(5),
+      // Recent activity logs from the logging module
+      recentActivity: recentActivity,
       
       // Detailed stats
       cpuCount: os.cpus().length,
