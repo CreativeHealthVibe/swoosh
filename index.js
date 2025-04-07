@@ -1003,9 +1003,11 @@ app.get('/demo', (req, res) => {
 
 // API endpoint for team member data
 
-// Load routes for admin and auth
+// Load routes for admin, auth, and API
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const apiAuthRoutes = require('./routes/api/auth');
+const apiMemberRoutes = require('./routes/api/members');
 
 // Direct callback handler for OAuth redirect to /admin
 app.get('/admin', (req, res, next) => {
@@ -1034,6 +1036,8 @@ app.get('/admin', (req, res, next) => {
 // Register routes
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/api', apiAuthRoutes);
+app.use('/api/admin/members', apiMemberRoutes);
 
 // Error handling middleware
 app.use((req, res, next) => {
