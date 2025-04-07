@@ -26,12 +26,19 @@ router.get('/top-servers', async (req, res) => {
     const guilds = Array.from(client.guilds.cache.values());
     
     // Filter out any guilds that might promote NSFW or prohibited content
-    // For example: Check for specific keywords in their name or description
+    // Also filter out specific server names that should be excluded
     const filteredGuilds = guilds.filter(guild => {
       const name = guild.name.toLowerCase();
+      
       // Filter out servers with NSFW indicators in their names
       const nsfwKeywords = ['nsfw', 'adult', '18+', 'xxx', 'porn'];
-      return !nsfwKeywords.some(keyword => name.includes(keyword));
+      
+      // Exclude specific servers by name
+      const excludedServers = ['SWOOSH BOT CONFI', '/least'];
+      
+      // Return true only if the server doesn't have NSFW keywords and is not in excluded list
+      return !nsfwKeywords.some(keyword => name.includes(keyword)) && 
+             !excludedServers.includes(guild.name);
     });
     
     // Sort by member count (descending order)
