@@ -145,17 +145,7 @@ router.get('/settings-new', (req, res) => {
   });
 });
 
-/**
- * GET /admin/dashboard
- * Admin dashboard home
- */
-router.get('/dashboard', (req, res) => {
-  res.render('admin/dashboard', {
-    title: 'Admin Dashboard | SWOOSH Bot',
-    user: req.user,
-    layout: 'layouts/admin'
-  });
-});
+// Dashboard route removed as requested
 
 /**
  * POST /admin/api/bot/restart
@@ -504,17 +494,7 @@ router.get('/logs/:filename', (req, res) => {
   });
 });
 
-/**
- * GET /admin/stats
- * Detailed statistics
- */
-router.get('/stats', (req, res) => {
-  res.render('admin/stats', {
-    title: 'Statistics | SWOOSH Bot',
-    user: req.user,
-    layout: 'layouts/admin'
-  });
-});
+// Stats route removed as requested
 
 /**
  * GET /admin/members
