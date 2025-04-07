@@ -59,6 +59,11 @@ function setupWebSocket() {
  * @param {Object} data - The message data
  */
 function handleWebSocketMessage(data) {
+  console.log('WebSocket data received:', data);
+  
+  // Handle dashboard stats on welcome page
+  updateDashboardStats(data);
+  
   // Handle different message types
   switch (data.type) {
     case 'stats':
@@ -71,8 +76,195 @@ function handleWebSocketMessage(data) {
       handleBlacklistUpdate(data);
       break;
     default:
-      console.log('Received message:', data);
+      // Process general server stats
+      updateStatsDisplay(data);
   }
+}
+
+/**
+ * Update dashboard statistics on the welcome page
+ * @param {Object} data - Stats data
+ */
+function updateDashboardStats(data) {
+  // Check if we're on the welcome page by looking for these elements
+  const serverCountElement = document.getElementById('server-count');
+  const userCountElement = document.getElementById('user-count');
+  const ticketCountElement = document.getElementById('ticket-count');
+  const uptimeElement = document.getElementById('uptime');
+  
+  if (serverCountElement) {
+    serverCountElement.textContent = data.servers || '0';
+  }
+  
+  if (userCountElement) {
+    userCountElement.textContent = data.users || '0';
+  }
+  
+  if (ticketCountElement) {
+    ticketCountElement.textContent = data.tickets || '0';
+  }
+  
+  if (uptimeElement && data.uptime) {
+    uptimeElement.textContent = formatUptime(data.uptime);
+  }
+  
+  // Update activity log
+  updateActivityLog(data.recentActivity);
+  
+  // Update command usage
+  updateCommandUsage(data.commandUsage);
+}
+
+/**
+ * Format uptime seconds into a readable string
+ * @param {number} seconds - Uptime in seconds
+ * @returns {string} - Formatted uptime string
+ */
+function formatUptime(seconds) {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (secs > 0 || parts.length === 0) parts.push(`${secs}s`);
+  
+  return parts.join(' ');
+}
+
+/**
+ * Update activity log on the welcome page
+ * @param {Array} activities - Recent activity data
+ */
+function updateActivityLog(activities) {
+  const activityLogList = document.getElementById('activity-log-list');
+  if (!activityLogList || !activities || !Array.isArray(activities)) return;
+  
+  // Clear placeholder
+  activityLogList.innerHTML = '';
+  
+  activities.forEach(activity => {
+    if (!activity) return;
+    
+    const li = document.createElement('li');
+    li.className = 'activity-item';
+    
+    const iconClass = getActivityIcon(activity.action);
+    
+    li.innerHTML = `
+      <span class="activity-icon"><i class="${iconClass}"></i></span>
+      <div class="activity-content">
+        <div class="activity-title">${activity.action || 'Unknown Activity'}</div>
+        <div class="activity-user">${activity.user || 'System'}</div>
+        <div class="activity-time">${getRelativeTime(activity.timestamp)}</div>
+      </div>
+    `;
+    
+    activityLogList.appendChild(li);
+  });
+  
+  // If no activities, show message
+  if (activities.length === 0) {
+    const li = document.createElement('li');
+    li.className = 'placeholder-item';
+    li.textContent = 'No recent activity';
+    activityLogList.appendChild(li);
+  }
+}
+
+/**
+ * Update command usage chart on welcome page
+ * @param {Object} commandUsage - Command usage data
+ */
+function updateCommandUsage(commandUsage) {
+  const commandUsageChart = document.getElementById('command-usage-chart');
+  if (!commandUsageChart || !commandUsage) return;
+  
+  // Clear placeholder
+  commandUsageChart.innerHTML = '';
+  
+  // Get top commands by usage
+  const commands = Object.entries(commandUsage)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  
+  if (commands.length === 0) {
+    const placeholder = document.createElement('p');
+    placeholder.className = 'placeholder-text';
+    placeholder.textContent = 'No command usage data available';
+    commandUsageChart.appendChild(placeholder);
+    return;
+  }
+  
+  // Get maximum usage for scaling bars
+  const maxUsage = Math.max(...commands.map(cmd => cmd[1]));
+  
+  // Create bar chart
+  commands.forEach(([command, count]) => {
+    const percentage = Math.round((count / maxUsage) * 100);
+    
+    const cmdDiv = document.createElement('div');
+    cmdDiv.className = 'command-bar';
+    
+    cmdDiv.innerHTML = `
+      <div class="command-name">${command}</div>
+      <div class="command-bar-container">
+        <div class="command-bar-fill" style="width: ${percentage}%;"></div>
+        <span class="command-count">${count}</span>
+      </div>
+    `;
+    
+    commandUsageChart.appendChild(cmdDiv);
+  });
+}
+
+/**
+ * Get icon class for activity type
+ * @param {string} action - Activity action
+ * @returns {string} - Font Awesome icon class
+ */
+function getActivityIcon(action) {
+  if (!action) return 'fas fa-info-circle';
+  
+  const actionLower = action.toLowerCase();
+  
+  if (actionLower.includes('ban') || actionLower.includes('blacklist')) return 'fas fa-ban';
+  if (actionLower.includes('login') || actionLower.includes('auth')) return 'fas fa-sign-in-alt';
+  if (actionLower.includes('ticket')) return 'fas fa-ticket-alt';
+  if (actionLower.includes('command')) return 'fas fa-terminal';
+  if (actionLower.includes('warn')) return 'fas fa-exclamation-triangle';
+  if (actionLower.includes('delete')) return 'fas fa-trash-alt';
+  if (actionLower.includes('create')) return 'fas fa-plus-circle';
+  if (actionLower.includes('kick')) return 'fas fa-user-slash';
+  if (actionLower.includes('mute')) return 'fas fa-microphone-slash';
+  if (actionLower.includes('error')) return 'fas fa-exclamation-circle';
+  
+  return 'fas fa-cog';
+}
+
+/**
+ * Format relative time
+ * @param {string} timestamp - ISO timestamp
+ * @returns {string} - Relative time string
+ */
+function getRelativeTime(timestamp) {
+  if (!timestamp) return 'Just now';
+  
+  const now = new Date();
+  const date = new Date(timestamp);
+  const seconds = Math.floor((now - date) / 1000);
+  
+  if (seconds < 60) return 'Just now';
+  if (seconds < 120) return '1 minute ago';
+  if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
+  if (seconds < 7200) return '1 hour ago';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+  if (seconds < 172800) return 'Yesterday';
+  
+  return date.toLocaleDateString();
 }
 
 /**
