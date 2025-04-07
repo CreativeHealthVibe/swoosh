@@ -294,6 +294,15 @@ const getAllLocalUsers = async () => {
 };
 
 /**
+ * Get all local admin users
+ * @returns {Promise<Array>} - Array of admin users
+ */
+const getLocalAdminUsers = async () => {
+  const result = await pool.query('SELECT * FROM local_users WHERE is_admin = true ORDER BY username');
+  return result.rows;
+};
+
+/**
  * Add a server log entry
  * @param {Object} logData - Log data
  * @returns {Promise<Object>} - Created log
@@ -496,6 +505,7 @@ module.exports = {
   updateLocalUser,
   deleteLocalUser,
   getAllLocalUsers,
+  getLocalAdminUsers,
   addServerLog,
   getServerLogs,
   trackServerMember,

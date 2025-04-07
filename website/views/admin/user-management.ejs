@@ -21,8 +21,8 @@
 
 <div class="card">
   <div class="card-header">
-    <h2>Current Admin Users</h2>
-    <p>The following users have access to the admin panel.</p>
+    <h2>Discord Admin Users</h2>
+    <p>These Discord users have access to the admin panel via Discord OAuth.</p>
   </div>
   <div class="card-body">
     <div class="table-responsive">
@@ -55,10 +55,54 @@
   </div>
 </div>
 
+<% if (typeof localAdminUsers !== 'undefined' && localAdminUsers.length > 0) { %>
 <div class="card">
   <div class="card-header">
-    <h2>Add New Admin User</h2>
-    <p>Add a new user who can access the admin panel.</p>
+    <h2>Local Admin Users</h2>
+    <p>These users can access the admin panel with username and password login.</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Display Name</th>
+            <th>Email</th>
+            <th>Super Admin</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% localAdminUsers.forEach(user => { %>
+            <tr>
+              <td><code><%= user.id %></code></td>
+              <td><%= user.username %></td>
+              <td><%= user.display_name || user.username %></td>
+              <td><%= user.email || 'Not set' %></td>
+              <td><%= user.is_super_admin ? 'Yes' : 'No' %></td>
+              <td>
+                <form action="/admin/localusers/remove" method="POST" class="inline-form">
+                  <input type="hidden" name="userId" value="<%= user.id %>">
+                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this local admin user?')">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Add New Discord Admin User</h2>
+    <p>Add a new Discord user who can access the admin panel via Discord OAuth.</p>
   </div>
   <div class="card-body">
     <form action="/admin/users/add" method="POST">
@@ -75,7 +119,45 @@
       </div>
       
       <button type="submit" class="btn btn-primary">
-        <i class="fas fa-plus-circle"></i> Add Admin User
+        <i class="fas fa-plus-circle"></i> Add Discord Admin
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Add New Local Admin User</h2>
+    <p>Create a new admin user who can log in directly with username and password.</p>
+  </div>
+  <div class="card-body">
+    <form action="/admin/localusers/add" method="POST">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" class="form-control" required>
+        <small class="form-text text-muted">Enter a username for login (e.g., "admin1", "moderator", etc.).</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control" minlength="8" required>
+        <small class="form-text text-muted">Create a strong password (minimum 8 characters).</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="display_name">Display Name (Optional)</label>
+        <input type="text" id="display_name" name="display_name" class="form-control">
+        <small class="form-text text-muted">The name that will be displayed in the admin panel.</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email (Optional)</label>
+        <input type="email" id="email" name="email" class="form-control">
+        <small class="form-text text-muted">Email address for account recovery.</small>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i> Create Local Admin
       </button>
     </form>
   </div>
