@@ -1162,20 +1162,7 @@ function broadcastServerStats() {
       commandUsage: commandUsageData,
       
       // Recent activity - placeholder for real activity data
-      recentActivity: [
-        {
-          type: 'green',
-          icon: 'server',
-          message: 'Bot restarted successfully',
-          time: 'Just now'
-        },
-        {
-          type: 'blue',
-          icon: 'user',
-          message: 'User verification system updated',
-          time: '5 minutes ago'
-        }
-      ],
+      recentActivity: require('./modules/logging').getRecentActivityLogs(5),
       
       // System info
       nodeVersion: process.version,
@@ -1260,21 +1247,8 @@ function sendServerStats(ws) {
       // Command usage statistics
       commandUsage: commandUsageData,
       
-      // Recent activity - placeholder for real activity data
-      recentActivity: [
-        {
-          type: 'green',
-          icon: 'server',
-          message: 'Bot restarted successfully',
-          time: 'Just now'
-        },
-        {
-          type: 'blue',
-          icon: 'user',
-          message: 'User verification system updated',
-          time: '5 minutes ago'
-        }
-      ],
+      // Recent activity from real logs
+      recentActivity: require('./modules/logging').getRecentActivityLogs(5),
       
       // Detailed stats
       cpuCount: os.cpus().length,
