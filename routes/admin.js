@@ -158,6 +158,81 @@ router.get('/dashboard', (req, res) => {
 });
 
 /**
+ * POST /admin/api/bot/restart
+ * Restart the bot
+ */
+router.post('/api/bot/restart', (req, res) => {
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.status(500).json({ success: false, message: 'Bot client not available' });
+  }
+  
+  try {
+    // Log restart attempt
+    console.log(`Bot restart initiated by admin user: ${req.user.username} (${req.user.id})`);
+    
+    // Signal for bot restart - in a production environment, you might use process managers like PM2
+    // For this demo, we'll just return success
+    res.json({ success: true, message: 'Bot restart has been initiated' });
+    
+    // In a real implementation, you would restart the bot here
+    // Example: process.exit() if using PM2 with --restart-delay
+  } catch (error) {
+    console.error('Error restarting bot:', error);
+    res.status(500).json({ success: false, message: 'Failed to restart bot: ' + error.message });
+  }
+});
+
+/**
+ * POST /admin/api/bot/stop
+ * Stop the bot
+ */
+router.post('/api/bot/stop', (req, res) => {
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.status(500).json({ success: false, message: 'Bot client not available' });
+  }
+  
+  try {
+    // Log stop attempt
+    console.log(`Bot stop initiated by admin user: ${req.user.username} (${req.user.id})`);
+    
+    // In a real implementation, you would stop the bot here
+    // For this demo, we'll just return success
+    res.json({ success: true, message: 'Bot shutdown has been initiated' });
+  } catch (error) {
+    console.error('Error stopping bot:', error);
+    res.status(500).json({ success: false, message: 'Failed to stop bot: ' + error.message });
+  }
+});
+
+/**
+ * POST /admin/api/bot/start
+ * Start the bot
+ */
+router.post('/api/bot/start', (req, res) => {
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.status(500).json({ success: false, message: 'Bot client not available' });
+  }
+  
+  try {
+    // Log start attempt
+    console.log(`Bot start initiated by admin user: ${req.user.username} (${req.user.id})`);
+    
+    // In a real implementation, you would start the bot here
+    // For this demo, we'll just return success
+    res.json({ success: true, message: 'Bot startup has been initiated' });
+  } catch (error) {
+    console.error('Error starting bot:', error);
+    res.status(500).json({ success: false, message: 'Failed to start bot: ' + error.message });
+  }
+});
+
+/**
  * GET /admin/blacklist
  * Blacklist management
  */

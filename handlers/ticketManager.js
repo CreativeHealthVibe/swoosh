@@ -233,6 +233,14 @@ module.exports = {
         message: 'An error occurred while generating the transcript.' 
       };
     }
+  },
+  
+  /**
+   * Get count of currently active tickets
+   * @returns {number} - Number of active tickets
+   */
+  getActiveTicketCount: () => {
+    return activeTickets.size;
   }
 };
 
