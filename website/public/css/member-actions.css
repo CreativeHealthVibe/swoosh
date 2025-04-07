@@ -1,0 +1,212 @@
+/* Member actions dropdown styles */
+.member-actions {
+  position: relative;
+  display: inline-block;
+}
+
+.actions-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  transition: color 0.3s ease;
+}
+
+.actions-btn:hover {
+  color: var(--primary-color);
+}
+
+.actions-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 180px;
+  background: var(--background-light);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border: 1px solid rgba(156, 77, 255, 0.2);
+  z-index: 100;
+  display: none;
+}
+
+.member-actions.active .actions-dropdown {
+  display: block;
+}
+
+.actions-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.actions-dropdown-item i {
+  width: 20px;
+  margin-right: 8px;
+  text-align: center;
+}
+
+.actions-dropdown-item:hover {
+  background: rgba(156, 77, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.actions-dropdown-item.danger {
+  color: var(--danger-color);
+}
+
+.actions-dropdown-item.danger:hover {
+  background: rgba(237, 66, 69, 0.1);
+}
+
+.actions-dropdown-item.warning {
+  color: var(--warning-color);
+}
+
+.actions-dropdown-item.warning:hover {
+  background: rgba(254, 231, 92, 0.1);
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--background-light);
+  border-radius: var(--border-radius);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(156, 77, 255, 0.2);
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+.modal-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 20px;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--danger-color);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid rgba(156, 77, 255, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(156, 77, 255, 0.2);
+  border-radius: 4px;
+  color: var(--text-primary);
+  margin-bottom: 15px;
+}
+
+.modal-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.modal-textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(156, 77, 255, 0.2);
+  border-radius: 4px;
+  padding: 10px;
+  color: var(--text-primary);
+}
+
+.modal-btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.modal-btn-primary {
+  background: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.modal-btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.modal-btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(156, 77, 255, 0.2);
+  color: var(--text-secondary);
+}
+
+.modal-btn-cancel:hover {
+  background: rgba(156, 77, 255, 0.1);
+}
+
+.modal-btn-danger {
+  background: var(--danger-color);
+  color: white;
+}
+
+.modal-btn-danger:hover {
+  background: #b52b2e;
+}
+
+.warning-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(254, 231, 92, 0.2);
+  color: var(--warning-color);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}

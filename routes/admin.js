@@ -632,3 +632,15 @@ module.exports = {
 });
 
 module.exports = router;
+
+/**
+ * API Routes
+ * Register admin API routes
+ */
+
+// Import member API routes
+const memberApiRoutes = require('./api/members');
+
+// Mount member API routes
+router.use('/api/members', memberApiRoutes);
+

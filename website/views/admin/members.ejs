@@ -55,15 +55,16 @@
             <th>Server</th>
             <th>Joined</th>
             <th>Type</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <% if (newMembers.length === 0) { %>
             <tr>
-              <td colspan="5" class="text-center">No new members in the last 7 days.</td>
+              <td colspan="6" class="text-center">No new members in the last 7 days.</td>
             </tr>
           <% } else { %>
-            <% newMembers.forEach(member => { %>
+            <% newMembers.forEach((member, index) => { %>
               <tr>
                 <td class="user-cell">
                   <div class="user-avatar">
@@ -87,6 +88,31 @@
                   <% } else { %>
                     <span class="badge user">User</span>
                   <% } %>
+                </td>
+                <td>
+                  <div class="member-actions" data-member-id="<%= member.id %>" data-username="<%= member.username %>" data-guild-name="<%= member.guildName %>">
+                    <button class="actions-btn"><i class="fas fa-ellipsis-v"></i></button>
+                    <div class="actions-dropdown">
+                      <div class="actions-dropdown-item" onclick="openDmModal('<%= member.id %>', '<%= member.username %>')">
+                        <i class="fas fa-envelope"></i> Send DM
+                      </div>
+                      <div class="actions-dropdown-item warning" onclick="openTimeoutModal('<%= member.id %>', '<%= member.username %>', '<%= member.guildName %>')">
+                        <i class="fas fa-clock"></i> Timeout
+                      </div>
+                      <div class="actions-dropdown-item warning" onclick="openWarnModal('<%= member.id %>', '<%= member.username %>')">
+                        <i class="fas fa-exclamation-triangle"></i> Warn
+                      </div>
+                      <div class="actions-dropdown-item" onclick="viewWarnings('<%= member.id %>', '<%= member.username %>')">
+                        <i class="fas fa-history"></i> View Warnings
+                      </div>
+                      <div class="actions-dropdown-item danger" onclick="openKickModal('<%= member.id %>', '<%= member.username %>', '<%= member.guildName %>')">
+                        <i class="fas fa-user-minus"></i> Kick
+                      </div>
+                      <div class="actions-dropdown-item danger" onclick="openBanModal('<%= member.id %>', '<%= member.username %>', '<%= member.guildName %>')">
+                        <i class="fas fa-gavel"></i> Ban
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
             <% }) %>
@@ -145,6 +171,136 @@
           <% } %>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- DM Modal -->
+<div id="dmModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Send DM to <span id="dmUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('dmModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <textarea id="dmContent" class="modal-textarea" placeholder="Enter your message..."></textarea>
+      <input type="hidden" id="dmUserId">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('dmModal')">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="sendDm()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kick Modal -->
+<div id="kickModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Kick <span id="kickUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('kickModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to kick this user from <span id="kickGuildName"></span>?</p>
+      <input type="text" id="kickReason" class="modal-input" placeholder="Reason (optional)">
+      <input type="hidden" id="kickUserId">
+      <input type="hidden" id="kickGuild">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('kickModal')">Cancel</button>
+      <button class="modal-btn modal-btn-danger" onclick="kickUser()">Kick User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ban Modal -->
+<div id="banModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Ban <span id="banUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('banModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to ban this user from <span id="banGuildName"></span>?</p>
+      <input type="text" id="banReason" class="modal-input" placeholder="Reason (optional)">
+      <div style="margin-bottom: 15px;">
+        <label>
+          <input type="checkbox" id="banDeleteMessages"> Delete recent messages
+        </label>
+      </div>
+      <input type="hidden" id="banUserId">
+      <input type="hidden" id="banGuild">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('banModal')">Cancel</button>
+      <button class="modal-btn modal-btn-danger" onclick="banUser()">Ban User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Timeout Modal -->
+<div id="timeoutModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Timeout <span id="timeoutUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('timeoutModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Set a timeout duration for this user in <span id="timeoutGuildName"></span>:</p>
+      <select id="timeoutDuration" class="modal-input">
+        <option value="60000">1 minute</option>
+        <option value="300000">5 minutes</option>
+        <option value="900000">15 minutes</option>
+        <option value="1800000">30 minutes</option>
+        <option value="3600000">1 hour</option>
+        <option value="21600000">6 hours</option>
+        <option value="86400000">1 day</option>
+        <option value="604800000">1 week</option>
+      </select>
+      <input type="text" id="timeoutReason" class="modal-input" placeholder="Reason (optional)">
+      <input type="hidden" id="timeoutUserId">
+      <input type="hidden" id="timeoutGuild">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('timeoutModal')">Cancel</button>
+      <button class="modal-btn modal-btn-warning" onclick="timeoutUser()">Timeout User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Warn Modal -->
+<div id="warnModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Warn <span id="warnUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('warnModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Send a warning to this user:</p>
+      <input type="text" id="warnReason" class="modal-input" placeholder="Warning reason (required)" required>
+      <input type="hidden" id="warnUserId">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('warnModal')">Cancel</button>
+      <button class="modal-btn modal-btn-warning" onclick="warnUser()">Warn User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Warnings Modal -->
+<div id="warningsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Warnings for <span id="warningsUsername"></span></h3>
+      <button class="modal-close" onclick="closeModal('warningsModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="warningsContent">
+        <p class="text-center">Loading warnings...</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal('warningsModal')">Close</button>
     </div>
   </div>
 </div>
@@ -368,6 +524,362 @@
     .data-table {
       min-width: 600px;
     }
+  }
+</style>
+
+<link rel="stylesheet" href="/css/member-actions.css">
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set up action buttons
+    const actionButtons = document.querySelectorAll('.actions-btn');
+    
+    actionButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const parentAction = this.closest('.member-actions');
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.member-actions.active').forEach(el => {
+          if (el !== parentAction) {
+            el.classList.remove('active');
+          }
+        });
+        
+        // Toggle this dropdown
+        parentAction.classList.toggle('active');
+      });
+    });
+    
+    // Close dropdowns when clicking elsewhere
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.member-actions')) {
+        document.querySelectorAll('.member-actions.active').forEach(el => {
+          el.classList.remove('active');
+        });
+      }
+    });
+  });
+  
+  // Modal functions
+  function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+  }
+  
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+  }
+  
+  function openDmModal(userId, username) {
+    document.getElementById('dmUserId').value = userId;
+    document.getElementById('dmUsername').textContent = username;
+    openModal('dmModal');
+  }
+  
+  function sendDm() {
+    const userId = document.getElementById('dmUserId').value;
+    const content = document.getElementById('dmContent').value.trim();
+    
+    if (!content) {
+      alert('Please enter a message');
+      return;
+    }
+    
+    fetch('/api/admin/members/send-dm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        content
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Message sent successfully');
+        closeModal('dmModal');
+        document.getElementById('dmContent').value = '';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error sending DM:', error);
+      alert('An error occurred while sending the message');
+    });
+  }
+  
+  function openKickModal(userId, username, guildName) {
+    document.getElementById('kickUserId').value = userId;
+    document.getElementById('kickUsername').textContent = username;
+    document.getElementById('kickGuild').value = guildName;
+    document.getElementById('kickGuildName').textContent = guildName;
+    openModal('kickModal');
+  }
+  
+  function kickUser() {
+    const userId = document.getElementById('kickUserId').value;
+    const guildName = document.getElementById('kickGuild').value;
+    const reason = document.getElementById('kickReason').value;
+    
+    fetch('/api/admin/members/kick', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        guildName,
+        reason
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('User kicked successfully');
+        closeModal('kickModal');
+        document.getElementById('kickReason').value = '';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error kicking user:', error);
+      alert('An error occurred while kicking the user');
+    });
+  }
+  
+  function openBanModal(userId, username, guildName) {
+    document.getElementById('banUserId').value = userId;
+    document.getElementById('banUsername').textContent = username;
+    document.getElementById('banGuild').value = guildName;
+    document.getElementById('banGuildName').textContent = guildName;
+    openModal('banModal');
+  }
+  
+  function banUser() {
+    const userId = document.getElementById('banUserId').value;
+    const guildName = document.getElementById('banGuild').value;
+    const reason = document.getElementById('banReason').value;
+    const deleteMessages = document.getElementById('banDeleteMessages').checked;
+    
+    fetch('/api/admin/members/ban', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        guildName,
+        reason,
+        deleteMessages
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('User banned successfully');
+        closeModal('banModal');
+        document.getElementById('banReason').value = '';
+        document.getElementById('banDeleteMessages').checked = false;
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error banning user:', error);
+      alert('An error occurred while banning the user');
+    });
+  }
+  
+  function openTimeoutModal(userId, username, guildName) {
+    document.getElementById('timeoutUserId').value = userId;
+    document.getElementById('timeoutUsername').textContent = username;
+    document.getElementById('timeoutGuild').value = guildName;
+    document.getElementById('timeoutGuildName').textContent = guildName;
+    openModal('timeoutModal');
+  }
+  
+  function timeoutUser() {
+    const userId = document.getElementById('timeoutUserId').value;
+    const guildName = document.getElementById('timeoutGuild').value;
+    const reason = document.getElementById('timeoutReason').value;
+    const duration = document.getElementById('timeoutDuration').value;
+    
+    fetch('/api/admin/members/timeout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        guildName,
+        reason,
+        duration
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('User timed out successfully');
+        closeModal('timeoutModal');
+        document.getElementById('timeoutReason').value = '';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error timing out user:', error);
+      alert('An error occurred while timing out the user');
+    });
+  }
+  
+  function openWarnModal(userId, username) {
+    document.getElementById('warnUserId').value = userId;
+    document.getElementById('warnUsername').textContent = username;
+    openModal('warnModal');
+  }
+  
+  function warnUser() {
+    const userId = document.getElementById('warnUserId').value;
+    const reason = document.getElementById('warnReason').value.trim();
+    
+    if (!reason) {
+      alert('Please provide a reason for the warning');
+      return;
+    }
+    
+    fetch('/api/admin/members/warn', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId,
+        reason
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Warning sent successfully');
+        closeModal('warnModal');
+        document.getElementById('warnReason').value = '';
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error warning user:', error);
+      alert('An error occurred while warning the user');
+    });
+  }
+  
+  function viewWarnings(userId, username) {
+    document.getElementById('warningsUsername').textContent = username;
+    
+    // Clear previous content and show loading
+    const warningsContent = document.getElementById('warningsContent');
+    warningsContent.innerHTML = '<p class="text-center">Loading warnings...</p>';
+    
+    openModal('warningsModal');
+    
+    fetch(`/api/admin/members/warnings/${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const warnings = data.warnings;
+          
+          if (warnings.length === 0) {
+            warningsContent.innerHTML = '<p class="text-center">No warnings found for this user.</p>';
+            return;
+          }
+          
+          let html = '<div class="warnings-list">';
+          warnings.forEach((warning, index) => {
+            const date = new Date(warning.timestamp).toLocaleString();
+            html += `
+              <div class="warning-item">
+                <div class="warning-header">
+                  <span class="warning-number">#${index + 1}</span>
+                  <span class="warning-date">${date}</span>
+                </div>
+                <div class="warning-reason">${warning.reason}</div>
+                <div class="warning-issuer">Issued by: ${warning.issuer}</div>
+              </div>
+            `;
+          });
+          html += '</div>';
+          
+          warningsContent.innerHTML = html;
+        } else {
+          warningsContent.innerHTML = `<p class="text-center text-error">Error: ${data.message}</p>`;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching warnings:', error);
+        warningsContent.innerHTML = '<p class="text-center text-error">An error occurred while fetching warnings</p>';
+      });
+  }
+</script>
+
+<style>
+  .warnings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .warning-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 3px solid var(--warning-color);
+  }
+  
+  .warning-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .warning-number {
+    font-weight: 600;
+    color: var(--warning-color);
+  }
+  
+  .warning-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  
+  .warning-reason {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  
+  .warning-issuer {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .text-error {
+    color: var(--danger-color);
+  }
+  
+  .modal-btn-warning {
+    background: var(--warning-color);
+    color: #000000;
+  }
+  
+  .modal-btn-warning:hover {
+    background: #d8c64f;
   }
 </style>
 
