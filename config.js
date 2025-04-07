@@ -33,10 +33,9 @@ module.exports = {
   },
   // Admin User IDs with full system access
   adminUserIds: [
-    '930131254106550333', // Admin user
-    '1196042021488570391', // Admin user
-    '506323791140356106', // Admin user
-    '1216096633444634658', // anton
+    '930131254106550333',
+    '1196042021488570391',
+    '506323791140356106',
   ],
   
   // Ticket types and their configurations
