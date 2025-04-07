@@ -660,6 +660,15 @@ router.post('/users/add', (req, res) => {
     // Clear the require cache for config.js
     delete require.cache[require.resolve('../config')];
     
+    // Update the config object in memory
+    // This is the critical fix - the config object needs to be reloaded in memory
+    const updatedConfig = require('../config');
+    
+    // Replace the global config object with the updated one
+    Object.keys(updatedConfig).forEach(key => {
+      config[key] = updatedConfig[key];
+    });
+    
     // Log the action
     console.log(`Admin ${req.user.username} (${req.user.id}) added new admin user ${userId} (${comment})`);
     
@@ -728,6 +737,15 @@ router.post('/users/remove', (req, res) => {
     // Clear the require cache for config.js
     delete require.cache[require.resolve('../config')];
     
+    // Update the config object in memory
+    // This is the critical fix - the config object needs to be reloaded in memory
+    const updatedConfig = require('../config');
+    
+    // Replace the global config object with the updated one
+    Object.keys(updatedConfig).forEach(key => {
+      config[key] = updatedConfig[key];
+    });
+    
     // Log the action
     console.log(`Admin ${req.user.username} (${req.user.id}) removed admin user ${userId}`);
     
@@ -747,7 +765,7 @@ router.post('/users/remove', (req, res) => {
 router.post('/settings/update', (req, res) => {
   try {
     // Get the current config and update values
-    const config = require('../config');
+    const localConfig = require('../config');
     const fs = require('fs');
     
     // Get the form data
@@ -776,9 +794,9 @@ require('dotenv').config();
 
 module.exports = {
   prefix: "${prefix}",
-  embedColor: "${embedColor || config.embedColor}",
-  ticketCategory: "${ticketCategory || config.ticketCategory}",
-  logChannelId: "${logChannelId || config.logChannelId}",
+  embedColor: "${embedColor || localConfig.embedColor}",
+  ticketCategory: "${ticketCategory || localConfig.ticketCategory}",
+  logChannelId: "${logChannelId || localConfig.logChannelId}",
   
   // Website and session settings
   website: {
@@ -799,32 +817,32 @@ module.exports = {
   
   // Specific logging channels
   loggingChannels: {
-    deletedMessages: "${deletedMessages || config.loggingChannels.deletedMessages}",
-    ticketTranscripts: "${ticketTranscripts || config.loggingChannels.ticketTranscripts}",
-    commandUsage: "${commandUsage || config.loggingChannels.commandUsage}",
-    botStatus: "${botStatus || config.loggingChannels.botStatus}"
+    deletedMessages: "${deletedMessages || localConfig.loggingChannels.deletedMessages}",
+    ticketTranscripts: "${ticketTranscripts || localConfig.loggingChannels.ticketTranscripts}",
+    commandUsage: "${commandUsage || localConfig.loggingChannels.commandUsage}",
+    botStatus: "${botStatus || localConfig.loggingChannels.botStatus}"
   },
   
   // Admin User IDs with full system access
-  adminUserIds: ${JSON.stringify(config.adminUserIds)},
+  adminUserIds: ${JSON.stringify(localConfig.adminUserIds)},
   
   // Ticket types and their configurations
-  ticketTypes: ${JSON.stringify(config.ticketTypes, null, 2)},
+  ticketTypes: ${JSON.stringify(localConfig.ticketTypes, null, 2)},
   
   // Role IDs that can access tickets (will be overridden by database settings)
-  staffRoles: ${JSON.stringify(config.staffRoles)},
+  staffRoles: ${JSON.stringify(localConfig.staffRoles)},
   
   // Validation limits
   validation: {
-    bountyMin: ${bountyMin || config.validation.bountyMin},
-    bountyMax: ${bountyMax || config.validation.bountyMax},
-    allowedImageTypes: ${JSON.stringify(config.validation.allowedImageTypes)}
+    bountyMin: ${bountyMin || localConfig.validation.bountyMin},
+    bountyMax: ${bountyMax || localConfig.validation.bountyMax},
+    allowedImageTypes: ${JSON.stringify(localConfig.validation.allowedImageTypes)}
   },
   
   // Webhook settings
   webhooks: {
-    bountyAvatarUrl: '${config.webhooks.bountyAvatarUrl}',
-    bountyName: '${config.webhooks.bountyName}',
+    bountyAvatarUrl: '${localConfig.webhooks.bountyAvatarUrl}',
+    bountyName: '${localConfig.webhooks.bountyName}',
   }
 };
 `;
@@ -837,6 +855,15 @@ module.exports = {
     
     // Clear the require cache for config.js
     delete require.cache[require.resolve('../config')];
+    
+    // Update the config object in memory
+    // This is the critical fix - the config object needs to be reloaded in memory
+    const updatedConfig = require('../config');
+    
+    // Replace the global config object with the updated one
+    Object.keys(updatedConfig).forEach(key => {
+      config[key] = updatedConfig[key];
+    });
     
     req.flash('success', 'Bot configuration updated successfully');
     return res.redirect('/admin/settings');
