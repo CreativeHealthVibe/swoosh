@@ -602,6 +602,15 @@ app.get('/bot-status', (req, res) => {
 });
 
 // Server Health Dashboard with real-time updates
+// Backup information page
+app.get('/backup', (req, res) => {
+  res.render('backup', {
+    title: 'SWOOSH Bot - Backup Services',
+    client: client,
+    activeNav: 'backup'
+  });
+});
+
 app.get('/server-health', (req, res) => {
   // Get initial system stats
   const cpuCount = os.cpus().length;

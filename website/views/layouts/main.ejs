@@ -54,6 +54,9 @@
           <a href="/download" class="nav-link <%= locals.activeNav === 'download' ? 'active' : '' %>">
             <i class="fas fa-download"></i> Download
           </a>
+          <a href="/backup" class="nav-link <%= locals.activeNav === 'backup' ? 'active' : '' %>">
+            <i class="fas fa-shield-alt"></i> Backup
+          </a>
         </div>
         
         <button class="mobile-menu-btn">
@@ -92,10 +95,13 @@
         <a href="/team" class="mobile-nav-link <%= locals.activeNav === 'team' ? 'active' : '' %>">
           <i class="fas fa-users"></i> Team
         </a>
+        <a href="/backup" class="mobile-nav-link <%= locals.activeNav === 'backup' ? 'active' : '' %>">
+          <i class="fas fa-shield-alt"></i> Backup
+        </a>
       </div>
       
       <div class="mobile-footer">
-        <a href="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands" class="gradient-button mobile-cta-btn">
+        <a href="https://discord.com/oauth2/authorize?client_id=1358747103563743414&permissions=8&scope=bot%20applications.commands" class="gradient-button mobile-cta-btn">
           <i class="fab fa-discord"></i> Add to Discord
         </a>
       </div>

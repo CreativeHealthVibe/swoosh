@@ -1,0 +1,202 @@
+<div class="container">
+  <div class="backup-section">
+    <div class="section-header">
+      <h1>Backup Services</h1>
+      <p class="lead">Connect with our backup bot and website if the main services are unavailable</p>
+    </div>
+
+    <div class="backup-cards">
+      <div class="backup-card">
+        <div class="card-icon">
+          <i class="fab fa-discord"></i>
+        </div>
+        <div class="card-content">
+          <h2>Backup Discord Bot</h2>
+          <p>Our secondary Discord bot provides the same functionality in case the main bot is offline.</p>
+          <a href="https://discord.com/oauth2/authorize?client_id=1358747103563743414&permissions=8&scope=bot%20applications.commands" 
+             class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-plus-circle"></i> Add to Discord
+          </a>
+        </div>
+      </div>
+
+      <div class="backup-card">
+        <div class="card-icon">
+          <i class="fas fa-globe"></i>
+        </div>
+        <div class="card-content">
+          <h2>Backup Website</h2>
+          <p>Our alternative website provides access to all services if the main site experiences issues.</p>
+          <a href="https://swoosh-kxar.onrender.com/" 
+             class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-external-link-alt"></i> Open Website
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="backup-info">
+      <h3>Why We Provide Backup Services</h3>
+      <p>
+        We understand how important reliability is for our users. Our backup services ensure that you can always
+        access SWOOSH Bot features, even during maintenance periods or unexpected outages.
+      </p>
+      
+      <h3>When to Use Backup Services</h3>
+      <ul>
+        <li>When the main bot doesn't respond to commands in your server</li>
+        <li>When you can't access the main website</li>
+        <li>During announced maintenance periods</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  .backup-section {
+    padding: 4rem 0;
+    min-height: 80vh;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-header h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #9c4dff, #b76eff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .section-header .lead {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .backup-cards {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 3rem;
+  }
+
+  .backup-card {
+    background: rgba(30, 15, 50, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(156, 77, 255, 0.2);
+    padding: 2rem;
+    width: 100%;
+    max-width: 450px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .backup-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: #9c4dff;
+    text-align: center;
+  }
+
+  .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+  }
+
+  .card-content p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.5rem;
+    flex: 1;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background-color: #9c4dff;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #7c3acd;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(156, 77, 255, 0.3);
+  }
+
+  .backup-info {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgba(20, 16, 31, 0.6);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid rgba(156, 77, 255, 0.1);
+  }
+
+  .backup-info h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #b76eff;
+  }
+
+  .backup-info p, .backup-info ul {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .backup-info ul {
+    padding-left: 1.5rem;
+  }
+
+  .backup-info li {
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .backup-section {
+      padding: 2rem 1rem;
+    }
+
+    .section-header h1 {
+      font-size: 2.2rem;
+    }
+
+    .backup-card {
+      max-width: 100%;
+    }
+  }
+</style>
