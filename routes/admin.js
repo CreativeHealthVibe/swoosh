@@ -125,22 +125,21 @@ router.get('/settings', async (req, res) => {
     const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
                            (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
     
-    // Render the simplified settings page with inline styles
-    res.render('admin/settings-simple', {
+    // Render the standalone settings page with everything inline
+    res.render('admin/settings-standalone', {
       user: req.user,
       adminUsers,
       localAdminUsers,
       staticPage,
       tab,
       title: 'Bot Settings | SWOOSH Bot',
-      layout: 'layouts/admin',
       client: client // Pass the Discord client to the template
     });
     return;
   } catch (err) {
     console.error('Error rendering settings page:', err);
     // If there is an error, show a simple error page
-    res.send('<h1>Error loading settings page</h1><p>' + err.message + '</p>');
+    res.send('<h1>Error loading settings page</h1><p>' + err.message + '</p><pre>' + err.stack + '</pre>');
   }
 });
 
@@ -324,22 +323,21 @@ router.get('/settings', async (req, res) => {
     const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
                            (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
     
-    // Render the simplified settings page with inline styles
-    res.render('admin/settings-simple', {
+    // Render the standalone settings page with everything inline
+    res.render('admin/settings-standalone', {
       user: req.user,
       adminUsers,
       localAdminUsers,
       staticPage,
       tab,
       title: 'Bot Settings | SWOOSH Bot',
-      layout: 'layouts/admin',
       client: client // Pass the Discord client to the template
     });
     return;
   } catch (err) {
     console.error('Error rendering settings page:', err);
     // If there is an error, show a simple error page
-    res.send('<h1>Error loading settings page</h1><p>' + err.message + '</p>');
+    res.send('<h1>Error loading settings page</h1><p>' + err.message + '</p><pre>' + err.stack + '</pre>');
   }
 });
 
