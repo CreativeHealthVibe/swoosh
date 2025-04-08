@@ -73,15 +73,15 @@ client.once('ready', async () => {
   console.log(`🚀 ${client.user.tag} is online!`);
   console.log(`Bot client ID: ${client.user.id}`);
   
-  // Set custom bot status with online state
+  // Set custom bot status with idle state
   client.user.setPresence({
     activities: [{ 
       name: '.gg/swoosh', // Support server invite
       type: 3 // 0 is "Playing", 3 is "Watching", 2 is "Listening", 5 is "Competing"
     }],
-    status: 'online' // 'online', 'idle', 'dnd', or 'invisible'
+    status: 'idle' // 'online', 'idle', 'dnd', or 'invisible'
   });
-  console.log('✅ Set custom status: Watching .gg/swoosh (Online)');
+  console.log('✅ Set custom status: Watching .gg/swoosh (Idle)');
   
   try {
     // Create data directory if it doesn't exist
