@@ -1,178 +1,182 @@
 <%- include('../partials/admin-header-fixed') %>
 
 <div class="blacklist-container">
-  <div class="admin-page-header">
+  <div class="page-header">
     <div class="header-content">
-      <h1><i class="fas fa-user-slash"></i> Blacklist Management</h1>
-      <p>Manage users who are blacklisted from using the bot</p>
-    </div>
-    <div class="header-blob"></div>
-    <div class="header-stats">
-      <div class="stat-item">
-        <div class="stat-value"><%= blacklistedUsers.length %></div>
-        <div class="stat-label">Blacklisted Users</div>
+      <div class="header-title">
+        <h1 class="gradient-text"><i class="fas fa-user-slash"></i> Blacklist Management</h1>
+        <p>Control who can access your bot features and services</p>
+      </div>
+      <div class="user-count">
+        <div class="count-circle">
+          <span><%= blacklistedUsers.length %></span>
+        </div>
+        <div class="count-label">Blacklisted Users</div>
       </div>
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-4">
-      <div class="custom-card gradient-border">
-        <div class="card-header-custom">
-          <h5 class="card-title">Add to Blacklist</h5>
+  <div class="content-grid">
+    <div class="sidebar">
+      <div class="glass-card add-card">
+        <div class="card-header">
+          <h2>Add User to Blacklist</h2>
           <div class="card-icon">
             <i class="fas fa-user-slash"></i>
           </div>
         </div>
-        <div class="card-body-custom">
+        <div class="card-body">
           <form action="/admin/blacklist/add" method="POST">
             <div class="form-group">
-              <label for="userId" class="form-label">User ID</label>
+              <label for="userId" class="form-label">Discord User ID</label>
               <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                <div class="input-group-icon">
+                  <i class="fas fa-id-card"></i>
                 </div>
                 <input type="text" class="form-control" id="userId" name="userId" placeholder="Enter Discord user ID" required pattern="^\d{17,19}$">
               </div>
-              <small class="form-text text-muted">The Discord user ID must be 17-19 digits</small>
+              <div class="input-hint">17-19 digit Discord user ID</div>
             </div>
             
             <div class="form-group">
               <label for="reason" class="form-label">Reason</label>
               <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fas fa-comment-alt"></i></span>
+                <div class="input-group-icon">
+                  <i class="fas fa-comment-alt"></i>
                 </div>
-                <input type="text" class="form-control" id="reason" name="reason" placeholder="Reason for blacklisting" required>
+                <input type="text" class="form-control" id="reason" name="reason" placeholder="Why are they being blacklisted?" required>
               </div>
-              <small class="form-text text-muted">Provide a reason for adding user to blacklist</small>
+              <div class="input-hint">Reason for adding to blacklist</div>
             </div>
             
             <div class="form-group">
-              <label for="type" class="form-label">Blacklist Type</label>
-              <select class="custom-select" id="type" name="type" required>
-                <option value="global">Global Blacklist</option>
-                <option value="commands">Commands Only</option>
-                <option value="features">Features Only</option>
-              </select>
-              <small class="form-text text-muted">Select the type of blacklist to apply</small>
+              <label for="type" class="form-label">Restriction Type</label>
+              <div class="select-wrapper">
+                <select class="form-control" id="type" name="type" required>
+                  <option value="global">Global Blacklist</option>
+                  <option value="commands">Commands Only</option>
+                  <option value="features">Features Only</option>
+                </select>
+                <div class="select-arrow"><i class="fas fa-chevron-down"></i></div>
+              </div>
+              <div class="input-hint">Type of restriction to apply</div>
             </div>
             
-            <button type="submit" class="btn btn-primary btn-block pulse-btn">
+            <button type="submit" class="btn primary-btn glow-btn">
               <i class="fas fa-plus-circle"></i> Add to Blacklist
             </button>
           </form>
         </div>
       </div>
       
-      <div class="custom-card gradient-border mt-4">
-        <div class="card-header-custom">
-          <h5 class="card-title">Filter Blacklist</h5>
+      <div class="glass-card filter-card">
+        <div class="card-header">
+          <h2>Filter Results</h2>
           <div class="card-icon">
             <i class="fas fa-filter"></i>
           </div>
         </div>
-        <div class="card-body-custom">
+        <div class="card-body">
           <form id="filterForm">
             <div class="form-group">
               <label for="filterType" class="form-label">Filter by Type</label>
-              <select class="custom-select" id="filterType">
-                <option value="all">All Types</option>
-                <option value="global">Global Blacklist</option>
-                <option value="commands">Commands Only</option>
-                <option value="features">Features Only</option>
-              </select>
+              <div class="select-wrapper">
+                <select class="form-control" id="filterType">
+                  <option value="all">All Types</option>
+                  <option value="global">Global Blacklist</option>
+                  <option value="commands">Commands Only</option>
+                  <option value="features">Features Only</option>
+                </select>
+                <div class="select-arrow"><i class="fas fa-chevron-down"></i></div>
+              </div>
             </div>
             
             <div class="form-group">
               <label for="search" class="form-label">Search</label>
               <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <div class="input-group-icon">
+                  <i class="fas fa-search"></i>
                 </div>
                 <input type="text" class="form-control" id="search" placeholder="Search by ID or reason">
               </div>
             </div>
             
-            <button type="button" id="clearFilter" class="btn btn-secondary btn-block">
-              <i class="fas fa-times"></i> Clear Filter
+            <button type="button" id="clearFilter" class="btn secondary-btn">
+              <i class="fas fa-times"></i> Clear Filters
             </button>
           </form>
         </div>
       </div>
     </div>
     
-    <div class="col-md-8">
-      <div class="custom-card gradient-border">
-        <div class="card-header-custom">
-          <h5 class="card-title">Blacklisted Users</h5>
+    <div class="main-content">
+      <div class="glass-card users-card">
+        <div class="card-header">
+          <h2>Blacklisted Users</h2>
           <div class="card-icon">
             <i class="fas fa-list"></i>
           </div>
         </div>
-        <div class="card-body-custom">
-          <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <div class="alert-icon-wrapper">
+        <div class="card-body">
+          <div class="info-alert">
+            <div class="alert-icon">
               <i class="fas fa-info-circle"></i>
             </div>
             <div class="alert-content">
               Users on the blacklist will be prevented from using bot features according to their blacklist type.
             </div>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
           
-          <div class="table-responsive blacklist-table-container">
-            <table class="table table-hover blacklist-table" id="blacklistTable">
+          <div class="table-container">
+            <table class="data-table" id="blacklistTable">
               <thead>
                 <tr>
-                  <th scope="col">User ID</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Reason</th>
-                  <th scope="col">Added At</th>
-                  <th scope="col">Actions</th>
+                  <th>User ID</th>
+                  <th>Type</th>
+                  <th>Reason</th>
+                  <th>Added At</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <% if (blacklistedUsers.length === 0) { %>
                   <tr>
-                    <td colspan="5" class="text-center">
+                    <td colspan="5">
                       <div class="empty-state">
                         <div class="empty-icon">
-                          <i class="fas fa-user-shield"></i>
+                          <i class="fas fa-shield-alt"></i>
                         </div>
-                        <h4>No users have been blacklisted</h4>
-                        <p>Users added to the blacklist will appear here</p>
+                        <h3>No Users Blacklisted</h3>
+                        <p>When you add users to the blacklist, they will appear here</p>
                       </div>
                     </td>
                   </tr>
                 <% } else { %>
                   <% blacklistedUsers.forEach(user => { %>
-                    <tr data-type="<%= user.type %>" class="blacklist-row">
-                      <td class="user-id"><%= user.userId %></td>
+                    <tr data-type="<%= user.type %>" class="data-row">
+                      <td><div class="user-id"><%= user.userId %></div></td>
                       <td>
                         <% if (user.type === 'global') { %>
-                          <span class="badge badge-danger">Global</span>
+                          <div class="badge danger">Global</div>
                         <% } else if (user.type === 'commands') { %>
-                          <span class="badge badge-warning">Commands</span>
+                          <div class="badge warning">Commands</div>
                         <% } else if (user.type === 'features') { %>
-                          <span class="badge badge-info">Features</span>
+                          <div class="badge info">Features</div>
                         <% } else { %>
-                          <span class="badge badge-secondary"><%= user.type %></span>
+                          <div class="badge default"><%= user.type %></div>
                         <% } %>
                       </td>
-                      <td class="reason"><%= user.reason %></td>
-                      <td><%= new Date(user.addedAt).toLocaleString() %></td>
+                      <td><div class="reason"><%= user.reason %></div></td>
+                      <td><div class="date"><%= new Date(user.addedAt).toLocaleString() %></div></td>
                       <td>
-                        <div class="btn-group" role="group">
+                        <div class="actions">
                           <form action="/admin/blacklist/remove" method="POST" class="d-inline">
                             <input type="hidden" name="userId" value="<%= user.userId %>">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to remove <%= user.userId %> from the blacklist?')">
+                            <button type="submit" class="action-btn delete" onclick="return confirm('Are you sure you want to remove <%= user.userId %> from the blacklist?')" title="Remove from blacklist">
                               <i class="fas fa-trash-alt"></i>
                             </button>
                           </form>
-                          <button type="button" class="btn btn-sm btn-info copy-id" data-id="<%= user.userId %>">
+                          <button type="button" class="action-btn copy copy-id" data-id="<%= user.userId %>" title="Copy ID">
                             <i class="fas fa-copy"></i>
                           </button>
                         </div>
@@ -185,13 +189,13 @@
           </div>
           
           <% if (blacklistedUsers.length > 0) { %>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <div>
-                <span class="text-muted">Total: <%= blacklistedUsers.length %> user<%= blacklistedUsers.length !== 1 ? 's' : '' %></span>
+            <div class="table-footer">
+              <div class="table-info">
+                <span><%= blacklistedUsers.length %> user<%= blacklistedUsers.length !== 1 ? 's' : '' %> blacklisted</span>
               </div>
               <form action="/admin/blacklist/clear" method="POST" class="d-inline">
-                <button type="submit" class="btn btn-danger danger-btn" onclick="return confirm('Are you sure you want to clear the entire blacklist? This action cannot be undone.')">
-                  <i class="fas fa-exclamation-triangle"></i> Clear All Blacklisted Users
+                <button type="submit" class="btn danger-btn" onclick="return confirm('Are you sure you want to clear the entire blacklist? This action cannot be undone.')">
+                  <i class="fas fa-exclamation-triangle"></i> Clear All Users
                 </button>
               </form>
             </div>
@@ -207,246 +211,510 @@
 </div>
 
 <style>
+  :root {
+    --primary-color: #9c4dff;
+    --primary-light: #bf7fff;
+    --primary-hover: #8a43e0;
+    --secondary-color: #2a2d3e;
+    --background: #1a1c2e;
+    --card-bg: rgba(42, 45, 62, 0.7);
+    --card-bg-hover: rgba(52, 55, 72, 0.8);
+    --text-primary: #ffffff;
+    --text-secondary: #b3b9d1;
+    --border-radius: 12px;
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    --success-color: #28c76f;
+    --warning-color: #ff9f43;
+    --danger-color: #ea5455;
+    --info-color: #00cfe8;
+  }
+  
   .blacklist-container {
-    padding: 15px;
+    padding: 2rem;
+    background: var(--background);
+    min-height: calc(100vh - 64px);
   }
   
-  .admin-page-header {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-    background-size: 200% 200%;
-    color: white;
-    padding: 25px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    position: relative;
-    overflow: hidden;
-    animation: gradientShift 10s ease infinite;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  @keyframes gradientShift {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
+  /* Page Header */
+  .page-header {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--card-shadow);
   }
   
   .header-content {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .header-blob {
-    position: absolute;
-    top: -50px;
-    right: -50px;
-    width: 250px;
-    height: 250px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    pointer-events: none;
-  }
-  
-  .admin-page-header h1 {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  .admin-page-header h1 i {
-    margin-right: 12px;
-    background: rgba(255, 255, 255, 0.2);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .admin-page-header p {
-    margin: 8px 0 0 52px;
-    opacity: 0.9;
-    font-size: 16px;
-    max-width: 600px;
-  }
-  
-  .header-stats {
-    display: flex;
-    gap: 20px;
-    margin-right: 20px;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .stat-item {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 15px;
-    min-width: 120px;
-    text-align: center;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 5px;
-  }
-  
-  .stat-label {
-    font-size: 14px;
-    opacity: 0.8;
-  }
-  
-  .custom-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    overflow: hidden;
-    height: 100%;
-    transition: all 0.3s ease;
-  }
-  
-  .custom-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-  }
-  
-  .gradient-border {
-    position: relative;
-    border: none;
-  }
-  
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
-  }
-  
-  .card-header-custom {
-    padding: 18px 20px;
-    background: var(--card-header-bg);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
   }
   
-  .card-header-custom h5 {
+  .header-title h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+  }
+  
+  .header-title h1 i {
+    margin-right: 0.8rem;
+    color: var(--primary-color);
+  }
+  
+  .header-title p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
     margin: 0;
-    font-weight: 600;
   }
   
-  .card-icon {
-    width: 42px;
-    height: 42px;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  .gradient-text {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+  }
+  
+  .user-count {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .count-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 1.25rem;
-    box-shadow: 0 4px 10px rgba(42, 117, 252, 0.4);
+    margin-bottom: 0.5rem;
+    box-shadow: 0 5px 15px rgba(156, 77, 255, 0.3);
   }
   
-  .card-body-custom {
-    padding: 25px;
+  .count-circle span {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: white;
+  }
+  
+  .count-label {
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+  
+  /* Content Grid Layout */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 1.5rem;
+  }
+  
+  /* Cards */
+  .glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 1px solid rgba(156, 77, 255, 0.2);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    background: rgba(42, 45, 62, 0.9);
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .card-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+  }
+  
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 10px rgba(156, 77, 255, 0.3);
+  }
+  
+  .card-icon i {
+    font-size: 1.1rem;
+    color: white;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  /* Form Elements */
+  .form-group {
+    margin-bottom: 1.2rem;
   }
   
   .form-label {
+    display: block;
     font-weight: 500;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  
+  .input-group {
+    position: relative;
     display: flex;
     align-items: center;
   }
   
-  .blacklist-table-container {
-    max-height: 500px;
-    overflow-y: auto;
+  .input-group-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.5rem;
+    background: rgba(30, 32, 47, 0.6);
+    border: 1px solid rgba(156, 77, 255, 0.2);
     border-radius: 8px;
-    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
   }
   
-  .blacklist-table {
-    margin-bottom: 0;
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(156, 77, 255, 0.2);
   }
   
-  .blacklist-table th {
+  .input-hint {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.4rem;
+  }
+  
+  .select-wrapper {
+    position: relative;
+  }
+  
+  .select-wrapper .form-control {
+    appearance: none;
+    padding-right: 2.5rem;
+  }
+  
+  .select-arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+  
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .primary-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    box-shadow: 0 5px 15px rgba(156, 77, 255, 0.3);
+  }
+  
+  .primary-btn:hover {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(156, 77, 255, 0.4);
+  }
+  
+  .secondary-btn {
+    background: rgba(30, 32, 47, 0.7);
+    color: var(--text-secondary);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .secondary-btn:hover {
+    background: rgba(42, 45, 62, 0.9);
+    color: var(--text-primary);
+  }
+  
+  .danger-btn {
+    background: linear-gradient(135deg, var(--danger-color), #ff7676);
+    color: white;
+    box-shadow: 0 5px 15px rgba(234, 84, 85, 0.3);
+  }
+  
+  .danger-btn:hover {
+    background: linear-gradient(135deg, #ff5555, var(--danger-color));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(234, 84, 85, 0.4);
+  }
+  
+  .glow-btn {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .glow-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.6s, opacity 0.6s;
+  }
+  
+  .glow-btn:hover::after {
+    transform: scale(1);
+    opacity: 1;
+  }
+  
+  /* Table */
+  .table-container {
+    overflow-x: auto;
+    margin: 0 -1.5rem;
+    padding: 0 1.5rem;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .data-table thead th {
+    padding: 1rem 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: rgba(30, 32, 47, 0.7);
+    text-align: left;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
     position: sticky;
     top: 0;
-    background: var(--card-header-bg);
-    z-index: 1;
-    padding: 15px;
-    border-top: none;
+    z-index: 10;
+  }
+  
+  .data-table thead th:first-child {
+    border-top-left-radius: 8px;
+  }
+  
+  .data-table thead th:last-child {
+    border-top-right-radius: 8px;
+  }
+  
+  .data-row {
+    background: rgba(30, 32, 47, 0.3);
+    transition: background 0.3s ease;
+  }
+  
+  .data-row:hover {
+    background: var(--card-bg-hover);
+  }
+  
+  .data-table td {
+    padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+    color: var(--text-secondary);
+  }
+  
+  .user-id {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
     font-weight: 600;
+    color: var(--text-primary);
   }
   
-  .blacklist-table .user-id {
-    font-family: monospace;
-    font-weight: 600;
+  .date {
+    font-size: 0.9rem;
   }
   
-  .blacklist-row {
-    transition: all 0.2s ease;
-  }
-  
-  .blacklist-row:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-  }
-  
+  /* Badges */
   .badge {
-    padding: 6px 10px;
-    font-weight: 500;
-    border-radius: 20px;
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
   }
   
-  .badge-danger {
-    background-color: #ff4d6b;
+  .badge.danger {
+    background: rgba(234, 84, 85, 0.15);
+    color: var(--danger-color);
+    border: 1px solid rgba(234, 84, 85, 0.3);
   }
   
-  .badge-warning {
-    background-color: #ffa755;
-    color: #000;
+  .badge.warning {
+    background: rgba(255, 159, 67, 0.15);
+    color: var(--warning-color);
+    border: 1px solid rgba(255, 159, 67, 0.3);
   }
   
-  .badge-info {
-    background-color: #56ccf2;
+  .badge.info {
+    background: rgba(0, 207, 232, 0.15);
+    color: var(--info-color);
+    border: 1px solid rgba(0, 207, 232, 0.3);
   }
   
+  .badge.default {
+    background: rgba(179, 185, 209, 0.15);
+    color: var(--text-secondary);
+    border: 1px solid rgba(179, 185, 209, 0.3);
+  }
+  
+  /* Action Buttons */
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    font-size: 0.9rem;
+  }
+  
+  .action-btn.delete {
+    background: rgba(234, 84, 85, 0.15);
+    color: var(--danger-color);
+  }
+  
+  .action-btn.delete:hover {
+    background: rgba(234, 84, 85, 0.3);
+  }
+  
+  .action-btn.copy {
+    background: rgba(0, 207, 232, 0.15);
+    color: var(--info-color);
+  }
+  
+  .action-btn.copy:hover {
+    background: rgba(0, 207, 232, 0.3);
+  }
+  
+  /* Info Alert */
+  .info-alert {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 207, 232, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(0, 207, 232, 0.3);
+  }
+  
+  .alert-icon {
+    font-size: 1.5rem;
+    color: var(--info-color);
+    margin-right: 1rem;
+  }
+  
+  .alert-content {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  
+  /* Table Footer */
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(156, 77, 255, 0.1);
+  }
+  
+  .table-info {
+    color: var(--text-secondary);
+  }
+  
+  /* Empty State */
+  .empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+  
+  .empty-icon {
+    font-size: 3.5rem;
+    color: rgba(156, 77, 255, 0.2);
+    margin-bottom: 1rem;
+  }
+  
+  .empty-state h3 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  /* Toast Notifications */
   .toast-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 2rem;
+    right: 2rem;
     z-index: 9999;
   }
   
-  .custom-toast {
-    background: white;
-    max-width: 350px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border-radius: 10px;
-    margin-top: 10px;
+  .toast {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 8px;
     overflow: hidden;
-    animation: slideIn 0.3s ease-out forwards;
+    margin-top: 1rem;
+    width: 300px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+    animation: slideIn 0.3s ease forwards;
   }
   
   @keyframes slideIn {
@@ -462,129 +730,51 @@
   
   .toast-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    background: rgba(42, 45, 62, 0.9);
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
   }
   
   .toast-body {
-    padding: 15px;
+    padding: 1rem;
   }
   
-  .alert {
-    border: none;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    padding: 0;
-    overflow: hidden;
-  }
-  
-  .alert-icon-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    background: rgba(0, 123, 255, 0.2);
-    color: #0d6efd;
-    font-size: 1.5rem;
-  }
-  
-  .alert-content {
-    padding: 15px;
-    flex: 1;
-  }
-  
-  .empty-state {
-    padding: 30px;
-    text-align: center;
-    color: var(--text-muted);
-  }
-  
-  .empty-icon {
-    font-size: 3rem;
-    color: #d8e2ef;
-    margin-bottom: 15px;
-  }
-  
-  .pulse-btn {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
-    border: none;
-    transition: all 0.3s;
-  }
-  
-  .pulse-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(42, 117, 252, 0.4);
-  }
-  
-  .pulse-btn:after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.5);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%);
-    transform-origin: 50% 50%;
-  }
-  
-  @keyframes ripple {
-    0% {
-      transform: scale(0, 0);
-      opacity: 1;
-    }
-    20% {
-      transform: scale(25, 25);
-      opacity: 0.8;
-    }
-    100% {
-      opacity: 0;
-      transform: scale(40, 40);
-    }
-  }
-  
-  .pulse-btn:focus:not(:active)::after {
-    animation: ripple 1s ease-out;
-  }
-  
-  .danger-btn {
-    background: linear-gradient(90deg, #ff4d6b 0%, #ff8c78 100%);
-    border: none;
-    transition: all 0.3s;
-  }
-  
-  .danger-btn:hover {
-    background: linear-gradient(90deg, #ff3d5e 0%, #ff7c68 100%);
-    box-shadow: 0 5px 15px rgba(255, 77, 107, 0.4);
-  }
-  
-  @media (max-width: 767px) {
-    .row > div:first-child {
-      margin-bottom: 20px;
+  /* Responsive Adjustments */
+  @media (max-width: 1200px) {
+    .content-grid {
+      grid-template-columns: 1fr;
     }
     
-    .admin-page-header {
+    .sidebar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    .glass-card {
+      margin-bottom: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar {
+      grid-template-columns: 1fr;
+    }
+    
+    .header-content {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
+      text-align: center;
     }
     
-    .header-stats {
-      margin-top: 20px;
-      margin-right: 0;
+    .header-title {
+      margin-bottom: 1.5rem;
     }
-  }
-  
-  @media (max-width: 576px) {
-    .admin-page-header p {
-      margin-left: 0;
+    
+    .header-title h1 {
+      justify-content: center;
     }
   }
 </style>
@@ -596,7 +786,7 @@
       button.addEventListener('click', function() {
         const userId = this.getAttribute('data-id');
         navigator.clipboard.writeText(userId).then(() => {
-          showToast('User ID Copied', 'User ID has been copied to clipboard');
+          showToast('User ID Copied', 'ID has been copied to your clipboard');
         });
       });
     });
@@ -606,17 +796,14 @@
     const filterType = document.getElementById('filterType');
     const clearFilterBtn = document.getElementById('clearFilter');
     const table = document.getElementById('blacklistTable');
-    const tableRows = table.querySelectorAll('tbody tr');
+    const tableRows = table.querySelectorAll('tbody tr.data-row');
     
     function applyFilter() {
       const searchTerm = searchInput.value.toLowerCase();
       const selectedType = filterType.value;
+      let visibleCount = 0;
       
       tableRows.forEach(row => {
-        if (row.querySelector('.empty-state')) {
-          return;
-        }
-        
         const userId = row.querySelector('.user-id')?.textContent.toLowerCase() || '';
         const reason = row.querySelector('.reason')?.textContent.toLowerCase() || '';
         const type = row.getAttribute('data-type') || '';
@@ -624,8 +811,39 @@
         const matchesSearch = userId.includes(searchTerm) || reason.includes(searchTerm);
         const matchesType = selectedType === 'all' || type === selectedType;
         
-        row.style.display = matchesSearch && matchesType ? '' : 'none';
+        if (matchesSearch && matchesType) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
       });
+      
+      // Show empty state if no results
+      const emptyRow = table.querySelector('.empty-row');
+      if (visibleCount === 0 && tableRows.length > 0) {
+        if (!emptyRow) {
+          const tbody = table.querySelector('tbody');
+          const tr = document.createElement('tr');
+          tr.className = 'empty-row';
+          tr.innerHTML = `
+            <td colspan="5">
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <i class="fas fa-search"></i>
+                </div>
+                <h3>No Results Found</h3>
+                <p>Try adjusting your search or filters</p>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        } else {
+          emptyRow.style.display = '';
+        }
+      } else if (emptyRow) {
+        emptyRow.style.display = 'none';
+      }
     }
     
     if (searchInput && filterType && clearFilterBtn) {
@@ -644,13 +862,13 @@
       const toastContainer = document.getElementById('toastContainer');
       
       const toast = document.createElement('div');
-      toast.className = 'custom-toast';
+      toast.className = 'toast';
       
       toast.innerHTML = `
         <div class="toast-header">
           <strong>${title}</strong>
-          <button type="button" class="close" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+          <button type="button" class="close-btn">
+            <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="toast-body">
@@ -660,21 +878,25 @@
       
       toastContainer.appendChild(toast);
       
-      const closeButton = toast.querySelector('.close');
+      const closeButton = toast.querySelector('.close-btn');
       closeButton.addEventListener('click', function() {
-        toast.remove();
+        removeToast(toast);
       });
       
       // Auto remove after 5 seconds
       setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(100%)';
-        toast.style.transition = 'all 0.3s ease-out';
-        
-        setTimeout(() => {
-          toast.remove();
-        }, 300);
+        removeToast(toast);
       }, 5000);
+    }
+    
+    function removeToast(toast) {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      toast.style.transition = 'all 0.3s ease-out';
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
     }
   });
 </script>
