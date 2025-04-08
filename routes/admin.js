@@ -305,7 +305,7 @@ router.post('/blacklist/remove', (req, res) => {
  * GET /admin/settings
  * Bot settings
  */
-router.get('/settings', (req, res) => {
+router.get('/settings', async (req, res) => {
   // Get the bot configuration
   const config = require('../config');
   
@@ -336,6 +336,51 @@ router.get('/settings', (req, res) => {
     }
   }
   
+  // Parse admin users from config
+  const adminUsers = await Promise.all(config.adminUserIds.map(async id => {
+    // Extract comment from the config.js file structure (if available)
+    const configContent = fs.readFileSync('./config.js', 'utf8');
+    const commentMatch = new RegExp(`'${id}'[^,]*// ([^\\n]*)`, 'i').exec(configContent);
+    const comment = commentMatch ? commentMatch[1].trim() : 'No comment';
+    
+    // If Discord client is available, fetch user data
+    let username = null;
+    let displayName = null;
+    let avatarUrl = null;
+    
+    if (client) {
+      try {
+        const user = await client.users.fetch(id).catch(e => null);
+        if (user) {
+          username = user.username;
+          displayName = user.globalName || user.username;
+          avatarUrl = user.displayAvatarURL({ dynamic: true });
+        }
+      } catch (error) {
+        console.error(`Failed to fetch Discord user data for ID ${id}:`, error);
+      }
+    }
+    
+    return {
+      id,
+      comment,
+      username,
+      displayName,
+      avatarUrl
+    };
+  }));
+  
+  // Get all local admin users
+  let localAdminUsers = [];
+  try {
+    // Get all local users and filter for admins
+    const allLocalUsers = await db.getAllLocalUsers();
+    localAdminUsers = allLocalUsers.filter(user => user.is_admin);
+  } catch (error) {
+    console.error('Error fetching local admin users:', error);
+    req.flash('error', 'Failed to load local admin users');
+  }
+  
   // First try to render the new template
   try {
     res.render('admin/settings-new', {
@@ -343,6 +388,10 @@ router.get('/settings', (req, res) => {
       user: req.user,
       config: config,
       memberData,
+      adminUsers,
+      localAdminUsers,
+      success: req.flash('success'),
+      error: req.flash('error'),
       layout: 'layouts/admin'
     });
   } catch (err) {
@@ -352,6 +401,10 @@ router.get('/settings', (req, res) => {
       title: 'Bot Settings | SWOOSH Bot',
       user: req.user,
       config: config,
+      adminUsers,
+      localAdminUsers,
+      success: req.flash('success'),
+      error: req.flash('error'),
       layout: 'layouts/admin'
     });
   }

@@ -1,0 +1,100 @@
+<%- include('../partials/admin-header-fixed') %>
+
+<div class="admin-page-header">
+  <div class="header-content">
+    <h1><i class="fas fa-user-shield"></i> Admin User Management</h1>
+    <p>Manage admin users who have access to the dashboard</p>
+  </div>
+</div>
+
+<div class="dashboard-stats-row">
+  <div class="dashboard-stat-card">
+    <div class="stat-icon discord">
+      <i class="fab fa-discord"></i>
+    </div>
+    <div class="stat-info">
+      <h3>Discord Admins</h3>
+      <p class="stat-number"><%= adminUsers.length || 0 %></p>
+    </div>
+  </div>
+  
+  <div class="dashboard-stat-card">
+    <div class="stat-icon local">
+      <i class="fas fa-user-lock"></i>
+    </div>
+    <div class="stat-info">
+      <h3>Local Admins</h3>
+      <p class="stat-number"><%= (typeof localAdminUsers !== 'undefined' ? localAdminUsers.length : 0) %></p>
+    </div>
+  </div>
+</div>
+
+<% if (success) { %>
+  <div class="alert alert-success">
+    <i class="fas fa-check-circle"></i> <%= success %>
+    <button class="alert-close"><i class="fas fa-times"></i></button>
+  </div>
+<% } %>
+
+<% if (error) { %>
+  <div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i> <%= error %>
+    <button class="alert-close"><i class="fas fa-times"></i></button>
+  </div>
+<% } %>
+
+<div class="admin-tabs">
+  <button class="tab-btn active" data-tab="discord-admins">
+    <i class="fab fa-discord"></i> Discord Admins
+  </button>
+  <button class="tab-btn" data-tab="local-admins">
+    <i class="fas fa-user-lock"></i> Local Admins
+  </button>
+  <button class="tab-btn" data-tab="add-discord">
+    <i class="fas fa-plus-circle"></i> Add Discord Admin
+  </button>
+  <button class="tab-btn" data-tab="add-local">
+    <i class="fas fa-plus-circle"></i> Add Local Admin
+  </button>
+</div>
+
+<div class="tab-content">
+  <!-- Discord Admin Users Tab -->
+  <div class="tab-pane active" id="discord-admins">
+    <div class="card modern-card">
+      <div class="card-header">
+        <h2><i class="fab fa-discord"></i> Discord Admin Users</h2>
+        <p>These Discord users have access to the admin panel via Discord OAuth</p>
+      </div>
+      <div class="card-body">
+        <% if (adminUsers && adminUsers.length > 0) { %>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>User Information</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% adminUsers.forEach(user => { %>
+                  <tr>
+                    <td><code><%= user.id %></code></td>
+                    <td>
+                      <div class="user-info">
+                        <% if (user.avatarUrl) { %>
+                          <img src="<%= user.avatarUrl %>" alt="Discord avatar" class="user-avatar">
+                        <% } else { %>
+                          <div class="user-avatar user-avatar-placeholder">
+                            <i class="fab fa-discord"></i>
+                          </div>
+                        <% } %>
+                        <div class="user-details">
+                          <% if (user.username) { %>
+                            <span class="username"><%= user.displayName %></span>
+                            <span class="user-tag">@<%= user.username %></span>
+                          <% } else { %>
+                            <span class="username"><%= user.comment %></span>
+                          <% } %>
+                        </div>

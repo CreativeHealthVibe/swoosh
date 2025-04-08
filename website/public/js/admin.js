@@ -576,9 +576,58 @@ function handleBlacklistRemove() {
 }
 
 /**
+ * Initialize tabs functionality
+ */
+function initializeTabs() {
+  // Select all tab buttons
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  
+  // Add click event listeners to each tab button
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Get the parent tab container
+      const tabsContainer = this.closest('.admin-tabs') || this.closest('.settings-nav');
+      
+      // If we're in settings nav, get the correct container
+      let tabContentContainer;
+      if (this.closest('.settings-nav')) {
+        tabContentContainer = document.querySelector('.settings-content');
+      } else {
+        tabContentContainer = tabsContainer.nextElementSibling.querySelector('.tab-content') 
+          ? tabsContainer.nextElementSibling 
+          : tabsContainer.parentElement;
+      }
+      
+      // Get the tab to show
+      const tabToShow = this.getAttribute('data-tab');
+      
+      // Remove active class from all tab buttons
+      const allButtons = tabsContainer.querySelectorAll('.tab-btn');
+      allButtons.forEach(btn => btn.classList.remove('active'));
+      
+      // Add active class to clicked button
+      this.classList.add('active');
+      
+      // Hide all tab panes
+      const allPanes = tabContentContainer.querySelectorAll('.tab-pane');
+      allPanes.forEach(pane => pane.classList.remove('active'));
+      
+      // Show the selected tab pane
+      const selectedPane = tabContentContainer.querySelector(`#${tabToShow}`);
+      if (selectedPane) {
+        selectedPane.classList.add('active');
+      }
+    });
+  });
+}
+
+/**
  * Initialize interactive components
  */
 function initializeComponents() {
+  // Initialize tabs
+  initializeTabs();
+  
   // Add event listeners to collapsible sections
   const collapsibles = document.querySelectorAll('.admin-collapsible-header');
   collapsibles.forEach(header => {

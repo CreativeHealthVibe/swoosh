@@ -1,0 +1,138 @@
+
+  /* Admin user table styles */
+  .table-responsive {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(30, 32, 47, 0.6);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .modern-table th,
+  .modern-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+  }
+  
+  .modern-table th {
+    background: rgba(42, 45, 62, 0.9);
+    color: var(--text-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .modern-table tbody tr:hover {
+    background: rgba(156, 77, 255, 0.07);
+  }
+  
+  .modern-table .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .modern-table .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .modern-table .user-avatar-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6873f3, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+  }
+  
+  .modern-table .user-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modern-table .username {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .modern-table .user-tag {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+  }
+  
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    background: rgba(30, 32, 47, 0.6);
+    border-radius: 10px;
+    border: 1px dashed rgba(156, 77, 255, 0.3);
+    color: var(--text-secondary);
+  }
+  
+  .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+  
+  .empty-state h3 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .empty-state p {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .badge-primary {
+    background: linear-gradient(135deg, rgba(156, 77, 255, 0.2), rgba(156, 77, 255, 0.3));
+    color: var(--primary-color);
+    border: 1px solid rgba(156, 77, 255, 0.3);
+  }
+  
+  .badge-secondary {
+    background: rgba(75, 85, 99, 0.2);
+    color: var(--text-secondary);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
