@@ -310,9 +310,14 @@ router.get('/settings', async (req, res) => {
     // Mark this as a static page to prevent WebSocket refreshing
     const staticPage = true;
     
-    // Get user info for the settings page
-    const adminUsers = await getUserList('admin');
-    const localAdminUsers = await getLocalUsers();
+    // Get admin users from the config file
+    const config = require('../config');
+    const adminUsers = config.adminUserIds || [];
+    
+    // Get local admin users from the database
+    const db = req.app.locals.db;
+    const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
+                           (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
     
     // Render the new settings page
     res.render('admin/settings-new', {
@@ -320,6 +325,7 @@ router.get('/settings', async (req, res) => {
       adminUsers,
       localAdminUsers,
       staticPage,
+      title: 'Bot Settings | SWOOSH Bot',
       layout: 'layouts/admin'
     });
     return;
