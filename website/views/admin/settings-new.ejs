@@ -1,4 +1,9 @@
 <%- include('../partials/admin-header-fixed') %>
+<% 
+// Set page-level variables and defaults
+const adminUsers = typeof adminUsers !== 'undefined' ? adminUsers : [];
+const localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers : [];
+%>
 
 <div class="settings-container">
   <div class="page-header">
@@ -403,7 +408,7 @@
                 <p class="section-description">These Discord users have access to the admin panel via Discord OAuth</p>
                 
                 <div class="admin-users">
-                  <% if (Array.isArray(adminUsers) && adminUsers.length > 0) { %>
+                  <% if (typeof adminUsers !== "undefined" && Array.isArray(adminUsers) && adminUsers.length > 0) { %>
                     <div class="table-responsive">
                       <table class="modern-table">
                         <thead>
