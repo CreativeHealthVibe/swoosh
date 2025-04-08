@@ -1,0 +1,127 @@
+      <div class="tab-content" id="admin">
+        <div class="glass-card">
+          <div class="card-header">
+            <h2>Admin Access Settings</h2>
+            <div class="card-icon">
+              <i class="fas fa-user-shield"></i>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Admin Users Tabs -->
+            <div class="admin-tabs">
+              <button class="tab-btn active" data-tab="discord-admins">
+                <i class="fab fa-discord"></i> Discord Admins
+              </button>
+              <button class="tab-btn" data-tab="local-admins">
+                <i class="fas fa-user-lock"></i> Local Admins
+              </button>
+              <button class="tab-btn" data-tab="add-discord">
+                <i class="fas fa-plus-circle"></i> Add Discord Admin
+              </button>
+              <button class="tab-btn" data-tab="add-local">
+                <i class="fas fa-plus-circle"></i> Add Local Admin
+              </button>
+            </div>
+
+            <!-- Admin Tabs Content -->
+            <div class="settings-section">
+              <div class="tab-pane active" id="discord-admins">
+                <h3>Discord Admin Users</h3>
+                <p class="section-description">These Discord users have access to the admin panel via Discord OAuth</p>
+                
+                <div class="admin-users">
+                  <% if (Array.isArray(adminUsers) && adminUsers.length > 0) { %>
+                    <div class="table-responsive">
+                      <table class="modern-table">
+                        <thead>
+                          <tr>
+                            <th>User ID</th>
+                            <th>User Information</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% adminUsers.forEach(user => { %>
+                            <tr>
+                              <td><code><%= user.id %></code></td>
+                              <td>
+                                <div class="user-info">
+                                  <% if (user.avatarUrl) { %>
+                                    <img src="<%= user.avatarUrl %>" alt="Discord avatar" class="user-avatar">
+                                  <% } else { %>
+                                    <div class="user-avatar user-avatar-placeholder">
+                                      <i class="fab fa-discord"></i>
+                                    </div>
+                                  <% } %>
+                                  <div class="user-details">
+                                    <% if (user.username) { %>
+                                      <span class="username"><%= user.displayName %></span>
+                                      <span class="user-tag">@<%= user.username %></span>
+                                    <% } else { %>
+                                      <span class="username"><%= user.comment %></span>
+                                    <% } %>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <form action="/admin/users/remove" method="POST" class="inline-form">
+                                  <input type="hidden" name="userId" value="<%= user.id %>">
+                                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this admin user?')">
+                                    <i class="fas fa-trash"></i> Remove
+                                  </button>
+                                </form>
+                              </td>
+                            </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
+                    </div>
+                  <% } else { %>
+                    <div class="empty-state">
+                      <i class="fas fa-users-slash"></i>
+                      <p>No Discord admin users found</p>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+              
+              <div class="add-admin-section">
+                <h3>Add New Admin User</h3>
+                <form action="/admin/users/add" method="POST">
+                  <div class="form-row">
+                    <div class="form-group half">
+                      <label for="userId">Discord User ID</label>
+                      <div class="input-group">
+                        <div class="input-group-icon">
+                          <i class="fas fa-id-card"></i>
+                        </div>
+                        <input type="text" class="form-control" id="userId" name="userId" placeholder="Enter Discord ID" pattern="^\d{17,19}$" required>
+                      </div>
+                      <div class="input-hint">User's Discord ID (17-19 digits)</div>
+                    </div>
+                    
+                    <div class="form-group half">
+                      <label for="comment">User Description</label>
+                      <div class="input-group">
+                        <div class="input-group-icon">
+                          <i class="fas fa-user-tag"></i>
+                        </div>
+                        <input type="text" class="form-control" id="comment" name="comment" placeholder="e.g. Moderator, Developer" required>
+                      </div>
+                      <div class="input-hint">Description or role of this administrator</div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-actions">
+                    <button type="submit" class="btn primary-btn">
+                      <i class="fas fa-plus-circle"></i> Add Admin User
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            
+            <div class="settings-section">
+              <h3>Staff Roles</h3>
+              <p class="section-description">Discord roles that have access to certain bot commands</p>
+              

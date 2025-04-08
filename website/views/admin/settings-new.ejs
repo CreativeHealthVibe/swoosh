@@ -380,82 +380,228 @@
             </div>
           </div>
           <div class="card-body">
+            <!-- Admin Users Tabs -->
+            <div class="admin-tabs">
+              <button class="tab-btn active" data-tab="discord-admins">
+                <i class="fab fa-discord"></i> Discord Admins
+              </button>
+              <button class="tab-btn" data-tab="local-admins">
+                <i class="fas fa-user-lock"></i> Local Admins
+              </button>
+              <button class="tab-btn" data-tab="add-discord">
+                <i class="fas fa-plus-circle"></i> Add Discord Admin
+              </button>
+              <button class="tab-btn" data-tab="add-local">
+                <i class="fas fa-plus-circle"></i> Add Local Admin
+              </button>
+            </div>
+
+            <!-- Admin Tabs Content -->
             <div class="settings-section">
-              <h3>Admin Users</h3>
-              <p class="section-description">Users with full access to the admin dashboard</p>
-              
-              <div class="admin-users">
-                <% if (Array.isArray(config.adminUserIds) && config.adminUserIds.length > 0) { %>
-                  <% for (const userId of config.adminUserIds) { %>
-                    <div class="admin-user-item">
-                      <div class="admin-user-info">
-                        <div class="user-avatar">
-                          <i class="fas fa-user"></i>
-                        </div>
-                        <div class="user-details">
-                          <div class="user-id"><%= userId %></div>
-                          <div class="user-role">Full Administrator</div>
-                        </div>
-                      </div>
-                      <form action="/admin/users/remove" method="POST" class="inline-form">
-                        <input type="hidden" name="userId" value="<%= userId %>">
-                        <button type="submit" class="action-btn delete" onclick="return confirm('Are you sure you want to remove this admin user? They will lose access to the dashboard.')" title="Remove admin">
-                          <i class="fas fa-trash-alt"></i>
-                        </button>
-                      </form>
+              <div class="tab-pane active" id="discord-admins">
+                <h3>Discord Admin Users</h3>
+                <p class="section-description">These Discord users have access to the admin panel via Discord OAuth</p>
+                
+                <div class="admin-users">
+                  <% if (Array.isArray(adminUsers) && adminUsers.length > 0) { %>
+                    <div class="table-responsive">
+                      <table class="modern-table">
+                        <thead>
+                          <tr>
+                            <th>User ID</th>
+                            <th>User Information</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% adminUsers.forEach(user => { %>
+                            <tr>
+                              <td><code><%= user.id %></code></td>
+                              <td>
+                                <div class="user-info">
+                                  <% if (user.avatarUrl) { %>
+                                    <img src="<%= user.avatarUrl %>" alt="Discord avatar" class="user-avatar">
+                                  <% } else { %>
+                                    <div class="user-avatar user-avatar-placeholder">
+                                      <i class="fab fa-discord"></i>
+                                    </div>
+                                  <% } %>
+                                  <div class="user-details">
+                                    <% if (user.username) { %>
+                                      <span class="username"><%= user.displayName %></span>
+                                      <span class="user-tag">@<%= user.username %></span>
+                                    <% } else { %>
+                                      <span class="username"><%= user.comment %></span>
+                                    <% } %>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <form action="/admin/users/remove" method="POST" class="inline-form">
+                                  <input type="hidden" name="userId" value="<%= user.id %>">
+                                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this admin user?')">
+                                    <i class="fas fa-trash"></i> Remove
+                                  </button>
+                                </form>
+                              </td>
+                            </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
+                    </div>
+                  <% } else { %>
+                    <div class="empty-state">
+                      <i class="fas fa-users-slash"></i>
+                      <p>No Discord admin users found</p>
                     </div>
                   <% } %>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="local-admins">
+                <h3>Local Admin Users</h3>
+                <p class="section-description">These users can access the admin panel with username and password login</p>
+                
+                <% if (typeof localAdminUsers !== 'undefined' && localAdminUsers.length > 0) { %>
+                  <div class="table-responsive">
+                    <table class="modern-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Username</th>
+                          <th>Display Name</th>
+                          <th>Email</th>
+                          <th>Super Admin</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% localAdminUsers.forEach(user => { %>
+                          <tr>
+                            <td><code><%= user.id %></code></td>
+                            <td>
+                              <div class="user-info">
+                                <% if (user.avatar) { %>
+                                  <img src="<%= user.avatar %>" alt="User avatar" class="user-avatar">
+                                <% } else { %>
+                                  <div class="user-avatar user-avatar-placeholder">
+                                    <i class="fas fa-user"></i>
+                                  </div>
+                                <% } %>
+                                <span class="username"><%= user.username %></span>
+                              </div>
+                            </td>
+                            <td><%= user.display_name || 'N/A' %></td>
+                            <td><%= user.email || 'N/A' %></td>
+                            <td>
+                              <span class="badge <%= user.is_super_admin ? 'badge-primary' : 'badge-secondary' %>">
+                                <%= user.is_super_admin ? 'Yes' : 'No' %>
+                              </span>
+                            </td>
+                            <td>
+                              <div class="action-buttons">
+                                <form action="/admin/localusers/remove" method="POST" class="inline-form">
+                                  <input type="hidden" name="userId" value="<%= user.id %>">
+                                  <button type="submit" class="btn btn-danger btn-sm" 
+                                    onclick="return confirm('Are you sure you want to remove this local admin user?')">
+                                    <i class="fas fa-trash"></i> Remove
+                                  </button>
+                                </form>
+                              </div>
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
                 <% } else { %>
                   <div class="empty-state">
-                    <div class="empty-icon">
-                      <i class="fas fa-user-shield"></i>
-                    </div>
-                    <h3>No Admin Users</h3>
-                    <p>Add administrators using the form below</p>
+                    <i class="fas fa-users-slash"></i>
+                    <p>No local admin users found</p>
                   </div>
                 <% } %>
               </div>
-              
-              <div class="add-admin-section">
-                <h3>Add New Admin User</h3>
-                <form action="/admin/users/add" method="POST">
+
+              <div class="tab-pane" id="add-discord">
+                <h3>Add New Discord Admin</h3>
+                <p class="section-description">Add a Discord user as an admin who can access via Discord OAuth</p>
+                
+                <form action="/admin/users/add" method="POST" class="modern-form">
                   <div class="form-row">
-                    <div class="form-group half">
-                      <label for="userId">Discord User ID</label>
-                      <div class="input-group">
-                        <div class="input-group-icon">
-                          <i class="fas fa-id-card"></i>
-                        </div>
-                        <input type="text" class="form-control" id="userId" name="userId" placeholder="Enter Discord ID" pattern="^\d{17,19}$" required>
-                      </div>
-                      <div class="input-hint">User's Discord ID (17-19 digits)</div>
+                    <div class="form-group form-group-half">
+                      <label for="userId"><i class="fab fa-discord"></i> Discord User ID</label>
+                      <input type="text" id="userId" name="userId" class="form-control" placeholder="Enter Discord ID (17-19 digits)" pattern="^\d{17,19}$" required>
+                      <small class="form-text">The Discord user's unique ID. You can get this by enabling Developer Mode in Discord and right-clicking on a user.</small>
                     </div>
                     
-                    <div class="form-group half">
-                      <label for="comment">User Description</label>
-                      <div class="input-group">
-                        <div class="input-group-icon">
-                          <i class="fas fa-user-tag"></i>
-                        </div>
-                        <input type="text" class="form-control" id="comment" name="comment" placeholder="e.g. Moderator, Developer" required>
-                      </div>
-                      <div class="input-hint">Description or role of this administrator</div>
+                    <div class="form-group form-group-half">
+                      <label for="comment"><i class="fas fa-comment"></i> Description</label>
+                      <input type="text" id="comment" name="comment" class="form-control" placeholder="e.g. Server Owner, Developer" required>
+                      <small class="form-text">A description of this admin user's role or position.</small>
                     </div>
                   </div>
                   
                   <div class="form-actions">
-                    <button type="submit" class="btn primary-btn">
-                      <i class="fas fa-plus-circle"></i> Add Admin User
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-plus-circle"></i> Add Discord Admin
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="tab-pane" id="add-local">
+                <h3>Add New Local Admin</h3>
+                <p class="section-description">Create a new admin user who can log in directly with username and password</p>
+                
+                <form action="/admin/localusers/add" method="POST" class="modern-form">
+                  <div class="form-row">
+                    <div class="form-group form-group-half">
+                      <label for="username"><i class="fas fa-user"></i> Username</label>
+                      <input type="text" id="username" name="username" class="form-control" placeholder="admin1" required>
+                      <small class="form-text">Enter a username for login (e.g., "admin1", "moderator", etc.).</small>
+                    </div>
+                    
+                    <div class="form-group form-group-half">
+                      <label for="password"><i class="fas fa-lock"></i> Password</label>
+                      <div class="password-input-group">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" minlength="8" required>
+                        <button type="button" class="password-toggle"><i class="fas fa-eye"></i></button>
+                      </div>
+                      <small class="form-text">Create a strong password (minimum 8 characters).</small>
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group form-group-half">
+                      <label for="display_name"><i class="fas fa-id-badge"></i> Display Name (Optional)</label>
+                      <input type="text" id="display_name" name="display_name" class="form-control" placeholder="John Doe">
+                      <small class="form-text">The name that will be displayed in the admin panel.</small>
+                    </div>
+                    
+                    <div class="form-group form-group-half">
+                      <label for="email"><i class="fas fa-envelope"></i> Email (Optional)</label>
+                      <input type="email" id="email" name="email" class="form-control" placeholder="admin@example.com">
+                      <small class="form-text">Email address for account recovery.</small>
+                    </div>
+                  </div>
+                  
+                  <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="is_super_admin" name="is_super_admin">
+                    <label class="form-check-label" for="is_super_admin">Make Super Admin</label>
+                    <small class="form-text">Super admins have additional privileges including user management.</small>
+                  </div>
+                  
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-plus-circle"></i> Create Admin User
                     </button>
                   </div>
                 </form>
               </div>
             </div>
-            
-            <div class="settings-section">
-              <h3>Staff Roles</h3>
-              <p class="section-description">Discord roles that have access to certain bot commands</p>
-              
+          </div>
+        </div>
+      </div>
               <div class="staff-roles">
                 <% if (Array.isArray(config.staffRoles) && config.staffRoles.length > 0) { %>
                   <% config.staffRoles.forEach(role => { %>
@@ -1284,6 +1430,389 @@
     opacity: 0.6;
   }
   
+  /* Admin user table styles */
+  .table-responsive {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(30, 32, 47, 0.6);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .modern-table th,
+  .modern-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+  }
+  
+  .modern-table th {
+    background: rgba(42, 45, 62, 0.9);
+    color: var(--text-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .modern-table tbody tr:hover {
+    background: rgba(156, 77, 255, 0.07);
+  }
+  
+  .modern-table .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .modern-table .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .modern-table .user-avatar-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6873f3, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+  }
+  
+  .modern-table .user-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modern-table .username {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .modern-table .user-tag {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+  }
+  
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    background: rgba(30, 32, 47, 0.6);
+    border-radius: 10px;
+    border: 1px dashed rgba(156, 77, 255, 0.3);
+    color: var(--text-secondary);
+  }
+  
+  .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+  
+  .empty-state h3 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .empty-state p {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .badge-primary {
+    background: linear-gradient(135deg, rgba(156, 77, 255, 0.2), rgba(156, 77, 255, 0.3));
+    color: var(--primary-color);
+    border: 1px solid rgba(156, 77, 255, 0.3);
+  }
+  
+  .badge-secondary {
+    background: rgba(75, 85, 99, 0.2);
+    color: var(--text-secondary);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
+
+
+  /* Admin Tabs */
+  .admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+    margin-bottom: 1.5rem;
+    background: rgba(30, 32, 47, 0.6);
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+  }
+  
+  .admin-tabs .tab-btn {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 3px solid transparent;
+  }
+  
+  .admin-tabs .tab-btn:hover {
+    background: rgba(156, 77, 255, 0.1);
+    color: var(--text-primary);
+  }
+  
+  .admin-tabs .tab-btn.active {
+    color: var(--primary-color);
+    background: rgba(156, 77, 255, 0.15);
+    border-bottom: 3px solid var(--primary-color);
+  }
+  
+  .tab-pane {
+    display: none;
+    padding: 1rem 0;
+  }
+  
+  .tab-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Admin user table styles */
+  .table-responsive {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(30, 32, 47, 0.6);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .modern-table th,
+  .modern-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
+  }
+  
+  .modern-table th {
+    background: rgba(42, 45, 62, 0.9);
+    color: var(--text-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .modern-table tbody tr:hover {
+    background: rgba(156, 77, 255, 0.07);
+  }
+  
+  .modern-table .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .modern-table .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .modern-table .user-avatar-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6873f3, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+  }
+  
+  .modern-table .user-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modern-table .username {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .modern-table .user-tag {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+  }
+  
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    background: rgba(30, 32, 47, 0.6);
+    border-radius: 10px;
+    border: 1px dashed rgba(156, 77, 255, 0.3);
+    color: var(--text-secondary);
+  }
+  
+  .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+  
+  .empty-state h3 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .empty-state p {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .badge-primary {
+    background: linear-gradient(135deg, rgba(156, 77, 255, 0.2), rgba(156, 77, 255, 0.3));
+    color: var(--primary-color);
+    border: 1px solid rgba(156, 77, 255, 0.3);
+  }
+  
+  .badge-secondary {
+    background: rgba(75, 85, 99, 0.2);
+    color: var(--text-secondary);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+  }
+
+
+  /* Admin Tabs */
+  .admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+    margin-bottom: 1.5rem;
+    background: rgba(30, 32, 47, 0.6);
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+  }
+  
+  .admin-tabs .tab-btn {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 3px solid transparent;
+  }
+  
+  .admin-tabs .tab-btn:hover {
+    background: rgba(156, 77, 255, 0.1);
+    color: var(--text-primary);
+  }
+  
+  .admin-tabs .tab-btn.active {
+    color: var(--primary-color);
+    background: rgba(156, 77, 255, 0.15);
+    border-bottom: 3px solid var(--primary-color);
+  }
+  
+  .tab-pane {
+    display: none;
+    padding: 1rem 0;
+  }
+  
+  .tab-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+
   /* Limits Grid */
   .limits-grid {
     display: grid;
