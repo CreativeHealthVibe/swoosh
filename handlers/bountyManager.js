@@ -58,7 +58,7 @@ module.exports = {
       
       // Use the specific custom emojis provided
       // Custom emoji IDs directly from SWOOSH STUDIO server
-      const moneyEmoji = '💰'; // Using default for title
+      const moneyEmoji = '<:S__dollars:1359207557964759261>'; 
       const targetEmoji = '👤'; // Using default for target
       const idEmoji = '<:S__ID:1359205471633801457>';
       const rewardEmoji = '💵'; // Using default for reward
