@@ -73,7 +73,7 @@ client.once('ready', async () => {
   console.log(`🚀 ${client.user.tag} is online!`);
   console.log(`Bot client ID: ${client.user.id}`);
   
-  // Set custom bot status with streaming activity and idle state
+  // Set custom bot status with streaming activity and online state
   client.user.setPresence({
     activities: [{ 
       name: '.gg/swoosh', // Support server invite
@@ -81,7 +81,7 @@ client.once('ready', async () => {
       url: 'https://swooshfinal.onrender.com/', // Website URL
       details: 'made by gh_sman' // Additional status message/details
     }],
-    status: 'idle' // 'online', 'idle', 'dnd', or 'invisible'
+    status: 'online' // 'online', 'idle', 'dnd', or 'invisible'
   });
   console.log('✅ Set custom status: Streaming .gg/swoosh (made by gh_sman)');
   
