@@ -782,37 +782,49 @@ router.get('/welcome', (req, res) => {
   
   // Make sure user is defined before accessing properties
   try {
-    res.render('admin/welcome-stair-fix', {
+    // Try the new page with external CSS fix first
+    res.render('admin/welcome-final-fix', {
       title: 'Dashboard | SWOOSH Bot',
       greeting: `${greeting}`,
       user: req.user || null,
       path: '/admin/welcome',
       layout: 'layouts/admin'
     });
-  } catch (error) {
-    console.error('Error rendering fixed welcome page:', error);
-    // Fallback to previous pages if the fixed one fails
+  } catch (finalError) {
+    console.error('Error rendering final fixed welcome page:', finalError);
+    // Fallback to previous fixes if needed
     try {
-      res.render('admin/welcome-enhanced-fix', {
+      res.render('admin/welcome-stair-fix', {
         title: 'Dashboard | SWOOSH Bot',
         greeting: `${greeting}`,
         user: req.user || null,
         path: '/admin/welcome',
         layout: 'layouts/admin'
       });
-    } catch (enhancedFixError) {
-      console.error('Error rendering enhanced-fix welcome page:', enhancedFixError);
+    } catch (stairFixError) {
+      console.error('Error rendering stair-fix welcome page:', stairFixError);
       try {
-        res.render('admin/welcome-enhanced', {
+        res.render('admin/welcome-enhanced-fix', {
           title: 'Dashboard | SWOOSH Bot',
           greeting: `${greeting}`,
           user: req.user || null,
           path: '/admin/welcome',
           layout: 'layouts/admin'
         });
-      } catch (err) {
-        console.error('Error rendering fallback welcome page:', err);
-        res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
+      } catch (enhancedFixError) {
+        console.error('Error rendering enhanced-fix welcome page:', enhancedFixError);
+        try {
+          res.render('admin/welcome-enhanced', {
+            title: 'Dashboard | SWOOSH Bot',
+            greeting: `${greeting}`,
+            user: req.user || null,
+            path: '/admin/welcome',
+            layout: 'layouts/admin'
+          });
+        } catch (err) {
+          console.error('Error rendering fallback welcome page:', err);
+          res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
+        }
       }
     }
   }

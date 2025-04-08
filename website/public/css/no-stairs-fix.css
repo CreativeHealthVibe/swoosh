@@ -1,0 +1,39 @@
+/* Fix for text stairs in the welcome page */
+.welcome-text h1,
+.welcome-text h1 span,
+.card-title,
+.quick-action-title,
+.stat-card__title,
+.stat-card__value,
+.system-info-value,
+.activity-message {
+  white-space: normal !important;
+  display: inline-block !important;
+  word-break: normal !important;
+  word-wrap: normal !important;
+  overflow-wrap: normal !important;
+  line-height: 1.4 !important;
+}
+
+.card-header {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.welcome-text {
+  width: 100% !important;
+}
+
+@media (max-width: 576px) {
+  .welcome-text h1 {
+    font-size: 1.3rem !important;
+  }
+  
+  .welcome-user {
+    flex-wrap: nowrap !important;
+  }
+}
