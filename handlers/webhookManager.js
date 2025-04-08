@@ -194,7 +194,7 @@ module.exports = {
       const webhook = webhookResult.webhook;
       const webhookClient = new WebhookClient({ url: webhook.url });
       
-      // Send the webhook message with the embed only (no files)
+      // Send the webhook message with just the embed (no extra text)
       await webhookClient.send({
         username: config.webhooks.bountyName,
         embeds: [embedObject]
