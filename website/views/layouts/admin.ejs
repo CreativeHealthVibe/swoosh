@@ -2,806 +2,298 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
-  <title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'SWOOSH Bot Admin Dashboard' %></title>
   
   <!-- Favicon -->
-  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
   
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/admin.css">
-  <link rel="stylesheet" href="/css/responsive-fixes.css">
-  <link rel="stylesheet" href="/css/overflow-fix.css">
-  <link rel="stylesheet" href="/css/dashboard-fixes.css">
-  <link rel="stylesheet" href="/css/mobile-fix.css">
-  <link rel="stylesheet" href="/css/admin-swoosh.css">
   
-  <!-- Enhanced Admin Theme -->
-  <link rel="stylesheet" href="/css/enhanced/admin-theme.css">
-  <link rel="stylesheet" href="/css/enhanced/global-fixes.css">
-  
-  <style>
-    /* SWOOSH Admin Dashboard - Enhanced Theme 2025 */
-    :root {
-      /* Base colors - Enhanced SWOOSH theme */
-      --primary-color: #9c4dff;
-      --primary-hover: #8142d8;
-      --primary-light: #b76eff;
-      --primary-dark: #6930c3;
-      --accent-color: #00e5ff;
-      --accent-hover: #00c2e6;
-      
-      /* Gradients */
-      --gradient-primary: linear-gradient(135deg, #9c4dff, #6a36c3);
-      --gradient-accent: linear-gradient(135deg, #00e5ff, #00a3ff);
-      --gradient-blend: linear-gradient(135deg, #9c4dff, #00e5ff);
-      --gradient-dark: linear-gradient(135deg, #1e1532, #14101f);
-      
-      /* Text colors */
-      --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.85);
-      --text-muted: rgba(255, 255, 255, 0.65);
-      --text-disabled: rgba(255, 255, 255, 0.4);
-      
-      /* Background colors */
-      --background: #14101f;
-      --background-light: #1e1532;
-      --background-lighter: #2a1c48;
-      --card-bg: rgba(30, 21, 50, 0.8);
-      --card-bg-hover: rgba(42, 28, 72, 0.8);
-      
-      /* Status colors */
-      --secondary-color: var(--text-secondary);
-      --dark-color: var(--background);
-      --light-color: var(--background-light);
-      --danger-color: #ED4245;
-      --danger-hover: #c63537;
-      --success-color: #57F287;
-      --success-hover: #45c46c;
-      --warning-color: #FEE75C;
-      --warning-hover: #ecd344;
-      --info-color: var(--accent-color);
-      
-      /* Typography */
-      --font-primary: 'Inter', sans-serif;
-      --font-secondary: 'Poppins', sans-serif;
-      
-      /* Effects */
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-      --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.3);
-      --shadow-primary: 0 5px 15px rgba(156, 77, 255, 0.3);
-      --shadow-accent: 0 5px 15px rgba(0, 229, 255, 0.3);
-      --card-shadow: var(--shadow);
-      --border-radius-sm: 8px;
-      --border-radius: 12px;
-      --border-radius-lg: 16px;
-      --border-radius-xl: 24px;
-      --border-radius-full: 9999px;
-      
-      /* Animation */
-      --transition-fast: 0.15s ease;
-      --transition: 0.3s ease;
-      --transition-slow: 0.5s ease;
-    }
-    
-    /* Base styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: var(--font-primary);
-      background-color: var(--background);
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(102, 51, 153, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 90% 80%, rgba(0, 229, 255, 0.08) 0%, transparent 50%);
-      background-attachment: fixed;
-      color: var(--text-primary);
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    /* SWOOSH Admin Layout */
-    .admin-wrapper {
-      display: flex;
-      min-height: 100vh;
-    }
-    
-    /* SWOOSH Sidebar */
-    .admin-sidebar {
-      width: 250px;
-      background: rgba(30, 21, 50, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-right: 1px solid rgba(156, 77, 255, 0.2);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      overflow-y: auto;
-      z-index: 100;
-      transition: transform var(--transition);
-    }
-    
-    /* Brand header */
-    .sidebar-header {
-      padding: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(156, 77, 255, 0.2);
-    }
-    
-    .sidebar-brand {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-    }
-    
-    .sidebar-logo {
-      height: 36px;
-      filter: drop-shadow(0 0 8px rgba(156, 77, 255, 0.5));
-      transition: all var(--transition);
-    }
-    
-    .sidebar-brand:hover .sidebar-logo {
-      transform: scale(1.05) rotate(5deg);
-      filter: drop-shadow(0 0 12px rgba(156, 77, 255, 0.8));
-    }
-    
-    .sidebar-title {
-      margin-left: 0.75rem;
-      font-family: var(--font-secondary);
-      font-weight: 700;
-      background: var(--gradient-blend);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      font-size: 1.25rem;
-    }
-    
-    .sidebar-toggle {
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--border-radius-full);
-      transition: all var(--transition-fast);
-    }
-    
-    .sidebar-toggle:hover {
-      color: var(--text-primary);
-      background: rgba(156, 77, 255, 0.15);
-    }
-    
-    /* Navigation menu */
-    .sidebar-nav {
-      flex: 1;
-      padding: 1.5rem 0;
-    }
-    
-    .nav-section {
-      margin-bottom: 1.5rem;
-    }
-    
-    .nav-section-title {
-      padding: 0 1.5rem;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-    }
-    
-    .nav-items {
-      list-style: none;
-    }
-    
-    .nav-item a {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1.5rem;
-      text-decoration: none;
-      color: var(--text-secondary);
-      font-weight: 500;
-      transition: all var(--transition-fast);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .nav-item a::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: var(--gradient-primary);
-      opacity: 0;
-      transition: opacity var(--transition-fast);
-    }
-    
-    .nav-item a:hover,
-    .nav-item a.active {
-      color: var(--text-primary);
-      background: rgba(156, 77, 255, 0.1);
-    }
-    
-    .nav-item a:hover::before,
-    .nav-item a.active::before {
-      opacity: 1;
-    }
-    
-    .nav-item a.active {
-      background: rgba(156, 77, 255, 0.15);
-      font-weight: 600;
-    }
-    
-    .nav-item i {
-      width: 20px;
-      margin-right: 0.75rem;
-      font-size: 1rem;
-      color: var(--primary-color);
-      transition: all var(--transition-fast);
-    }
-    
-    .nav-item a:hover i,
-    .nav-item a.active i {
-      color: var(--primary-light);
-      transform: translateY(-1px);
-    }
-    
-    .nav-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--primary-color);
-      color: white;
-      border-radius: 12px;
-      padding: 0.15rem 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-left: auto;
-    }
-    
-    /* User profile in sidebar */
-    .sidebar-footer {
-      padding: 1rem 1.5rem;
-      border-top: 1px solid rgba(156, 77, 255, 0.2);
-    }
-    
-    .sidebar-user {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem;
-      border-radius: var(--border-radius);
-      transition: background-color var(--transition-fast);
-      cursor: pointer;
-    }
-    
-    .sidebar-user:hover {
-      background: rgba(156, 77, 255, 0.1);
-    }
-    
-    .user-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--border-radius-full);
-      border: 2px solid var(--primary-color);
-      object-fit: cover;
-      box-shadow: 0 0 10px rgba(156, 77, 255, 0.4);
-    }
-    
-    .user-avatar-placeholder {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--border-radius-full);
-      background: var(--gradient-primary);
-      color: white;
-      font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-transform: uppercase;
-      box-shadow: 0 0 10px rgba(156, 77, 255, 0.4);
-    }
-    
-    .user-details {
-      margin-left: 0.75rem;
-      overflow: hidden;
-    }
-    
-    .user-name {
-      font-weight: 600;
-      color: var(--text-primary);
-      font-size: 0.875rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .user-role {
-      font-size: 0.75rem;
-      color: var(--accent-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .user-dropdown {
-      margin-left: auto;
-      font-size: 1rem;
-      color: var(--text-secondary);
-      transition: transform var(--transition-fast);
-    }
-    
-    .sidebar-user.active .user-dropdown {
-      transform: rotate(180deg);
-    }
-    
-    /* Main content area */
-    .admin-main {
-      flex: 1;
-      margin-left: 250px;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      transition: margin-left var(--transition);
-    }
-    
-    /* Admin header */
-    .admin-header {
-      height: 70px;
-      background: rgba(20, 16, 31, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(156, 77, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 1.5rem;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    
-    .header-left {
-      display: flex;
-      align-items: center;
-    }
-    
-    .menu-toggle {
-      display: none;
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      width: 40px;
-      height: 40px;
-      border-radius: var(--border-radius-full);
-      margin-right: 1rem;
-      transition: all var(--transition-fast);
-    }
-    
-    .menu-toggle:hover {
-      color: var(--text-primary);
-      background: rgba(156, 77, 255, 0.15);
-    }
-    
-    .page-title {
-      font-family: var(--font-secondary);
-      font-weight: 700;
-      font-size: 1.5rem;
-      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .header-action {
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--border-radius-full);
-      transition: all var(--transition-fast);
-      position: relative;
-    }
-    
-    .header-action:hover {
-      color: var(--text-primary);
-      background: rgba(156, 77, 255, 0.15);
-    }
-    
-    .notification-badge {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--danger-color);
-      border: 2px solid var(--background);
-    }
-    
-    /* Admin content */
-    .admin-content {
-      flex: 1;
-      padding: 2rem;
-      width: 100%;
-      max-width: 1600px;
-      margin: 0 auto;
-    }
-    
-    /* Admin footer */
-    .admin-footer {
-      padding: 1.5rem;
-      background: rgba(30, 21, 50, 0.8);
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-      border-top: 1px solid rgba(156, 77, 255, 0.2);
-      text-align: center;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-    
-    .footer-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 1600px;
-      margin: 0 auto;
-    }
-    
-    @media (max-width: 767px) {
-      .footer-content {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-    }
-    
-    .footer-brand {
-      font-weight: 600;
-    }
-    
-    .footer-brand span {
-      background: var(--gradient-blend);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .footer-nav {
-      display: flex;
-      gap: 1.5rem;
-    }
-    
-    .footer-link {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color var(--transition-fast);
-    }
-    
-    .footer-link:hover {
-      color: var(--primary-color);
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 992px) {
-      .admin-sidebar {
-        transform: translateX(-100%);
-      }
-      
-      .admin-main {
-        margin-left: 0;
-      }
-      
-      .admin-sidebar.active {
-        transform: translateX(0);
-      }
-      
-      .menu-toggle {
-        display: flex;
-      }
-    }
-    
-    @media (max-width: 767px) {
-      .admin-content {
-        padding: 1.5rem 1rem;
-      }
-      
-      .page-title {
-        font-size: 1.25rem;
-      }
-    }
-  </style>
-  
-  <!-- Page-specific styles (if needed) -->
-  <% if (typeof styles !== 'undefined') { %>
-    <%- styles %>
+  <!-- Page-specific CSS -->
+  <% if (typeof pageStyles !== 'undefined') { %>
+    <link rel="stylesheet" href="<%= pageStyles %>">
   <% } %>
 </head>
 <body>
   <div class="admin-wrapper">
     <!-- Sidebar -->
-    <div class="admin-sidebar" id="sidebar">
+    <aside class="sidebar">
       <div class="sidebar-header">
-        <a href="/admin" class="sidebar-brand">
-          <img src="/img/logo.png" alt="SWOOSH" class="sidebar-logo">
-          <span class="sidebar-title">SWOOSH</span>
-        </a>
-        <button class="sidebar-toggle" id="sidebarClose">
-          <i class="fas fa-times"></i>
+        <div class="logo-container">
+          <img src="/images/swoosh-logo.png" alt="SWOOSH Bot Logo" class="sidebar-logo">
+          <h1 class="sidebar-title">SWOOSH</h1>
+        </div>
+        <button class="mobile-toggle" id="sidebar-toggle">
+          <i class="fas fa-bars"></i>
         </button>
       </div>
       
-      <div class="sidebar-nav">
-        <div class="nav-section">
-          <h6 class="nav-section-title">Main</h6>
-          <ul class="nav-items">
-            <li class="nav-item">
-              <a href="/admin" class="<%= typeof path !== 'undefined' && path === '/admin' ? 'active' : '' %>">
+      <div class="sidebar-content">
+        <nav class="sidebar-nav">
+          <ul class="nav-list">
+            <li class="nav-item <%= path === '/admin/welcome' ? 'active' : '' %>">
+              <a href="/admin/welcome" class="nav-link">
                 <i class="fas fa-home"></i>
-                Dashboard
+                <span>Dashboard</span>
               </a>
             </li>
-            <li class="nav-item">
-              <a href="/admin/welcome" class="<%= typeof path !== 'undefined' && path === '/admin/welcome' ? 'active' : '' %>">
-                <i class="fas fa-rocket"></i>
-                Welcome
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/stats" class="<%= typeof path !== 'undefined' && path === '/admin/stats' ? 'active' : '' %>">
-                <i class="fas fa-chart-line"></i>
-                Statistics
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/servers" class="<%= typeof path !== 'undefined' && path === '/admin/servers' ? 'active' : '' %>">
-                <i class="fas fa-server"></i>
-                Servers
-              </a>
-            </li>
-          </ul>
-        </div>
-        
-        <div class="nav-section">
-          <h6 class="nav-section-title">Control</h6>
-          <ul class="nav-items">
-            <li class="nav-item">
-              <a href="/admin/settings" class="<%= typeof path !== 'undefined' && path === '/admin/settings' ? 'active' : '' %>">
-                <i class="fas fa-cogs"></i>
-                Settings
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/customization" class="<%= typeof path !== 'undefined' && path === '/admin/customization' ? 'active' : '' %>">
-                <i class="fas fa-palette"></i>
-                Customization
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/users" class="<%= typeof path !== 'undefined' && path === '/admin/users' ? 'active' : '' %>">
+            <li class="nav-item <%= path === '/admin/users' ? 'active' : '' %>">
+              <a href="/admin/users" class="nav-link">
                 <i class="fas fa-users"></i>
-                Users
-                <span class="nav-badge">Admin</span>
+                <span>User Management</span>
               </a>
             </li>
-            <li class="nav-item">
-              <a href="/admin/logs" class="<%= typeof path !== 'undefined' && path === '/admin/logs' ? 'active' : '' %>">
+            <li class="nav-item <%= path === '/admin/logs' ? 'active' : '' %>">
+              <a href="/admin/logs" class="nav-link">
                 <i class="fas fa-list"></i>
-                Logs
+                <span>Logs</span>
               </a>
             </li>
-          </ul>
-        </div>
-        
-        <div class="nav-section">
-          <h6 class="nav-section-title">Bot</h6>
-          <ul class="nav-items">
-            <li class="nav-item">
-              <a href="/admin/commands" class="<%= typeof path !== 'undefined' && path === '/admin/commands' ? 'active' : '' %>">
-                <i class="fas fa-terminal"></i>
-                Commands
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/tickets" class="<%= typeof path !== 'undefined' && path === '/admin/tickets' ? 'active' : '' %>">
-                <i class="fas fa-ticket-alt"></i>
-                Tickets
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/admin/bounties" class="<%= typeof path !== 'undefined' && path === '/admin/bounties' ? 'active' : '' %>">
+            <li class="nav-item <%= path === '/admin/bounties' ? 'active' : '' %>">
+              <a href="/admin/bounties" class="nav-link">
                 <i class="fas fa-coins"></i>
-                Bounties
+                <span>Bounties</span>
+              </a>
+            </li>
+            <li class="nav-item <%= path === '/admin/customization' ? 'active' : '' %>">
+              <a href="/admin/customization" class="nav-link">
+                <i class="fas fa-paint-brush"></i>
+                <span>Customization</span>
+              </a>
+            </li>
+            <li class="nav-item <%= path === '/admin/settings' ? 'active' : '' %>">
+              <a href="/admin/settings" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+              </a>
+            </li>
+            <li class="nav-divider"></li>
+            <li class="nav-item">
+              <a href="https://github.com/your-username/swoosh-bot" target="_blank" class="nav-link">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/docs" class="nav-link">
+                <i class="fas fa-book"></i>
+                <span>Documentation</span>
               </a>
             </li>
           </ul>
-        </div>
-      </div>
-      
-      <div class="sidebar-footer">
-        <div class="sidebar-user dropdown" id="userDropdown">
-          <% if (typeof user !== 'undefined' && user && user.avatar) { %>
-            <img src="<%= user.avatar %>" alt="<%= user.username %>" class="user-avatar">
-          <% } else if (typeof user !== 'undefined' && user && user.username) { %>
-            <div class="user-avatar-placeholder"><%= user.username.charAt(0) %></div>
-          <% } else { %>
-            <div class="user-avatar-placeholder">G</div>
-          <% } %>
-          
-          <div class="user-details">
-            <div class="user-name"><%= typeof user !== 'undefined' && user ? user.username || 'Guest' : 'Guest' %></div>
-            <div class="user-role">Administrator</div>
+        </nav>
+        
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <% if (user && user.avatar) { %>
+              <img src="<%= user.avatar %>" alt="User Avatar" class="user-avatar">
+            <% } else { %>
+              <div class="user-avatar-placeholder">
+                <i class="fas fa-user"></i>
+              </div>
+            <% } %>
+            <div class="user-details">
+              <p class="user-name"><%= user ? user.username : 'Guest' %></p>
+              <p class="user-role">Administrator</p>
+            </div>
           </div>
-          
-          <i class="fas fa-chevron-down user-dropdown"></i>
+          <div class="footer-actions">
+            <a href="/logout" class="logout-button">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
+    </aside>
     
-    <!-- Main Content -->
-    <div class="admin-main">
-      <header class="admin-header">
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
         <div class="header-left">
-          <button class="menu-toggle" id="menuToggle">
+          <button class="sidebar-toggle-desktop" id="sidebar-toggle-desktop">
             <i class="fas fa-bars"></i>
           </button>
-          <h1 class="page-title"><%= title %></h1>
+          
+          <div class="breadcrumb">
+            <span class="breadcrumb-item">SWOOSH Bot</span>
+            <% if (path && path !== '/admin/welcome') { %>
+              <span class="breadcrumb-separator">/</span>
+              <span class="breadcrumb-item"><%= path.split('/').pop() %></span>
+            <% } %>
+          </div>
         </div>
         
         <div class="header-right">
-          <button class="header-action" title="Help">
-            <i class="fas fa-question-circle"></i>
-          </button>
-          <button class="header-action" title="Notifications">
-            <i class="fas fa-bell"></i>
-            <span class="notification-badge"></span>
-          </button>
+          <div class="bot-status online">
+            <span class="status-dot"></span>
+            <span class="status-text">Bot Online</span>
+          </div>
+          
+          <div class="header-actions">
+            <button class="action-button" title="Notifications">
+              <i class="fas fa-bell"></i>
+              <span class="notification-badge">3</span>
+            </button>
+            
+            <div class="dropdown">
+              <button class="dropdown-toggle">
+                <i class="fas fa-globe"></i>
+              </button>
+              <div class="dropdown-menu">
+                <a href="?lang=en" class="dropdown-item">English</a>
+                <a href="?lang=es" class="dropdown-item">Español</a>
+                <a href="?lang=fr" class="dropdown-item">Français</a>
+              </div>
+            </div>
+            
+            <button class="theme-toggle" id="theme-toggle" title="Toggle Dark/Light Mode">
+              <i class="fas fa-moon"></i>
+            </button>
+          </div>
         </div>
       </header>
       
-      <main class="admin-content">
-        <!-- Flash Messages -->
-        <% if (typeof messages !== 'undefined' && messages.success) { %>
-          <div class="alert alert-success">
-            <i class="fas fa-check-circle alert-icon"></i>
-            <div class="alert-content">
-              <div class="alert-title">Success</div>
-              <div class="alert-message"><%= messages.success %></div>
+      <!-- Page Content -->
+      <div class="page-content">
+        <!-- Alerts Container -->
+        <div class="alerts-container">
+          <% if (typeof messages !== 'undefined' && messages.success) { %>
+            <div class="alert alert-success">
+              <i class="fas fa-check-circle"></i>
+              <span><%= messages.success %></span>
+              <button class="alert-close"><i class="fas fa-times"></i></button>
             </div>
-          </div>
-        <% } %>
-        
-        <% if (typeof messages !== 'undefined' && messages.error) { %>
-          <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle alert-icon"></i>
-            <div class="alert-content">
-              <div class="alert-title">Error</div>
-              <div class="alert-message"><%= messages.error %></div>
+          <% } %>
+          
+          <% if (typeof messages !== 'undefined' && messages.error) { %>
+            <div class="alert alert-error">
+              <i class="fas fa-exclamation-circle"></i>
+              <span><%= messages.error %></span>
+              <button class="alert-close"><i class="fas fa-times"></i></button>
             </div>
-          </div>
-        <% } %>
+          <% } %>
+          
+          <% if (typeof messages !== 'undefined' && messages.info) { %>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <span><%= messages.info %></span>
+              <button class="alert-close"><i class="fas fa-times"></i></button>
+            </div>
+          <% } %>
+        </div>
         
-        <!-- Main Content from other files -->
+        <!-- Main Content -->
         <%- body %>
-      </main>
+      </div>
       
-      <footer class="admin-footer">
-        <div class="footer-content">
-          <div class="footer-brand">&copy; 2025 <span>SWOOSH Bot</span>. All rights reserved.</div>
-          <div class="footer-nav">
-            <a href="/terms" class="footer-link">Terms</a>
-            <a href="/privacy" class="footer-link">Privacy</a>
-            <a href="/docs" class="footer-link">Documentation</a>
-            <a href="/support" class="footer-link">Support</a>
-          </div>
+      <!-- Footer -->
+      <footer class="main-footer">
+        <div class="footer-left">
+          &copy; 2023-<span id="current-year">2025</span> SWOOSH Bot. All rights reserved.
+        </div>
+        <div class="footer-right">
+          <a href="/terms" class="footer-link">Terms</a>
+          <a href="/privacy" class="footer-link">Privacy</a>
+          <a href="/contact" class="footer-link">Contact</a>
         </div>
       </footer>
-    </div>
+    </main>
   </div>
-  
-  <!-- Additional scripts (if needed) -->
-  <% if (typeof scripts !== 'undefined') { %>
-    <%- scripts %>
-  <% } %>
-  
+
+  <!-- Core JavaScript -->
   <script>
-    // Admin panel functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      // Sidebar toggle for mobile
-      const menuToggle = document.getElementById('menuToggle');
-      const sidebarClose = document.getElementById('sidebarClose');
-      const sidebar = document.getElementById('sidebar');
+    // Update current year in footer
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Mobile sidebar toggle
+    document.getElementById('sidebar-toggle').addEventListener('click', function() {
+      document.querySelector('.admin-wrapper').classList.toggle('sidebar-open');
+    });
+    
+    // Desktop sidebar toggle
+    document.getElementById('sidebar-toggle-desktop').addEventListener('click', function() {
+      document.querySelector('.admin-wrapper').classList.toggle('sidebar-collapsed');
+    });
+    
+    // Handle alert close buttons
+    document.querySelectorAll('.alert-close').forEach(button => {
+      button.addEventListener('click', function() {
+        this.closest('.alert').style.display = 'none';
+      });
+    });
+    
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+    
+    // Check if user preference is stored
+    const savedTheme = localStorage.getItem('swoosh-theme');
+    if (savedTheme) {
+      htmlElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+    
+    themeToggle.addEventListener('click', function() {
+      const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       
-      if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
-          sidebar.classList.add('active');
-        });
+      htmlElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('swoosh-theme', newTheme);
+      
+      updateThemeIcon(newTheme);
+    });
+    
+    function updateThemeIcon(theme) {
+      const icon = themeToggle.querySelector('i');
+      if (theme === 'dark') {
+        icon.className = 'fas fa-sun';
+      } else {
+        icon.className = 'fas fa-moon';
       }
-      
-      if (sidebarClose) {
-        sidebarClose.addEventListener('click', function() {
-          sidebar.classList.remove('active');
-        });
-      }
-      
-      // User dropdown menu
-      const userDropdown = document.getElementById('userDropdown');
-      if (userDropdown) {
-        userDropdown.addEventListener('click', function(e) {
-          e.stopPropagation();
-          this.classList.toggle('active');
-        });
+    }
+    
+    // Dropdown functionality
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        const dropdown = this.closest('.dropdown');
+        dropdown.classList.toggle('open');
         
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function() {
-          userDropdown.classList.remove('active');
-        });
-      }
-      
-      // Dropdown menus
-      const dropdowns = document.querySelectorAll('.dropdown');
-      dropdowns.forEach(dropdown => {
-        const toggle = dropdown.querySelector('[data-toggle="dropdown"]');
-        if (toggle) {
-          toggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dropdown.classList.toggle('active');
-          });
-        }
-      });
-      
-      // Close all dropdowns when clicking outside
-      document.addEventListener('click', function() {
-        dropdowns.forEach(dropdown => {
-          dropdown.classList.remove('active');
-        });
-      });
-      
-      // Prevent closing when clicking inside dropdown menu
-      const dropdownMenus = document.querySelectorAll('.dropdown-menu');
-      dropdownMenus.forEach(menu => {
-        menu.addEventListener('click', function(e) {
-          e.stopPropagation();
+        // Close other open dropdowns
+        document.querySelectorAll('.dropdown.open').forEach(openDropdown => {
+          if (openDropdown !== dropdown) {
+            openDropdown.classList.remove('open');
+          }
         });
       });
     });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown.open').forEach(dropdown => {
+          dropdown.classList.remove('open');
+        });
+      }
+    });
   </script>
+  
+  <!-- Page-specific JavaScript -->
+  <% if (typeof pageScripts !== 'undefined') { %>
+    <% pageScripts.forEach(function(script) { %>
+      <script src="<%= script %>"></script>
+    <% }); %>
+  <% } %>
 </body>
 </html>

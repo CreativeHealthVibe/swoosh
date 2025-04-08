@@ -105,7 +105,7 @@ router.get('/logs-new', (req, res) => {
  * GET /admin/settings-new
  * New settings UI for testing
  */
-router.get('/settings', async (req, res) => {
+router.get('/settings-new', async (req, res) => {
   try {
     // Mark this as a static page to prevent WebSocket refreshing
     const staticPage = true;
@@ -1323,7 +1323,7 @@ module.exports = {
   }
 });
 
-module.exports = router;
+// The module.exports is at the end of the file
 
 /**
  * POST /admin/localusers/add
