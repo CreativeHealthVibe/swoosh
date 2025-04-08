@@ -1,4 +1,4 @@
-<!-- Enhanced SWOOSH Admin Welcome Page with Fixed Responsive Layout -->
+<!-- Enhanced SWOOSH Admin Welcome Page with Fixed Text Stairs -->
 <div class="dashboard-container">
   <!-- Welcome Section -->
   <div class="welcome-section">
@@ -479,23 +479,24 @@
     color: var(--primary-color);
   }
   
-  /* Better Text Handling for Responsiveness */
+  /* Better Text Handling for Responsiveness - FIXED */
   .welcome-text h1, .welcome-text h1 span, 
   .card-title, .stat-card__title, .stat-card__value,
   .quick-action-title, .system-info-value,
   .activity-message {
     word-break: normal;
-    white-space: normal;
-    overflow-wrap: break-word;
+    word-wrap: break-word;
     hyphens: auto;
   }
   
-  /* Prevent text stairs */
+  /* Fix for card headers - FIXED */
   .card-header {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
   }
   
   /* Responsive Adjustments */
@@ -506,13 +507,6 @@
     
     .quick-actions-grid {
       grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .card-header {
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: space-between;
     }
   }
   
@@ -533,6 +527,7 @@
     .connection-status {
       margin-top: 0.75rem;
       align-self: flex-start;
+      width: 100%;
     }
   }
   
@@ -555,6 +550,8 @@
       flex-direction: row;
       align-items: center;
       text-align: left;
+      flex-wrap: wrap;
+      gap: 0.75rem;
     }
     
     .welcome-text h1 {
