@@ -1,0 +1,50 @@
+              <div class="tab-pane active" id="discord-admins">
+                <h3 class="section-heading">Discord Admin Users</h3>
+                <p class="section-description">These Discord users have access to the admin panel via Discord OAuth</p>
+                
+                <div class="admin-users admin-content-section">
+                  <% if (Array.isArray(_adminUsers) && _adminUsers.length > 0) { %>
+                    <div class="admin-cards">
+                      <% _adminUsers.forEach(user => { %>
+                        <div class="admin-card">
+                          <div class="admin-card-content">
+                            <div class="admin-card-header">
+                              <% if (user.avatarUrl) { %>
+                                <img src="<%= user.avatarUrl %>" alt="Discord avatar" class="admin-card-avatar">
+                              <% } else { %>
+                                <div class="admin-card-avatar admin-card-avatar-placeholder">
+                                  <i class="fab fa-discord"></i>
+                                </div>
+                              <% } %>
+                              <div class="admin-card-user-info">
+                                <% if (user.username) { %>
+                                  <span class="admin-card-username"><%= user.displayName %></span>
+                                  <span class="admin-card-tag">@<%= user.username %></span>
+                                <% } else { %>
+                                  <span class="admin-card-username"><%= user.comment %></span>
+                                <% } %>
+                              </div>
+                            </div>
+                            <div class="admin-card-details">
+                              <div class="admin-card-id">
+                                <div class="admin-card-label">User ID:</div>
+                                <code><%= user.id %></code>
+                              </div>
+                              <form action="/admin/settings/users/remove" method="POST" class="admin-card-actions">
+                                <input type="hidden" name="userId" value="<%= user.id %>">
+                                <button type="submit" class="admin-card-btn-remove" onclick="return confirm('Are you sure you want to remove this admin user?')">
+                                  <i class="fas fa-trash"></i> Remove Admin Access
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      <% }) %>
+                    </div>
+                  <% } else { %>
+                    <div class="empty-state">
+                      <i class="fas fa-user-slash"></i>
+                      <p>No Discord admin users found</p>
+                    </div>
+                  <% } %>
+                </div>
