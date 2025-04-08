@@ -73,15 +73,17 @@ client.once('ready', async () => {
   console.log(`🚀 ${client.user.tag} is online!`);
   console.log(`Bot client ID: ${client.user.id}`);
   
-  // Set custom bot status with idle state
+  // Set custom bot status with streaming activity and idle state
   client.user.setPresence({
     activities: [{ 
       name: '.gg/swoosh', // Support server invite
-      type: 3 // 0 is "Playing", 3 is "Watching", 2 is "Listening", 5 is "Competing"
+      type: 1, // 0 is "Playing", 1 is "Streaming", 2 is "Listening", 3 is "Watching", 5 is "Competing"
+      url: 'https://twitch.tv/discord', // Required for streaming status
+      details: 'made by gh_sman' // Additional status message/details
     }],
     status: 'idle' // 'online', 'idle', 'dnd', or 'invisible'
   });
-  console.log('✅ Set custom status: Watching .gg/swoosh (Idle)');
+  console.log('✅ Set custom status: Streaming .gg/swoosh (made by gh_sman)');
   
   try {
     // Create data directory if it doesn't exist
