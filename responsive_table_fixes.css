@@ -1,87 +1,103 @@
-/* Responsive table improvements */
-.admin-users {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-.table-responsive {
-  margin: 0;
-  border-radius: 10px;
-  max-width: 100%;
-}
-
-.modern-table {
-  table-layout: fixed;
+/* Advanced table styles with responsive design */
+.responsive-table {
   width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  margin-bottom: 30px;
 }
 
-.modern-table thead th:first-child {
-  width: 20%;
+.responsive-table thead {
+  background: var(--primary-gradient);
 }
 
-.modern-table thead th:nth-child(2) {
-  width: 60%;
+.responsive-table th {
+  padding: 15px 20px;
+  text-align: left;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.modern-table thead th:last-child {
-  width: 20%;
+.responsive-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
 }
 
-.modern-table td {
-  word-break: break-word;
+.responsive-table tbody tr:hover {
+  background: rgba(156, 77, 255, 0.1);
 }
 
-/* Mobile optimizations */
+.responsive-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.responsive-table td {
+  padding: 15px 20px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+}
+
+.responsive-table .status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.responsive-table .status.active {
+  background: rgba(87, 242, 135, 0.2);
+  color: #57F287;
+}
+
+.responsive-table .status.pending {
+  background: rgba(255, 204, 0, 0.2);
+  color: #FFCC00;
+}
+
+.responsive-table .status.inactive {
+  background: rgba(237, 66, 69, 0.2);
+  color: #ED4245;
+}
+
+.responsive-table .actions {
+  display: flex;
+  gap: 10px;
+}
+
+.responsive-table .actions button {
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.responsive-table .actions button:hover {
+  background: var(--primary-gradient);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(156, 77, 255, 0.3);
+}
+
+/* Responsive styles for smaller screens */
 @media (max-width: 768px) {
-  .modern-table {
-    font-size: 0.9rem;
-  }
-  
-  .modern-table code {
-    font-size: 0.8rem;
+  .responsive-table {
     display: block;
+    overflow-x: auto;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
-  
-  .user-info {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .user-avatar, .user-avatar-placeholder {
-    margin-bottom: 5px;
-  }
-  
-  .btn-sm {
-    padding: 3px 8px;
-    font-size: 0.8rem;
-  }
-}
-
-/* Smooth scrollbars for table container */
-.table-responsive::-webkit-scrollbar {
-  height: 5px;
-}
-
-.table-responsive::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-}
-
-.table-responsive::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 5px;
-}
-
-/* Better highlighting for table rows */
-.modern-table tbody tr {
-  transition: all 0.2s ease;
-}
-
-.modern-table tbody tr:hover {
-  background-color: rgba(156, 77, 255, 0.15);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
