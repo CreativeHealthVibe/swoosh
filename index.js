@@ -78,7 +78,7 @@ client.once('ready', async () => {
     activities: [{ 
       name: '.gg/swoosh', // Support server invite
       type: 1, // 0 is "Playing", 1 is "Streaming", 2 is "Listening", 3 is "Watching", 5 is "Competing"
-      url: 'https://twitch.tv/discord', // Required for streaming status
+      url: 'https://swooshfinal.onrender.com/', // Website URL
       details: 'made by gh_sman' // Additional status message/details
     }],
     status: 'idle' // 'online', 'idle', 'dnd', or 'invisible'
