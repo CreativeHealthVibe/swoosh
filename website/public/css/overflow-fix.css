@@ -1,0 +1,121 @@
+/* Fix for website extending off-screen (horizontal overflow) */
+
+/* Global overflow fixes */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+/* Container width fixes */
+.container, 
+.admin-content,
+.main-content,
+.row,
+.col,
+.card,
+.panel,
+.log-card,
+.table-container,
+.stats-grid {
+  max-width: 100% !important;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Tables need special handling */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Ensure images and media don't overflow */
+img, video, canvas, svg, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure text wraps properly */
+p, h1, h2, h3, h4, h5, h6, span, a, button, input, textarea, select, label {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Fix for wide code blocks */
+pre, code {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Fix for navigation mobile menu positioning */
+.mobile-nav {
+  max-width: 100vw;
+  width: 100vw;
+}
+
+/* Extra padding for mobile views to prevent content touching edge */
+@media (max-width: 576px) {
+  .admin-content, 
+  .main-content,
+  .container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+/* Flexbox alignment fixes */
+.row, .flex-row, .d-flex {
+  flex-wrap: wrap;
+}
+
+/* Fixed grid size control - prevent massive grids */
+.stats-grid, .dashboard-grid, .server-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important; /* Fixed 4 column layout */
+  grid-gap: 1rem !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+@media (max-width: 992px) {
+  .stats-grid, .dashboard-grid, .server-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid, .dashboard-grid, .server-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid, .dashboard-grid, .server-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-gap: 0.75rem !important;
+  }
+}
+
+/* Admin specific fixes */
+.admin-header-brand span {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ensure charts and graphs are responsive */
+canvas.chart {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Add horizontal padding to main content areas */
+.admin-content, .main-content {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
