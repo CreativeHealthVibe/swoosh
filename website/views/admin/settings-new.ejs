@@ -4,7 +4,6 @@
 const _adminUsers = typeof adminUsers !== 'undefined' ? adminUsers : [];
 const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers : [];
 %>
-%>
 
 <div class="settings-container">
   <div class="page-header">
@@ -354,16 +353,16 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                       </div>
                       <% if (i > 0) { %>
                         <button type="button" class="action-btn delete remove-type" disabled>
-                          <i class="fas fa-trash-alt"></i>
+                          <i class="fas fa-trash"></i>
                         </button>
                       <% } %>
                     </div>
                   <% } %>
                 </div>
-                <button type="button" class="btn secondary-btn add-type-btn" disabled>
-                  <i class="fas fa-plus-circle"></i> Add Ticket Type
+                
+                <button type="button" class="btn outline-btn add-more-btn" disabled>
+                  <i class="fas fa-plus"></i> Add More Types
                 </button>
-                <div class="input-hint center-hint">Ticket type management will be available in a future update</div>
               </div>
               
               <div class="form-actions">
@@ -386,7 +385,6 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
             </div>
           </div>
           <div class="card-body">
-              </button>
             <!-- Admin Users Tabs -->
             <div class="admin-tabs">
               <button class="tab-btn active" onclick="showTab('discord-admins')">
@@ -422,31 +420,10 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                 document.getElementById(tabId).classList.add('active');
               }
             </script>
-            </div>
-            
-            <script>
-              function showTab(tabId) {
-                // Remove active class from all tab buttons
-                document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
-                  btn.classList.remove('active');
-                });
-                
-                // Add active class to the clicked button
-                document.querySelector(`.admin-tabs .tab-btn[onclick*="${tabId}"]`).classList.add('active');
-                
-                // Hide all tab panes
-                document.querySelectorAll('.tab-pane').forEach(pane => {
-                  pane.classList.remove('active');
-                });
-                
-                // Show the selected tab pane
-                document.getElementById(tabId).classList.add('active');
-              }
-            </script>
 
             <!-- Admin Tabs Content -->
             <div class="settings-section">
-                        </div>
+              <!-- Discord Admins Tab -->
               <div class="tab-pane active" id="discord-admins">
                 <h3 class="section-heading">Discord Admin Users</h3>
                 <p class="section-description">These Discord users have access to the admin panel via Discord OAuth</p>
@@ -497,52 +474,31 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                     </div>
                   <% } %>
                 </div>
-                      <% }) %>
-                    </div>
-                  <% } else { %>
-                    <div class="empty-state">
-                      <i class="fas fa-user-slash"></i>
-                      <p>No Discord admin users found</p>
-                    </div>
-                  <% } %>
-                </div>
-<p class="section-description">These Discord users have access to the admin panel via Discord OAuth</p>
-                <div class="admin-users admin-content-section">
-                  <% if (Array.isArray(_adminUsers) && _adminUsers.length > 0) { %>
+              </div>
+              
+              <!-- Local Admins Tab -->
+              <div class="tab-pane" id="local-admins">
+                <h3>Local Admin Accounts</h3>
+                <p class="section-description">These users have access to the admin panel via local username/password</p>
+                
+                <div class="admin-users">
+                  <% if (Array.isArray(_localAdminUsers) && _localAdminUsers.length > 0) { %>
                     <div class="table-responsive">
                       <table class="modern-table">
                         <thead>
                           <tr>
-                            <th>User ID</th>
-                            <th>User Information</th>
+                            <th>Username</th>
+                            <th>Email</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <% _adminUsers.forEach(user => { %>
+                          <% _localAdminUsers.forEach(user => { %>
                             <tr>
-                              <td><code><%= user.id %></code></td>
+                              <td><%= user.username %></td>
+                              <td><%= user.email %></td>
                               <td>
-                                <div class="user-info">
-                                  <% if (user.avatarUrl) { %>
-                                    <img src="<%= user.avatarUrl %>" alt="Discord avatar" class="user-avatar">
-                                  <% } else { %>
-                                    <div class="user-avatar user-avatar-placeholder">
-                                      <i class="fab fa-discord"></i>
-                                    </div>
-                                  <% } %>
-                                  <div class="user-details">
-                                    <% if (user.username) { %>
-                                      <span class="username"><%= user.displayName %></span>
-                                      <span class="user-tag">@<%= user.username %></span>
-                                    <% } else { %>
-                                      <span class="username"><%= user.comment %></span>
-                                    <% } %>
-                                  </div>
-                                </div>
-                              </td>
-                              <td>
-                                <form action="/admin/settings/users/remove" method="POST" class="inline-form">
+                                <form action="/admin/settings/localuser/remove" method="POST" class="inline-form">
                                   <input type="hidden" name="userId" value="<%= user.id %>">
                                   <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this admin user?')">
                                     <i class="fas fa-trash"></i> Remove
@@ -556,195 +512,101 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                     </div>
                   <% } else { %>
                     <div class="empty-state">
-                      <i class="fas fa-users-slash"></i>
-                      <p>No Discord admin users found</p>
+                      <i class="fas fa-user-slash"></i>
+                      <p>No local admin users found</p>
                     </div>
                   <% } %>
                 </div>
               </div>
-
-              <div class="tab-pane" id="local-admins">
-                <h3>Local Admin Users</h3>
-                <p class="section-description">These users can access the admin panel with username and password login</p>
-                
-                <% if (Array.isArray(_localAdminUsers) && _localAdminUsers.length > 0) { %>
-                  <div class="table-responsive">
-                    <table class="modern-table">
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Username</th>
-                          <th>Display Name</th>
-                          <th>Email</th>
-                          <th>Super Admin</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <% _localAdminUsers.forEach(user => { %>
-                          <tr>
-                            <td><code><%= user.id %></code></td>
-                            <td>
-                              <div class="user-info">
-                                <% if (user.avatar) { %>
-                                  <img src="<%= user.avatar %>" alt="User avatar" class="user-avatar">
-                                <% } else { %>
-                                  <div class="user-avatar user-avatar-placeholder">
-                                    <i class="fas fa-user"></i>
-                                  </div>
-                                <% } %>
-                                <span class="username"><%= user.username %></span>
-                              </div>
-                            </td>
-                            <td><%= user.display_name || 'N/A' %></td>
-                            <td><%= user.email || 'N/A' %></td>
-                            <td>
-                              <span class="badge <%= user.is_super_admin ? 'badge-primary' : 'badge-secondary' %>">
-                                <%= user.is_super_admin ? 'Yes' : 'No' %>
-                              </span>
-                            </td>
-                            <td>
-                              <div class="action-buttons">
-                                <form action="/admin/localusers/remove" method="POST" class="inline-form">
-                                  <input type="hidden" name="userId" value="<%= user.id %>">
-                                  <button type="submit" class="btn btn-danger btn-sm" 
-                                    onclick="return confirm('Are you sure you want to remove this local admin user?')">
-                                    <i class="fas fa-trash"></i> Remove
-                                  </button>
-                                </form>
-                              </div>
-                            </td>
-                          </tr>
-                        <% }) %>
-                      </tbody>
-                    </table>
-                  </div>
-                <% } else { %>
-                  <div class="empty-state">
-                    <i class="fas fa-users-slash"></i>
-                    <p>No local admin users found</p>
-                  </div>
-                <% } %>
-              </div>
-
+              
+              <!-- Add Discord Admin Tab -->
               <div class="tab-pane" id="add-discord">
-                <h3>Add New Discord Admin</h3>
-                <p class="section-description">Add a Discord user as an admin who can access via Discord OAuth</p>
+                <h3>Add Discord Admin</h3>
+                <p class="section-description">Give a Discord user admin access to this bot panel</p>
                 
-                <form action="/admin/settings/users/add" method="POST" class="modern-form">
-                  <div class="form-row">
-                    <div class="form-group form-group-half">
-                      <label for="userId"><i class="fab fa-discord"></i> Discord User ID</label>
-                      <input type="text" id="userId" name="userId" class="form-control" placeholder="Enter Discord ID (17-19 digits)" pattern="^\d{17,19}$" required>
-                      <small class="form-text">The Discord user's unique ID. You can get this by enabling Developer Mode in Discord and right-clicking on a user.</small>
+                <form action="/admin/settings/users/add" method="POST" class="styled-form">
+                  <div class="form-group">
+                    <label for="discordId">Discord User ID</label>
+                    <div class="input-group">
+                      <div class="input-group-icon">
+                        <i class="fab fa-discord"></i>
+                      </div>
+                      <input type="text" class="form-control" id="discordId" name="discordId" placeholder="Enter Discord User ID" required>
                     </div>
-                    
-                    <div class="form-group form-group-half">
-                      <label for="comment"><i class="fas fa-comment"></i> Description</label>
-                      <input type="text" id="comment" name="comment" class="form-control" placeholder="e.g. Server Owner, Developer" required>
-                      <small class="form-text">A description of this admin user's role or position.</small>
+                    <div class="input-hint">The user's Discord ID (right-click user → Copy ID)</div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="comment">Comment (Optional)</label>
+                    <div class="input-group">
+                      <div class="input-group-icon">
+                        <i class="fas fa-comment"></i>
+                      </div>
+                      <input type="text" class="form-control" id="comment" name="comment" placeholder="Add a note about this user">
                     </div>
+                    <div class="input-hint">Optional note to help identify this user</div>
                   </div>
                   
                   <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn primary-btn">
                       <i class="fas fa-plus-circle"></i> Add Discord Admin
                     </button>
                   </div>
                 </form>
               </div>
-
+              
+              <!-- Add Local Admin Tab -->
               <div class="tab-pane" id="add-local">
-                <h3>Add New Local Admin</h3>
-                <p class="section-description">Create a new admin user who can log in directly with username and password</p>
+                <h3>Add Local Admin</h3>
+                <p class="section-description">Create a local username/password admin account</p>
                 
-                <form action="/admin/settings/localusers/add" method="POST" class="modern-form">
-                  <div class="form-row">
-                    <div class="form-group form-group-half">
-                      <label for="username"><i class="fas fa-user"></i> Username</label>
-                      <input type="text" id="username" name="username" class="form-control" placeholder="admin1" required>
-                      <small class="form-text">Enter a username for login (e.g., "admin1", "moderator", etc.).</small>
-                    </div>
-                    
-                    <div class="form-group form-group-half">
-                      <label for="password"><i class="fas fa-lock"></i> Password</label>
-                      <div class="password-input-group">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" minlength="8" required>
-                        <button type="button" class="password-toggle"><i class="fas fa-eye"></i></button>
+                <form action="/admin/settings/localuser/add" method="POST" class="styled-form">
+                  <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-group">
+                      <div class="input-group-icon">
+                        <i class="fas fa-user"></i>
                       </div>
-                      <small class="form-text">Create a strong password (minimum 8 characters).</small>
+                      <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
                     </div>
                   </div>
                   
-                  <div class="form-row">
-                    <div class="form-group form-group-half">
-                      <label for="display_name"><i class="fas fa-id-badge"></i> Display Name (Optional)</label>
-                      <input type="text" id="display_name" name="display_name" class="form-control" placeholder="John Doe">
-                      <small class="form-text">The name that will be displayed in the admin panel.</small>
-                    </div>
-                    
-                    <div class="form-group form-group-half">
-                      <label for="email"><i class="fas fa-envelope"></i> Email (Optional)</label>
-                      <input type="email" id="email" name="email" class="form-control" placeholder="admin@example.com">
-                      <small class="form-text">Email address for account recovery.</small>
+                  <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-group">
+                      <div class="input-group-icon">
+                        <i class="fas fa-envelope"></i>
+                      </div>
+                      <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
                     </div>
                   </div>
                   
-                  <div class="form-check mb-3">
-                    <input type="checkbox" class="form-check-input" id="is_super_admin" name="is_super_admin">
-                    <label class="form-check-label" for="is_super_admin">Make Super Admin</label>
-                    <small class="form-text">Super admins have additional privileges including user management.</small>
+                  <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                      <div class="input-group-icon">
+                        <i class="fas fa-lock"></i>
+                      </div>
+                      <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-group">
+                      <div class="input-group-icon">
+                        <i class="fas fa-lock"></i>
+                      </div>
+                      <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+                    </div>
                   </div>
                   
                   <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                      <i class="fas fa-plus-circle"></i> Create Admin User
+                    <button type="submit" class="btn primary-btn">
+                      <i class="fas fa-plus-circle"></i> Add Local Admin
                     </button>
                   </div>
                 </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-              <div class="staff-roles">
-                <% if (Array.isArray(config.staffRoles) && config.staffRoles.length > 0) { %>
-                  <% config.staffRoles.forEach(role => { %>
-                    <div class="role-tag">
-                      <i class="fas fa-user-tag"></i>
-                      <span><%= role %></span>
-                      <button class="role-remove" disabled>
-                        <i class="fas fa-times"></i>
-                      </button>
-                    </div>
-                  <% }); %>
-                <% } else { %>
-                  <div class="empty-state small-empty">
-                    <div class="empty-icon">
-                      <i class="fas fa-tags"></i>
-                    </div>
-                    <p>No staff roles configured</p>
-                  </div>
-                <% } %>
-              </div>
-              
-              <div class="add-role-form">
-                <div class="form-row">
-                  <div class="form-group three-fourths">
-                    <div class="input-group">
-                      <div class="input-group-icon">
-                        <i class="fas fa-tag"></i>
-                      </div>
-                      <input type="text" class="form-control" placeholder="Add role by ID" disabled>
-                    </div>
-                  </div>
-                  <div class="form-group fourth">
-                    <button class="btn secondary-btn" disabled>
-                      <i class="fas fa-plus"></i> Add
-                    </button>
-                  </div>
-                </div>
-                <div class="input-hint center-hint">Staff role management will be implemented in a future update</div>
               </div>
             </div>
           </div>
@@ -763,70 +625,79 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
           <div class="card-body">
             <form id="validationForm" action="/admin/settings/update-validation" method="POST">
               <div class="settings-section">
-                <h3>Bounty System</h3>
-                <p class="section-description">Configure limits for the bounty system</p>
+                <h3>Content Filter</h3>
                 
                 <div class="form-row">
-                  <div class="form-group half">
-                    <label for="bountyMin">Minimum Bounty</label>
-                    <div class="input-group">
-                      <div class="input-group-icon">
-                        <i class="fas fa-coins"></i>
-                      </div>
-                      <input type="number" class="form-control" id="bountyMin" name="bountyMin" value="<%= config.validation && config.validation.bountyMin ? config.validation.bountyMin : 10 %>" min="1">
+                  <div class="form-group full">
+                    <label>Profanity Filter</label>
+                    <div class="toggle-switch">
+                      <input type="checkbox" id="profanityFilter" name="profanityFilter" class="toggle-input" <%= config.contentFilter && config.contentFilter.profanity ? 'checked' : '' %>>
+                      <label for="profanityFilter" class="toggle-label"></label>
                     </div>
-                    <div class="input-hint">Minimum amount allowed for bounties</div>
+                    <div class="input-hint">Automatically filter profanity in messages</div>
                   </div>
-                  
-                  <div class="form-group half">
-                    <label for="bountyMax">Maximum Bounty</label>
-                    <div class="input-group">
-                      <div class="input-group-icon">
-                        <i class="fas fa-coins"></i>
-                      </div>
-                      <input type="number" class="form-control" id="bountyMax" name="bountyMax" value="<%= config.validation && config.validation.bountyMax ? config.validation.bountyMax : 1000 %>" min="100">
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group full">
+                    <label>Spam Detection</label>
+                    <div class="toggle-switch">
+                      <input type="checkbox" id="spamDetection" name="spamDetection" class="toggle-input" <%= config.contentFilter && config.contentFilter.spam ? 'checked' : '' %>>
+                      <label for="spamDetection" class="toggle-label"></label>
                     </div>
-                    <div class="input-hint">Maximum amount allowed for bounties</div>
+                    <div class="input-hint">Detect and prevent spam messages</div>
+                  </div>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group full">
+                    <label>Mass Mention Protection</label>
+                    <div class="toggle-switch">
+                      <input type="checkbox" id="mentionProtection" name="mentionProtection" class="toggle-input" <%= config.contentFilter && config.contentFilter.massMention ? 'checked' : '' %>>
+                      <label for="mentionProtection" class="toggle-label"></label>
+                    </div>
+                    <div class="input-hint">Prevent messages with excessive mentions</div>
                   </div>
                 </div>
               </div>
               
               <div class="settings-section">
-                <h3>Message Limits</h3>
-                <p class="section-description">Configure message length limitations</p>
+                <h3>Verification</h3>
                 
-                <div class="limits-grid">
-                  <div class="limit-item">
-                    <div class="limit-icon">
-                      <i class="fas fa-exclamation-triangle"></i>
+                <div class="form-row">
+                  <div class="form-group full">
+                    <label>Member Verification</label>
+                    <div class="toggle-switch">
+                      <input type="checkbox" id="memberVerification" name="memberVerification" class="toggle-input" <%= config.verification && config.verification.enabled ? 'checked' : '' %>>
+                      <label for="memberVerification" class="toggle-label"></label>
                     </div>
-                    <div class="limit-input">
-                      <label for="maxWarningLength">Warning Reason</label>
-                      <input type="number" class="form-control" id="maxWarningLength" name="maxWarningLength" value="<%= config.validation && config.validation.maxWarningLength ? config.validation.maxWarningLength : 100 %>" min="50" max="500">
-                      <div class="input-hint">Max characters</div>
-                    </div>
+                    <div class="input-hint">Require new members to complete verification</div>
                   </div>
-                  
-                  <div class="limit-item">
-                    <div class="limit-icon">
-                      <i class="fas fa-ticket-alt"></i>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group full">
+                    <label for="verificationChannel">Verification Channel</label>
+                    <div class="input-group">
+                      <div class="input-group-icon">
+                        <i class="fas fa-hashtag"></i>
+                      </div>
+                      <input type="text" class="form-control" id="verificationChannel" name="verificationChannel" value="<%= config.verification ? config.verification.channelId : '' %>" placeholder="Channel ID">
                     </div>
-                    <div class="limit-input">
-                      <label for="maxTicketLength">Ticket Subject</label>
-                      <input type="number" class="form-control" id="maxTicketLength" name="maxTicketLength" value="<%= config.validation && config.validation.maxTicketLength ? config.validation.maxTicketLength : 100 %>" min="50" max="200">
-                      <div class="input-hint">Max characters</div>
-                    </div>
+                    <div class="input-hint">Channel where verification takes place</div>
                   </div>
-                  
-                  <div class="limit-item">
-                    <div class="limit-icon">
-                      <i class="fas fa-tag"></i>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group full">
+                    <label for="verifiedRole">Verified Role</label>
+                    <div class="input-group">
+                      <div class="input-group-icon">
+                        <i class="fas fa-user-check"></i>
+                      </div>
+                      <input type="text" class="form-control" id="verifiedRole" name="verifiedRole" value="<%= config.verification ? config.verification.roleId : '' %>" placeholder="Role ID">
                     </div>
-                    <div class="limit-input">
-                      <label for="maxRoleNameLength">Role Names</label>
-                      <input type="number" class="form-control" id="maxRoleNameLength" name="maxRoleNameLength" value="<%= config.validation && config.validation.maxRoleNameLength ? config.validation.maxRoleNameLength : 30 %>" min="10" max="100">
-                      <div class="input-hint">Max characters</div>
-                    </div>
+                    <div class="input-hint">Role assigned after verification</div>
                   </div>
                 </div>
               </div>
@@ -841,64 +712,53 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
         </div>
       </div>
       
-      <!-- Premium Features Tab -->
+      <!-- Premium Settings -->
       <div class="tab-content" id="premium">
         <div class="glass-card premium-card">
           <div class="card-header">
             <h2>Premium Features</h2>
-            <div class="card-icon premium-icon-header">
+            <div class="card-icon">
               <i class="fas fa-crown"></i>
             </div>
-            <div class="premium-badge">Premium Only</div>
           </div>
           <div class="card-body">
-            <div class="premium-content">
-              <div class="premium-hero">
-                <div class="premium-icon">
-                  <i class="fas fa-crown"></i>
-                </div>
+            <div class="premium-info">
+              <div class="premium-header">
+                <i class="fas fa-star premium-icon"></i>
                 <h3>Unlock Premium Features</h3>
-                <p>Get access to advanced features by upgrading to SWOOSH Premium</p>
-                
-                <div class="premium-features">
-                  <div class="feature-item">
-                    <div class="feature-icon">
-                      <i class="fas fa-door-open"></i>
-                    </div>
-                    <div class="feature-text">Custom welcome messages</div>
-                  </div>
-                  
-                  <div class="feature-item">
-                    <div class="feature-icon">
-                      <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="feature-text">Advanced automod settings</div>
-                  </div>
-                  
-                  <div class="feature-item">
-                    <div class="feature-icon">
-                      <i class="fas fa-thumbs-up"></i>
-                    </div>
-                    <div class="feature-text">Role reaction system</div>
-                  </div>
-                  
-                  <div class="feature-item">
-                    <div class="feature-icon">
-                      <i class="fas fa-microphone"></i>
-                    </div>
-                    <div class="feature-text">Voice channel management</div>
-                  </div>
-                  
-                  <div class="feature-item">
-                    <div class="feature-icon">
-                      <i class="fas fa-code"></i>
-                    </div>
-                    <div class="feature-text">Custom commands</div>
-                  </div>
+              </div>
+              <p>Upgrade to SWOOSH Premium to unlock advanced features and capabilities.</p>
+              
+              <div class="premium-benefits">
+                <div class="benefit-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Advanced Auto-Moderation</span>
                 </div>
-                
-                <a href="#" class="btn premium-btn">
-                  <i class="fas fa-crown"></i> Upgrade to Premium
+                <div class="benefit-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Custom Bot Appearance</span>
+                </div>
+                <div class="benefit-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Unlimited Ticket Types</span>
+                </div>
+                <div class="benefit-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Priority Support</span>
+                </div>
+                <div class="benefit-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Auto-Responder Configuration</span>
+                </div>
+                <div class="benefit-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Custom Welcome Messages</span>
+                </div>
+              </div>
+              
+              <div class="premium-actions">
+                <a href="https://swooshbot.com/premium" target="_blank" class="btn premium-btn">
+                  <i class="fas fa-crown"></i> Get Premium
                 </a>
               </div>
             </div>
@@ -909,1464 +769,51 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
   </div>
 </div>
 
-<style>
-  :root {
-    --primary-color: #9c4dff;
-    --primary-light: #bf7fff;
-    --primary-hover: #8a43e0;
-    --secondary-color: #2a2d3e;
-    --background: #1a1c2e;
-    --card-bg: rgba(42, 45, 62, 0.7);
-    --card-bg-hover: rgba(52, 55, 72, 0.8);
-    --text-primary: #ffffff;
-    --text-secondary: #b3b9d1;
-    --border-radius: 12px;
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    --success-color: #28c76f;
-    --warning-color: #ff9f43;
-    --danger-color: #ea5455;
-    --info-color: #00cfe8;
-  }
-  
-  .settings-container {
-    padding: 2rem;
-    background: var(--background);
-    min-height: calc(100vh - 64px);
-  }
-  
-  /* Page Header */
-  .page-header {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: var(--border-radius);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--card-shadow);
-  }
-  
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .header-title h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-  }
-  
-  .header-title h1 i {
-    margin-right: 0.8rem;
-    color: var(--primary-color);
-  }
-  
-  .header-title p {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    margin: 0;
-  }
-  
-  .gradient-text {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    display: inline-block;
-  }
-  
-  .status-indicator {
-    display: flex;
-    align-items: center;
-    padding: 0.6rem 1.2rem;
-    background: rgba(40, 199, 111, 0.1);
-    border-radius: 50px;
-    border: 1px solid rgba(40, 199, 111, 0.3);
-  }
-  
-  .status-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 0.5rem;
-  }
-  
-  .status-dot.online {
-    background: var(--success-color);
-    box-shadow: 0 0 0 3px rgba(40, 199, 111, 0.2);
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(40, 199, 111, 0.4);
-    }
-    70% {
-      box-shadow: 0 0 0 6px rgba(40, 199, 111, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(40, 199, 111, 0);
-    }
-  }
-  
-  /* Notifications */
-  .notification {
-    display: flex;
-    align-items: center;
-    border-radius: var(--border-radius);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-  }
-  
-  .notification.success {
-    border-left: 4px solid var(--success-color);
-  }
-  
-  .notification.error {
-    border-left: 4px solid var(--danger-color);
-  }
-  
-  .notification-icon {
-    font-size: 1.5rem;
-    margin-right: 1rem;
-  }
-  
-  .notification.success .notification-icon {
-    color: var(--success-color);
-  }
-  
-  .notification.error .notification-icon {
-    color: var(--danger-color);
-  }
-  
-  .notification-content {
-    flex: 1;
-  }
-  
-  .notification-close {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0.5rem;
-  }
-  
-  /* Content Grid Layout */
-  .content-grid {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    gap: 1.5rem;
-  }
-  
-  /* Settings Navigation */
-  .settings-nav {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    border: 1px solid rgba(156, 77, 255, 0.2);
-    box-shadow: var(--card-shadow);
-    position: sticky;
-    top: 1rem;
-  }
-  
-  .nav-header {
-    padding: 1.2rem 1.5rem;
-    background: rgba(42, 45, 62, 0.9);
-    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
-  }
-  
-  .nav-header h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  .nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .nav-list li {
-    display: flex;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-  }
-  
-  .nav-list li:hover {
-    background: rgba(42, 45, 62, 0.9);
-    color: var(--text-primary);
-  }
-  
-  .nav-list li.active {
-    background: rgba(156, 77, 255, 0.1);
-    color: var(--primary-color);
-    border-left-color: var(--primary-color);
-  }
-  
-  .nav-list li i {
-    margin-right: 0.8rem;
-    width: 20px;
-    text-align: center;
-    font-size: 1.1rem;
-  }
-  
-  .nav-list li.premium {
-    color: var(--warning-color);
-  }
-  
-  .nav-list li.premium.active {
-    background: rgba(255, 159, 67, 0.1);
-    border-left-color: var(--warning-color);
-  }
-  
-  /* Tab Content */
-  .tab-content {
-    display: none;
-  }
-  
-  .tab-content.active {
-    display: block;
-  }
-  
-  /* Cards */
-  .glass-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    border: 1px solid rgba(156, 77, 255, 0.2);
-    box-shadow: var(--card-shadow);
-    margin-bottom: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .glass-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-  }
-  
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.2rem 1.5rem;
-    background: rgba(42, 45, 62,.9);
-    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
-    position: relative;
-  }
-  
-  .card-header h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--text-primary);
-  }
-  
-  .card-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 5px 10px rgba(156, 77, 255, 0.3);
-  }
-  
-  .card-icon i {
-    font-size: 1.1rem;
-    color: white;
-  }
-  
-  .card-body {
-    padding: 1.5rem;
-  }
-  
-  /* Settings Sections */
-  .settings-section {
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
-  }
-  
-  .settings-section:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-  }
-  
-  .settings-section h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0 0 0.8rem 0;
-    color: var(--text-primary);
-  }
-  
-  .section-description {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin: -0.5rem 0 1.2rem 0;
-  }
-  
-  /* Form Elements */
-  .form-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0 -0.75rem;
-  }
-  
-  .form-group {
-    padding: 0 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-group.full {
-    width: 100%;
-  }
-  
-  .form-group.half {
-    width: 50%;
-  }
-  
-  .form-group.third {
-    width: 33.333%;
-  }
-  
-  .form-group.two-thirds {
-    width: 66.666%;
-  }
-  
-  .form-group.fourth {
-    width: 25%;
-  }
-  
-  .form-group.three-fourths {
-    width: 75%;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-  }
-  
-  .input-group {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  
-  .input-group-icon {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-secondary);
-  }
-  
-  .form-control {
-    width: 100%;
-    padding: 0.8rem 1rem 0.8rem 2.5rem;
-    background: rgba(30, 32, 47, 0.6);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-  }
-  
-  .form-control:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(156, 77, 255, 0.2);
-  }
-  
-  .input-hint {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    margin-top: 0.4rem;
-  }
-  
-  .center-hint {
-    text-align: center;
-    margin-top: 1rem;
-  }
-  
-  .select-wrapper {
-    position: relative;
-  }
-  
-  .select-wrapper .form-control {
-    appearance: none;
-    padding-right: 2.5rem;
-  }
-  
-  .select-arrow {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-secondary);
-    pointer-events: none;
-  }
-  
-  /* Color Picker */
-  .color-picker-wrapper {
-    display: flex;
-    align-items: center;
-    margin-top: 0.5rem;
-  }
-  
-  .color-picker-wrapper input[type="color"] {
-    width: 50px;
-    height: 50px;
-    padding: 0;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    background: none;
-  }
-  
-  .color-preview {
-    width: 30px;
-    height: 30px;
-    border-radius: 6px;
-    margin-left: 1rem;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
-  }
-  
-  /* Channel Grid */
-  .channel-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-  
-  .channel-item {
-    display: flex;
-    align-items: center;
-    background: rgba(30, 32, 47, 0.6);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-    border-radius: 10px;
-    padding: 1rem;
-    transition: all 0.3s ease;
-  }
-  
-  .channel-item:hover {
-    border-color: var(--primary-color);
-    background: rgba(42, 45, 62, 0.8);
-  }
-  
-  .channel-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: rgba(156, 77, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-  }
-  
-  .channel-icon i {
-    color: var(--primary-color);
-  }
-  
-  .channel-input {
-    flex: 1;
-  }
-  
-  .channel-input label {
-    display: block;
-    font-size: 0.8rem;
-    margin-bottom: 0.3rem;
-    color: var(--text-secondary);
-  }
-  
-  .channel-input input {
-    width: 100%;
-    background: rgba(30, 32, 47, 0.4);
-    border: 1px solid rgba(156, 77, 255, 0.1);
-    padding: 0.5rem;
-    border-radius: 5px;
-    color: var(--text-primary);
-  }
-  
-  .channel-input input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
-  
-  /* Ticket Types */
-  .ticket-types {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
-  }
-  
-  .ticket-type-item {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-  
-  .ticket-type-item .input-group {
-    flex: 1;
-  }
-  
-  .add-type-btn {
-    align-self: flex-start;
-    margin-bottom: 0.5rem;
-  }
-  
-  /* Admin Users */
-  .admin-users {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-  
-  .admin-user-item {
-    background: rgba(30, 32, 47, 0.6);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-    border-radius: 10px;
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-  }
-  
-  .admin-user-item:hover {
-    transform: translateY(-3px);
-    background: rgba(42, 45, 62, 0.8);
-    border-color: var(--primary-color);
-  }
-  
-  .admin-user-info {
-    display: flex;
-    align-items: center;
-  }
-  
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(156, 77, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-  }
-  
-  .user-avatar i {
-    color: var(--primary-color);
-  }
-  
-  .user-details {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .user-id {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-  }
-  
-  .user-role {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-  }
-  
-  /* Staff Roles */
-  .staff-roles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .role-tag {
-    background: rgba(30, 32, 47, 0.6);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-    border-radius: 50px;
-    padding: 0.5rem 1rem;
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-  }
-  
-  .role-tag i {
-    color: var(--primary-color);
-    margin-right: 0.5rem;
-  }
-  
-  .role-remove {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    margin-left: 0.8rem;
-    cursor: pointer;
-    padding: 0.2rem;
-    opacity: 0.6;
-  }
-  
-  /* Admin user table styles */
-  .table-responsive {
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-  }
-  
-  .modern-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 8px;
-    overflow: hidden;
-    background: rgba(30, 32, 47, 0.6);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-  }
-  
-  .modern-table th,
-  .modern-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
-  }
-  
-  .modern-table th {
-    background: rgba(42, 45, 62, 0.9);
-    color: var(--text-primary);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-  }
-  
-  .modern-table tbody tr:hover {
-    background: rgba(156, 77, 255, 0.07);
-  }
-  
-  .modern-table .user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-  
-  .modern-table .user-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .modern-table .user-avatar-placeholder {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6873f3, #8b5cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1rem;
-  }
-  
-  .modern-table .user-details {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .modern-table .username {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  .modern-table .user-tag {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    opacity: 0.8;
-  }
-  
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    text-align: center;
-    background: rgba(30, 32, 47, 0.6);
-    border-radius: 10px;
-    border: 1px dashed rgba(156, 77, 255, 0.3);
-    color: var(--text-secondary);
-  }
-  
-  .empty-state i {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-secondary);
-    opacity: 0.7;
-  }
-  
-  .empty-state h3 {
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  .empty-state p {
-    max-width: 300px;
-    margin: 0 auto;
-  }
-  
-  .form-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.35rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 50px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .badge-primary {
-    background: linear-gradient(135deg, rgba(156, 77, 255, 0.2), rgba(156, 77, 255, 0.3));
-    color: var(--primary-color);
-    border: 1px solid rgba(156, 77, 255, 0.3);
-  }
-  
-  .badge-secondary {
-    background: rgba(75, 85, 99, 0.2);
-    color: var(--text-secondary);
-    border: 1px solid rgba(75, 85, 99, 0.3);
-  }
-
-
-  /* Admin Tabs */
-  .admin-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
-    margin-bottom: 1.5rem;
-    background: rgba(30, 32, 47, 0.6);
-    border-radius: 10px 10px 0 0;
-    overflow: hidden;
-  }
-  
-  .admin-tabs .tab-btn {
-    background: none;
-    border: none;
-    padding: 1rem 1.5rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border-bottom: 3px solid transparent;
-  }
-  
-  .admin-tabs .tab-btn:hover {
-    background: rgba(156, 77, 255, 0.1);
-    color: var(--text-primary);
-  }
-  
-  .admin-tabs .tab-btn.active {
-    color: var(--primary-color);
-    background: rgba(156, 77, 255, 0.15);
-    border-bottom: 3px solid var(--primary-color);
-  }
-  
-  .tab-pane {
-    display: none;
-    padding: 1rem 0;
-  }
-  
-  .tab-pane.active {
-    display: block;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  /* Admin user table styles */
-  .table-responsive {
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-  }
-  
-  .modern-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 8px;
-    overflow: hidden;
-    background: rgba(30, 32, 47, 0.6);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-  }
-  
-  .modern-table th,
-  .modern-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid rgba(156, 77, 255, 0.1);
-  }
-  
-  .modern-table th {
-    background: rgba(42, 45, 62, 0.9);
-    color: var(--text-primary);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-  }
-  
-  .modern-table tbody tr:hover {
-    background: rgba(156, 77, 255, 0.07);
-  }
-  
-  .modern-table .user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-  
-  .modern-table .user-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .modern-table .user-avatar-placeholder {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6873f3, #8b5cf6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1rem;
-  }
-  
-  .modern-table .user-details {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .modern-table .username {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  .modern-table .user-tag {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    opacity: 0.8;
-  }
-  
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    text-align: center;
-    background: rgba(30, 32, 47, 0.6);
-    border-radius: 10px;
-    border: 1px dashed rgba(156, 77, 255, 0.3);
-    color: var(--text-secondary);
-  }
-  
-  .empty-state i {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-secondary);
-    opacity: 0.7;
-  }
-  
-  .empty-state h3 {
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  .empty-state p {
-    max-width: 300px;
-    margin: 0 auto;
-  }
-  
-  .form-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.35rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 50px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .badge-primary {
-    background: linear-gradient(135deg, rgba(156, 77, 255, 0.2), rgba(156, 77, 255, 0.3));
-    color: var(--primary-color);
-    border: 1px solid rgba(156, 77, 255, 0.3);
-  }
-  
-  .badge-secondary {
-    background: rgba(75, 85, 99, 0.2);
-    color: var(--text-secondary);
-    border: 1px solid rgba(75, 85, 99, 0.3);
-  }
-
-
-  /* Admin Tabs */
-  .admin-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
-    margin-bottom: 1.5rem;
-    background: rgba(30, 32, 47, 0.6);
-    border-radius: 10px 10px 0 0;
-    overflow: hidden;
-  }
-  
-  .admin-tabs .tab-btn {
-    background: none;
-    border: none;
-    padding: 1rem 1.5rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border-bottom: 3px solid transparent;
-  }
-  
-  .admin-tabs .tab-btn:hover {
-    background: rgba(156, 77, 255, 0.1);
-    color: var(--text-primary);
-  }
-  
-  .admin-tabs .tab-btn.active {
-    color: var(--primary-color);
-    background: rgba(156, 77, 255, 0.15);
-    border-bottom: 3px solid var(--primary-color);
-  }
-  
-  .tab-pane {
-    display: none;
-    padding: 1rem 0;
-  }
-  
-  .tab-pane.active {
-    display: block;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-
-  /* Limits Grid */
-  .limits-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
-  
-  .limit-item {
-    display: flex;
-    align-items: center;
-    background: rgba(30, 32, 47, 0.6);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-    border-radius: 10px;
-    padding: 1rem;
-    transition: all 0.3s ease;
-  }
-  
-  .limit-item:hover {
-    border-color: var(--primary-color);
-    background: rgba(42, 45, 62, 0.8);
-  }
-  
-  .limit-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: rgba(156, 77, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-  }
-  
-  .limit-icon i {
-    color: var(--primary-color);
-  }
-  
-  .limit-input {
-    flex: 1;
-  }
-  
-  .limit-input label {
-    display: block;
-    font-size: 0.9rem;
-    margin-bottom: 0.3rem;
-    color: var(--text-primary);
-  }
-  
-  .limit-input input {
-    width: 100%;
-    background: rgba(30, 32, 47, 0.4);
-    border: 1px solid rgba(156, 77, 255, 0.1);
-    padding: 0.5rem;
-    border-radius: 5px;
-    color: var(--text-primary);
-  }
-  
-  .limit-input input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
-  
-  .limit-input .input-hint {
-    margin-top: 0.2rem;
-  }
-  
-  /* Empty State */
-  .empty-state {
-    background: rgba(30, 32, 47, 0.4);
-    border-radius: 10px;
-    padding: 2rem;
-    text-align: center;
-    color: var(--text-secondary);
-  }
-  
-  .small-empty {
-    padding: 1.5rem;
-  }
-  
-  .empty-icon {
-    font-size: 2.5rem;
-    color: rgba(156, 77, 255, 0.2);
-    margin-bottom: 1rem;
-  }
-  
-  .small-empty .empty-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .empty-state h3 {
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  /* Form Actions */
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
-  }
-  
-  /* Buttons */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    gap: 0.5rem;
-  }
-  
-  .primary-btn {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-    color: white;
-    box-shadow: 0 5px 15px rgba(156, 77, 255, 0.3);
-  }
-  
-  .primary-btn:hover {
-    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(156, 77, 255, 0.4);
-  }
-  
-  .secondary-btn {
-    background: rgba(30, 32, 47, 0.7);
-    color: var(--text-secondary);
-    border: 1px solid rgba(156, 77, 255, 0.2);
-  }
-  
-  .secondary-btn:hover {
-    background: rgba(42, 45, 62, 0.9);
-    color: var(--text-primary);
-  }
-  
-  .danger-btn {
-    background: linear-gradient(135deg, var(--danger-color), #ff7676);
-    color: white;
-    box-shadow: 0 5px 15px rgba(234, 84, 85, 0.3);
-  }
-  
-  .danger-btn:hover {
-    background: linear-gradient(135deg, #ff5555, var(--danger-color));
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(234, 84, 85, 0.4);
-  }
-  
-  .action-btn {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-    font-size: 0.9rem;
-  }
-  
-  .action-btn.delete {
-    background: rgba(234, 84, 85, 0.15);
-    color: var(--danger-color);
-  }
-  
-  .action-btn.delete:hover {
-    background: rgba(234, 84, 85, 0.3);
-  }
-  
-  .glow-btn {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .glow-btn::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
-    transform: scale(0);
-    opacity: 0;
-    transition: transform 0.6s, opacity 0.6s;
-  }
-  
-  .glow-btn:hover::after {
-    transform: scale(1);
-    opacity: 1;
-  }
-  
-  /* Premium Section */
-  .premium-card {
-    border: 1px solid rgba(255, 159, 67, 0.3);
-    box-shadow: 0 10px 30px rgba(255, 159, 67, 0.1);
-  }
-  
-  .premium-icon-header {
-    background: linear-gradient(135deg, var(--warning-color), #ffcc80);
-    box-shadow: 0 5px 15px rgba(255, 159, 67, 0.3);
-  }
-  
-  .premium-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--warning-color);
-    color: rgba(0, 0, 0, 0.7);
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-  }
-  
-  .premium-content {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .premium-hero {
-    max-width: 600px;
-    text-align: center;
-    padding: 2rem 0;
-  }
-  
-  .premium-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--warning-color), #ffcc80);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem auto;
-    box-shadow: 0 10px 20px rgba(255, 159, 67, 0.2);
-  }
-  
-  .premium-icon i {
-    font-size: 2.5rem;
-    color: white;
-  }
-  
-  .premium-hero h3 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-  }
-  
-  .premium-hero p {
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-  }
-  
-  .premium-features {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-  
-  .feature-item {
-    display: flex;
-    align-items: center;
-    background: rgba(30, 32, 47, 0.4);
-    border: 1px solid rgba(255, 159, 67, 0.2);
-    border-radius: 10px;
-    padding: 1rem;
-    text-align: left;
-  }
-  
-  .feature-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: rgba(255, 159, 67, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-  }
-  
-  .feature-icon i {
-    color: var(--warning-color);
-  }
-  
-  .premium-btn {
-    background: linear-gradient(135deg, var(--warning-color), #ffcc80);
-    color: rgba(0, 0, 0, 0.8);
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    box-shadow: 0 5px 15px rgba(255, 159, 67, 0.3);
-    text-decoration: none;
-    transition: all 0.3s ease;
-  }
-  
-  .premium-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 159, 67, 0.4);
-    color: rgba(0, 0, 0, 0.8);
-  }
-  
-  /* Responsive Adjustments */
-  @media (max-width: 1200px) {
-    .content-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .settings-nav {
-      position: static;
-      margin-bottom: 1.5rem;
-    }
-    
-    .nav-list {
-      display: flex;
-      overflow-x: auto;
-      padding-bottom: 0.5rem;
-    }
-    
-    .nav-list li {
-      flex: 1;
-      white-space: nowrap;
-      padding: 0.8rem 1.2rem;
-      justify-content: center;
-      border-left: none;
-      border-bottom: 3px solid transparent;
-    }
-    
-    .nav-list li.active {
-      border-left-color: transparent;
-      border-bottom-color: var(--primary-color);
-    }
-    
-    .nav-list li i {
-      margin-right: 0.5rem;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .header-content {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    
-    .header-title {
-      margin-bottom: 1.5rem;
-    }
-    
-    .header-title h1 {
-      justify-content: center;
-    }
-    
-    .channel-grid,
-    .limits-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .premium-features {
-      grid-template-columns: 1fr;
-    }
-    
-    .form-group.half,
-    .form-group.third,
-    .form-group.two-thirds,
-    .form-group.fourth,
-    .form-group.three-fourths {
-      width: 100%;
-    }
-  }
-</style>
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Tab switching
-    const navItems = document.querySelectorAll('.nav-list li');
+    // Nav tab functionality
+    const navItems = document.querySelectorAll('.settings-nav .nav-list li');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
     navItems.forEach(item => {
       item.addEventListener('click', function() {
-        // Remove active class from all items
-        navItems.forEach(el => el.classList.remove('active'));
+        // Remove active class from all nav items
+        navItems.forEach(nav => nav.classList.remove('active'));
         
         // Add active class to clicked item
         this.classList.add('active');
         
+        // Hide all tab contents
+        tabContents.forEach(tab => tab.classList.remove('active'));
+        
         // Show corresponding tab content
         const tabId = this.getAttribute('data-tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        tabContents.forEach(tab => {
-          tab.classList.remove('active');
-          if (tab.id === tabId) {
-            tab.classList.add('active');
-          }
-        });
+        document.getElementById(tabId).classList.add('active');
       });
     });
     
-    // Form validation
-    const bountyMinInput = document.getElementById('bountyMin');
-    const bountyMaxInput = document.getElementById('bountyMax');
+    // Color picker preview update
+    const colorPicker = document.getElementById('embedColor');
+    const colorPreview = document.querySelector('.color-preview');
     
-    if (bountyMinInput && bountyMaxInput) {
-      bountyMinInput.addEventListener('change', validateBountyLimits);
-      bountyMaxInput.addEventListener('change', validateBountyLimits);
-    }
-    
-    function validateBountyLimits() {
-      const min = parseInt(bountyMinInput.value);
-      const max = parseInt(bountyMaxInput.value);
-      
-      if (min >= max) {
-        alert('Minimum bounty must be less than maximum bounty');
-        bountyMinInput.value = '<%= config.validation && config.validation.bountyMin ? config.validation.bountyMin : 10 %>';
-        bountyMaxInput.value = '<%= config.validation && config.validation.bountyMax ? config.validation.bountyMax : 1000 %>';
-      }
-    }
-    
-    // Form submission confirmation
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-      form.addEventListener('submit', function(e) {
-        if (!confirm('Are you sure you want to save these changes? This may restart the bot.')) {
-          e.preventDefault();
-        }
+    if (colorPicker && colorPreview) {
+      colorPicker.addEventListener('input', function() {
+        colorPreview.style.backgroundColor = this.value;
       });
-    });
+    }
     
-    // Animated entrance for cards
+    // Add animations for glass cards
     const cards = document.querySelectorAll('.glass-card');
     cards.forEach((card, index) => {
-      card.style.opacity = '0';
+      // Add initial transform for animation
       card.style.transform = 'translateY(20px)';
       
       setTimeout(() => {
-        card.style.opacity = '1';
         card.style.transform = 'translateY(0)';
         card.style.transition = 'all 0.3s ease ' + (index * 0.1) + 's';
       }, 100);
     });
   });
 </script>
+
+<%- include('../partials/admin-footer') %>
