@@ -386,21 +386,63 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
             </div>
           </div>
           <div class="card-body">
+              </button>
             <!-- Admin Users Tabs -->
             <div class="admin-tabs">
-              <button class="tab-btn active" data-tab="discord-admins">
+              <button class="tab-btn active" onclick="showTab('discord-admins')">
                 <i class="fab fa-discord"></i> Discord Admins
               </button>
-              <button class="tab-btn" data-tab="local-admins">
+              <button class="tab-btn" onclick="showTab('local-admins')">
                 <i class="fas fa-user-lock"></i> Local Admins
               </button>
-              <button class="tab-btn" data-tab="add-discord">
+              <button class="tab-btn" onclick="showTab('add-discord')">
                 <i class="fas fa-plus-circle"></i> Add Discord Admin
               </button>
-              <button class="tab-btn" data-tab="add-local">
+              <button class="tab-btn" onclick="showTab('add-local')">
                 <i class="fas fa-plus-circle"></i> Add Local Admin
               </button>
             </div>
+            
+            <script>
+              function showTab(tabId) {
+                // Remove active class from all tab buttons
+                document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
+                  btn.classList.remove('active');
+                });
+                
+                // Add active class to the clicked button
+                document.querySelector(`.admin-tabs .tab-btn[onclick*="${tabId}"]`).classList.add('active');
+                
+                // Hide all tab panes
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                  pane.classList.remove('active');
+                });
+                
+                // Show the selected tab pane
+                document.getElementById(tabId).classList.add('active');
+              }
+            </script>
+            </div>
+            
+            <script>
+              function showTab(tabId) {
+                // Remove active class from all tab buttons
+                document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
+                  btn.classList.remove('active');
+                });
+                
+                // Add active class to the clicked button
+                document.querySelector(`.admin-tabs .tab-btn[onclick*="${tabId}"]`).classList.add('active');
+                
+                // Hide all tab panes
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                  pane.classList.remove('active');
+                });
+                
+                // Show the selected tab pane
+                document.getElementById(tabId).classList.add('active');
+              }
+            </script>
 
             <!-- Admin Tabs Content -->
             <div class="settings-section">
