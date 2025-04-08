@@ -1319,7 +1319,7 @@ function getEventIcon(event) {
 }
 
 .modal-content {
-  background-color: var(--background-medium);
+  background-color: #1a1a2e !important; /* Solid dark background */
   margin: 2rem auto;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-large);
@@ -1370,6 +1370,8 @@ function getEventIcon(event) {
   padding: 1.5rem;
   overflow-y: auto;
   flex: 1;
+  background-color: #1a1a2e !important;
+  color: #ffffff;
 }
 
 .log-detail-header {
@@ -1408,36 +1410,34 @@ function getEventIcon(event) {
 .detail-label {
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: var(--text-primary);
+  color: #ffffff;
 }
 
 .detail-value {
   font-family: 'JetBrains Mono', monospace;
-  background-color: var(--background-dark);
+  background-color: #0f0f1a !important;
   padding: 0.75rem 1rem;
   border-radius: var(--border-radius);
-  color: var(--text-secondary);
+  color: #d1d1d1;
   word-break: break-all;
   max-height: 100px;
   overflow-y: auto;
+  border: 1px solid #2a2a40;
 }
 
 .detail-json,
 .detail-stack {
   font-family: 'JetBrains Mono', monospace;
-  background-color: var(--background-dark);
   padding: 1rem;
   border-radius: var(--border-radius);
-  color: var(--text-secondary);
+  color: #d1d1d1;
   white-space: pre-wrap;
   overflow-x: auto;
   margin: 0;
   max-height: 200px;
   overflow-y: auto;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background: var(--background-dark) !important; /* Solid background */
-  border: 1px solid var(--border-color);
+  background: #0f0f1a !important; /* Darker solid background */
+  border: 1px solid #2a2a40;
 }
 
 .detail-stack {
