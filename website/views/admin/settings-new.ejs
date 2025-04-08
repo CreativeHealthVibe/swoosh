@@ -4,6 +4,9 @@
 const _adminUsers = typeof adminUsers !== 'undefined' ? adminUsers : [];
 const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers : [];
 const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
+
+// Determine which tab to show
+const activeTab = typeof tab !== 'undefined' ? tab : 'general';
 %>
 
 <!-- Inline styles for settings page -->
@@ -30,7 +33,7 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
   border-bottom: 1px solid rgba(138, 43, 226, 0.3);
 }
 
-.tab-button {
+.tab-link {
   background: transparent;
   border: none;
   color: #ccc;
@@ -39,18 +42,21 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
 }
 
-.tab-button:hover {
+.tab-link:hover {
   color: #fff;
+  text-decoration: none;
 }
 
-.tab-button.active {
+.tab-link.active {
   color: #fff;
   font-weight: bold;
 }
 
-.tab-button.active::after {
+.tab-link.active::after {
   content: '';
   position: absolute;
   bottom: -1px;
@@ -62,21 +68,10 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
 }
 
 .tab-content {
-  display: none;
   padding: 20px;
   background: rgba(20, 20, 30, 0.5);
   border-radius: 8px;
   margin-top: 10px;
-}
-
-.tab-content.active {
-  display: block;
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .settings-form {
@@ -226,12 +221,13 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
     <div class="settings-section">
       <!-- Settings content will go here -->
       <div class="settings-tabs">
-        <button class="tab-button active" onclick="switchTab('general', this)">General</button>
-        <button class="tab-button" onclick="switchTab('advanced', this)">Advanced</button>
-        <button class="tab-button" onclick="switchTab('integrations', this)">Integrations</button>
+        <a href="/admin/settings?tab=general" class="tab-link <%= activeTab === 'general' ? 'active' : '' %>">General</a>
+        <a href="/admin/settings?tab=advanced" class="tab-link <%= activeTab === 'advanced' ? 'active' : '' %>">Advanced</a>
+        <a href="/admin/settings?tab=integrations" class="tab-link <%= activeTab === 'integrations' ? 'active' : '' %>">Integrations</a>
       </div>
       
-      <div class="tab-content active" id="general" style="display: block;">
+      <% if (activeTab === 'general') { %>
+      <div class="tab-content">
         <h3>General Settings</h3>
         <div class="settings-form">
           <div class="form-group">
@@ -253,8 +249,10 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
           <button class="glass-button">Save Changes</button>
         </div>
       </div>
+      <% } %>
       
-      <div class="tab-content" id="advanced" style="display: none;">
+      <% if (activeTab === 'advanced') { %>
+      <div class="tab-content">
         <h3>Advanced Settings</h3>
         <div class="settings-form">
           <div class="form-group">
@@ -280,8 +278,10 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
           <button class="glass-button">Save Changes</button>
         </div>
       </div>
+      <% } %>
       
-      <div class="tab-content" id="integrations" style="display: none;">
+      <% if (activeTab === 'integrations') { %>
+      <div class="tab-content">
         <h3>Integrations</h3>
         <div class="settings-form">
           <div class="form-group">
@@ -301,56 +301,9 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
           <button class="glass-button">Save Changes</button>
         </div>
       </div>
+      <% } %>
     </div>
   </div>
 </div>
-
-<script>
-function switchTab(tabId, clickedButton) {
-  console.log('Switching to tab:', tabId);
-  
-  // Hide all tabs
-  const tabContents = document.querySelectorAll('.tab-content');
-  tabContents.forEach(tab => {
-    tab.style.display = 'none';
-    tab.classList.remove('active');
-  });
-  
-  // Remove active class from all buttons
-  const tabButtons = document.querySelectorAll('.tab-button');
-  tabButtons.forEach(button => {
-    button.classList.remove('active');
-  });
-  
-  // Show the selected tab
-  const selectedTab = document.getElementById(tabId);
-  if (selectedTab) {
-    selectedTab.style.display = 'block';
-    selectedTab.classList.add('active');
-    console.log('Tab displayed:', tabId);
-  } else {
-    console.error('Tab not found:', tabId);
-  }
-  
-  // Add active class to clicked button
-  if (clickedButton) {
-    clickedButton.classList.add('active');
-  } else {
-    // If no button provided, find the button for this tab
-    const button = document.querySelector(`.tab-button[onclick*="${tabId}"]`);
-    if (button) button.classList.add('active');
-  }
-}
-
-// Initialize tabs on page load
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, initializing tabs');
-  const firstTabButton = document.querySelector('.tab-button');
-  if (firstTabButton) {
-    const tabId = firstTabButton.getAttribute('onclick').match(/switchTab\('([^']+)'/)[1];
-    switchTab(tabId, firstTabButton);
-  }
-});
-</script>
 
 <%- include('../partials/admin-footer') %>

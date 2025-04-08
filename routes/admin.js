@@ -310,6 +310,9 @@ router.get('/settings', async (req, res) => {
     // Mark this as a static page to prevent WebSocket refreshing
     const staticPage = true;
     
+    // Get the active tab from query params
+    const tab = req.query.tab || 'general';
+    
     // Get admin users from the config file
     const config = require('../config');
     const adminUsers = config.adminUserIds || [];
@@ -325,6 +328,7 @@ router.get('/settings', async (req, res) => {
       adminUsers,
       localAdminUsers,
       staticPage,
+      tab,
       title: 'Bot Settings | SWOOSH Bot',
       layout: 'layouts/admin'
     });
