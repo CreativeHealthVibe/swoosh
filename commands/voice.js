@@ -6,17 +6,14 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 const { 
   joinVoiceChannel, 
-  createAudioPlayer, 
-  createAudioResource,
   entersState,
   AudioPlayerStatus,
   VoiceConnectionStatus,
-  getVoiceConnection,
-  NoSubscriberBehavior
+  getVoiceConnection
 } = require('@discordjs/voice');
-const play = require('play-dl');
 const path = require('path');
 const fs = require('fs');
+const audioPlayer = require('../modules/audio-player');
 
 // Store voice connections and music info
 const activeConnections = new Map();
@@ -331,98 +328,51 @@ module.exports = {
     try {
       const loadingMessage = await message.reply(`🔍 Searching for: **${query}**...`);
       
-      // Check if it's a valid YouTube URL or a search query
-      let videoInfo = null;
-      
       try {
-        // If it's a YouTube URL, get the video info directly
-        if (query.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/)) {
-          videoInfo = await play.video_info(query);
-        } else {
-          // Otherwise, search for the video
-          const searchResults = await play.search(query, { limit: 1 });
-          if (!searchResults || searchResults.length === 0) {
-            return loadingMessage.edit('❌ No results found for your query!');
+        // Use our audio player module to play the track
+        const { player, details } = await audioPlayer.playYouTube(
+          voiceConnection.connection, 
+          query
+        );
+        
+        // Update the connection with the player and track info
+        activeConnections.set(message.guild.id, {
+          ...voiceConnection,
+          player,
+          currentTrack: {
+            ...details,
+            requestedBy: message.author.tag
           }
-          videoInfo = await play.video_info(searchResults[0].url);
-        }
+        });
+        
+        // Create a nice embed
+        const embed = new EmbedBuilder()
+          .setColor('#9B59B6')
+          .setTitle('▶️ Now Playing')
+          .setDescription(`[${details.title}](${details.url})`)
+          .setThumbnail(details.thumbnail)
+          .addFields(
+            { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+            { name: 'Requested By', value: message.author.tag, inline: true }
+          )
+          .setFooter({ text: 'SWOOSH Bot Music' });
+        
+        // Set up audio player events
+        player.on(AudioPlayerStatus.Idle, () => {
+          console.log('Track ended.');
+          // Here you could add queue functionality
+        });
+        
+        player.on('error', error => {
+          console.error('Audio player error:', error);
+          message.channel.send(`❌ Error while playing track: ${error.message}`);
+        });
+        
+        // Edit the loading message with the now playing embed
+        return loadingMessage.edit({ content: '', embeds: [embed] });
       } catch (error) {
-        console.error('Error fetching video info:', error);
-        return loadingMessage.edit(`❌ Error fetching video info: ${error.message}`);
+        return loadingMessage.edit(`❌ Error: ${error.message}`);
       }
-      
-      if (!videoInfo || !videoInfo.video_details) {
-        return loadingMessage.edit('❌ Could not get video information!');
-      }
-      
-      // Get the video details
-      const videoDetails = videoInfo.video_details;
-      
-      // Create an audio stream
-      const stream = await play.stream(videoDetails.url);
-      
-      // Create an audio resource from the stream
-      const resource = createAudioResource(stream.stream, {
-        inputType: stream.type,
-        inlineVolume: true
-      });
-      
-      // Set a reasonable volume
-      if (resource.volume) {
-        resource.volume.setVolume(0.5);
-      }
-      
-      // Create an audio player
-      const player = createAudioPlayer({
-        behaviors: {
-          noSubscriber: NoSubscriberBehavior.Play
-        }
-      });
-      
-      // Play the track
-      player.play(resource);
-      
-      // Connect the player to the voice connection
-      voiceConnection.connection.subscribe(player);
-      
-      // Update the voice connection with the player
-      activeConnections.set(message.guild.id, {
-        ...voiceConnection,
-        player,
-        currentTrack: {
-          title: videoDetails.title,
-          url: videoDetails.url,
-          thumbnail: videoDetails.thumbnails ? videoDetails.thumbnails[0]?.url : null,
-          duration: videoDetails.durationInSec,
-          requestedBy: message.author.tag
-        }
-      });
-      
-      // Create a nice embed
-      const embed = new EmbedBuilder()
-        .setColor('#9B59B6')
-        .setTitle('▶️ Now Playing')
-        .setDescription(`[${videoDetails.title}](${videoDetails.url})`)
-        .setThumbnail(videoDetails.thumbnails ? videoDetails.thumbnails[0]?.url : null)
-        .addFields(
-          { name: 'Duration', value: formatDuration(videoDetails.durationInSec * 1000), inline: true },
-          { name: 'Requested By', value: message.author.tag, inline: true }
-        )
-        .setFooter({ text: 'SWOOSH Bot Music' });
-      
-      // Set up audio player events
-      player.on(AudioPlayerStatus.Idle, () => {
-        console.log('Track ended.');
-        // Here you could add queue functionality
-      });
-      
-      player.on('error', error => {
-        console.error('Audio player error:', error);
-        message.channel.send(`❌ Error while playing track: ${error.message}`);
-      });
-      
-      // Edit the loading message with the now playing embed
-      return loadingMessage.edit({ content: '', embeds: [embed] });
     } catch (error) {
       console.error('Error playing YouTube video:', error);
       return message.reply(`❌ Error playing music: ${error.message}`);
@@ -458,98 +408,51 @@ module.exports = {
     try {
       await interaction.editReply(`🔍 Searching for: **${query}**...`);
       
-      // Check if it's a valid YouTube URL or a search query
-      let videoInfo = null;
-      
       try {
-        // If it's a YouTube URL, get the video info directly
-        if (query.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/)) {
-          videoInfo = await play.video_info(query);
-        } else {
-          // Otherwise, search for the video
-          const searchResults = await play.search(query, { limit: 1 });
-          if (!searchResults || searchResults.length === 0) {
-            return interaction.editReply('❌ No results found for your query!');
+        // Use our audio player module to play the track
+        const { player, details } = await audioPlayer.playYouTube(
+          voiceConnection.connection, 
+          query
+        );
+        
+        // Update the connection with the player and track info
+        activeConnections.set(interaction.guild.id, {
+          ...voiceConnection,
+          player,
+          currentTrack: {
+            ...details,
+            requestedBy: interaction.user.tag
           }
-          videoInfo = await play.video_info(searchResults[0].url);
-        }
+        });
+        
+        // Create a nice embed
+        const embed = new EmbedBuilder()
+          .setColor('#9B59B6')
+          .setTitle('▶️ Now Playing')
+          .setDescription(`[${details.title}](${details.url})`)
+          .setThumbnail(details.thumbnail)
+          .addFields(
+            { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+            { name: 'Requested By', value: interaction.user.tag, inline: true }
+          )
+          .setFooter({ text: 'SWOOSH Bot Music' });
+        
+        // Set up audio player events
+        player.on(AudioPlayerStatus.Idle, () => {
+          console.log('Track ended.');
+          // Here you could add queue functionality
+        });
+        
+        player.on('error', error => {
+          console.error('Audio player error:', error);
+          interaction.channel.send(`❌ Error while playing track: ${error.message}`);
+        });
+        
+        // Edit the reply with the now playing embed
+        return interaction.editReply({ content: '', embeds: [embed] });
       } catch (error) {
-        console.error('Error fetching video info:', error);
-        return interaction.editReply(`❌ Error fetching video info: ${error.message}`);
+        return interaction.editReply(`❌ Error: ${error.message}`);
       }
-      
-      if (!videoInfo || !videoInfo.video_details) {
-        return interaction.editReply('❌ Could not get video information!');
-      }
-      
-      // Get the video details
-      const videoDetails = videoInfo.video_details;
-      
-      // Create an audio stream
-      const stream = await play.stream(videoDetails.url);
-      
-      // Create an audio resource from the stream
-      const resource = createAudioResource(stream.stream, {
-        inputType: stream.type,
-        inlineVolume: true
-      });
-      
-      // Set a reasonable volume
-      if (resource.volume) {
-        resource.volume.setVolume(0.5);
-      }
-      
-      // Create an audio player
-      const player = createAudioPlayer({
-        behaviors: {
-          noSubscriber: NoSubscriberBehavior.Play
-        }
-      });
-      
-      // Play the track
-      player.play(resource);
-      
-      // Connect the player to the voice connection
-      voiceConnection.connection.subscribe(player);
-      
-      // Update the voice connection with the player
-      activeConnections.set(interaction.guild.id, {
-        ...voiceConnection,
-        player,
-        currentTrack: {
-          title: videoDetails.title,
-          url: videoDetails.url,
-          thumbnail: videoDetails.thumbnails ? videoDetails.thumbnails[0]?.url : null,
-          duration: videoDetails.durationInSec,
-          requestedBy: interaction.user.tag
-        }
-      });
-      
-      // Create a nice embed
-      const embed = new EmbedBuilder()
-        .setColor('#9B59B6')
-        .setTitle('▶️ Now Playing')
-        .setDescription(`[${videoDetails.title}](${videoDetails.url})`)
-        .setThumbnail(videoDetails.thumbnails ? videoDetails.thumbnails[0]?.url : null)
-        .addFields(
-          { name: 'Duration', value: formatDuration(videoDetails.durationInSec * 1000), inline: true },
-          { name: 'Requested By', value: interaction.user.tag, inline: true }
-        )
-        .setFooter({ text: 'SWOOSH Bot Music' });
-      
-      // Set up audio player events
-      player.on(AudioPlayerStatus.Idle, () => {
-        console.log('Track ended.');
-        // Here you could add queue functionality
-      });
-      
-      player.on('error', error => {
-        console.error('Audio player error:', error);
-        interaction.channel.send(`❌ Error while playing track: ${error.message}`);
-      });
-      
-      // Edit the reply with the now playing embed
-      return interaction.editReply({ content: '', embeds: [embed] });
     } catch (error) {
       console.error('Error playing YouTube video:', error);
       return interaction.editReply(`❌ Error playing music: ${error.message}`);
@@ -563,14 +466,5 @@ module.exports = {
  * @returns {string} - Formatted duration
  */
 function formatDuration(ms) {
-  const seconds = Math.floor(ms / 1000) % 60;
-  const minutes = Math.floor(ms / 1000 / 60) % 60;
-  const hours = Math.floor(ms / 1000 / 60 / 60);
-  
-  let parts = [];
-  if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
-  parts.push(`${seconds}s`);
-  
-  return parts.join(' ');
+  return audioPlayer.formatDuration(Math.floor(ms / 1000));
 }
