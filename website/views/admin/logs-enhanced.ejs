@@ -1,0 +1,432 @@
+<!-- Enhanced Logs Page -->
+<div class="page-header">
+  <div class="page-header-content">
+    <h1 class="page-title"><i class="fas fa-clipboard-list"></i> System Logs</h1>
+    <p class="page-description">View and manage system logs for troubleshooting and monitoring</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" onclick="refreshLogs()">
+      <i class="fas fa-sync-alt"></i> Refresh Logs
+    </button>
+  </div>
+</div>
+
+<!-- Log Stats Overview -->
+<div class="log-stats-grid">
+  <div class="card stat-card">
+    <div class="stat-card__icon purple">
+      <i class="fas fa-file-alt"></i>
+    </div>
+    <div class="stat-card__content">
+      <div class="stat-card__title">Total Log Files</div>
+      <div class="stat-card__value"><%= logStats.totalCount || 0 %></div>
+      <div class="stat-card__description">
+        <%= formatFileSize(logStats.totalSize || 0) %> total size
+      </div>
+    </div>
+  </div>
+  
+  <div class="card stat-card">
+    <div class="stat-card__icon amber">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <div class="stat-card__content">
+      <div class="stat-card__title">Error Logs</div>
+      <div class="stat-card__value"><%= logStats.categories.error || 0 %></div>
+      <div class="stat-card__description">
+        Critical issues and exceptions
+      </div>
+    </div>
+  </div>
+  
+  <div class="card stat-card">
+    <div class="stat-card__icon cyan">
+      <i class="fas fa-server"></i>
+    </div>
+    <div class="stat-card__content">
+      <div class="stat-card__title">System Logs</div>
+      <div class="stat-card__value"><%= logStats.categories.system || 0 %></div>
+      <div class="stat-card__description">
+        System and runtime events
+      </div>
+    </div>
+  </div>
+  
+  <div class="card stat-card">
+    <div class="stat-card__icon green">
+      <i class="fas fa-terminal"></i>
+    </div>
+    <div class="stat-card__content">
+      <div class="stat-card__title">Command Logs</div>
+      <div class="stat-card__value"><%= logStats.categories.command || 0 %></div>
+      <div class="stat-card__description">
+        Bot command executions
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Log Files Section -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">
+      <i class="fas fa-list"></i> Log Files
+    </div>
+    <div class="card-actions">
+      <select class="form-select" id="logTypeFilter">
+        <option value="all">All Log Types</option>
+        <option value="error">Error Logs</option>
+        <option value="system">System Logs</option>
+        <option value="command">Command Logs</option>
+        <option value="ticket">Ticket Logs</option>
+        <option value="moderation">Moderation Logs</option>
+      </select>
+    </div>
+  </div>
+  <div class="card-body">
+    <% if (logFiles && logFiles.length > 0) { %>
+      <div class="table-container">
+        <table class="table" id="logsTable">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Modified</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% logFiles.forEach(file => { %>
+              <tr data-log-type="<%= file.type.toLowerCase() %>">
+                <td>
+                  <div class="file-name">
+                    <div class="file-icon <%= file.icon === 'exclamation-triangle' ? 'error' : 
+                                          file.icon === 'server' ? 'system' : 
+                                          file.icon === 'terminal' ? 'command' : 
+                                          file.icon === 'ticket-alt' ? 'ticket' : 
+                                          file.icon === 'shield-alt' ? 'moderation' : 'other' %>">
+                      <i class="fas fa-<%= file.icon %>"></i>
+                    </div>
+                    <div class="file-details">
+                      <a href="/admin/logs/<%= file.name %>" class="file-link"><%= file.name %></a>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge badge-<%= file.icon === 'exclamation-triangle' ? 'danger' : 
+                                              file.icon === 'server' ? 'info' : 
+                                              file.icon === 'terminal' ? 'success' : 
+                                              file.icon === 'ticket-alt' ? 'warning' : 
+                                              file.icon === 'shield-alt' ? 'primary' : 'secondary' %>">
+                  <%= file.type %>
+                </span></td>
+                <td><%= formatFileSize(file.size) %></td>
+                <td>
+                  <div class="time-info">
+                    <div class="time-ago"><%= file.age %></div>
+                    <div class="time-exact"><%= file.mtime.toLocaleString() %></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <a href="/admin/logs/<%= file.name %>" class="btn btn-icon btn-sm btn-outline" title="View">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/admin/logs/<%= file.name %>?download=true" class="btn btn-icon btn-sm btn-outline" title="Download">
+                      <i class="fas fa-download"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <div class="empty-state-message">No log files found</div>
+        <div class="empty-state-description">
+          Log files will appear here when they are generated by the bot
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Log Information -->
+<div class="info-card">
+  <div class="info-card-header">
+    <i class="fas fa-info-circle"></i> About System Logs
+  </div>
+  <div class="info-card-body">
+    <p>
+      SWOOSH Bot automatically logs various system events and activities for debugging and monitoring purposes.
+      Logs are stored in separate files based on their type and date:
+    </p>
+    <ul class="log-info-list">
+      <li><span class="log-type error"><i class="fas fa-exclamation-triangle"></i> Error Logs</span> - Records errors, exceptions, and critical issues</li>
+      <li><span class="log-type system"><i class="fas fa-server"></i> System Logs</span> - Tracks system startup, shutdown, and runtime events</li>
+      <li><span class="log-type command"><i class="fas fa-terminal"></i> Command Logs</span> - Records command usage and execution details</li>
+      <li><span class="log-type ticket"><i class="fas fa-ticket-alt"></i> Ticket Logs</span> - Tracks ticket creation, updates, and resolutions</li>
+      <li><span class="log-type moderation"><i class="fas fa-shield-alt"></i> Moderation Logs</span> - Records moderation actions like bans, kicks, and mutes</li>
+    </ul>
+    <p class="mb-0">
+      <strong>Note:</strong> Log files are automatically rotated to prevent excessive disk usage. 
+      Older logs may be automatically removed after a certain period.
+    </p>
+  </div>
+</div>
+
+<style>
+  /* Logs Page Specific Styles */
+  
+  /* Stats Grid Layout */
+  .log-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* File Icon Colors */
+  .file-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .file-icon.error {
+    background: linear-gradient(135deg, #ED4245, #d02d30);
+  }
+  
+  .file-icon.system {
+    background: linear-gradient(135deg, #00e5ff, #00a3ff);
+  }
+  
+  .file-icon.command {
+    background: linear-gradient(135deg, #57F287, #41c76c);
+  }
+  
+  .file-icon.ticket {
+    background: linear-gradient(135deg, #FEE75C, #FEB32A);
+  }
+  
+  .file-icon.moderation {
+    background: linear-gradient(135deg, #9c4dff, #6a36c3);
+  }
+  
+  .file-icon.other {
+    background: linear-gradient(135deg, #6c757d, #495057);
+  }
+  
+  /* File Name Display */
+  .file-name {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .file-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .file-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+  }
+  
+  .file-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+  
+  /* Time Display */
+  .time-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .time-ago {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  
+  .time-exact {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  
+  /* Log Information Section */
+  .info-card {
+    background: rgba(30, 21, 50, 0.3);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    margin-top: 1.5rem;
+    overflow: hidden;
+  }
+  
+  .info-card-header {
+    padding: 1rem 1.5rem;
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--text-primary);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .info-card-header i {
+    color: var(--accent-color);
+  }
+  
+  .info-card-body {
+    padding: 1.5rem;
+  }
+  
+  .log-info-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 1rem 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .log-info-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .log-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .log-type.error i {
+    color: #ED4245;
+  }
+  
+  .log-type.system i {
+    color: #00e5ff;
+  }
+  
+  .log-type.command i {
+    color: #57F287;
+  }
+  
+  .log-type.ticket i {
+    color: #FEE75C;
+  }
+  
+  .log-type.moderation i {
+    color: #9c4dff;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  
+  .empty-state-icon {
+    font-size: 3rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+  
+  .empty-state-message {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .empty-state-description {
+    color: var(--text-secondary);
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1200px) {
+    .log-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .log-info-list {
+      grid-template-columns: 1fr;
+    }
+    
+    .log-stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .time-exact {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Log type filtering
+    const logTypeFilter = document.getElementById('logTypeFilter');
+    const logsTable = document.getElementById('logsTable');
+    
+    if (logTypeFilter && logsTable) {
+      logTypeFilter.addEventListener('change', function() {
+        const selectedType = this.value.toLowerCase();
+        const rows = logsTable.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+          const rowType = row.getAttribute('data-log-type').toLowerCase();
+          if (selectedType === 'all' || rowType.includes(selectedType)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+  });
+  
+  // Function to refresh logs
+  function refreshLogs() {
+    window.location.reload();
+  }
+</script>

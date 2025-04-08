@@ -1,0 +1,1072 @@
+<!-- Enhanced User Management Page -->
+<div class="page-header">
+  <div class="page-header-content">
+    <h1 class="page-title"><i class="fas fa-user-shield"></i> User Management</h1>
+    <p class="page-description">Configure admin access and permissions for the SWOOSH administration panel</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-primary" data-modal-trigger="add-admin-modal">
+      <i class="fas fa-plus-circle"></i> Add New Admin
+    </button>
+  </div>
+</div>
+
+<!-- Alert Messages -->
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="alert alert-success">
+    <i class="fas fa-check-circle alert-icon"></i>
+    <div class="alert-content">
+      <div class="alert-title">Success</div>
+      <div class="alert-message"><%= success %></div>
+    </div>
+    <button class="alert-close" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+<% } %>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert alert-danger">
+    <i class="fas fa-exclamation-circle alert-icon"></i>
+    <div class="alert-content">
+      <div class="alert-title">Error</div>
+      <div class="alert-message"><%= error %></div>
+    </div>
+    <button class="alert-close" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+<% } %>
+
+<!-- Admin Users Overview Cards -->
+<div class="admin-overview-grid">
+  <div class="card stat-card">
+    <div class="stat-card__icon purple">
+      <i class="fab fa-discord"></i>
+    </div>
+    <div class="stat-card__content">
+      <div class="stat-card__title">Discord Admins</div>
+      <div class="stat-card__value"><%= typeof adminUsers !== 'undefined' ? adminUsers.length : 0 %></div>
+      <div class="stat-card__description">OAuth-authenticated users</div>
+    </div>
+  </div>
+  
+  <div class="card stat-card">
+    <div class="stat-card__icon cyan">
+      <i class="fas fa-user-lock"></i>
+    </div>
+    <div class="stat-card__content">
+      <div class="stat-card__title">Local Admins</div>
+      <div class="stat-card__value"><%= typeof localAdminUsers !== 'undefined' ? localAdminUsers.length : 0 %></div>
+      <div class="stat-card__description">Username/password users</div>
+    </div>
+  </div>
+  
+  <div class="card stat-card">
+    <div class="stat-card__icon green">
+      <i class="fas fa-user-shield"></i>
+    </div>
+    <div class="stat-card__content">
+      <div class="stat-card__title">Super Admins</div>
+      <div class="stat-card__value">
+        <% 
+          let superAdminCount = 0;
+          if (typeof localAdminUsers !== 'undefined') {
+            superAdminCount = localAdminUsers.filter(user => user.is_super_admin).length;
+          }
+        %>
+        <%= superAdminCount %>
+      </div>
+      <div class="stat-card__description">Full system access</div>
+    </div>
+  </div>
+  
+  <div class="card stat-card">
+    <div class="stat-card__icon amber">
+      <i class="fas fa-clock"></i>
+    </div>
+    <div class="stat-card__content">
+      <div class="stat-card__title">Last Update</div>
+      <div class="stat-card__value smaller">
+        <%= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+      </div>
+      <div class="stat-card__description">
+        <%= new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Management Tabs -->
+<div class="tabs-container">
+  <div class="tabs-header">
+    <button class="tab-button active" data-tab="discord-admins">
+      <i class="fab fa-discord"></i> Discord Admins
+    </button>
+    <button class="tab-button" data-tab="local-admins">
+      <i class="fas fa-user-lock"></i> Local Admins
+    </button>
+    <button class="tab-button" data-tab="help-guide">
+      <i class="fas fa-question-circle"></i> Help Guide
+    </button>
+  </div>
+  
+  <div class="tabs-content">
+    <!-- Discord Admins Tab -->
+    <div class="tab-pane active" id="discord-admins">
+      <div class="card card-glow">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fab fa-discord"></i> Discord Administrator Accounts
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-sm btn-primary" data-modal-trigger="add-discord-admin-modal">
+              <i class="fas fa-plus"></i> Add Discord Admin
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <% if (typeof adminUsers !== 'undefined' && adminUsers.length > 0) { %>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Discord ID</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% adminUsers.forEach(user => { %>
+                    <tr>
+                      <td>
+                        <div class="user-cell">
+                          <% if (user.avatarUrl) { %>
+                            <img src="<%= user.avatarUrl %>" alt="<%= user.displayName || user.username || 'User' %>" class="user-avatar">
+                          <% } else { %>
+                            <div class="user-avatar-placeholder">
+                              <%= (user.displayName || user.username || user.comment || 'U').charAt(0).toUpperCase() %>
+                            </div>
+                          <% } %>
+                          <div class="user-info">
+                            <div class="user-name"><%= user.displayName || user.username || user.comment %></div>
+                            <% if (user.username) { %>
+                              <div class="user-handle">@<%= user.username %></div>
+                            <% } %>
+                          </div>
+                        </div>
+                      </td>
+                      <td><code class="user-id"><%= user.id %></code></td>
+                      <td>
+                        <% if (user.username) { %>
+                          <span class="badge badge-success">Verified</span>
+                        <% } else { %>
+                          <span class="badge badge-warning">Pending</span>
+                        <% } %>
+                      </td>
+                      <td>
+                        <div class="action-buttons">
+                          <form action="/admin/users/remove" method="POST" class="delete-form">
+                            <input type="hidden" name="userId" value="<%= user.id %>">
+                            <button type="submit" class="btn btn-icon btn-danger btn-sm" data-tooltip="Remove Admin" onclick="return confirm('Are you sure you want to remove this admin user? This action cannot be undone.')">
+                              <i class="fas fa-trash-alt"></i>
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <i class="fas fa-user-slash"></i>
+              </div>
+              <div class="empty-state-message">No Discord admin users found</div>
+              <div class="empty-state-action">
+                <button class="btn btn-primary" data-modal-trigger="add-discord-admin-modal">
+                  <i class="fas fa-plus-circle"></i> Add First Discord Admin
+                </button>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Local Admins Tab -->
+    <div class="tab-pane" id="local-admins">
+      <div class="card card-glow">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fas fa-user-lock"></i> Local Administrator Accounts
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-sm btn-primary" data-modal-trigger="add-local-admin-modal">
+              <i class="fas fa-plus"></i> Add Local Admin
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <% if (typeof localAdminUsers !== 'undefined' && localAdminUsers.length > 0) { %>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% localAdminUsers.forEach(user => { %>
+                    <tr>
+                      <td>
+                        <div class="user-cell">
+                          <% if (user.avatar) { %>
+                            <img src="<%= user.avatar %>" alt="<%= user.display_name || user.username %>" class="user-avatar">
+                          <% } else { %>
+                            <div class="user-avatar-placeholder">
+                              <%= (user.display_name || user.username).charAt(0).toUpperCase() %>
+                            </div>
+                          <% } %>
+                          <div class="user-info">
+                            <div class="user-name"><%= user.display_name || user.username %></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><code class="username-code"><%= user.username %></code></td>
+                      <td><%= user.email || '—' %></td>
+                      <td>
+                        <% if (user.is_super_admin) { %>
+                          <span class="badge badge-primary">Super Admin</span>
+                        <% } else { %>
+                          <span class="badge badge-secondary">Admin</span>
+                        <% } %>
+                      </td>
+                      <td>
+                        <div class="action-buttons">
+                          <form action="/admin/settings/users/remove-local" method="POST" class="delete-form">
+                            <input type="hidden" name="userId" value="<%= user.id %>">
+                            <button type="submit" class="btn btn-icon btn-danger btn-sm" data-tooltip="Remove Admin" onclick="return confirm('Are you sure you want to remove this local admin user? This action cannot be undone.')">
+                              <i class="fas fa-trash-alt"></i>
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <i class="fas fa-user-slash"></i>
+              </div>
+              <div class="empty-state-message">No local admin users found</div>
+              <div class="empty-state-action">
+                <button class="btn btn-primary" data-modal-trigger="add-local-admin-modal">
+                  <i class="fas fa-plus-circle"></i> Add First Local Admin
+                </button>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Help Guide Tab -->
+    <div class="tab-pane" id="help-guide">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fas fa-question-circle"></i> How to Add Discord Admin Users
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="help-grid">
+            <div class="help-card">
+              <div class="help-step">1</div>
+              <div class="help-card-content">
+                <h3>Enable Developer Mode</h3>
+                <p>Open Discord and go to <strong>User Settings</strong> → <strong>Advanced</strong> and enable <strong>Developer Mode</strong>.</p>
+                <div class="help-card-image">
+                  <i class="fas fa-cog help-icon"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="help-card">
+              <div class="help-step">2</div>
+              <div class="help-card-content">
+                <h3>Find the User</h3>
+                <p>Locate the user you want to make an admin in a server, member list, or direct message.</p>
+                <div class="help-card-image">
+                  <i class="fas fa-search help-icon"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="help-card">
+              <div class="help-step">3</div>
+              <div class="help-card-content">
+                <h3>Copy User ID</h3>
+                <p>Right-click on the user's name and select <strong>Copy ID</strong> from the context menu.</p>
+                <div class="help-card-image">
+                  <i class="fas fa-copy help-icon"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="help-card">
+              <div class="help-step">4</div>
+              <div class="help-card-content">
+                <h3>Add as Admin</h3>
+                <p>Click "Add Discord Admin", paste the ID in the form, add a comment/name, and submit.</p>
+                <div class="help-card-image">
+                  <i class="fas fa-user-plus help-icon"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="help-note">
+            <i class="fas fa-info-circle"></i>
+            <p>
+              <strong>Note:</strong> Discord admins must authorize with Discord OAuth to access the admin panel.
+              Local admins can use username/password login without Discord.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Discord Admin Modal -->
+<div class="modal" id="add-discord-admin-modal">
+  <div class="modal-backdrop"></div>
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fab fa-discord"></i> Add Discord Admin</h3>
+      <button class="modal-close" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form action="/admin/users/add" method="POST" class="admin-form">
+        <div class="form-group">
+          <label for="userId">
+            <i class="fas fa-fingerprint"></i> Discord User ID
+          </label>
+          <input type="text" id="userId" name="userId" class="form-input" placeholder="Enter 17-19 digit Discord ID" 
+                pattern="^\d{17,19}$" required>
+          <div class="form-help">
+            Enable Developer Mode in Discord settings, right-click a user, and select "Copy ID"
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="comment">
+            <i class="fas fa-user-tag"></i> Name or Comment
+          </label>
+          <input type="text" id="comment" name="comment" class="form-input" placeholder="E.g., John (Community Manager)" required>
+          <div class="form-help">
+            Add an identifier or role description for this admin user
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Add Discord Admin
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Local Admin Modal -->
+<div class="modal" id="add-local-admin-modal">
+  <div class="modal-backdrop"></div>
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-user-plus"></i> Add Local Admin</h3>
+      <button class="modal-close" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form action="/admin/settings/localusers/add" method="POST" class="admin-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="username">
+              <i class="fas fa-user"></i> Username
+            </label>
+            <input type="text" id="username" name="username" class="form-input" placeholder="admin_username" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">
+              <i class="fas fa-lock"></i> Password
+            </label>
+            <div class="password-input-container">
+              <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" minlength="8" required>
+              <button type="button" class="password-toggle" tabindex="-1">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="display_name">
+              <i class="fas fa-id-card"></i> Display Name
+            </label>
+            <input type="text" id="display_name" name="display_name" class="form-input" placeholder="John Doe">
+          </div>
+          
+          <div class="form-group">
+            <label for="email">
+              <i class="fas fa-envelope"></i> Email (Optional)
+            </label>
+            <input type="email" id="email" name="email" class="form-input" placeholder="admin@example.com">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="role">
+            <i class="fas fa-user-shield"></i> Admin Role
+          </label>
+          <select id="role" name="role" class="form-select">
+            <option value="admin">Regular Admin</option>
+            <option value="super-admin">Super Admin</option>
+          </select>
+          <div class="form-help">
+            Super Admins have additional permissions including user management
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Create Admin User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* User Management Specific Styles */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: var(--gradient-blend);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .page-description {
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  /* Stats Cards */
+  .admin-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .stat-card {
+    display: flex;
+    padding: 1.5rem;
+    gap: 1.25rem;
+    align-items: center;
+  }
+  
+  .stat-card__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition);
+  }
+  
+  .stat-card:hover .stat-card__icon {
+    transform: scale(1.1);
+  }
+  
+  .stat-card__icon.purple {
+    background: linear-gradient(135deg, #8a43e8, #b76eff);
+    color: white;
+  }
+  
+  .stat-card__icon.cyan {
+    background: linear-gradient(135deg, #00c2e6, #00e5ff);
+    color: white;
+  }
+  
+  .stat-card__icon.green {
+    background: linear-gradient(135deg, #57F287, #43ce6c);
+    color: white;
+  }
+  
+  .stat-card__icon.amber {
+    background: linear-gradient(135deg, #FEE75C, #FEB32A);
+    color: white;
+  }
+  
+  .stat-card__content {
+    flex: 1;
+  }
+  
+  .stat-card__title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .stat-card__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  
+  .stat-card__value.smaller {
+    font-size: 1.25rem;
+  }
+  
+  .stat-card__description {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+  
+  /* Tabs */
+  .tabs-container {
+    margin-bottom: 1.5rem;
+  }
+  
+  .tabs-header {
+    display: flex;
+    overflow-x: auto;
+    background: rgba(30, 21, 50, 0.3);
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tab-button {
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+  
+  .tab-button:hover {
+    color: var(--text-primary);
+    background: rgba(156, 77, 255, 0.1);
+  }
+  
+  .tab-button.active {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .tab-pane {
+    display: none;
+  }
+  
+  .tab-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Tables */
+  .table-container {
+    overflow-x: auto;
+    border-radius: var(--border-radius);
+  }
+  
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+  }
+  
+  .user-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .user-handle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  
+  .user-id {
+    font-family: 'Courier New', monospace;
+    background: rgba(156, 77, 255, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  
+  .username-code {
+    font-family: 'Courier New', monospace;
+    background: rgba(0, 229, 255, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  /* Modals */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: none;
+  }
+  
+  .modal.active {
+    display: block;
+  }
+  
+  .modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    animation: fadeIn 0.2s ease;
+  }
+  
+  .modal-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--background-light);
+    border-radius: var(--border-radius-lg);
+    width: 100%;
+    max-width: 600px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(156, 77, 255, 0.2);
+    animation: zoomIn 0.3s ease;
+    overflow: hidden;
+  }
+  
+  @keyframes zoomIn {
+    from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+    background: rgba(156, 77, 255, 0.1);
+  }
+  
+  .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  
+  .modal-title i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+  }
+  
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  
+  .modal-close:hover {
+    background: rgba(237, 66, 69, 0.1);
+    color: var(--danger-color);
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  /* Forms */
+  .admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .password-input-container {
+    position: relative;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+  }
+  
+  .form-help {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .empty-state-icon {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    opacity: 0.7;
+  }
+  
+  .empty-state-message {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Help guide */
+  .help-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .help-card {
+    background: rgba(30, 21, 50, 0.3);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    display: flex;
+    border: 1px solid rgba(156, 77, 255, 0.1);
+    transition: all var(--transition);
+  }
+  
+  .help-card:hover {
+    border-color: rgba(156, 77, 255, 0.3);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+  
+  .help-step {
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--gradient-primary);
+    color: white;
+  }
+  
+  .help-card-content {
+    flex: 1;
+    padding: 1.25rem;
+  }
+  
+  .help-card-content h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  
+  .help-card-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  .help-card-image {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  .help-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    opacity: 0.8;
+  }
+  
+  .help-note {
+    background: rgba(0, 229, 255, 0.1);
+    border-left: 3px solid var(--accent-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .help-note i {
+    color: var(--accent-color);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+  }
+  
+  .help-note p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive tweaks */
+  @media (max-width: 1200px) {
+    .admin-overview-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .help-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .modal-container {
+      width: 90%;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .admin-overview-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .tabs-header {
+      overflow-x: auto;
+      padding: 0.25rem;
+    }
+    
+    .tab-button {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all buttons and panes
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabPanes.forEach(pane => pane.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding pane
+        button.classList.add('active');
+        const tabId = button.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // Modal handling
+    const modalTriggers = document.querySelectorAll('[data-modal-trigger]');
+    const modalCloseButtons = document.querySelectorAll('.modal-close, [data-modal-close]');
+    const modals = document.querySelectorAll('.modal');
+    
+    modalTriggers.forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const modalId = trigger.getAttribute('data-modal-trigger');
+        const modal = document.getElementById(modalId);
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+      });
+    });
+    
+    function closeModal(modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = ''; // Enable scrolling
+    }
+    
+    modalCloseButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const modal = button.closest('.modal');
+        closeModal(modal);
+      });
+    });
+    
+    // Close modal when clicking on backdrop
+    modals.forEach(modal => {
+      const backdrop = modal.querySelector('.modal-backdrop');
+      backdrop.addEventListener('click', () => {
+        closeModal(modal);
+      });
+    });
+    
+    // Password toggle visibility
+    const passwordToggles = document.querySelectorAll('.password-toggle');
+    
+    passwordToggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const input = toggle.previousElementSibling;
+        const icon = toggle.querySelector('i');
+        
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+    
+    // Close alerts
+    const alertCloseButtons = document.querySelectorAll('.alert-close');
+    
+    alertCloseButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const alert = button.closest('.alert');
+        alert.style.opacity = '0';
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 300);
+      });
+    });
+  });
+</script>
