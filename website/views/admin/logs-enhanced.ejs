@@ -215,16 +215,8 @@ Stack trace will appear here for error logs.
 <script>
 // Sample log data for demonstration
 const sampleLogs = [
-  <% logs.forEach(function(log) { %>
-    {
-      timestamp: new Date('<%= log.timestamp %>'),
-      event: '<%= log.level.charAt(0).toUpperCase() + log.level.slice(1) %>',
-      type: '<%= log.level %>',
-      user: '<%= log.user || "N/A" %>',
-      executor: 'System',
-      details: { message: '<%= log.message %>' }
-    },
-  <% }); %>
+  // Static sample data instead of dynamic EJS rendering
+  // This ensures the page works even if no logs are passed
   // We'll add more sample data to demonstrate the features
   {
     timestamp: new Date('2025-04-07T21:28:49.514Z'),
