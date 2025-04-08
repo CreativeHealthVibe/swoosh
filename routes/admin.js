@@ -832,67 +832,10 @@ router.get('/welcome', (req, res) => {
 
 /**
  * GET /admin/users
- * Admin user management
+ * Admin user management (now redirects to /admin/settings?tab=admins)
  */
 router.get('/users', async (req, res) => {
-  // Get Discord client from Express app
-  const client = req.app.get('client');
-  
-  // Parse admin users from config
-  const adminUsers = await Promise.all(config.adminUserIds.map(async id => {
-    // Extract comment from the config.js file structure (if available)
-    const configContent = fs.readFileSync('./config.js', 'utf8');
-    const commentMatch = new RegExp(`'${id}'[^,]*// ([^\\n]*)`, 'i').exec(configContent);
-    const comment = commentMatch ? commentMatch[1].trim() : 'No comment';
-    
-    // If Discord client is available, fetch user data
-    let username = null;
-    let displayName = null;
-    let avatarUrl = null;
-    
-    if (client) {
-      try {
-        const user = await client.users.fetch(id).catch(e => null);
-        if (user) {
-          username = user.username;
-          displayName = user.globalName || user.username;
-          avatarUrl = user.displayAvatarURL({ dynamic: true });
-        }
-      } catch (error) {
-        console.error(`Failed to fetch Discord user data for ID ${id}:`, error);
-      }
-    }
-    
-    return {
-      id,
-      comment,
-      username,
-      displayName,
-      avatarUrl
-    };
-  }));
-  
-  // Get all local admin users
-  let localAdminUsers = [];
-  try {
-    // Get all local users and filter for admins
-    const allLocalUsers = await db.getAllLocalUsers();
-    localAdminUsers = allLocalUsers.filter(user => user.is_admin);
-  } catch (error) {
-    console.error('Error fetching local admin users:', error);
-    req.flash('error', 'Failed to load local admin users');
-  }
-  
-  res.render('admin/user-management-enhanced', {
-    title: 'User Management | SWOOSH Bot',
-    user: req.user,
-    adminUsers,
-    localAdminUsers,
-    error: req.flash('error'),
-    success: req.flash('success'),
-    path: '/admin/users',
-    layout: 'layouts/admin'
-  });
+  res.redirect('/admin/settings?tab=admins');
 });
 
 /**
@@ -1075,13 +1018,13 @@ router.post('/users/add', (req, res) => {
     // Validate input
     if (!userId || !comment) {
       req.flash('error', 'User ID and comment are required');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Check if user ID is already in the admin list
     if (config.adminUserIds.includes(userId)) {
       req.flash('error', 'This user is already an admin');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Create a new admin user ID list
@@ -1122,11 +1065,11 @@ router.post('/users/add', (req, res) => {
     console.log(`Admin ${req.user.username} (${req.user.id}) added new admin user ${userId} (${comment})`);
     
     req.flash('success', `Admin user ${comment} (${userId}) added successfully`);
-    return res.redirect("/admin/settings");
+    return res.redirect("/admin/settings?tab=admins");
   } catch (error) {
     console.error('Error adding admin user:', error);
     req.flash('error', 'Failed to add admin user: ' + error.message);
-    return res.redirect("/admin/settings");
+    return res.redirect("/admin/settings?tab=admins");
   }
 });
 
@@ -1141,25 +1084,25 @@ router.post('/users/remove', (req, res) => {
     // Validate input
     if (!userId) {
       req.flash('error', 'User ID is required');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Check if user ID is in the admin list
     if (!config.adminUserIds.includes(userId)) {
       req.flash('error', 'This user is not an admin');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Prevent removing the last admin
     if (config.adminUserIds.length <= 1) {
       req.flash('error', 'Cannot remove the last admin user');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Prevent removing yourself
     if (userId === req.user.id) {
       req.flash('error', 'Cannot remove yourself from admin users');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Create a new admin user ID list without the removed user
@@ -1199,11 +1142,11 @@ router.post('/users/remove', (req, res) => {
     console.log(`Admin ${req.user.username} (${req.user.id}) removed admin user ${userId}`);
     
     req.flash('success', `Admin user ${userId} removed successfully`);
-    return res.redirect("/admin/settings");
+    return res.redirect("/admin/settings?tab=admins");
   } catch (error) {
     console.error('Error removing admin user:', error);
     req.flash('error', 'Failed to remove admin user: ' + error.message);
-    return res.redirect("/admin/settings");
+    return res.redirect("/admin/settings?tab=admins");
   }
 });
 
@@ -1336,14 +1279,14 @@ router.post('/localusers/add', async (req, res) => {
     // Validate input
     if (!username || !password) {
       req.flash('error', 'Username and password are required');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Check if username already exists
     const existingUser = await db.getLocalUserByUsername(username);
     if (existingUser) {
       req.flash('error', 'Username already exists');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Parse permissions
@@ -1360,7 +1303,7 @@ router.post('/localusers/add', async (req, res) => {
       } catch (error) {
         console.error('Error parsing permissions:', error);
         req.flash('error', 'Invalid permissions format');
-        return res.redirect("/admin/settings");
+        return res.redirect("/admin/settings?tab=admins");
       }
     } else {
       // Default permissions for admin user
@@ -1387,11 +1330,11 @@ router.post('/localusers/add', async (req, res) => {
     console.log(`Admin ${req.user.username} (${req.user.id}) created new local admin user: ${username}`);
     
     req.flash('success', `Local admin user ${username} created successfully`);
-    return res.redirect("/admin/settings");
+    return res.redirect("/admin/settings?tab=admins");
   } catch (error) {
     console.error('Error creating local admin user:', error);
     req.flash('error', 'Failed to create local admin user: ' + error.message);
-    return res.redirect("/admin/settings");
+    return res.redirect("/admin/settings?tab=admins");
   }
 });
 
@@ -1406,20 +1349,20 @@ router.post('/localusers/remove', async (req, res) => {
     // Validate input
     if (!userId) {
       req.flash('error', 'User ID is required');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Check if user exists
     const user = await db.getLocalUserById(userId);
     if (!user) {
       req.flash('error', 'User not found');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Prevent removing yourself
     if (req.user.userType === 'local' && parseInt(userId) === parseInt(req.user.id)) {
       req.flash('error', 'Cannot remove your own account');
-      return res.redirect("/admin/settings");
+      return res.redirect("/admin/settings?tab=admins");
     }
     
     // Delete the user
@@ -1429,11 +1372,11 @@ router.post('/localusers/remove', async (req, res) => {
     console.log(`Admin ${req.user.username} (${req.user.id}) removed local admin user: ${user.username}`);
     
     req.flash('success', `Local admin user ${user.username} removed successfully`);
-    return res.redirect("/admin/settings");
+    return res.redirect("/admin/settings?tab=admins");
   } catch (error) {
     console.error('Error removing local admin user:', error);
     req.flash('error', 'Failed to remove local admin user: ' + error.message);
-    return res.redirect("/admin/settings");
+    return res.redirect("/admin/settings?tab=admins");
   }
 });
 
