@@ -1,0 +1,119 @@
+<%- include('../partials/admin-header-fixed') %>
+
+<div style="padding: 30px; background-color: #1a1a2e; border-radius: 10px; margin: 20px; box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);">
+  <h2 style="background: linear-gradient(90deg, #8a2be2, #00bfff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px;">Bot Settings</h2>
+  <p style="color: #888; margin-bottom: 20px;">Configure your Swoosh bot settings below</p>
+  
+  <div style="display: flex; margin-bottom: 20px; border-bottom: 1px solid rgba(138, 43, 226, 0.3);">
+    <a href="/admin/settings?tab=general" style="text-decoration: none; color: <%= (typeof tab !== 'undefined' && tab === 'general') || !tab ? '#fff' : '#ccc' %>; padding: 10px 20px; font-weight: <%= (typeof tab !== 'undefined' && tab === 'general') || !tab ? 'bold' : 'normal' %>; position: relative;">
+      General
+      <% if ((typeof tab !== 'undefined' && tab === 'general') || !tab) { %>
+        <span style="position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #8a2be2, #00bfff); border-radius: 2px 2px 0 0;"></span>
+      <% } %>
+    </a>
+    <a href="/admin/settings?tab=advanced" style="text-decoration: none; color: <%= typeof tab !== 'undefined' && tab === 'advanced' ? '#fff' : '#ccc' %>; padding: 10px 20px; font-weight: <%= typeof tab !== 'undefined' && tab === 'advanced' ? 'bold' : 'normal' %>; position: relative;">
+      Advanced
+      <% if (typeof tab !== 'undefined' && tab === 'advanced') { %>
+        <span style="position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #8a2be2, #00bfff); border-radius: 2px 2px 0 0;"></span>
+      <% } %>
+    </a>
+    <a href="/admin/settings?tab=integrations" style="text-decoration: none; color: <%= typeof tab !== 'undefined' && tab === 'integrations' ? '#fff' : '#ccc' %>; padding: 10px 20px; font-weight: <%= typeof tab !== 'undefined' && tab === 'integrations' ? 'bold' : 'normal' %>; position: relative;">
+      Integrations
+      <% if (typeof tab !== 'undefined' && tab === 'integrations') { %>
+        <span style="position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #8a2be2, #00bfff); border-radius: 2px 2px 0 0;"></span>
+      <% } %>
+    </a>
+  </div>
+  
+  <% if ((typeof tab !== 'undefined' && tab === 'general') || !tab) { %>
+    <div style="padding: 20px; background: rgba(20, 20, 30, 0.5); border-radius: 8px; animation: fadeIn 0.5s ease;">
+      <h3 style="color: #fff; margin-bottom: 20px;">General Settings</h3>
+      <div style="max-width: 600px;">
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <label style="flex: 0 0 180px; color: #ddd; font-weight: 500;">Bot Prefix</label>
+          <input type="text" value="!" style="flex: 1; background: rgba(30, 30, 40, 0.7); border: 1px solid rgba(138, 43, 226, 0.3); color: #fff; padding: 10px; border-radius: 5px;" />
+        </div>
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <label style="flex: 0 0 180px; color: #ddd; font-weight: 500;">Default Language</label>
+          <select style="flex: 1; background: rgba(30, 30, 40, 0.7); border: 1px solid rgba(138, 43, 226, 0.3); color: #fff; padding: 10px; border-radius: 5px;">
+            <option>English</option>
+            <option>Spanish</option>
+            <option>French</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <label style="flex: 0 0 180px; color: #ddd; font-weight: 500;">Embed Color</label>
+          <input type="color" value="#7289DA" style="flex: 1; background: rgba(30, 30, 40, 0.7); border: 1px solid rgba(138, 43, 226, 0.3); color: #fff; padding: 5px; border-radius: 5px;" />
+        </div>
+        <button style="background: rgba(138, 43, 226, 0.2); border: 1px solid rgba(138, 43, 226, 0.5); color: #fff; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; margin-top: 20px;">Save Changes</button>
+      </div>
+    </div>
+  <% } %>
+  
+  <% if (typeof tab !== 'undefined' && tab === 'advanced') { %>
+    <div style="padding: 20px; background: rgba(20, 20, 30, 0.5); border-radius: 8px; animation: fadeIn 0.5s ease;">
+      <h3 style="color: #fff; margin-bottom: 20px;">Advanced Settings</h3>
+      <div style="max-width: 600px;">
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <label style="flex: 0 0 180px; color: #ddd; font-weight: 500;">Debug Mode</label>
+          <div style="position: relative; display: inline-block; width: 50px; height: 24px;">
+            <input type="checkbox" id="debug-toggle" style="opacity: 0; width: 0; height: 0;" />
+            <label for="debug-toggle" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(30, 30, 40, 0.7); border-radius: 24px; transition: .4s;">
+              <span style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: #ccc; border-radius: 50%; transition: .4s;"></span>
+            </label>
+          </div>
+        </div>
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <label style="flex: 0 0 180px; color: #ddd; font-weight: 500;">Cache Duration (minutes)</label>
+          <input type="number" value="60" style="flex: 1; background: rgba(30, 30, 40, 0.7); border: 1px solid rgba(138, 43, 226, 0.3); color: #fff; padding: 10px; border-radius: 5px;" />
+        </div>
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <label style="flex: 0 0 180px; color: #ddd; font-weight: 500;">Log Level</label>
+          <select style="flex: 1; background: rgba(30, 30, 40, 0.7); border: 1px solid rgba(138, 43, 226, 0.3); color: #fff; padding: 10px; border-radius: 5px;">
+            <option>Info</option>
+            <option>Debug</option>
+            <option>Warning</option>
+            <option>Error</option>
+          </select>
+        </div>
+        <button style="background: rgba(138, 43, 226, 0.2); border: 1px solid rgba(138, 43, 226, 0.5); color: #fff; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; margin-top: 20px;">Save Changes</button>
+      </div>
+    </div>
+  <% } %>
+  
+  <% if (typeof tab !== 'undefined' && tab === 'integrations') { %>
+    <div style="padding: 20px; background: rgba(20, 20, 30, 0.5); border-radius: 8px; animation: fadeIn 0.5s ease;">
+      <h3 style="color: #fff; margin-bottom: 20px;">Integrations</h3>
+      <div style="max-width: 600px;">
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <label style="flex: 0 0 180px; color: #ddd; font-weight: 500;">Web Dashboard</label>
+          <div style="position: relative; display: inline-block; width: 50px; height: 24px;">
+            <input type="checkbox" id="dashboard-toggle" checked style="opacity: 0; width: 0; height: 0;" />
+            <label for="dashboard-toggle" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(138, 43, 226, 0.5); border-radius: 24px; transition: .4s;">
+              <span style="position: absolute; content: ''; height: 16px; width: 16px; left: 30px; bottom: 4px; background-color: #fff; border-radius: 50%; transition: .4s;"></span>
+            </label>
+          </div>
+        </div>
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <label style="flex: 0 0 180px; color: #ddd; font-weight: 500;">API Access</label>
+          <div style="position: relative; display: inline-block; width: 50px; height: 24px;">
+            <input type="checkbox" id="api-toggle" style="opacity: 0; width: 0; height: 0;" />
+            <label for="api-toggle" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(30, 30, 40, 0.7); border-radius: 24px; transition: .4s;">
+              <span style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: #ccc; border-radius: 50%; transition: .4s;"></span>
+            </label>
+          </div>
+        </div>
+        <button style="background: rgba(138, 43, 226, 0.2); border: 1px solid rgba(138, 43, 226, 0.5); color: #fff; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: 500; transition: all 0.3s ease; margin-top: 20px;">Save Changes</button>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<style>
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<%- include('../partials/admin-footer') %>
