@@ -610,7 +610,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/users" class="<%= typeof path !== 'undefined' && path === '/admin/users' ? 'active' : '' %>">
+              <a href="/admin/settings?tab=admins" class="<%= typeof path !== 'undefined' && path === '/admin/settings' && typeof tab !== 'undefined' && tab === 'admins' ? 'active' : '' %>">
                 <i class="fas fa-users"></i>
                 Users
                 <span class="nav-badge">Admin</span>
