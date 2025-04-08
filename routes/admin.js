@@ -782,7 +782,7 @@ router.get('/welcome', (req, res) => {
   
   // Make sure user is defined before accessing properties
   try {
-    res.render('admin/welcome-enhanced-fix', {
+    res.render('admin/welcome-stair-fix', {
       title: 'Dashboard | SWOOSH Bot',
       greeting: `${greeting}`,
       user: req.user || null,
@@ -790,19 +790,30 @@ router.get('/welcome', (req, res) => {
       layout: 'layouts/admin'
     });
   } catch (error) {
-    console.error('Error rendering welcome page:', error);
-    // Fallback to original enhanced page if the fixed one fails
+    console.error('Error rendering fixed welcome page:', error);
+    // Fallback to previous pages if the fixed one fails
     try {
-      res.render('admin/welcome-enhanced', {
+      res.render('admin/welcome-enhanced-fix', {
         title: 'Dashboard | SWOOSH Bot',
         greeting: `${greeting}`,
         user: req.user || null,
         path: '/admin/welcome',
         layout: 'layouts/admin'
       });
-    } catch (err) {
-      console.error('Error rendering fallback welcome page:', err);
-      res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
+    } catch (enhancedFixError) {
+      console.error('Error rendering enhanced-fix welcome page:', enhancedFixError);
+      try {
+        res.render('admin/welcome-enhanced', {
+          title: 'Dashboard | SWOOSH Bot',
+          greeting: `${greeting}`,
+          user: req.user || null,
+          path: '/admin/welcome',
+          layout: 'layouts/admin'
+        });
+      } catch (err) {
+        console.error('Error rendering fallback welcome page:', err);
+        res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
+      }
     }
   }
 });
