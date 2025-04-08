@@ -56,19 +56,37 @@ module.exports = {
         };
       }
       
-      // Create bounty embed with improved template
+      // Get emoji IDs from the client - will use defaults if not found
+      const getEmoji = (emojiName, fallback) => {
+        // Try to find custom emoji in any guild the bot is in (prioritize SWOOSH STUDIO)
+        const emoji = interaction.client.emojis.cache.find(e => 
+          e.name.toLowerCase() === emojiName.toLowerCase()
+        );
+        return emoji ? emoji.toString() : fallback;
+      };
+      
+      // Prepare custom emoji variables
+      const moneyEmoji = getEmoji('moneybag', '💰');
+      const targetEmoji = getEmoji('target', '👤');
+      const idEmoji = getEmoji('idcard', '🆔');
+      const rewardEmoji = getEmoji('robux', '💵');
+      const clipEmoji = getEmoji('videocamera', '🎬');
+      const hostedEmoji = getEmoji('crown', '👑');
+      const timeEmoji = getEmoji('clock', '⏰');
+      
+      // Create bounty embed with custom emojis
       const bountyEmbed = new EmbedBuilder()
-        .setTitle(`💰 SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()}`)
-        .setDescription(`A new bounty has been placed! Eliminate the target to claim the reward.`)
+        .setTitle(`${moneyEmoji} SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()}`)
+        .setDescription(`**A new bounty has been placed!** Eliminate the target to claim the reward.`)
         .addFields(
-          { name: '👤 Target', value: `${bountyData.robloxUsername}`, inline: true },
-          { name: '🆔 Roblox ID', value: `${bountyData.robloxId}`, inline: true },
-          { name: '💵 Reward', value: `R$${bountyData.amount.toLocaleString()}`, inline: true },
-          { name: '🎬 Clip Required', value: bountyData.clipRequired ? '✅ Yes' : '❌ No', inline: true },
-          { name: '👑 Hosted By', value: interaction.user.toString(), inline: true },
-          { name: '⏰ Posted', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
+          { name: `${targetEmoji} Target`, value: `${bountyData.robloxUsername}`, inline: true },
+          { name: `${idEmoji} Roblox ID`, value: `${bountyData.robloxId}`, inline: true },
+          { name: `${rewardEmoji} Reward`, value: `R$${bountyData.amount.toLocaleString()}`, inline: true },
+          { name: `${clipEmoji} Clip Required`, value: bountyData.clipRequired ? '✅ Yes' : '❌ No', inline: true },
+          { name: `${hostedEmoji} Hosted By`, value: interaction.user.toString(), inline: true },
+          { name: `${timeEmoji} Posted`, value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
         )
-        .setColor(config.embedColor)
+        .setColor(config.webhooks.bountyColor || config.embedColor)
         .setFooter({ 
           text: 'To claim this bounty, open a ticket and provide evidence.', 
           iconURL: config.webhooks.bountyAvatarUrl 
@@ -77,7 +95,10 @@ module.exports = {
       // Add timestamp
       bountyEmbed.setTimestamp();
       
-      // We won't set the thumbnail since the image should only be used as the webhook icon
+      // Set a thumbnail if image is provided or use default SWOOSH logo
+      if (!bountyData.image && config.webhooks.defaultThumbnailUrl) {
+        bountyEmbed.setThumbnail(config.webhooks.defaultThumbnailUrl);
+      }
       
       // Send to webhook channel if specified
       let result;
