@@ -3,22 +3,28 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Set up WebSocket connection for real-time updates
-  setupWebSocket();
-  
-  // Initialize any interactive components
+  // Initialize tab functionality and any interactive components
   initializeComponents();
   
-  // Set up heartbeat ping to keep WebSocket alive
-  setInterval(() => {
-    if (window.dashboardSocket && window.dashboardSocket.readyState === WebSocket.OPEN) {
-      console.log('Sending ping to keep connection alive');
-      window.dashboardSocket.send(JSON.stringify({ 
-        type: 'ping', 
-        timestamp: new Date().toISOString() 
-      }));
-    }
-  }, 30000); // Send ping every 30 seconds
+  // Only set up websocket if we're on the welcome page, not the settings page
+  const currentPath = window.location.pathname;
+  if (currentPath === '/admin' || currentPath === '/admin/welcome') {
+    // Set up WebSocket connection for real-time updates
+    setupWebSocket();
+    
+    // Set up heartbeat ping to keep WebSocket alive
+    setInterval(() => {
+      if (window.dashboardSocket && window.dashboardSocket.readyState === WebSocket.OPEN) {
+        console.log('Sending ping to keep connection alive');
+        window.dashboardSocket.send(JSON.stringify({ 
+          type: 'ping', 
+          timestamp: new Date().toISOString() 
+        }));
+      }
+    }, 30000); // Send ping every 30 seconds
+  } else {
+    console.log('WebSocket disabled on settings pages to prevent refreshing issues');
+  }
 });
 
 /**
@@ -581,12 +587,24 @@ function handleBlacklistRemove() {
 function initializeTabs() {
   console.log('Initializing tabs...');
   
-  // Select all tab buttons
+  // Try to find settings nav tab items first (they work differently)
+  const settingsNavItems = document.querySelectorAll('.settings-nav .nav-list li');
+  if (settingsNavItems.length > 0) {
+    console.log('Found', settingsNavItems.length, 'settings nav items');
+    
+    // Initialize settings nav tabs
+    initializeSettingsTabs(settingsNavItems);
+  }
+  
+  // Regular tab buttons (not in settings)
   const tabButtons = document.querySelectorAll('.tab-btn');
-  console.log('Found', tabButtons.length, 'tab buttons');
+  console.log('Found', tabButtons.length, 'regular tab buttons');
   
   // Add click event listeners to each tab button
   tabButtons.forEach(button => {
+    // Skip if this is inside settings nav (already handled)
+    if (button.closest('.settings-nav')) return;
+    
     console.log('Tab button:', button.textContent.trim(), 'data-tab:', button.getAttribute('data-tab'));
     
     button.addEventListener('click', function(e) {
@@ -595,20 +613,10 @@ function initializeTabs() {
       // Prevent default behavior
       e.preventDefault();
       
-      // Get the parent tab container
-      const tabsContainer = this.closest('.admin-tabs') || this.closest('.settings-nav');
+      // Get the parent tab container and content container
+      const tabsContainer = this.closest('.admin-tabs');
+      const tabContentContainer = this.closest('.card-body');
       console.log('Tab container found:', tabsContainer ? true : false);
-      
-      // If we're in settings nav, get the correct container
-      let tabContentContainer;
-      if (this.closest('.settings-nav')) {
-        tabContentContainer = document.querySelector('.settings-content');
-        console.log('Using settings-content as container');
-      } else {
-        // For admin-tabs, look in the parent element for the tab panes
-        tabContentContainer = this.closest('.card-body');
-        console.log('Using card-body as container');
-      }
       
       // Get the tab to show
       const tabToShow = this.getAttribute('data-tab');
@@ -639,6 +647,85 @@ function initializeTabs() {
       }
     });
   });
+}
+
+/**
+ * Initialize settings tabs specifically
+ * @param {NodeList} navItems - Nav items in the settings sidebar
+ */
+function initializeSettingsTabs(navItems) {
+  // Get content container
+  const contentContainer = document.querySelector('.settings-content');
+  if (!contentContainer) {
+    console.error('Settings content container not found');
+    return;
+  }
+  
+  // Get all tab content elements
+  const tabContents = contentContainer.querySelectorAll('.tab-content');
+  console.log('Found', tabContents.length, 'tab content sections');
+  
+  // Add click listeners to each nav item
+  navItems.forEach(item => {
+    const tabId = item.getAttribute('data-tab');
+    console.log('Setting up nav item:', item.textContent.trim(), 'data-tab:', tabId);
+    
+    item.addEventListener('click', function(e) {
+      console.log('Settings nav item clicked:', this.textContent.trim(), 'data-tab:', tabId);
+      
+      // Prevent default if it's a link
+      if (e.target.tagName === 'A') {
+        e.preventDefault();
+      }
+      
+      // Remove active class from all nav items
+      navItems.forEach(navItem => navItem.classList.remove('active'));
+      
+      // Add active class to clicked item
+      this.classList.add('active');
+      
+      // Hide all tab contents
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Show the selected tab content
+      const selectedContent = document.getElementById(tabId);
+      if (selectedContent) {
+        selectedContent.classList.add('active');
+      } else {
+        console.error('Tab content not found:', tabId);
+      }
+    });
+  });
+  
+  // Add click event to the Premium tab with special animation
+  const premiumTab = document.querySelector('.settings-nav .nav-list li.premium');
+  if (premiumTab) {
+    premiumTab.addEventListener('click', function() {
+      // Add a sparkle animation
+      const sparkle = document.createElement('div');
+      sparkle.className = 'premium-sparkle';
+      sparkle.style.position = 'absolute';
+      sparkle.style.inset = '0';
+      sparkle.style.background = 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%)';
+      sparkle.style.zIndex = '-1';
+      sparkle.style.opacity = '0';
+      sparkle.style.transition = 'opacity 1s ease-out';
+      
+      this.style.position = 'relative';
+      this.appendChild(sparkle);
+      
+      // Animate the sparkle
+      setTimeout(() => {
+        sparkle.style.opacity = '1';
+        setTimeout(() => {
+          sparkle.style.opacity = '0';
+          setTimeout(() => {
+            sparkle.remove();
+          }, 1000);
+        }, 500);
+      }, 10);
+    });
+  }
 }
 
 /**
