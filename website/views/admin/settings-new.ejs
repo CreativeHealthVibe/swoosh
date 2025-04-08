@@ -63,6 +63,10 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
 
 .tab-content {
   display: none;
+  padding: 20px;
+  background: rgba(20, 20, 30, 0.5);
+  border-radius: 8px;
+  margin-top: 10px;
 }
 
 .tab-content.active {
@@ -222,12 +226,12 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
     <div class="settings-section">
       <!-- Settings content will go here -->
       <div class="settings-tabs">
-        <button class="tab-button active" onclick="switchTab('general')">General</button>
-        <button class="tab-button" onclick="switchTab('advanced')">Advanced</button>
-        <button class="tab-button" onclick="switchTab('integrations')">Integrations</button>
+        <button class="tab-button active" onclick="switchTab('general', this)">General</button>
+        <button class="tab-button" onclick="switchTab('advanced', this)">Advanced</button>
+        <button class="tab-button" onclick="switchTab('integrations', this)">Integrations</button>
       </div>
       
-      <div class="tab-content active" id="general">
+      <div class="tab-content active" id="general" style="display: block;">
         <h3>General Settings</h3>
         <div class="settings-form">
           <div class="form-group">
@@ -250,7 +254,7 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
         </div>
       </div>
       
-      <div class="tab-content" id="advanced">
+      <div class="tab-content" id="advanced" style="display: none;">
         <h3>Advanced Settings</h3>
         <div class="settings-form">
           <div class="form-group">
@@ -277,7 +281,7 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
         </div>
       </div>
       
-      <div class="tab-content" id="integrations">
+      <div class="tab-content" id="integrations" style="display: none;">
         <h3>Integrations</h3>
         <div class="settings-form">
           <div class="form-group">
@@ -302,23 +306,51 @@ const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
 </div>
 
 <script>
-function switchTab(tabId) {
+function switchTab(tabId, clickedButton) {
+  console.log('Switching to tab:', tabId);
+  
   // Hide all tabs
-  document.querySelectorAll('.tab-content').forEach(tab => {
+  const tabContents = document.querySelectorAll('.tab-content');
+  tabContents.forEach(tab => {
+    tab.style.display = 'none';
     tab.classList.remove('active');
   });
   
   // Remove active class from all buttons
-  document.querySelectorAll('.tab-button').forEach(button => {
+  const tabButtons = document.querySelectorAll('.tab-button');
+  tabButtons.forEach(button => {
     button.classList.remove('active');
   });
   
   // Show the selected tab
-  document.getElementById(tabId).classList.add('active');
+  const selectedTab = document.getElementById(tabId);
+  if (selectedTab) {
+    selectedTab.style.display = 'block';
+    selectedTab.classList.add('active');
+    console.log('Tab displayed:', tabId);
+  } else {
+    console.error('Tab not found:', tabId);
+  }
   
   // Add active class to clicked button
-  event.currentTarget.classList.add('active');
+  if (clickedButton) {
+    clickedButton.classList.add('active');
+  } else {
+    // If no button provided, find the button for this tab
+    const button = document.querySelector(`.tab-button[onclick*="${tabId}"]`);
+    if (button) button.classList.add('active');
+  }
 }
+
+// Initialize tabs on page load
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing tabs');
+  const firstTabButton = document.querySelector('.tab-button');
+  if (firstTabButton) {
+    const tabId = firstTabButton.getAttribute('onclick').match(/switchTab\('([^']+)'/)[1];
+    switchTab(tabId, firstTabButton);
+  }
+});
 </script>
 
 <%- include('../partials/admin-footer') %>
