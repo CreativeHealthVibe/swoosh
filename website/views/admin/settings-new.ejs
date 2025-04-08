@@ -1,8 +1,9 @@
 <%- include('../partials/admin-header-fixed') %>
 <% 
 // Set page-level variables and defaults
-const adminUsers = typeof adminUsers !== 'undefined' ? adminUsers : [];
-const localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers : [];
+const _adminUsers = typeof adminUsers !== 'undefined' ? adminUsers : [];
+const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers : [];
+%>
 %>
 
 <div class="settings-container">
@@ -408,7 +409,7 @@ const localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers
                 <p class="section-description">These Discord users have access to the admin panel via Discord OAuth</p>
                 
                 <div class="admin-users">
-                  <% if (typeof adminUsers !== "undefined" && Array.isArray(adminUsers) && adminUsers.length > 0) { %>
+                  <% if (typeof adminUsers !== "undefined" && Array.isArray(_adminUsers) && _adminUsers.length > 0) { %>
                     <div class="table-responsive">
                       <table class="modern-table">
                         <thead>
@@ -419,7 +420,7 @@ const localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers
                           </tr>
                         </thead>
                         <tbody>
-                          <% adminUsers.forEach(user => { %>
+                          <% _adminUsers.forEach(user => { %>
                             <tr>
                               <td><code><%= user.id %></code></td>
                               <td>
@@ -467,7 +468,7 @@ const localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers
                 <h3>Local Admin Users</h3>
                 <p class="section-description">These users can access the admin panel with username and password login</p>
                 
-                <% if (typeof localAdminUsers !== 'undefined' && localAdminUsers.length > 0) { %>
+                <% if (typeof localAdminUsers !== 'undefined' && _localAdminUsers.length > 0) { %>
                   <div class="table-responsive">
                     <table class="modern-table">
                       <thead>
@@ -481,7 +482,7 @@ const localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUsers
                         </tr>
                       </thead>
                       <tbody>
-                        <% localAdminUsers.forEach(user => { %>
+                        <% _localAdminUsers.forEach(user => { %>
                           <tr>
                             <td><code><%= user.id %></code></td>
                             <td>
