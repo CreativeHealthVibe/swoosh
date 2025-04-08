@@ -392,7 +392,8 @@ router.get('/settings', async (req, res) => {
       localAdminUsers,
       success: req.flash('success'),
       error: req.flash('error'),
-      layout: 'layouts/admin'
+      layout: 'layouts/admin',
+      staticPage: true // Flag to disable WebSocket on this page
     });
   } catch (err) {
     // Fall back to the original template if there's an error

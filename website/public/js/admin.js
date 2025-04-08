@@ -5,9 +5,15 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize tab functionality and any interactive components
   initializeComponents();
-  
-  // Only set up websocket if we're on the welcome page, not the settings page
+
+  // ALWAYS disable WebSocket on /admin/settings page to prevent refresh issues
   const currentPath = window.location.pathname;
+  if (currentPath.includes('/admin/settings')) {
+    console.log('Admin settings page detected - WebSocket disabled to prevent refreshing issues');
+    return; // Don't set up WebSocket on settings pages
+  }
+  
+  // Only set up WebSocket on welcome page and other pages that need it
   if (currentPath === '/admin' || currentPath === '/admin/welcome') {
     // Set up WebSocket connection for real-time updates
     setupWebSocket();
@@ -22,8 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
       }
     }, 30000); // Send ping every 30 seconds
-  } else {
-    console.log('WebSocket disabled on settings pages to prevent refreshing issues');
   }
 });
 
