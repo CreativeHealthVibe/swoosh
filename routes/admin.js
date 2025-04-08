@@ -759,7 +759,7 @@ router.get('/welcome', (req, res) => {
   
   // Make sure user is defined before accessing properties
   try {
-    res.render('admin/welcome-enhanced', {
+    res.render('admin/welcome-enhanced-fix', {
       title: 'Dashboard | SWOOSH Bot',
       greeting: `${greeting}`,
       user: req.user || null,
@@ -768,7 +768,19 @@ router.get('/welcome', (req, res) => {
     });
   } catch (error) {
     console.error('Error rendering welcome page:', error);
-    res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
+    // Fallback to original enhanced page if the fixed one fails
+    try {
+      res.render('admin/welcome-enhanced', {
+        title: 'Dashboard | SWOOSH Bot',
+        greeting: `${greeting}`,
+        user: req.user || null,
+        path: '/admin/welcome',
+        layout: 'layouts/admin'
+      });
+    } catch (err) {
+      console.error('Error rendering fallback welcome page:', err);
+      res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
+    }
   }
 });
 
