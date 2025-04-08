@@ -105,7 +105,7 @@ router.get('/logs-new', (req, res) => {
  * GET /admin/settings-new
  * New settings UI for testing
  */
-router.get('/settings-new', async (req, res) => {
+router.get('/settings', async (req, res) => {
   try {
     // Mark this as a static page to prevent WebSocket refreshing
     const staticPage = true;
@@ -1323,7 +1323,7 @@ module.exports = {
   }
 });
 
-// The module.exports is at the end of the file
+module.exports = router;
 
 /**
  * POST /admin/localusers/add
@@ -1542,26 +1542,3 @@ router.post('/profile/update', async (req, res) => {
   }
 });
 
-
-// Catch-all route for admin panel
-router.get('*', (req, res) => {
-  try {
-    // First try to render our enhanced 404 page
-    res.status(404).render('error/404-enhanced', { user: req.user || null });
-  } catch (error) {
-    console.error('Error rendering enhanced 404 page:', error);
-    // Fall back to default 404 page if available
-    try {
-      res.status(404).render('404', { 
-        message: 'Admin page not found', 
-        layout: 'layouts/admin', 
-        user: req.user || null 
-      });
-    } catch (err) {
-      // Final fallback - plain text error
-      res.status(404).send('404 - Admin page not found');
-    }
-  }
-});
-
-module.exports = router;

@@ -1,4 +1,4 @@
-<!-- SWOOSH Perfect Admin Welcome Page -->
+<!-- SWOOSH Admin Welcome Page with Text Stairs Fix -->
 <div class="dashboard-container">
   <!-- Welcome Section -->
   <div class="welcome-section">
@@ -14,7 +14,7 @@
           <% } %>
           
           <div class="welcome-text">
-            <h1 class="gradient-text-blend"><%= greeting %>, <span class="username-span"><%= typeof user !== 'undefined' && user ? user.username || 'Guest' : 'Guest' %></span></h1>
+            <h1 class="gradient-text-blend"><%= greeting %>, <span><%= typeof user !== 'undefined' && user ? user.username || 'Guest' : 'Guest' %></span></h1>
             <p>Welcome to your SWOOSH Bot administration dashboard</p>
           </div>
         </div>
@@ -37,7 +37,7 @@
         <div class="stat-card__content">
           <div class="stat-card__title">Servers</div>
           <div class="stat-card__value" id="server-count">--</div>
-          <div class="stat-card__change" id="server-trend"><i class="fas fa-arrow-up"></i> <span class="trend-text">Connecting...</span></div>
+          <div class="stat-card__change" id="server-trend"><i class="fas fa-arrow-up"></i> Connecting...</div>
         </div>
       </div>
       
@@ -48,7 +48,7 @@
         <div class="stat-card__content">
           <div class="stat-card__title">Users</div>
           <div class="stat-card__value" id="user-count">--</div>
-          <div class="stat-card__change" id="user-trend"><i class="fas fa-arrow-up"></i> <span class="trend-text">Connecting...</span></div>
+          <div class="stat-card__change" id="user-trend"><i class="fas fa-arrow-up"></i> Connecting...</div>
         </div>
       </div>
       
@@ -88,7 +88,7 @@
         <div class="card-header">
           <h2 class="card-title"><i class="fas fa-history"></i> Recent Activity</h2>
           <div class="card-actions">
-            <button class="btn-icon btn-icon-sm" title="Refresh" id="refresh-activity">
+            <button class="btn-icon btn-icon-sm" title="Refresh">
               <i class="fas fa-sync-alt"></i>
             </button>
           </div>
@@ -118,7 +118,7 @@
         <div class="card-header">
           <h2 class="card-title"><i class="fas fa-terminal"></i> Command Usage</h2>
           <div class="card-actions">
-            <button class="btn-icon btn-icon-sm" title="Refresh" id="refresh-commands">
+            <button class="btn-icon btn-icon-sm" title="Refresh">
               <i class="fas fa-sync-alt"></i>
             </button>
           </div>
@@ -221,420 +221,8 @@
   </div>
 </div>
 
-<style>
-  /* Perfect Dashboard Styles - Welcome Page */
-  .dashboard-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  /* Welcome Section */
-  .welcome-section .card {
-    background: var(--background-light);
-    background-image: linear-gradient(to right, rgba(156, 77, 255, 0.05), rgba(0, 229, 255, 0.05));
-  }
-  
-  .welcome-user {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .welcome-avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: 2px solid var(--primary-color);
-    box-shadow: 0 0 15px rgba(156, 77, 255, 0.5);
-  }
-  
-  .welcome-avatar-placeholder {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: var(--gradient-primary);
-    color: white;
-    font-size: 1.75rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 15px rgba(156, 77, 255, 0.5);
-  }
-  
-  .welcome-text h1 {
-    font-size: 1.75rem;
-    margin-bottom: 0.25rem;
-    white-space: normal !important;
-    word-break: normal !important;
-    word-wrap: normal !important;
-    overflow-wrap: break-word !important;
-    line-height: 1.4 !important;
-    display: block !important;
-  }
-  
-  .welcome-text h1 span.username-span {
-    font-weight: 700;
-    white-space: normal !important;
-    word-break: normal !important;
-    word-wrap: normal !important;
-    overflow-wrap: break-word !important;
-    line-height: 1.4 !important;
-    display: inline !important;
-  }
-  
-  .welcome-text p {
-    color: var(--text-secondary);
-    margin: 0;
-  }
-  
-  .connection-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .status-indicator {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: var(--warning-color);
-  }
-  
-  .status-text {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-  }
-  
-  /* Stats Overview */
-  .stats-overview {
-    margin-bottom: 1rem;
-  }
-  
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-  }
-  
-  .stat-card {
-    padding: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-  
-  .stat-card__content {
-    flex: 1;
-  }
-  
-  .stat-card__title {
-    white-space: normal !important;
-    word-break: normal !important;
-    word-wrap: normal !important;
-    overflow-wrap: break-word !important;
-    line-height: 1.4 !important;
-    display: block !important;
-  }
-  
-  .stat-card__value {
-    white-space: normal !important;
-    word-break: normal !important;
-    word-wrap: normal !important;
-    overflow-wrap: break-word !important;
-    line-height: 1.4 !important;
-    display: block !important;
-  }
-  
-  .stat-card__change {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-top: 0.25rem;
-  }
-  
-  .trend-text {
-    white-space: nowrap;
-  }
-  
-  .change-up {
-    color: var(--success-color);
-  }
-  
-  .change-down {
-    color: var(--danger-color);
-  }
-  
-  /* Dashboard Columns */
-  .dashboard-columns {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-  
-  /* Activity Feed */
-  .activity-feed {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  /* Command Usage */
-  .command-usage-container {
-    min-height: 300px;
-  }
-  
-  .command-usage-item {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
-  }
-  
-  .command-usage-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.25rem;
-  }
-  
-  .command-usage-name {
-    font-weight: 500;
-  }
-  
-  .command-usage-count {
-    font-weight: 600;
-    color: var(--primary-color);
-  }
-  
-  .command-usage-bar {
-    height: 6px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  
-  .command-usage-progress {
-    height: 100%;
-    background: var(--gradient-primary);
-    border-radius: 3px;
-  }
-  
-  /* Quick Actions */
-  .quick-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-  }
-  
-  .quick-action-card {
-    background: var(--background-light);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    text-align: center;
-    text-decoration: none;
-    transition: all var(--transition);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .quick-action-card:hover {
-    transform: translateY(-5px);
-    background: var(--background-lighter);
-    box-shadow: var(--shadow-primary);
-  }
-  
-  .quick-action-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: var(--border-radius);
-    background: rgba(156, 77, 255, 0.15);
-    color: var(--primary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    transition: all var(--transition);
-  }
-  
-  .quick-action-card:hover .quick-action-icon {
-    background: var(--primary-color);
-    color: white;
-    transform: scale(1.1);
-  }
-  
-  .quick-action-title {
-    color: var(--text-primary);
-    font-weight: 500;
-    white-space: normal !important;
-    word-break: normal !important;
-    word-wrap: normal !important;
-    overflow-wrap: break-word !important;
-    line-height: 1.4 !important;
-    display: block !important;
-  }
-  
-  /* System Info */
-  .system-info-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-  
-  .system-info-item {
-    background: var(--background-light);
-    padding: 1rem;
-    border-radius: var(--border-radius);
-  }
-  
-  .system-info-label {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-  }
-  
-  .system-info-value {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: normal !important;
-    word-break: normal !important;
-    word-wrap: normal !important;
-    overflow-wrap: break-word !important;
-    line-height: 1.4 !important;
-    display: block !important;
-  }
-  
-  /* Loading Placeholder */
-  .placeholder-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 0;
-    color: var(--text-secondary);
-  }
-  
-  .placeholder-loading i {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: var(--primary-color);
-  }
-  
-  /* Fix for card headers */
-  .card-header {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    gap: 12px !important;
-  }
-  
-  /* Responsive Adjustments */
-  @media (max-width: 1200px) {
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .quick-actions-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  
-  @media (max-width: 992px) {
-    .dashboard-columns {
-      grid-template-columns: 1fr;
-    }
-    
-    .system-info-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .welcome-section .card-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    
-    .connection-status {
-      margin-top: 0.75rem;
-      align-self: flex-start;
-      width: 100%;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .quick-actions-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .system-info-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .welcome-user {
-      flex-direction: row;
-      align-items: center;
-      text-align: left;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-    
-    .welcome-text h1 {
-      font-size: 1.3rem;
-    }
-    
-    .welcome-avatar, .welcome-avatar-placeholder {
-      width: 50px;
-      height: 50px;
-      font-size: 1.25rem;
-    }
-    
-    .system-info-grid {
-      gap: 1rem;
-    }
-    
-    .system-info-item {
-      padding: 0.75rem;
-    }
-  }
-  
-  /* Animations */
-  @keyframes pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
-  }
-  
-  .stat-card__value {
-    animation: fadein 0.5s ease-in-out;
-  }
-  
-  @keyframes fadein {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .quick-action-card {
-    animation: fadein 0.5s ease-in-out;
-    animation-fill-mode: both;
-  }
-  
-  .quick-action-card:nth-child(1) { animation-delay: 0.1s; }
-  .quick-action-card:nth-child(2) { animation-delay: 0.2s; }
-  .quick-action-card:nth-child(3) { animation-delay: 0.3s; }
-  .quick-action-card:nth-child(4) { animation-delay: 0.4s; }
-</style>
+<!-- Include the anti-stairs CSS fix -->
+<link rel="stylesheet" href="/css/no-stairs-fix.css">
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -654,49 +242,11 @@
     const uptimeValue = document.getElementById('uptime-value');
     const channelCount = document.getElementById('channel-count');
     const commandCount = document.getElementById('command-count');
-    const refreshActivity = document.getElementById('refresh-activity');
-    const refreshCommands = document.getElementById('refresh-commands');
     
     let socket;
     let reconnectAttempts = 0;
     let maxReconnectAttempts = 5;
     let reconnectDelay = 3000;
-    let lastStats = null;
-    
-    // Add refresh button functionality
-    if (refreshActivity) {
-      refreshActivity.addEventListener('click', function() {
-        const button = this;
-        button.classList.add('spin-animation');
-        
-        // If we have last stats, update activity feed
-        if (lastStats && lastStats.recentActivity) {
-          updateActivityFeed(lastStats.recentActivity);
-        }
-        
-        // Remove spin class after animation completes
-        setTimeout(() => {
-          button.classList.remove('spin-animation');
-        }, 1000);
-      });
-    }
-    
-    if (refreshCommands) {
-      refreshCommands.addEventListener('click', function() {
-        const button = this;
-        button.classList.add('spin-animation');
-        
-        // If we have last stats, update command usage
-        if (lastStats && lastStats.commandUsage) {
-          updateCommandUsage(lastStats.commandUsage);
-        }
-        
-        // Remove spin class after animation completes
-        setTimeout(() => {
-          button.classList.remove('spin-animation');
-        }, 1000);
-      });
-    }
     
     function connectWebSocket() {
       // Update connection status
@@ -729,8 +279,6 @@
           if (data.type === 'pong') {
             console.log('Received pong from server, latency:', new Date().getTime() - new Date(data.timestamp).getTime());
           } else if (data.type === 'stats') {
-            // Store the stats for refresh button functionality
-            lastStats = data;
             updateStats(data);
           } else if (data.type === 'welcome') {
             console.log(data.message);
@@ -771,15 +319,14 @@
     }, 30000);
     
     function updateStats(data) {
-      // Update server and user counts with animation
-      animateCounter(serverCount, serverCount.textContent, data.servers || 0);
-      animateCounter(userCount, userCount.textContent, data.users || 0);
+      // Update server and user counts
+      serverCount.textContent = data.servers?.toLocaleString() || '--';
+      userCount.textContent = data.users?.toLocaleString() || '--';
       
       // Update CPU and memory usage
       if (data.cpu !== undefined) {
         cpuUsage.textContent = `${data.cpu}%`;
-        animateProgressBar(cpuBar, data.cpu);
-        
+        cpuBar.style.width = `${data.cpu}%`;
         if (data.cpu < 50) {
           cpuBar.style.backgroundColor = '#57F287';
         } else if (data.cpu < 80) {
@@ -791,8 +338,7 @@
       
       if (data.memory !== undefined) {
         memoryUsage.textContent = `${data.memory}%`;
-        animateProgressBar(memoryBar, data.memory);
-        
+        memoryBar.style.width = `${data.memory}%`;
         if (data.memory < 50) {
           memoryBar.style.backgroundColor = '#57F287';
         } else if (data.memory < 80) {
@@ -804,12 +350,73 @@
       
       // Update recent activity
       if (data.recentActivity && Array.isArray(data.recentActivity) && data.recentActivity.length > 0) {
-        updateActivityFeed(data.recentActivity);
+        activityFeed.innerHTML = '';
+        
+        data.recentActivity.forEach(activity => {
+          const activityItem = document.createElement('div');
+          activityItem.className = 'activity-item';
+          
+          // Determine icon color based on type
+          let iconColorClass = 'blue';
+          if (activity.type === 'red') {
+            iconColorClass = 'red';
+          } else if (activity.type === 'green') {
+            iconColorClass = 'green';
+          } else if (activity.type === 'orange' || activity.type === 'amber') {
+            iconColorClass = 'amber';
+          }
+          
+          activityItem.innerHTML = `
+            <div class="activity-icon ${iconColorClass}">
+              <i class="fas fa-${activity.icon}"></i>
+            </div>
+            <div class="activity-content">
+              <div class="activity-message">${activity.message}</div>
+              <div class="activity-timestamp">${activity.time}</div>
+            </div>
+          `;
+          
+          activityFeed.appendChild(activityItem);
+        });
       }
       
       // Update command usage chart
       if (data.commandUsage && Object.keys(data.commandUsage).length > 0) {
-        updateCommandUsage(data.commandUsage);
+        commandUsage.innerHTML = '';
+        
+        // Get total command usage
+        const totalUsage = Object.values(data.commandUsage).reduce((sum, count) => sum + count, 0);
+        
+        // Sort commands by usage count (descending)
+        const sortedCommands = Object.entries(data.commandUsage)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5); // Top 5 commands
+        
+        if (sortedCommands.length === 0) {
+          commandUsage.innerHTML = `
+            <div class="placeholder-message">
+              <p>No command usage data available</p>
+            </div>
+          `;
+        } else {
+          sortedCommands.forEach(([command, count]) => {
+            const percentage = totalUsage > 0 ? (count / totalUsage) * 100 : 0;
+            
+            const commandItem = document.createElement('div');
+            commandItem.className = 'command-usage-item';
+            commandItem.innerHTML = `
+              <div class="command-usage-header">
+                <span class="command-usage-name">${command}</span>
+                <span class="command-usage-count">${count}</span>
+              </div>
+              <div class="command-usage-bar">
+                <div class="command-usage-progress" style="width: ${percentage}%"></div>
+              </div>
+            `;
+            
+            commandUsage.appendChild(commandItem);
+          });
+        }
       } else {
         commandUsage.innerHTML = `
           <div class="placeholder-message">
@@ -855,141 +462,7 @@
       }
     }
     
-    function updateActivityFeed(activities) {
-      // Clear existing activity feed
-      activityFeed.innerHTML = '';
-      
-      // Add animation classes
-      activities.forEach((activity, index) => {
-        const activityItem = document.createElement('div');
-        activityItem.className = 'activity-item';
-        activityItem.style.animationDelay = `${index * 0.1}s`;
-        
-        // Determine icon color based on type
-        let iconColorClass = 'blue';
-        if (activity.type === 'red') {
-          iconColorClass = 'red';
-        } else if (activity.type === 'green') {
-          iconColorClass = 'green';
-        } else if (activity.type === 'orange' || activity.type === 'amber') {
-          iconColorClass = 'amber';
-        }
-        
-        activityItem.innerHTML = `
-          <div class="activity-icon ${iconColorClass}">
-            <i class="fas fa-${activity.icon}"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-message">${activity.message}</div>
-            <div class="activity-timestamp">${activity.time}</div>
-          </div>
-        `;
-        
-        activityFeed.appendChild(activityItem);
-      });
-    }
-    
-    function updateCommandUsage(commandUsageData) {
-      // Clear the container
-      commandUsage.innerHTML = '';
-      
-      // Get total command usage
-      const totalUsage = Object.values(commandUsageData).reduce((sum, count) => sum + count, 0);
-      
-      // Sort commands by usage count (descending)
-      const sortedCommands = Object.entries(commandUsageData)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5); // Top 5 commands
-      
-      if (sortedCommands.length === 0) {
-        commandUsage.innerHTML = `
-          <div class="placeholder-message">
-            <p>No command usage data available</p>
-          </div>
-        `;
-      } else {
-        sortedCommands.forEach(([command, count], index) => {
-          const percentage = totalUsage > 0 ? (count / totalUsage) * 100 : 0;
-          
-          const commandItem = document.createElement('div');
-          commandItem.className = 'command-usage-item';
-          commandItem.style.animationDelay = `${index * 0.1}s`;
-          
-          commandItem.innerHTML = `
-            <div class="command-usage-header">
-              <span class="command-usage-name">${command}</span>
-              <span class="command-usage-count">${count}</span>
-            </div>
-            <div class="command-usage-bar">
-              <div class="command-usage-progress" style="width: 0%"></div>
-            </div>
-          `;
-          
-          commandUsage.appendChild(commandItem);
-          
-          // Animate the progress bar
-          setTimeout(() => {
-            const progressBar = commandItem.querySelector('.command-usage-progress');
-            progressBar.style.transition = 'width 1s ease-in-out';
-            progressBar.style.width = `${percentage}%`;
-          }, 100);
-        });
-      }
-    }
-    
-    // Animation helpers
-    function animateCounter(element, startValue, endValue) {
-      if (!element) return;
-      
-      // Convert to numbers and handle NaN
-      const start = parseInt(startValue.replace(/[^\d]/g, '')) || 0;
-      const end = parseInt(endValue.toString().replace(/[^\d]/g, '')) || 0;
-      
-      // If the value hasn't changed, don't animate
-      if (start === end) return;
-      
-      // Animation duration and frames
-      const duration = 1000;
-      const frameRate = 60;
-      const frames = duration / (1000 / frameRate);
-      const step = (end - start) / frames;
-      
-      let current = start;
-      let frame = 0;
-      
-      const animate = () => {
-        frame++;
-        current += step;
-        
-        // Ensure we reach exactly the end value
-        if ((step > 0 && current >= end) || (step < 0 && current <= end) || frame >= frames) {
-          element.textContent = end.toLocaleString();
-          return;
-        }
-        
-        element.textContent = Math.round(current).toLocaleString();
-        requestAnimationFrame(animate);
-      };
-      
-      animate();
-    }
-    
-    function animateProgressBar(element, targetValue) {
-      if (!element) return;
-      
-      const start = parseFloat(element.style.width) || 0;
-      const end = parseFloat(targetValue) || 0;
-      
-      element.style.transition = 'width 1s ease-in-out';
-      element.style.width = `${end}%`;
-    }
-    
     // Initialize WebSocket connection
     connectWebSocket();
-    
-    // Add animation classes to quick-action cards
-    document.querySelectorAll('.quick-action-card').forEach((card, index) => {
-      card.style.animationDelay = `${index * 0.1}s`;
-    });
   });
 </script>

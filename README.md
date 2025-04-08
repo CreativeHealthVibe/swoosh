@@ -1,46 +1,68 @@
-# SWOOSH Bot
+# Swoosh Discord Bot - Desktop Application
 
-A robust Discord bot management system with advanced configuration and dynamic presence capabilities, featuring specialized emoji and branding customization tools.
+A desktop application wrapper for the Swoosh Discord bot, built with Electron.
 
 ## Features
 
-- Comprehensive bot administration tools
-- Real-time status control
-- Intuitive user interfaces
-- Deep emoji/branding personalization
-- Flexible and powerful Discord bot management
+- Easy-to-use graphical interface to control your Discord bot
+- Start, stop, and restart the bot with a single click
+- Real-time bot status monitoring
+- View CPU usage, memory consumption, and uptime statistics
+- Live log viewing directly in the application
+- Stays in the system tray when closed
+- Starts automatically with Windows (optional)
 
-## 📷 Screenshot
+## Installation
 
-Here's a preview of our newly designed admin dashboard:
+### Prerequisites
 
-![SWOOSH Bot Admin Dashboard](https://swoosh-bot.replit.app/admin/welcome)
+- Windows 10 or later
+- [Node.js](https://nodejs.org/) v16 or later
+- Admin privileges (for the build process)
 
-## How to Preview the Dashboard
+### Setting Up
 
-To preview the beautifully redesigned admin dashboard:
-
-1. Run the following command in the Shell tab:
+1. Clone the repository:
    ```
-   node preview-welcome.js
-   ```
-
-2. The welcome page will be available at:
-   ```
-   https://[your-repl-name].replit.app/admin/welcome
+   git clone https://github.com/ghsammo/swoosh-win-app.git
+   cd swoosh-win-app
    ```
 
-## Stack
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-- Node.js backend
-- EJS templating
-- Discord API integration
-- WebSocket real-time communication
-- Responsive mobile-first admin dashboard
-- Advanced user role management
-- Custom emoji and branding integration
-- Presence and activity status configuration
+3. Create a `.env` file in the root directory based on `.env.sample`:
+   ```
+   # Copy the sample environment file
+   cp .env.sample .env
+   
+   # Edit the .env file with your Discord bot credentials
+   # DISCORD_TOKEN=your_token_here
+   # CLIENT_ID=your_client_id_here
+   # GUILD_ID=your_guild_id_here
+   ```
 
-## 🚀 Getting Started
+### Building the Application
 
-For development, use the preview server which allows you to view the admin dashboard without needing to configure Discord authentication.
+1. Build the executable:
+   ```
+   npm run build
+   ```
+
+2. Find the installer in the `dist` folder.
+
+## Development
+
+To run the application in development mode:
+
+```
+npm run dev
+```
+
+This will start the application with DevTools enabled.
+
+## Support
+
+For support, join our [Discord server](https://discord.gg/) or open an issue on GitHub.
