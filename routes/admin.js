@@ -1542,3 +1542,26 @@ router.post('/profile/update', async (req, res) => {
   }
 });
 
+
+// Catch-all route for admin panel
+router.get('*', (req, res) => {
+  try {
+    // First try to render our enhanced 404 page
+    res.status(404).render('error/404-enhanced', { user: req.user || null });
+  } catch (error) {
+    console.error('Error rendering enhanced 404 page:', error);
+    // Fall back to default 404 page if available
+    try {
+      res.status(404).render('404', { 
+        message: 'Admin page not found', 
+        layout: 'layouts/admin', 
+        user: req.user || null 
+      });
+    } catch (err) {
+      // Final fallback - plain text error
+      res.status(404).send('404 - Admin page not found');
+    }
+  }
+});
+
+module.exports = router;
