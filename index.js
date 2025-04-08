@@ -74,15 +74,16 @@ client.once('ready', async () => {
   console.log(`Bot client ID: ${client.user.id}`);
   
   // Set custom bot status with streaming activity and purple indicator
-  client.user.setPresence({
-    activities: [{ 
-      name: '.gg/swoosh', // Support server invite
-      type: 1, // 0 is "Playing", 1 is "Streaming", 2 is "Listening", 3 is "Watching", 5 is "Competing"
-      url: 'https://swooshfinal.onrender.com/', // Website URL
-      details: 'made by gh_sman' // Additional status message/details
-    }],
-    status: 'dnd' // 'online' (green), 'idle' (yellow), 'dnd' (red/purple), or 'invisible'
+  // First, set the activity explicitly
+  client.user.setActivity('.gg/swoosh', { 
+    type: 1, // 0 is "Playing", 1 is "Streaming", 2 is "Listening", 3 is "Watching", 5 is "Competing"
+    url: 'https://swooshfinal.onrender.com/', // Must be a valid Twitch/YouTube URL for streaming
+    details: 'made by gh_sman' // Additional status message/details
   });
+  
+  // Then set the status explicitly
+  client.user.setStatus('dnd'); // 'online' (green), 'idle' (yellow), 'dnd' (red/purple), or 'invisible'
+  
   console.log('✅ Set custom status: Streaming .gg/swoosh (made by gh_sman)');
   
   try {
