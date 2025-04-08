@@ -1,4 +1,4 @@
-<!-- Enhanced SWOOSH Admin Welcome Page -->
+<!-- Enhanced SWOOSH Admin Welcome Page with Fixed Responsive Layout -->
 <div class="dashboard-container">
   <!-- Welcome Section -->
   <div class="welcome-section">
@@ -624,96 +624,99 @@
           const data = JSON.parse(event.data);
           console.log('WebSocket data received:', data);
           
-          // Update UI based on data type
-          if (data.type === 'stats') {
-            updateStats(data);
-          } else if (data.type === 'pong') {
-            // Handle pong response if needed
+          if (data.type === 'pong') {
             console.log('Received pong from server, latency:', new Date().getTime() - new Date(data.timestamp).getTime());
+          } else if (data.type === 'stats') {
+            updateStats(data);
+          } else if (data.type === 'welcome') {
+            console.log(data.message);
           }
         } catch (error) {
-          console.error('Error parsing WebSocket data:', error);
+          console.error('Error parsing WebSocket message:', error);
         }
       });
       
-      // Handle errors
-      socket.addEventListener('error', function(event) {
-        console.error('WebSocket error:', event);
-        statusBadge.style.backgroundColor = '#ED4245';
-        statusText.textContent = 'Connection error';
-      });
-      
-      // Handle socket closing
+      // Connection closed
       socket.addEventListener('close', function(event) {
         console.log('WebSocket connection closed:', event.code, event.reason);
         statusBadge.style.backgroundColor = '#ED4245';
         statusText.textContent = 'Disconnected';
         
-        // Attempt to reconnect
+        // Try to reconnect if not max attempts
         if (reconnectAttempts < maxReconnectAttempts) {
           reconnectAttempts++;
           setTimeout(connectWebSocket, reconnectDelay);
-          statusText.textContent = `Reconnecting (${reconnectAttempts}/${maxReconnectAttempts})...`;
-        } else {
-          statusText.textContent = 'Connection failed';
+          statusText.textContent = `Reconnecting... (${reconnectAttempts}/${maxReconnectAttempts})`;
         }
+      });
+      
+      // Connection error
+      socket.addEventListener('error', function(event) {
+        console.error('WebSocket error:', event);
+        statusBadge.style.backgroundColor = '#ED4245';
+        statusText.textContent = 'Connection Error';
       });
     }
     
-    // Update stats with received data
+    // Keep WebSocket connection alive
+    setInterval(function() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        console.log('Sending ping to keep connection alive');
+        socket.send(JSON.stringify({ type: 'ping', timestamp: new Date().toISOString() }));
+      }
+    }, 30000);
+    
     function updateStats(data) {
       // Update server and user counts
-      serverCount.textContent = data.servers.toLocaleString();
-      userCount.textContent = data.users.toLocaleString();
+      serverCount.textContent = data.servers?.toLocaleString() || '--';
+      userCount.textContent = data.users?.toLocaleString() || '--';
       
       // Update CPU and memory usage
-      cpuUsage.textContent = `${data.cpu}%`;
-      cpuBar.style.width = `${data.cpu}%`;
-      
-      memoryUsage.textContent = `${data.memory}%`;
-      memoryBar.style.width = `${data.memory}%`;
-      
-      // Update system info
-      nodeVersion.textContent = data.nodeVersion || '--';
-      discordVersion.textContent = data.discordVersion || '--';
-      osInfo.textContent = data.os || '--';
-      
-      // Format uptime
-      const uptime = data.uptime;
-      let formattedUptime = '--';
-      if (uptime) {
-        const days = Math.floor(uptime / 86400);
-        const hours = Math.floor((uptime % 86400) / 3600);
-        const minutes = Math.floor((uptime % 3600) / 60);
-        
-        if (days > 0) {
-          formattedUptime = `${days}d ${hours}h ${minutes}m`;
+      if (data.cpu !== undefined) {
+        cpuUsage.textContent = `${data.cpu}%`;
+        cpuBar.style.width = `${data.cpu}%`;
+        if (data.cpu < 50) {
+          cpuBar.style.backgroundColor = '#57F287';
+        } else if (data.cpu < 80) {
+          cpuBar.style.backgroundColor = '#FEE75C';
         } else {
-          formattedUptime = `${hours}h ${minutes}m`;
+          cpuBar.style.backgroundColor = '#ED4245';
         }
       }
-      uptimeValue.textContent = formattedUptime;
       
-      // Update channel and command counts
-      channelCount.textContent = data.channels || '--';
-      commandCount.textContent = data.commands || '--';
+      if (data.memory !== undefined) {
+        memoryUsage.textContent = `${data.memory}%`;
+        memoryBar.style.width = `${data.memory}%`;
+        if (data.memory < 50) {
+          memoryBar.style.backgroundColor = '#57F287';
+        } else if (data.memory < 80) {
+          memoryBar.style.backgroundColor = '#FEE75C';
+        } else {
+          memoryBar.style.backgroundColor = '#ED4245';
+        }
+      }
       
-      // Update activity feed
-      if (data.recentActivity && data.recentActivity.length > 0) {
+      // Update recent activity
+      if (data.recentActivity && Array.isArray(data.recentActivity) && data.recentActivity.length > 0) {
         activityFeed.innerHTML = '';
         
         data.recentActivity.forEach(activity => {
           const activityItem = document.createElement('div');
           activityItem.className = 'activity-item';
           
-          let iconClass = 'blue';
-          if (activity.type === 'green') iconClass = 'green';
-          if (activity.type === 'red') iconClass = 'red';
-          if (activity.type === 'purple') iconClass = 'purple';
+          // Determine icon color based on type
+          let iconColorClass = 'blue';
+          if (activity.type === 'red') {
+            iconColorClass = 'red';
+          } else if (activity.type === 'green') {
+            iconColorClass = 'green';
+          } else if (activity.type === 'amber') {
+            iconColorClass = 'amber';
+          }
           
           activityItem.innerHTML = `
-            <div class="activity-icon ${iconClass}">
-              <i class="fas fa-${activity.icon || 'info-circle'}"></i>
+            <div class="activity-icon ${iconColorClass}">
+              <i class="fas fa-${activity.icon}"></i>
             </div>
             <div class="activity-content">
               <div class="activity-message">${activity.message}</div>
@@ -725,56 +728,89 @@
         });
       }
       
-      // Update command usage
-      if (data.commandUsage) {
+      // Update command usage chart
+      if (data.commandUsage && Object.keys(data.commandUsage).length > 0) {
         commandUsage.innerHTML = '';
         
-        const commandEntries = Object.entries(data.commandUsage);
-        if (commandEntries.length === 0) {
+        // Get total command usage
+        const totalUsage = Object.values(data.commandUsage).reduce((sum, count) => sum + count, 0);
+        
+        // Sort commands by usage count (descending)
+        const sortedCommands = Object.entries(data.commandUsage)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5); // Top 5 commands
+        
+        if (sortedCommands.length === 0) {
           commandUsage.innerHTML = `
-            <div class="placeholder-loading">
+            <div class="placeholder-message">
               <p>No command usage data available</p>
             </div>
           `;
-          return;
+        } else {
+          sortedCommands.forEach(([command, count]) => {
+            const percentage = totalUsage > 0 ? (count / totalUsage) * 100 : 0;
+            
+            const commandItem = document.createElement('div');
+            commandItem.className = 'command-usage-item';
+            commandItem.innerHTML = `
+              <div class="command-usage-header">
+                <span class="command-usage-name">${command}</span>
+                <span class="command-usage-count">${count}</span>
+              </div>
+              <div class="command-usage-bar">
+                <div class="command-usage-progress" style="width: ${percentage}%"></div>
+              </div>
+            `;
+            
+            commandUsage.appendChild(commandItem);
+          });
         }
+      } else {
+        commandUsage.innerHTML = `
+          <div class="placeholder-message">
+            <p>No command usage data available</p>
+          </div>
+        `;
+      }
+      
+      // Update system info
+      if (data.nodeVersion) {
+        nodeVersion.textContent = data.nodeVersion;
+      }
+      
+      if (data.discordVersion) {
+        discordVersion.textContent = data.discordVersion;
+      }
+      
+      if (data.os) {
+        osInfo.textContent = data.os;
+      }
+      
+      if (data.uptime) {
+        const days = Math.floor(data.uptime / 86400);
+        const hours = Math.floor((data.uptime % 86400) / 3600);
+        const minutes = Math.floor((data.uptime % 3600) / 60);
+        const seconds = Math.floor(data.uptime % 60);
         
-        // Sort by usage count (descending)
-        commandEntries.sort((a, b) => b[1] - a[1]);
+        let uptimeStr = '';
+        if (days > 0) uptimeStr += `${days}d `;
+        if (hours > 0 || days > 0) uptimeStr += `${hours}h `;
+        if (minutes > 0 || hours > 0 || days > 0) uptimeStr += `${minutes}m `;
+        uptimeStr += `${seconds}s`;
         
-        // Get max value for percentage calculation
-        const maxValue = commandEntries[0][1];
-        
-        // Create command usage bars
-        commandEntries.forEach(([command, count]) => {
-          const percentage = (count / maxValue) * 100;
-          
-          const commandItem = document.createElement('div');
-          commandItem.className = 'command-usage-item';
-          commandItem.innerHTML = `
-            <div class="command-usage-header">
-              <div class="command-usage-name">!${command}</div>
-              <div class="command-usage-count">${count}</div>
-            </div>
-            <div class="command-usage-bar">
-              <div class="command-usage-progress" style="width: ${percentage}%"></div>
-            </div>
-          `;
-          
-          commandUsage.appendChild(commandItem);
-        });
+        uptimeValue.textContent = uptimeStr;
+      }
+      
+      if (data.channels) {
+        channelCount.textContent = data.channels.toLocaleString();
+      }
+      
+      if (data.commands) {
+        commandCount.textContent = data.commands.toLocaleString();
       }
     }
     
-    // Start WebSocket connection
+    // Initialize WebSocket connection
     connectWebSocket();
-    
-    // Send ping every 30 seconds to keep connection alive
-    setInterval(function() {
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        console.log('Sending ping to keep connection alive');
-        socket.send(JSON.stringify({ type: 'ping', timestamp: new Date().toISOString() }));
-      }
-    }, 30000);
   });
 </script>
