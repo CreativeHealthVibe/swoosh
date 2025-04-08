@@ -66,9 +66,9 @@ module.exports = {
       const hostedEmoji = '<:S__Crown:1359205562201411584>';
       const timeEmoji = '<:S__Time:1359205638596464773>';
       
-      // Create bounty embed with custom emojis and larger dollar sign emoji in title
+      // Create bounty embed with custom emojis and emoji highlighted with asterisks
       const bountyEmbed = new EmbedBuilder()
-        .setTitle(`<:S__dollars:1359207557964759261> <:S__dollars:1359207557964759261> SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()} <:S__dollars:1359207557964759261> <:S__dollars:1359207557964759261>`)
+        .setTitle(`**<:S__dollars:1359207557964759261>** SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()} **<:S__dollars:1359207557964759261>**`)
         .setDescription(`**A new bounty has been placed!** Eliminate the target to claim the reward.`)
         .addFields(
           { name: `${targetEmoji} Target`, value: `${bountyData.robloxUsername}`, inline: true },
