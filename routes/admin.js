@@ -761,12 +761,13 @@ router.post('/settings/users/remove', (req, res) => {
 });
 
 router.post('/settings/localusers/add', async (req, res) => {
-  const { username, password, displayName, email, isSuperAdmin } = req.body;
+  console.log('Received local admin creation request:', req.body);
+  const { username, password, email, role } = req.body;
   
   // Basic validation
   if (!username || !password) {
     req.flash('error', 'Username and password are required');
-    return res.redirect('/admin/settings');
+    return res.redirect('/admin/settings?tab=admins');
   }
   
   try {
@@ -774,30 +775,35 @@ router.post('/settings/localusers/add', async (req, res) => {
     const existingUser = await db.getUserByUsername(username);
     if (existingUser) {
       req.flash('error', 'Username already exists');
-      return res.redirect('/admin/settings');
+      return res.redirect('/admin/settings?tab=admins');
     }
     
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Determine admin levels based on role
+    const is_super_admin = role === 'super-admin';
+    const is_admin = true; // All users created here are admins
     
-    // Add the new admin user
-    await db.createLocalUser({
+    // Create the new admin user
+    const newUser = await db.createLocalUser({
       username,
-      password: hashedPassword,
-      display_name: displayName || username,
+      password, // createLocalUser will hash the password
+      display_name: username,
       email: email || null,
-      is_admin: true,
-      is_super_admin: isSuperAdmin === 'on'
+      is_admin,
+      is_super_admin,
+      permissions: JSON.stringify({
+        role: role || 'admin'
+      })
     });
     
-    req.flash('success', 'Local admin user created successfully!');
+    console.log('Successfully created local admin user:', username);
+    req.flash('success', `Local admin user "${username}" created successfully!`);
   } catch (error) {
     console.error('Error creating local admin user:', error);
     req.flash('error', `Failed to create local admin user: ${error.message}`);
   }
   
-  res.redirect('/admin/settings');
+  // Redirect back to the admins tab
+  res.redirect('/admin/settings?tab=admins');
 });
 
 router.post('/settings/users/remove-local', async (req, res) => {
