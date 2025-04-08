@@ -423,29 +423,47 @@ router.get('/logs', (req, res) => {
     }
   };
   
-  // First try to render the new template
+  // Use our new enhanced template first, with fallbacks
   try {
-    res.render('admin/logs-new', {
+    res.render('admin/logs-enhanced', {
       title: 'System Logs | SWOOSH Bot',
       logFiles,
       logStats,
       user: req.user,
       formatFileSize, // Pass the helper function to the template
+      path: '/admin/logs',
       layout: 'layouts/admin',
-      staticPage: true, // Disable WebSocket on this page
+      staticPage: true // Disable WebSocket on this page
     });
   } catch (err) {
-    // Fall back to the original template if there's an error
-    console.error('Error rendering new logs template:', err);
-    res.render('admin/logs', {
-      title: 'Bot Logs | SWOOSH Bot',
-      logFiles,
-      logStats,
-      user: req.user,
-      formatFileSize, // Pass the helper function to the template
-      layout: 'layouts/admin',
-      staticPage: true, // Disable WebSocket on this page
-    });
+    console.error('Error rendering enhanced logs template:', err);
+    
+    // Try the logs-new template as a fallback
+    try {
+      res.render('admin/logs-new', {
+        title: 'System Logs | SWOOSH Bot',
+        logFiles,
+        logStats,
+        user: req.user,
+        formatFileSize,
+        path: '/admin/logs',
+        layout: 'layouts/admin',
+        staticPage: true
+      });
+    } catch (err2) {
+      // Fall back to the original template if all else fails
+      console.error('Error rendering new logs template:', err2);
+      res.render('admin/logs', {
+        title: 'Bot Logs | SWOOSH Bot',
+        logFiles,
+        logStats,
+        user: req.user,
+        formatFileSize,
+        path: '/admin/logs',
+        layout: 'layouts/admin',
+        staticPage: true
+      });
+    }
   }
 });
 
@@ -741,10 +759,11 @@ router.get('/welcome', (req, res) => {
   
   // Make sure user is defined before accessing properties
   try {
-    res.render('admin/welcome-fixed', {
-      title: 'Welcome | SWOOSH Bot',
+    res.render('admin/welcome-enhanced', {
+      title: 'Dashboard | SWOOSH Bot',
       greeting: `${greeting}`,
       user: req.user || null,
+      path: '/admin/welcome',
       layout: 'layouts/admin'
     });
   } catch (error) {
@@ -806,13 +825,14 @@ router.get('/users', async (req, res) => {
     req.flash('error', 'Failed to load local admin users');
   }
   
-  res.render('admin/user-management', {
-    title: 'Admin User Management | SWOOSH Bot',
+  res.render('admin/user-management-enhanced', {
+    title: 'User Management | SWOOSH Bot',
     user: req.user,
     adminUsers,
     localAdminUsers,
     error: req.flash('error'),
     success: req.flash('success'),
+    path: '/admin/users',
     layout: 'layouts/admin'
   });
 });
