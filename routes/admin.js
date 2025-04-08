@@ -359,30 +359,80 @@ router.get('/logs', (req, res) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
   
+  // Helper function to get type icon for log files
+  function getLogTypeIcon(filename) {
+    if (filename.includes('error')) return 'exclamation-triangle';
+    if (filename.includes('debug')) return 'bug';
+    if (filename.includes('system')) return 'server';
+    if (filename.includes('command')) return 'terminal';
+    if (filename.includes('ticket')) return 'ticket-alt';
+    if (filename.includes('moderation')) return 'shield-alt';
+    return 'file-code';
+  }
+  
+  // Helper function to calculate age label
+  function getAgeLabel(date) {
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+    
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+    
+    const days = Math.floor(hours / 24);
+    return `${days} day${days !== 1 ? 's' : ''} ago`;
+  }
+  
   // Get list of log files
   let logFiles = [];
   try {
     logFiles = fs.readdirSync(logsDir)
       .filter(file => file.endsWith('.log'))
-      .map(file => ({
-        name: file,
-        path: `/admin/logs/${file}`,
-        size: fs.statSync(path.join(logsDir, file)).size,
-        mtime: fs.statSync(path.join(logsDir, file)).mtime
-      }))
+      .map(file => {
+        const stats = fs.statSync(path.join(logsDir, file));
+        return {
+          name: file,
+          path: `/admin/logs/${file}`,
+          size: stats.size,
+          mtime: stats.mtime,
+          age: getAgeLabel(stats.mtime),
+          icon: getLogTypeIcon(file.toLowerCase()),
+          type: file.split('.')[0].split('-')[0].toUpperCase()
+        };
+      })
       .sort((a, b) => b.mtime - a.mtime); // Sort by modification time, newest first
   } catch (error) {
     console.error('Error reading log directory:', error);
   }
+  
+  // Get system stats for logs dashboard
+  const logStats = {
+    totalSize: logFiles.reduce((sum, file) => sum + file.size, 0),
+    newestFile: logFiles.length > 0 ? logFiles[0] : null,
+    oldestFile: logFiles.length > 0 ? logFiles[logFiles.length - 1] : null,
+    totalCount: logFiles.length,
+    categories: {
+      error: logFiles.filter(f => f.name.toLowerCase().includes('error')).length,
+      system: logFiles.filter(f => f.name.toLowerCase().includes('system')).length,
+      command: logFiles.filter(f => f.name.toLowerCase().includes('command')).length,
+      general: logFiles.filter(f => !f.name.toLowerCase().includes('error') && 
+                                   !f.name.toLowerCase().includes('system') && 
+                                   !f.name.toLowerCase().includes('command')).length
+    }
+  };
   
   // First try to render the new template
   try {
     res.render('admin/logs-new', {
       title: 'System Logs | SWOOSH Bot',
       logFiles,
+      logStats,
       user: req.user,
       formatFileSize, // Pass the helper function to the template
-      layout: 'layouts/admin'
+      layout: 'layouts/admin',
+      staticPage: true, // Disable WebSocket on this page
     });
   } catch (err) {
     // Fall back to the original template if there's an error
@@ -390,9 +440,11 @@ router.get('/logs', (req, res) => {
     res.render('admin/logs', {
       title: 'Bot Logs | SWOOSH Bot',
       logFiles,
+      logStats,
       user: req.user,
       formatFileSize, // Pass the helper function to the template
-      layout: 'layouts/admin'
+      layout: 'layouts/admin',
+      staticPage: true, // Disable WebSocket on this page
     });
   }
 });
