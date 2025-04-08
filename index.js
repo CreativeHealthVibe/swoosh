@@ -73,18 +73,28 @@ client.once('ready', async () => {
   console.log(`🚀 ${client.user.tag} is online!`);
   console.log(`Bot client ID: ${client.user.id}`);
   
-  // Set custom bot status with streaming activity and purple indicator
-  // First, set the activity explicitly
-  client.user.setActivity('.gg/swoosh', { 
-    type: 1, // 0 is "Playing", 1 is "Streaming", 2 is "Listening", 3 is "Watching", 5 is "Competing"
-    url: 'https://swooshfinal.onrender.com/', // Must be a valid Twitch/YouTube URL for streaming
-    details: 'made by gh_sman' // Additional status message/details
-  });
+  // Define function to set the streaming status with purple indicator
+  function setStreamingStatus() {
+    // Use setPresence for maximum control over status
+    client.user.setPresence({
+      activities: [{ 
+        name: '.gg/swoosh', // Support server invite
+        type: 1, // 0 is "Playing", 1 is "Streaming", 2 is "Listening", 3 is "Watching", 5 is "Competing"
+        url: 'https://twitch.tv/swooshbot', // Using twitch URL (required for streaming to work properly)
+      }],
+      status: 'dnd' // 'online' (green), 'idle' (yellow), 'dnd' (red/purple), or 'invisible'
+    });
+  }
   
-  // Then set the status explicitly
-  client.user.setStatus('dnd'); // 'online' (green), 'idle' (yellow), 'dnd' (red/purple), or 'invisible'
+  // Set initial status
+  setStreamingStatus();
+  console.log('✅ Set custom status: Streaming .gg/swoosh (purple)');
   
-  console.log('✅ Set custom status: Streaming .gg/swoosh (made by gh_sman)');
+  // Set up interval to refresh status every 5 minutes (to prevent reverting to idle)
+  setInterval(() => {
+    setStreamingStatus();
+    console.log('🔄 Refreshed streaming status');
+  }, 5 * 60 * 1000);
   
   try {
     // Create data directory if it doesn't exist
