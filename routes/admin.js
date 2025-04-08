@@ -105,44 +105,39 @@ router.get('/logs-new', (req, res) => {
  * GET /admin/settings-new
  * New settings UI for testing
  */
-router.get('/settings-new', (req, res) => {
-  // Get the bot configuration
-  const config = require('../config');
-  
-  // Get member data for bot management section
-  const client = req.app.get('client');
-  let memberData = [];
-  
-  if (client) {
-    try {
-      // Get guilds data for server management section
-      const guilds = client.guilds.cache;
-      
-      for (const [guildId, guild] of guilds) {
-        memberData.push({
-          id: guildId,
-          name: guild.name,
-          iconURL: guild.iconURL({ dynamic: true }),
-          totalMembers: guild.memberCount,
-          region: guild.preferredLocale,
-          owner: guild.members.cache.get(guild.ownerId)?.user?.username || 'Unknown'
-        });
-      }
-      
-      // Sort guilds by member count
-      memberData.sort((a, b) => b.totalMembers - a.totalMembers);
-    } catch (error) {
-      console.error('Error fetching guild data:', error);
-    }
+router.get('/settings', async (req, res) => {
+  try {
+    // Mark this as a static page to prevent WebSocket refreshing
+    const staticPage = true;
+    
+    // Get the active tab from query params
+    const tab = req.query.tab || 'general';
+    
+    // Get admin users from the config file
+    const config = require('../config');
+    const adminUsers = config.adminUserIds || [];
+    
+    // Get local admin users from the database
+    const db = req.app.locals.db;
+    const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
+                           (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
+    
+    // Render the simplified settings page with inline styles
+    res.render('admin/settings-simple', {
+      user: req.user,
+      adminUsers,
+      localAdminUsers,
+      staticPage,
+      tab,
+      title: 'Bot Settings | SWOOSH Bot',
+      layout: 'layouts/admin'
+    });
+    return;
+  } catch (err) {
+    console.error('Error rendering settings page:', err);
+    // If there is an error, show a simple error page
+    res.send('<h1>Error loading settings page</h1><p>' + err.message + '</p>');
   }
-  
-  res.render('admin/settings-new', {
-    title: 'Modern Settings | SWOOSH Bot',
-    user: req.user,
-    config: config,
-    memberData,
-    layout: 'layouts/admin'
-  });
 });
 
 // Dashboard route removed as requested
@@ -322,8 +317,8 @@ router.get('/settings', async (req, res) => {
     const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
                            (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
     
-    // Render the new settings page
-    res.render('admin/settings-new', {
+    // Render the simplified settings page with inline styles
+    res.render('admin/settings-simple', {
       user: req.user,
       adminUsers,
       localAdminUsers,
@@ -335,111 +330,8 @@ router.get('/settings', async (req, res) => {
     return;
   } catch (err) {
     console.error('Error rendering settings page:', err);
-  }
-  
-  // Fallback to old settings page if there's an error
-  // Get the bot configuration
-  const config = require('../config');
-  
-  // Get member data for bot management section
-  const client = req.app.get('client');
-  let memberData = [];
-  
-  if (client) {
-    try {
-      // Get guilds data for server management section
-      const guilds = client.guilds.cache;
-      
-      for (const [guildId, guild] of guilds) {
-        memberData.push({
-          id: guildId,
-          name: guild.name,
-          iconURL: guild.iconURL({ dynamic: true }),
-          totalMembers: guild.memberCount,
-          region: guild.preferredLocale,
-          owner: guild.members.cache.get(guild.ownerId)?.user?.username || 'Unknown'
-        });
-      }
-      
-      // Sort guilds by member count
-      memberData.sort((a, b) => b.totalMembers - a.totalMembers);
-    } catch (error) {
-      console.error('Error fetching guild data:', error);
-    }
-  }
-  
-  // Parse admin users from config
-  const adminUsers = await Promise.all(config.adminUserIds.map(async id => {
-    // Extract comment from the config.js file structure (if available)
-    const configContent = fs.readFileSync('./config.js', 'utf8');
-    const commentMatch = new RegExp(`'${id}'[^,]*// ([^\\n]*)`, 'i').exec(configContent);
-    const comment = commentMatch ? commentMatch[1].trim() : 'No comment';
-    
-    // If Discord client is available, fetch user data
-    let username = null;
-    let displayName = null;
-    let avatarUrl = null;
-    
-    if (client) {
-      try {
-        const user = await client.users.fetch(id).catch(e => null);
-        if (user) {
-          username = user.username;
-          displayName = user.globalName || user.username;
-          avatarUrl = user.displayAvatarURL({ dynamic: true });
-        }
-      } catch (error) {
-        console.error(`Failed to fetch Discord user data for ID ${id}:`, error);
-      }
-    }
-    
-    return {
-      id,
-      comment,
-      username,
-      displayName,
-      avatarUrl
-    };
-  }));
-  
-  // Get all local admin users
-  let localAdminUsers = [];
-  try {
-    // Get all local users and filter for admins
-    const allLocalUsers = await db.getAllLocalUsers();
-    localAdminUsers = allLocalUsers.filter(user => user.is_admin);
-  } catch (error) {
-    console.error('Error fetching local admin users:', error);
-    req.flash('error', 'Failed to load local admin users');
-  }
-  
-  // First try to render the new template
-  try {
-    res.render('admin/settings-new', {
-      title: 'Bot Settings | SWOOSH Bot',
-      user: req.user,
-      config: config,
-      memberData,
-      adminUsers,
-      localAdminUsers,
-      success: req.flash('success'),
-      error: req.flash('error'),
-      layout: 'layouts/admin',
-      staticPage: true // Flag to disable WebSocket on this page
-    });
-  } catch (err) {
-    // Fall back to the original template if there's an error
-    console.error('Error rendering new settings template:', err);
-    res.render('admin/settings', {
-      title: 'Bot Settings | SWOOSH Bot',
-      user: req.user,
-      config: config,
-      adminUsers,
-      localAdminUsers,
-      success: req.flash('success'),
-      error: req.flash('error'),
-      layout: 'layouts/admin'
-    });
+    // If there is an error, show a simple error page
+    res.send('<h1>Error loading settings page</h1><p>' + err.message + '</p>');
   }
 });
 
