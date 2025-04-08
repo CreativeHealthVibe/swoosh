@@ -117,6 +117,9 @@ router.get('/settings', async (req, res) => {
     const config = require('../config');
     const adminUsers = config.adminUserIds || [];
     
+    // Get Discord client from Express app (for fetching user details)
+    const client = req.app.get('client');
+    
     // Get local admin users from the database
     const db = req.app.locals.db;
     const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
@@ -130,7 +133,8 @@ router.get('/settings', async (req, res) => {
       staticPage,
       tab,
       title: 'Bot Settings | SWOOSH Bot',
-      layout: 'layouts/admin'
+      layout: 'layouts/admin',
+      client: client // Pass the Discord client to the template
     });
     return;
   } catch (err) {
@@ -312,6 +316,9 @@ router.get('/settings', async (req, res) => {
     const config = require('../config');
     const adminUsers = config.adminUserIds || [];
     
+    // Get Discord client from Express app (for fetching user details)
+    const client = req.app.get('client');
+    
     // Get local admin users from the database
     const db = req.app.locals.db;
     const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
@@ -325,7 +332,8 @@ router.get('/settings', async (req, res) => {
       staticPage,
       tab,
       title: 'Bot Settings | SWOOSH Bot',
-      layout: 'layouts/admin'
+      layout: 'layouts/admin',
+      client: client // Pass the Discord client to the template
     });
     return;
   } catch (err) {
