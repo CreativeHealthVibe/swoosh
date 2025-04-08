@@ -622,6 +622,108 @@ router.get('/members', async (req, res) => {
 });
 
 /**
+ * GET /admin/customization
+ * Bounty system customization page with live preview
+ */
+router.get('/customization', (req, res) => {
+  try {
+    // Get the current configuration
+    const botConfig = require('../config');
+
+    res.render('customization', {
+      title: 'Bounty Customization',
+      user: req.user,
+      path: '/admin/customization',
+      config: botConfig,
+      layout: 'layouts/admin'
+    });
+  } catch (error) {
+    console.error('Error rendering customization page:', error);
+    res.status(500).send('Error loading customization page: ' + error.message);
+  }
+});
+
+/**
+ * POST /admin/customization/save
+ * Save bounty customization settings
+ */
+router.post('/customization/save', (req, res) => {
+  try {
+    const { 
+      bountyColor, bountyName, bountyAvatarUrl, defaultThumbnailUrl,
+      bountyMinAmount, bountyMaxAmount, titleFormat, descriptionFormat 
+    } = req.body;
+
+    // Read the current config file
+    const fs = require('fs');
+    const path = require('path');
+    const configPath = path.join(__dirname, '../config.js');
+    let configContent = fs.readFileSync(configPath, 'utf8');
+
+    // Update the webhook settings
+    if (bountyColor) {
+      configContent = configContent.replace(
+        /bountyColor:\s*['"].*?['"]/,
+        `bountyColor: '${bountyColor}'`
+      );
+    }
+
+    if (bountyName) {
+      configContent = configContent.replace(
+        /bountyName:\s*['"].*?['"]/,
+        `bountyName: '${bountyName}'`
+      );
+    }
+
+    if (bountyAvatarUrl) {
+      configContent = configContent.replace(
+        /bountyAvatarUrl:\s*['"].*?['"]/,
+        `bountyAvatarUrl: '${bountyAvatarUrl}'`
+      );
+    }
+
+    if (defaultThumbnailUrl) {
+      configContent = configContent.replace(
+        /defaultThumbnailUrl:\s*['"].*?['"]/,
+        `defaultThumbnailUrl: '${defaultThumbnailUrl}'`
+      );
+    }
+
+    // Update the validation settings
+    if (bountyMinAmount) {
+      configContent = configContent.replace(
+        /bountyMin:\s*\d+/,
+        `bountyMin: ${parseInt(bountyMinAmount)}`
+      );
+    }
+
+    if (bountyMaxAmount) {
+      configContent = configContent.replace(
+        /bountyMax:\s*\d+/,
+        `bountyMax: ${parseInt(bountyMaxAmount)}`
+      );
+    }
+
+    // Save the changes
+    fs.writeFileSync(configPath, configContent);
+
+    // Store title and description format in database if needed
+    // For now, we'll just pass the values back to the template
+    
+    // Log the changes
+    console.log(`Bounty customization updated by admin user: ${req.user.username} (${req.user.id})`);
+    
+    // Flash success message and redirect
+    req.flash('success', 'Bounty settings updated successfully!');
+    res.redirect('/admin/customization');
+  } catch (error) {
+    console.error('Error saving customization settings:', error);
+    req.flash('error', 'Failed to save settings: ' + error.message);
+    res.redirect('/admin/customization');
+  }
+});
+
+/**
  * GET /admin/welcome
  * Welcome page with time-based greeting
  */

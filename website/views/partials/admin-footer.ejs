@@ -1,11 +1,27 @@
-</div> <!-- End .admin-content -->
-
-<footer class="admin-footer">
-  <div class="footer-content">
-    <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
-  </div>
-</footer>
-
-<script src="/js/admin.js"></script>
+  <!-- Admin Footer -->
+  <footer class="admin-footer">
+    <div class="admin-footer-content">
+      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot - All Rights Reserved</p>
+      <p class="version">Version 2.5.0</p>
+    </div>
+  </footer>
+  
+  <script>
+    // Toggle dropdown menu
+    document.addEventListener('DOMContentLoaded', function() {
+      const userMenu = document.querySelector('.admin-user-menu');
+      if (userMenu) {
+        userMenu.addEventListener('click', function(e) {
+          e.stopPropagation();
+          this.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+          userMenu.classList.remove('active');
+        });
+      }
+    });
+  </script>
 </body>
 </html>
