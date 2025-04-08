@@ -1,7 +1,11 @@
+<%- include('../partials/admin-header-fixed') %>
+
 <div class="blacklist-container">
-  <div class="page-header">
-    <h1 class="page-title">Blacklist Management</h1>
-    <p class="page-subtitle">Manage users who are blacklisted from using the bot</p>
+  <div class="admin-page-header">
+    <div class="header-content">
+      <h1><i class="fas fa-user-slash"></i> Blacklist Management</h1>
+      <p>Manage users who are blacklisted from using the bot</p>
+    </div>
   </div>
 
   <div class="row">
@@ -18,30 +22,73 @@
             <div class="form-group">
               <label for="userId" class="form-label">User ID</label>
               <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-fingerprint"></i></span>
-                <input type="text" class="form-control custom-input" id="userId" name="userId" placeholder="Discord User ID" required>
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                </div>
+                <input type="text" class="form-control" id="userId" name="userId" placeholder="Enter Discord user ID" required pattern="^\d{17,19}$">
               </div>
-              <small class="form-text">Right-click on user > Copy ID</small>
-            </div>
-            
-            <div class="form-group">
-              <label for="username" class="form-label">Username</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                <input type="text" class="form-control custom-input" id="username" name="username" placeholder="Discord Username" required>
-              </div>
+              <small class="form-text text-muted">The Discord user ID must be 17-19 digits</small>
             </div>
             
             <div class="form-group">
               <label for="reason" class="form-label">Reason</label>
               <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-comment-alt"></i></span>
-                <textarea class="form-control custom-input" id="reason" name="reason" rows="3" placeholder="Reason for blacklisting" required></textarea>
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fas fa-comment-alt"></i></span>
+                </div>
+                <input type="text" class="form-control" id="reason" name="reason" placeholder="Reason for blacklisting" required>
+              </div>
+              <small class="form-text text-muted">Provide a reason for adding user to blacklist</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="type" class="form-label">Blacklist Type</label>
+              <select class="custom-select" id="type" name="type" required>
+                <option value="global">Global Blacklist</option>
+                <option value="commands">Commands Only</option>
+                <option value="features">Features Only</option>
+              </select>
+              <small class="form-text text-muted">Select the type of blacklist to apply</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fas fa-plus-circle"></i> Add to Blacklist
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="custom-card gradient-border mt-4">
+        <div class="card-header-custom">
+          <h5 class="card-title">Filter Blacklist</h5>
+          <div class="card-icon">
+            <i class="fas fa-filter"></i>
+          </div>
+        </div>
+        <div class="card-body-custom">
+          <form id="filterForm">
+            <div class="form-group">
+              <label for="filterType" class="form-label">Filter by Type</label>
+              <select class="custom-select" id="filterType">
+                <option value="all">All Types</option>
+                <option value="global">Global Blacklist</option>
+                <option value="commands">Commands Only</option>
+                <option value="features">Features Only</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="search" class="form-label">Search</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" class="form-control" id="search" placeholder="Search by ID or reason">
               </div>
             </div>
             
-            <button type="submit" class="btn-custom btn-danger-custom w-100">
-              <i class="fas fa-ban me-2"></i> Add to Blacklist
+            <button type="button" id="clearFilter" class="btn btn-secondary btn-block">
+              <i class="fas fa-times"></i> Clear Filter
             </button>
           </form>
         </div>
@@ -51,53 +98,82 @@
     <div class="col-md-8">
       <div class="custom-card gradient-border">
         <div class="card-header-custom">
-          <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title">Blacklisted Users</h5>
-            <span class="custom-badge"><%= blacklistedUsers.length %> Users</span>
+          <h5 class="card-title">Blacklisted Users</h5>
+          <div class="card-icon">
+            <i class="fas fa-list"></i>
           </div>
         </div>
         <div class="card-body-custom">
-          <% if (blacklistedUsers.length === 0) { %>
-            <div class="empty-state">
-              <div class="empty-icon">
-                <i class="fas fa-shield-alt"></i>
-              </div>
-              <p>No users are currently blacklisted</p>
-              <small>Users blacklisted from SWOOSH will appear here</small>
-            </div>
-          <% } else { %>
-            <div class="table-responsive custom-table-container">
-              <table class="custom-table">
-                <thead>
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle"></i> Users on the blacklist will be prevented from using bot features according to their blacklist type.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          
+          <div class="table-responsive blacklist-table-container">
+            <table class="table table-hover blacklist-table" id="blacklistTable">
+              <thead>
+                <tr>
+                  <th scope="col">User ID</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Reason</th>
+                  <th scope="col">Added At</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (blacklistedUsers.length === 0) { %>
                   <tr>
-                    <th>User ID</th>
-                    <th>Username</th>
-                    <th>Reason</th>
-                    <th>Added By</th>
-                    <th>Added On</th>
-                    <th>Actions</th>
+                    <td colspan="5" class="text-center">No users have been blacklisted</td>
                   </tr>
-                </thead>
-                <tbody>
+                <% } else { %>
                   <% blacklistedUsers.forEach(user => { %>
-                    <tr>
-                      <td><code class="user-id"><%= user.userId %></code></td>
-                      <td><span class="username"><%= user.username %></span></td>
-                      <td><span class="reason"><%= user.reason %></span></td>
-                      <td><span class="moderator"><%= user.moderatorTag %></span></td>
-                      <td><span class="timestamp"><%= new Date(user.timestamp).toLocaleString() %></span></td>
+                    <tr data-type="<%= user.type %>">
+                      <td class="user-id"><%= user.userId %></td>
                       <td>
-                        <form action="/admin/blacklist/remove" method="POST" class="d-inline">
-                          <input type="hidden" name="userId" value="<%= user.userId %>">
-                          <button type="submit" class="action-btn remove-btn">
-                            <i class="fas fa-trash-alt"></i>
+                        <% if (user.type === 'global') { %>
+                          <span class="badge badge-danger">Global</span>
+                        <% } else if (user.type === 'commands') { %>
+                          <span class="badge badge-warning">Commands</span>
+                        <% } else if (user.type === 'features') { %>
+                          <span class="badge badge-info">Features</span>
+                        <% } else { %>
+                          <span class="badge badge-secondary"><%= user.type %></span>
+                        <% } %>
+                      </td>
+                      <td class="reason"><%= user.reason %></td>
+                      <td><%= new Date(user.addedAt).toLocaleString() %></td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <form action="/admin/blacklist/remove" method="POST" class="d-inline">
+                            <input type="hidden" name="userId" value="<%= user.userId %>">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to remove <%= user.userId %> from the blacklist?')">
+                              <i class="fas fa-trash-alt"></i>
+                            </button>
+                          </form>
+                          <button type="button" class="btn btn-sm btn-info copy-id" data-id="<%= user.userId %>">
+                            <i class="fas fa-copy"></i>
                           </button>
-                        </form>
+                        </div>
                       </td>
                     </tr>
                   <% }); %>
-                </tbody>
-              </table>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          
+          <% if (blacklistedUsers.length > 0) { %>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div>
+                <span class="text-muted">Total: <%= blacklistedUsers.length %> user<%= blacklistedUsers.length !== 1 ? 's' : '' %></span>
+              </div>
+              <form action="/admin/blacklist/clear" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear the entire blacklist? This action cannot be undone.')">
+                  <i class="fas fa-exclamation-triangle"></i> Clear All Blacklisted Users
+                </button>
+              </form>
             </div>
           <% } %>
         </div>
@@ -106,312 +182,247 @@
   </div>
 </div>
 
+<div class="toast-container" id="toastContainer">
+  <!-- Toast notifications will appear here -->
+</div>
+
 <style>
   .blacklist-container {
-    padding: 1.5rem;
+    padding: 15px;
   }
   
-  .page-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  .admin-page-header {
+    background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  .page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #9c4dff, #26d0ce);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .admin-page-header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
   }
   
-  .page-subtitle {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1rem;
+  .admin-page-header h1 i {
+    margin-right: 10px;
+  }
+  
+  .admin-page-header p {
+    margin: 5px 0 0 0;
+    opacity: 0.8;
   }
   
   .custom-card {
-    background: rgba(30, 30, 40, 0.7);
-    border-radius: 10px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    margin-bottom: 1.5rem;
-    position: relative;
-    backdrop-filter: blur(10px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .custom-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+    height: 100%;
   }
   
   .gradient-border {
     position: relative;
-    z-index: 0;
-    border-radius: 10px;
-    padding: 1px;
   }
   
   .gradient-border::before {
     content: '';
     position: absolute;
-    z-index: -1;
-    inset: 0;
-    border-radius: 10px;
-    padding: 1px;
-    background: linear-gradient(135deg, #9c4dff, #26d0ce);
-    -webkit-mask: 
-      linear-gradient(#fff 0 0) content-box, 
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ff0844 0%, #ffb199 100%);
   }
   
   .card-header-custom {
-    background: rgba(20, 20, 30, 0.5);
-    padding: 1.25rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    background: var(--card-header-bg);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid var(--border-color);
   }
   
-  .card-body-custom {
-    padding: 1.5rem;
-  }
-  
-  .card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+  .card-header-custom h5 {
     margin: 0;
-    color: #fff;
+    font-weight: 600;
   }
   
   .card-icon {
     width: 40px;
     height: 40px;
+    background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
     border-radius: 50%;
-    background: linear-gradient(135deg, #9c4dff, #26d0ce);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1rem;
+    font-size: 1.25rem;
   }
   
-  .form-group {
-    margin-bottom: 1.25rem;
+  .card-body-custom {
+    padding: 20px;
   }
   
   .form-label {
-    display: block;
-    margin-bottom: 0.5rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 5px;
   }
   
-  .input-group {
-    display: flex;
-    position: relative;
+  .blacklist-table-container {
+    max-height: 500px;
+    overflow-y: auto;
   }
   
-  .input-group-text {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: rgba(40, 40, 50, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-right: none;
-    border-radius: 6px 0 0 6px;
-    color: rgba(255, 255, 255, 0.7);
+  .blacklist-table {
+    margin-bottom: 0;
   }
   
-  .custom-input {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    background: rgba(40, 40, 50, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0 6px 6px 0;
-    color: white;
-    transition: all 0.3s ease;
+  .blacklist-table th {
+    position: sticky;
+    top: 0;
+    background: var(--card-header-bg);
+    z-index: 1;
   }
   
-  .custom-input:focus {
-    outline: none;
-    border-color: #9c4dff;
-    background: rgba(40, 40, 50, 0.8);
-    box-shadow: 0 0 0 3px rgba(156, 77, 255, 0.2);
-  }
-  
-  .form-text {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-    margin-top: 0.5rem;
-    display: block;
-  }
-  
-  .btn-custom {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1.25rem;
-    border-radius: 6px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-  }
-  
-  .btn-danger-custom {
-    background: linear-gradient(135deg, #ff4b2b, #ff416c);
-    color: white;
-  }
-  
-  .btn-danger-custom:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 65, 108, 0.4);
-  }
-  
-  .custom-badge {
-    background: linear-gradient(135deg, #9c4dff, #26d0ce);
-    color: white;
-    padding: 0.4rem 0.8rem;
-    border-radius: 30px;
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
-  
-  .empty-state {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: rgba(255, 255, 255, 0.7);
-  }
-  
-  .empty-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1.5rem;
-    color: rgba(156, 77, 255, 0.7);
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(156, 77, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-  }
-  
-  .custom-table-container {
-    border-radius: 8px;
-    overflow: hidden;
-    background: rgba(30, 30, 40, 0.5);
-  }
-  
-  .custom-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-  
-  .custom-table th {
-    background: rgba(20, 20, 30, 0.6);
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 600;
-    text-align: left;
-    padding: 1rem;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .custom-table td {
-    padding: 1rem;
-    color: rgba(255, 255, 255, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  }
-  
-  .custom-table tr:last-child td {
-    border-bottom: none;
-  }
-  
-  .custom-table tr:hover {
-    background: rgba(156, 77, 255, 0.1);
-  }
-  
-  .user-id {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 0.3rem 0.5rem;
-    border-radius: 4px;
+  .blacklist-table .user-id {
     font-family: monospace;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.8);
-  }
-  
-  .username {
     font-weight: 600;
-    color: white;
   }
   
-  .reason {
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
+  .toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
   }
   
-  .moderator {
-    font-size: 0.9rem;
-    color: rgba(156, 77, 255, 1);
-  }
-  
-  .timestamp {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
-  }
-  
-  .action-btn {
-    width: 36px;
-    height: 36px;
+  .custom-toast {
+    background: white;
+    max-width: 350px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
     border-radius: 6px;
-    display: inline-flex;
+    margin-top: 10px;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out forwards;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .toast-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
   }
   
-  .remove-btn {
-    background: rgba(255, 65, 108, 0.1);
-    color: #ff416c;
+  .toast-body {
+    padding: 15px;
   }
   
-  .remove-btn:hover {
-    background: rgba(255, 65, 108, 0.2);
-  }
-  
-  @media (max-width: 768px) {
-    .blacklist-container {
-      padding: 1rem;
-    }
-    
-    .page-title {
-      font-size: 1.75rem;
-    }
-    
-    .custom-table th, .custom-table td {
-      padding: 0.75rem 0.5rem;
-      font-size: 0.85rem;
-    }
-    
-    .reason {
-      max-width: 100px;
+  @media (max-width: 767px) {
+    .row > div:first-child {
+      margin-bottom: 20px;
     }
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Copy User ID functionality
+    document.querySelectorAll('.copy-id').forEach(button => {
+      button.addEventListener('click', function() {
+        const userId = this.getAttribute('data-id');
+        navigator.clipboard.writeText(userId).then(() => {
+          showToast('User ID Copied', 'User ID has been copied to clipboard');
+        });
+      });
+    });
+    
+    // Filter functionality
+    const searchInput = document.getElementById('search');
+    const filterType = document.getElementById('filterType');
+    const clearFilterBtn = document.getElementById('clearFilter');
+    const table = document.getElementById('blacklistTable');
+    const tableRows = table.querySelectorAll('tbody tr');
+    
+    function applyFilter() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedType = filterType.value;
+      
+      tableRows.forEach(row => {
+        const userId = row.querySelector('.user-id').textContent.toLowerCase();
+        const reason = row.querySelector('.reason').textContent.toLowerCase();
+        const type = row.getAttribute('data-type');
+        
+        const matchesSearch = userId.includes(searchTerm) || reason.includes(searchTerm);
+        const matchesType = selectedType === 'all' || type === selectedType;
+        
+        row.style.display = matchesSearch && matchesType ? '' : 'none';
+      });
+    }
+    
+    searchInput.addEventListener('input', applyFilter);
+    filterType.addEventListener('change', applyFilter);
+    
+    clearFilterBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      filterType.value = 'all';
+      applyFilter();
+    });
+    
+    // Toast notification system
+    function showToast(title, message) {
+      const toastContainer = document.getElementById('toastContainer');
+      
+      const toast = document.createElement('div');
+      toast.className = 'custom-toast';
+      
+      toast.innerHTML = `
+        <div class="toast-header">
+          <strong>${title}</strong>
+          <button type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="toast-body">
+          ${message}
+        </div>
+      `;
+      
+      toastContainer.appendChild(toast);
+      
+      const closeButton = toast.querySelector('.close');
+      closeButton.addEventListener('click', function() {
+        toast.remove();
+      });
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease-out';
+        
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 5000);
+    }
+  });
+</script>
