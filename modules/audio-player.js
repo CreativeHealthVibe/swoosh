@@ -26,6 +26,41 @@ function createPlayer() {
   });
 }
 
+// Track when the last YouTube request was made to avoid rate limiting
+let lastYouTubeRequestTime = 0;
+const YOUTUBE_REQUEST_RATE_LIMIT = 3000; // 3 seconds between requests
+
+/**
+ * Make a rate-limited YouTube API request
+ * @param {Function} requestFn - Function that makes the actual API request
+ * @returns {Promise<any>} - The API response
+ */
+async function rateLimitedYouTubeRequest(requestFn) {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastYouTubeRequestTime;
+  
+  // If we've made a request too recently, wait before making another
+  if (timeSinceLastRequest < YOUTUBE_REQUEST_RATE_LIMIT) {
+    const waitTime = YOUTUBE_REQUEST_RATE_LIMIT - timeSinceLastRequest;
+    console.log(`Rate limiting YouTube request, waiting ${waitTime}ms`);
+    await new Promise(resolve => setTimeout(resolve, waitTime));
+  }
+  
+  try {
+    // Update the last request time
+    lastYouTubeRequestTime = Date.now();
+    return await requestFn();
+  } catch (error) {
+    // Special handling for rate limit errors
+    if (error.message && error.message.includes('429')) {
+      console.warn('YouTube rate limit hit, need to wait longer between requests');
+      lastYouTubeRequestTime = Date.now() + 30000; // Force a 30 second cooldown
+      throw new Error('YouTube is rate limiting our requests. Please try again in 30 seconds.');
+    }
+    throw error;
+  }
+}
+
 /**
  * Play a YouTube video in a voice connection
  * @param {Object} connection - Discord voice connection
@@ -42,14 +77,14 @@ async function playYouTube(connection, url) {
   try {
     // If it's a YouTube URL, get the video info directly
     if (url.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/)) {
-      videoInfo = await play.video_info(url);
+      videoInfo = await rateLimitedYouTubeRequest(() => play.video_info(url));
     } else {
       // Otherwise, search for the video
-      const searchResults = await play.search(url, { limit: 1 });
+      const searchResults = await rateLimitedYouTubeRequest(() => play.search(url, { limit: 1 }));
       if (!searchResults || searchResults.length === 0) {
         throw new Error('No results found for your query!');
       }
-      videoInfo = await play.video_info(searchResults[0].url);
+      videoInfo = await rateLimitedYouTubeRequest(() => play.video_info(searchResults[0].url));
     }
   } catch (error) {
     console.error('Error fetching video info:', error);
@@ -63,8 +98,8 @@ async function playYouTube(connection, url) {
   // Get the video details
   const videoDetails = videoInfo.video_details;
   
-  // Create an audio stream
-  const stream = await play.stream(videoDetails.url);
+  // Create an audio stream with rate limiting
+  const stream = await rateLimitedYouTubeRequest(() => play.stream(videoDetails.url));
   
   // Create an FFmpeg process that converts the stream
   const ffmpeg = spawn(ffmpegPath, [
