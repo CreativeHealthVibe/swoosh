@@ -28,6 +28,7 @@ const client = new Client({
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildPresences, // Added for user status tracking
+    GatewayIntentBits.GuildVoiceStates, // Added for voice channel features
   ],
   partials: [Partials.Channel, Partials.Message, Partials.Reaction, Partials.User]
 });
@@ -264,8 +265,12 @@ client.on('interactionCreate', async interaction => {
         // Log command usage
         logging.logInteractionCommand(interaction);
         
-        // Execute the command
-        await command.execute(interaction, client);
+        // Check if the command has an executeInteraction method, otherwise use execute
+        if (command.executeInteraction) {
+          await command.executeInteraction(interaction, client);
+        } else {
+          await command.execute(interaction, client);
+        }
       } catch (error) {
         console.error(`Slash Command Error (${interaction.commandName}):`, error);
         const replyContent = { 
