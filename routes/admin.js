@@ -323,17 +323,40 @@ router.get('/settings', async (req, res) => {
     const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
                            (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
     
-    // Render the standalone settings page with everything inline
-    res.render('admin/settings-standalone', {
-      user: req.user,
-      adminUsers,
-      localAdminUsers,
-      staticPage,
-      tab,
-      title: 'Bot Settings | SWOOSH Bot',
-      client: client // Pass the Discord client to the template
-    });
-    return;
+    try {
+      // First try rendering the enhanced settings page
+      res.render('admin/settings-enhanced', {
+        user: req.user,
+        config: config,
+        adminUsers,
+        localAdminUsers,
+        staticPage,
+        tab,
+        messages: {
+          success: req.flash('success'),
+          error: req.flash('error')
+        },
+        path: '/admin/settings',
+        title: 'Bot Settings | SWOOSH Bot',
+        layout: 'layouts/admin',
+        client: client // Pass the Discord client to the template
+      });
+      return;
+    } catch (enhancedErr) {
+      console.error('Error rendering enhanced settings page, falling back to standalone:', enhancedErr);
+      
+      // Render the standalone settings page with everything inline
+      res.render('admin/settings-standalone', {
+        user: req.user,
+        adminUsers,
+        localAdminUsers,
+        staticPage,
+        tab,
+        title: 'Bot Settings | SWOOSH Bot',
+        client: client // Pass the Discord client to the template
+      });
+      return;
+    }
   } catch (err) {
     console.error('Error rendering settings page:', err);
     // If there is an error, show a simple error page
