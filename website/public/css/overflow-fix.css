@@ -75,29 +75,39 @@ pre, code {
 /* Fixed grid size control - prevent massive grids */
 .stats-grid, .dashboard-grid, .server-grid {
   display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important; /* Fixed 4 column layout */
-  grid-gap: 1rem !important;
-  max-width: 1200px !important;
+  grid-template-columns: repeat(2, 1fr) !important; /* Fixed 2 column layout - more compact */
+  grid-gap: 0.75rem !important;
+  max-width: 95% !important;
+  width: 95% !important;
   margin: 0 auto !important;
 }
 
-@media (max-width: 992px) {
+@media (min-width: 768px) {
   .stats-grid, .dashboard-grid, .server-grid {
     grid-template-columns: repeat(3, 1fr) !important;
+    max-width: 90% !important;
   }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1200px) {
   .stats-grid, .dashboard-grid, .server-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    max-width: 85% !important;
   }
 }
 
-@media (max-width: 480px) {
-  .stats-grid, .dashboard-grid, .server-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    grid-gap: 0.75rem !important;
-  }
+/* Make sure cards are compact */
+.stat-card, .card, .panel {
+  padding: 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Ensure all content is tight and compact */
+.container, .row, .col, .panel, .card {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  max-width: 100% !important;
+  width: 100% !important;
 }
 
 /* Admin specific fixes */
@@ -114,8 +124,11 @@ canvas.chart {
   height: auto !important;
 }
 
-/* Add horizontal padding to main content areas */
+/* Add minimal padding to main content areas */
 .admin-content, .main-content {
-  padding-left: 16px !important;
-  padding-right: 16px !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
