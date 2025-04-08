@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="/css/overflow-fix.css">
   <link rel="stylesheet" href="/css/dashboard-fixes.css">
   <link rel="stylesheet" href="/css/mobile-fix.css">
+  <link rel="stylesheet" href="/css/admin-swoosh.css">
   
   <style>
     /* SWOOSH Admin Dashboard - Enhanced Theme 2025 */
@@ -513,514 +514,6 @@
       color: var(--primary-color);
     }
     
-    /* Gradient text */
-    .gradient-text {
-      background: var(--gradient-primary);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      display: inline-block;
-    }
-    
-    .gradient-text-accent {
-      background: var(--gradient-accent);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      display: inline-block;
-    }
-    
-    .gradient-text-blend {
-      background: var(--gradient-blend);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      display: inline-block;
-    }
-    
-    /* Cards & Containers */
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(156, 77, 255, 0.2);
-      overflow: hidden;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    }
-    
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-lg);
-    }
-    
-    .card-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid rgba(156, 77, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0;
-    }
-    
-    .card-body {
-      padding: 1.5rem;
-    }
-    
-    .card-footer {
-      padding: 1.25rem 1.5rem;
-      border-top: 1px solid rgba(156, 77, 255, 0.2);
-      background: rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Glowing card variant */
-    .card-glow {
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    
-    .card-glow::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--gradient-primary);
-      z-index: 2;
-    }
-    
-    .card-glow::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--gradient-primary);
-      opacity: 0;
-      transition: opacity var(--transition);
-      z-index: -1;
-    }
-    
-    .card-glow:hover::after {
-      opacity: 0.05;
-    }
-    
-    /* Glass container */
-    .glass-container {
-      background: rgba(30, 21, 50, 0.2);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: var(--border-radius);
-      border: 1px solid rgba(156, 77, 255, 0.1);
-      box-shadow: var(--shadow);
-    }
-    
-    /* Buttons */
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--border-radius);
-      font-weight: 600;
-      transition: all var(--transition);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      border: none;
-      cursor: pointer;
-      font-family: var(--font-primary);
-      font-size: 0.9rem;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    
-    .btn::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.1);
-      z-index: -1;
-      transform: translateY(100%);
-      transition: transform var(--transition-fast);
-    }
-    
-    .btn:hover::after {
-      transform: translateY(0);
-    }
-    
-    .btn-primary {
-      background: var(--gradient-primary);
-      color: white;
-      box-shadow: var(--shadow-primary);
-    }
-    
-    .btn-primary:hover {
-      box-shadow: 0 10px 20px rgba(156, 77, 255, 0.4);
-      transform: translateY(-3px);
-    }
-    
-    .btn-accent {
-      background: var(--gradient-accent);
-      color: white;
-      box-shadow: var(--shadow-accent);
-    }
-    
-    .btn-accent:hover {
-      box-shadow: 0 10px 20px rgba(0, 229, 255, 0.4);
-      transform: translateY(-3px);
-    }
-    
-    .btn-secondary {
-      background: rgba(156, 77, 255, 0.1);
-      color: var(--primary-color);
-      border: 1px solid var(--primary-color);
-    }
-    
-    .btn-secondary:hover {
-      background: rgba(156, 77, 255, 0.2);
-      transform: translateY(-3px);
-    }
-    
-    .btn-outline {
-      background: transparent;
-      color: var(--text-primary);
-      border: 1px solid var(--text-secondary);
-    }
-    
-    .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--text-primary);
-      transform: translateY(-2px);
-    }
-    
-    .btn-success {
-      background: var(--success-color);
-      color: #1a1a1a;
-    }
-    
-    .btn-success:hover {
-      background: var(--success-hover);
-      transform: translateY(-2px);
-    }
-    
-    .btn-danger {
-      background: var(--danger-color);
-      color: white;
-    }
-    
-    .btn-danger:hover {
-      background: var(--danger-hover);
-      transform: translateY(-2px);
-    }
-    
-    .btn-warning {
-      background: var(--warning-color);
-      color: #1a1a1a;
-    }
-    
-    .btn-warning:hover {
-      background: var(--warning-hover);
-      transform: translateY(-2px);
-    }
-    
-    .btn-info {
-      background: var(--info-color);
-      color: #1a1a1a;
-    }
-    
-    .btn-info:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-    }
-    
-    .btn-sm {
-      padding: 0.5rem 1rem;
-      font-size: 0.8rem;
-    }
-    
-    .btn-lg {
-      padding: 1rem 2rem;
-      font-size: 1rem;
-    }
-    
-    .btn-icon {
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--border-radius-full);
-    }
-    
-    .btn-icon-sm {
-      width: 32px;
-      height: 32px;
-      font-size: 0.8rem;
-    }
-    
-    .btn-icon-lg {
-      width: 48px;
-      height: 48px;
-      font-size: 1.2rem;
-    }
-    
-    /* Form elements */
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    
-    .form-label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-    }
-    
-    .form-input,
-    .form-select,
-    .form-textarea {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: var(--border-radius);
-      border: 1px solid rgba(156, 77, 255, 0.3);
-      background: rgba(30, 21, 50, 0.3);
-      color: var(--text-primary);
-      font-family: var(--font-primary);
-      font-size: 0.9rem;
-      transition: all var(--transition-fast);
-    }
-    
-    .form-input:focus,
-    .form-select:focus,
-    .form-textarea:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(156, 77, 255, 0.25);
-    }
-    
-    .form-textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-    
-    .form-select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath d='M12 13.172l4.95-4.95 1.414 1.414L12 16 5.636 9.636 7.05 8.222z' fill='rgba(156, 77, 255, 1)'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 1rem center;
-      background-size: 1rem;
-      padding-right: 2.5rem;
-    }
-    
-    /* Alerts and Notifications */
-    .alert {
-      padding: 1rem 1.25rem;
-      border-radius: var(--border-radius);
-      margin-bottom: 1.5rem;
-      border-left: 4px solid transparent;
-      display: flex;
-      align-items: center;
-    }
-    
-    .alert-icon {
-      margin-right: 1rem;
-      font-size: 1.25rem;
-    }
-    
-    .alert-content {
-      flex: 1;
-    }
-    
-    .alert-title {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-    
-    .alert-message {
-      color: inherit;
-      opacity: 0.9;
-    }
-    
-    .alert-success {
-      background: rgba(87, 242, 135, 0.15);
-      border-color: var(--success-color);
-      color: var(--success-color);
-    }
-    
-    .alert-danger {
-      background: rgba(237, 66, 69, 0.15);
-      border-color: var(--danger-color);
-      color: var(--danger-color);
-    }
-    
-    .alert-warning {
-      background: rgba(254, 231, 92, 0.15);
-      border-color: var(--warning-color);
-      color: var(--warning-color);
-    }
-    
-    .alert-info {
-      background: rgba(0, 229, 255, 0.15);
-      border-color: var(--info-color);
-      color: var(--info-color);
-    }
-    
-    /* Tables */
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      margin-bottom: 1.5rem;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-    }
-    
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-    
-    .table th {
-      padding: 1rem 1.5rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      background: rgba(156, 77, 255, 0.1);
-      border-bottom: 2px solid rgba(156, 77, 255, 0.2);
-    }
-    
-    .table td {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid rgba(156, 77, 255, 0.1);
-      color: var(--text-secondary);
-    }
-    
-    .table tbody tr {
-      transition: background-color var(--transition-fast);
-    }
-    
-    .table tbody tr:hover {
-      background: rgba(156, 77, 255, 0.05);
-    }
-    
-    .table-striped tbody tr:nth-child(odd) {
-      background: rgba(0, 0, 0, 0.1);
-    }
-    
-    .table-striped tbody tr:nth-child(odd):hover {
-      background: rgba(156, 77, 255, 0.08);
-    }
-    
-    /* Pills and badges */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.25rem 0.75rem;
-      border-radius: var(--border-radius-full);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .badge-primary {
-      background: var(--primary-color);
-      color: white;
-    }
-    
-    .badge-secondary {
-      background: rgba(156, 77, 255, 0.15);
-      color: var(--primary-color);
-    }
-    
-    .badge-success {
-      background: var(--success-color);
-      color: #1a1a1a;
-    }
-    
-    .badge-danger {
-      background: var(--danger-color);
-      color: white;
-    }
-    
-    .badge-warning {
-      background: var(--warning-color);
-      color: #1a1a1a;
-    }
-    
-    .badge-info {
-      background: var(--info-color);
-      color: #1a1a1a;
-    }
-    
-    /* Dropdown menus */
-    .dropdown {
-      position: relative;
-    }
-    
-    .dropdown-menu {
-      position: absolute;
-      top: calc(100% + 5px);
-      right: 0;
-      min-width: 200px;
-      background: var(--background-light);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(156, 77, 255, 0.2);
-      overflow: hidden;
-      z-index: 100;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all var(--transition-fast);
-    }
-    
-    .dropdown.active .dropdown-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-    
-    .dropdown-item {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1.25rem;
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: all var(--transition-fast);
-    }
-    
-    .dropdown-item:hover {
-      background: rgba(156, 77, 255, 0.1);
-      color: var(--text-primary);
-    }
-    
-    .dropdown-item i {
-      width: 20px;
-      margin-right: 0.75rem;
-      color: var(--primary-color);
-    }
-    
-    .dropdown-divider {
-      height: 1px;
-      background: rgba(156, 77, 255, 0.1);
-      margin: 0.5rem 0;
-    }
-    
     /* Responsive adjustments */
     @media (max-width: 992px) {
       .admin-sidebar {
@@ -1049,41 +542,6 @@
         font-size: 1.25rem;
       }
     }
-    
-    /* Utility classes */
-    .d-flex { display: flex !important; }
-    .flex-column { flex-direction: column !important; }
-    .justify-content-start { justify-content: flex-start !important; }
-    .justify-content-end { justify-content: flex-end !important; }
-    .justify-content-center { justify-content: center !important; }
-    .justify-content-between { justify-content: space-between !important; }
-    .align-items-start { align-items: flex-start !important; }
-    .align-items-end { align-items: flex-end !important; }
-    .align-items-center { align-items: center !important; }
-    .text-center { text-align: center !important; }
-    .text-right { text-align: right !important; }
-    .text-left { text-align: left !important; }
-    .mt-0 { margin-top: 0 !important; }
-    .mb-0 { margin-bottom: 0 !important; }
-    .m-0 { margin: 0 !important; }
-    .mt-1 { margin-top: 0.5rem !important; }
-    .mb-1 { margin-bottom: 0.5rem !important; }
-    .mt-2 { margin-top: 1rem !important; }
-    .mb-2 { margin-bottom: 1rem !important; }
-    .mt-3 { margin-top: 1.5rem !important; }
-    .mb-3 { margin-bottom: 1.5rem !important; }
-    .mt-4 { margin-top: 2rem !important; }
-    .mb-4 { margin-bottom: 2rem !important; }
-    .mt-5 { margin-top: 2.5rem !important; }
-    .mb-5 { margin-bottom: 2.5rem !important; }
-    .p-0 { padding: 0 !important; }
-    .p-1 { padding: 0.5rem !important; }
-    .p-2 { padding: 1rem !important; }
-    .p-3 { padding: 1.5rem !important; }
-    .p-4 { padding: 2rem !important; }
-    .p-5 { padding: 2.5rem !important; }
-    .w-100 { width: 100% !important; }
-    .h-100 { height: 100% !important; }
   </style>
   
   <!-- Page-specific styles (if needed) -->
@@ -1110,25 +568,25 @@
           <h6 class="nav-section-title">Main</h6>
           <ul class="nav-items">
             <li class="nav-item">
-              <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>">
+              <a href="/admin" class="<%= typeof path !== 'undefined' && path === '/admin' ? 'active' : '' %>">
                 <i class="fas fa-home"></i>
                 Dashboard
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/welcome" class="<%= path === '/admin/welcome' ? 'active' : '' %>">
+              <a href="/admin/welcome" class="<%= typeof path !== 'undefined' && path === '/admin/welcome' ? 'active' : '' %>">
                 <i class="fas fa-rocket"></i>
                 Welcome
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/stats" class="<%= path === '/admin/stats' ? 'active' : '' %>">
+              <a href="/admin/stats" class="<%= typeof path !== 'undefined' && path === '/admin/stats' ? 'active' : '' %>">
                 <i class="fas fa-chart-line"></i>
                 Statistics
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/servers" class="<%= path === '/admin/servers' ? 'active' : '' %>">
+              <a href="/admin/servers" class="<%= typeof path !== 'undefined' && path === '/admin/servers' ? 'active' : '' %>">
                 <i class="fas fa-server"></i>
                 Servers
               </a>
@@ -1140,26 +598,26 @@
           <h6 class="nav-section-title">Control</h6>
           <ul class="nav-items">
             <li class="nav-item">
-              <a href="/admin/settings" class="<%= path === '/admin/settings' ? 'active' : '' %>">
+              <a href="/admin/settings" class="<%= typeof path !== 'undefined' && path === '/admin/settings' ? 'active' : '' %>">
                 <i class="fas fa-cogs"></i>
                 Settings
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/customization" class="<%= path === '/admin/customization' ? 'active' : '' %>">
+              <a href="/admin/customization" class="<%= typeof path !== 'undefined' && path === '/admin/customization' ? 'active' : '' %>">
                 <i class="fas fa-palette"></i>
                 Customization
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/users" class="<%= path === '/admin/users' ? 'active' : '' %>">
+              <a href="/admin/users" class="<%= typeof path !== 'undefined' && path === '/admin/users' ? 'active' : '' %>">
                 <i class="fas fa-users"></i>
                 Users
                 <span class="nav-badge">Admin</span>
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/logs" class="<%= path === '/admin/logs' ? 'active' : '' %>">
+              <a href="/admin/logs" class="<%= typeof path !== 'undefined' && path === '/admin/logs' ? 'active' : '' %>">
                 <i class="fas fa-list"></i>
                 Logs
               </a>
@@ -1171,19 +629,19 @@
           <h6 class="nav-section-title">Bot</h6>
           <ul class="nav-items">
             <li class="nav-item">
-              <a href="/admin/commands" class="<%= path === '/admin/commands' ? 'active' : '' %>">
+              <a href="/admin/commands" class="<%= typeof path !== 'undefined' && path === '/admin/commands' ? 'active' : '' %>">
                 <i class="fas fa-terminal"></i>
                 Commands
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/tickets" class="<%= path === '/admin/tickets' ? 'active' : '' %>">
+              <a href="/admin/tickets" class="<%= typeof path !== 'undefined' && path === '/admin/tickets' ? 'active' : '' %>">
                 <i class="fas fa-ticket-alt"></i>
                 Tickets
               </a>
             </li>
             <li class="nav-item">
-              <a href="/admin/bounties" class="<%= path === '/admin/bounties' ? 'active' : '' %>">
+              <a href="/admin/bounties" class="<%= typeof path !== 'undefined' && path === '/admin/bounties' ? 'active' : '' %>">
                 <i class="fas fa-coins"></i>
                 Bounties
               </a>
@@ -1194,36 +652,20 @@
       
       <div class="sidebar-footer">
         <div class="sidebar-user dropdown" id="userDropdown">
-          <% if (user && user.avatar) { %>
+          <% if (typeof user !== 'undefined' && user && user.avatar) { %>
             <img src="<%= user.avatar %>" alt="<%= user.username %>" class="user-avatar">
-          <% } else if (user && user.username) { %>
+          <% } else if (typeof user !== 'undefined' && user && user.username) { %>
             <div class="user-avatar-placeholder"><%= user.username.charAt(0) %></div>
           <% } else { %>
             <div class="user-avatar-placeholder">G</div>
           <% } %>
           
           <div class="user-details">
-            <div class="user-name"><%= user ? user.username || 'Guest' : 'Guest' %></div>
+            <div class="user-name"><%= typeof user !== 'undefined' && user ? user.username || 'Guest' : 'Guest' %></div>
             <div class="user-role">Administrator</div>
           </div>
           
           <i class="fas fa-chevron-down user-dropdown"></i>
-          
-          <div class="dropdown-menu">
-            <a href="/profile" class="dropdown-item">
-              <i class="fas fa-user"></i>
-              Profile
-            </a>
-            <a href="/settings" class="dropdown-item">
-              <i class="fas fa-cog"></i>
-              Settings
-            </a>
-            <div class="dropdown-divider"></div>
-            <a href="/logout" class="dropdown-item">
-              <i class="fas fa-sign-out-alt"></i>
-              Log Out
-            </a>
-          </div>
         </div>
       </div>
     </div>
