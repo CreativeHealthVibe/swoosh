@@ -727,6 +727,169 @@ router.get('/users', async (req, res) => {
  * POST /admin/users/add
  * Add a new admin user
  */
+// Settings page user management routes
+router.post('/settings/users/add', (req, res) => {
+  const { userId, comment } = req.body;
+  
+  // Validate that userId is provided and not already in the list
+  if (!userId) {
+    req.flash('error', 'User ID is required');
+    return res.redirect('/admin/settings');
+  }
+  
+  if (config.adminUserIds.includes(userId)) {
+    req.flash('error', 'This user is already an admin');
+    return res.redirect('/admin/settings');
+  }
+  
+  try {
+    // Update the config file
+    const configPath = './config.js';
+    let configContent = fs.readFileSync(configPath, 'utf8');
+    
+    // Find the adminUserIds array
+    const adminUserIdsMatch = configContent.match(/adminUserIds:\s*\[([\s\S]*?)\]/);
+    if (!adminUserIdsMatch) {
+      req.flash('error', 'Could not find adminUserIds in config file');
+      return res.redirect('/admin/settings');
+    }
+    
+    // Build the new array item
+    let newUserEntry = `    '${userId}'`;
+    if (comment) {
+      newUserEntry += ` // ${comment}`;
+    }
+    
+    // Insert the new item before the closing bracket
+    const arrayContent = adminUserIdsMatch[1];
+    if (arrayContent.trim()) {
+      // Array has items, add comma
+      newUserEntry = ',\n' + newUserEntry;
+    }
+    
+    const newArrayContent = arrayContent + newUserEntry;
+    const newConfig = configContent.replace(
+      /adminUserIds:\s*\[([\s\S]*?)\]/,
+      `adminUserIds: [${newArrayContent}]`
+    );
+    
+    fs.writeFileSync(configPath, newConfig, 'utf8');
+    req.flash('success', 'Admin user added successfully!');
+    
+    // Restart the bot if it's running
+    if (client) {
+      client.emit('adminUpdate', { type: 'adminUserAdded', userId });
+    }
+  } catch (error) {
+    console.error('Error adding admin user:', error);
+    req.flash('error', `Failed to add admin user: ${error.message}`);
+  }
+  
+  res.redirect('/admin/settings');
+});
+
+router.post('/settings/users/remove', (req, res) => {
+  const { userId } = req.body;
+  
+  if (!userId) {
+    req.flash('error', 'User ID is required');
+    return res.redirect('/admin/settings');
+  }
+  
+  try {
+    // Make sure we're not removing the last admin
+    if (config.adminUserIds.length <= 1) {
+      req.flash('error', 'Cannot remove the last admin user');
+      return res.redirect('/admin/settings');
+    }
+    
+    // Update the config file
+    const configPath = './config.js';
+    let configContent = fs.readFileSync(configPath, 'utf8');
+    
+    // Find and remove the user ID from the array
+    const userIdRegex = new RegExp(`\\s*'${userId}'[^,\\]]*,?`, 'g');
+    const newConfig = configContent.replace(userIdRegex, '');
+    
+    // Clean up any trailing commas
+    const fixedConfig = newConfig.replace(/,(\s*)\]/g, '$1]');
+    
+    fs.writeFileSync(configPath, fixedConfig, 'utf8');
+    req.flash('success', 'Admin user removed successfully!');
+    
+    // Restart the bot if it's running
+    if (client) {
+      client.emit('adminUpdate', { type: 'adminUserRemoved', userId });
+    }
+  } catch (error) {
+    console.error('Error removing admin user:', error);
+    req.flash('error', `Failed to remove admin user: ${error.message}`);
+  }
+  
+  res.redirect('/admin/settings');
+});
+
+router.post('/settings/localusers/add', async (req, res) => {
+  const { username, password, displayName, email, isSuperAdmin } = req.body;
+  
+  // Basic validation
+  if (!username || !password) {
+    req.flash('error', 'Username and password are required');
+    return res.redirect('/admin/settings');
+  }
+  
+  try {
+    // Check if username already exists
+    const existingUser = await db.getUserByUsername(username);
+    if (existingUser) {
+      req.flash('error', 'Username already exists');
+      return res.redirect('/admin/settings');
+    }
+    
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Add the new admin user
+    await db.createLocalUser({
+      username,
+      password: hashedPassword,
+      display_name: displayName || username,
+      email: email || null,
+      is_admin: true,
+      is_super_admin: isSuperAdmin === 'on'
+    });
+    
+    req.flash('success', 'Local admin user created successfully!');
+  } catch (error) {
+    console.error('Error creating local admin user:', error);
+    req.flash('error', `Failed to create local admin user: ${error.message}`);
+  }
+  
+  res.redirect('/admin/settings');
+});
+
+router.post('/settings/users/remove-local', async (req, res) => {
+  const { userId } = req.body;
+  
+  if (!userId) {
+    req.flash('error', 'User ID is required');
+    return res.redirect('/admin/settings');
+  }
+  
+  try {
+    // Delete the user
+    await db.deleteLocalUser(userId);
+    req.flash('success', 'Local admin user removed successfully!');
+  } catch (error) {
+    console.error('Error removing local admin user:', error);
+    req.flash('error', `Failed to remove local admin user: ${error.message}`);
+  }
+  
+  res.redirect('/admin/settings');
+});
+
+// Original routes for backward compatibility
 router.post('/users/add', (req, res) => {
   try {
     const { userId, comment } = req.body;
@@ -734,13 +897,13 @@ router.post('/users/add', (req, res) => {
     // Validate input
     if (!userId || !comment) {
       req.flash('error', 'User ID and comment are required');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Check if user ID is already in the admin list
     if (config.adminUserIds.includes(userId)) {
       req.flash('error', 'This user is already an admin');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Create a new admin user ID list
@@ -781,11 +944,11 @@ router.post('/users/add', (req, res) => {
     console.log(`Admin ${req.user.username} (${req.user.id}) added new admin user ${userId} (${comment})`);
     
     req.flash('success', `Admin user ${comment} (${userId}) added successfully`);
-    return res.redirect('/admin/users');
+    return res.redirect("/admin/settings");
   } catch (error) {
     console.error('Error adding admin user:', error);
     req.flash('error', 'Failed to add admin user: ' + error.message);
-    return res.redirect('/admin/users');
+    return res.redirect("/admin/settings");
   }
 });
 
@@ -800,25 +963,25 @@ router.post('/users/remove', (req, res) => {
     // Validate input
     if (!userId) {
       req.flash('error', 'User ID is required');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Check if user ID is in the admin list
     if (!config.adminUserIds.includes(userId)) {
       req.flash('error', 'This user is not an admin');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Prevent removing the last admin
     if (config.adminUserIds.length <= 1) {
       req.flash('error', 'Cannot remove the last admin user');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Prevent removing yourself
     if (userId === req.user.id) {
       req.flash('error', 'Cannot remove yourself from admin users');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Create a new admin user ID list without the removed user
@@ -858,11 +1021,11 @@ router.post('/users/remove', (req, res) => {
     console.log(`Admin ${req.user.username} (${req.user.id}) removed admin user ${userId}`);
     
     req.flash('success', `Admin user ${userId} removed successfully`);
-    return res.redirect('/admin/users');
+    return res.redirect("/admin/settings");
   } catch (error) {
     console.error('Error removing admin user:', error);
     req.flash('error', 'Failed to remove admin user: ' + error.message);
-    return res.redirect('/admin/users');
+    return res.redirect("/admin/settings");
   }
 });
 
@@ -995,14 +1158,14 @@ router.post('/localusers/add', async (req, res) => {
     // Validate input
     if (!username || !password) {
       req.flash('error', 'Username and password are required');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Check if username already exists
     const existingUser = await db.getLocalUserByUsername(username);
     if (existingUser) {
       req.flash('error', 'Username already exists');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Parse permissions
@@ -1019,7 +1182,7 @@ router.post('/localusers/add', async (req, res) => {
       } catch (error) {
         console.error('Error parsing permissions:', error);
         req.flash('error', 'Invalid permissions format');
-        return res.redirect('/admin/users');
+        return res.redirect("/admin/settings");
       }
     } else {
       // Default permissions for admin user
@@ -1046,11 +1209,11 @@ router.post('/localusers/add', async (req, res) => {
     console.log(`Admin ${req.user.username} (${req.user.id}) created new local admin user: ${username}`);
     
     req.flash('success', `Local admin user ${username} created successfully`);
-    return res.redirect('/admin/users');
+    return res.redirect("/admin/settings");
   } catch (error) {
     console.error('Error creating local admin user:', error);
     req.flash('error', 'Failed to create local admin user: ' + error.message);
-    return res.redirect('/admin/users');
+    return res.redirect("/admin/settings");
   }
 });
 
@@ -1065,20 +1228,20 @@ router.post('/localusers/remove', async (req, res) => {
     // Validate input
     if (!userId) {
       req.flash('error', 'User ID is required');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Check if user exists
     const user = await db.getLocalUserById(userId);
     if (!user) {
       req.flash('error', 'User not found');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Prevent removing yourself
     if (req.user.userType === 'local' && parseInt(userId) === parseInt(req.user.id)) {
       req.flash('error', 'Cannot remove your own account');
-      return res.redirect('/admin/users');
+      return res.redirect("/admin/settings");
     }
     
     // Delete the user
@@ -1088,11 +1251,11 @@ router.post('/localusers/remove', async (req, res) => {
     console.log(`Admin ${req.user.username} (${req.user.id}) removed local admin user: ${user.username}`);
     
     req.flash('success', `Local admin user ${user.username} removed successfully`);
-    return res.redirect('/admin/users');
+    return res.redirect("/admin/settings");
   } catch (error) {
     console.error('Error removing local admin user:', error);
     req.flash('error', 'Failed to remove local admin user: ' + error.message);
-    return res.redirect('/admin/users');
+    return res.redirect("/admin/settings");
   }
 });
 

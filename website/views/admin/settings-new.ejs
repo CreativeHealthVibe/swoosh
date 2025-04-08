@@ -409,7 +409,7 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                 <p class="section-description">These Discord users have access to the admin panel via Discord OAuth</p>
                 
                 <div class="admin-users">
-                  <% if (typeof adminUsers !== "undefined" && Array.isArray(_adminUsers) && _adminUsers.length > 0) { %>
+                  <% if (Array.isArray(_adminUsers) && _adminUsers.length > 0) { %>
                     <div class="table-responsive">
                       <table class="modern-table">
                         <thead>
@@ -443,7 +443,7 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                                 </div>
                               </td>
                               <td>
-                                <form action="/admin/users/remove" method="POST" class="inline-form">
+                                <form action="/admin/settings/users/remove" method="POST" class="inline-form">
                                   <input type="hidden" name="userId" value="<%= user.id %>">
                                   <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this admin user?')">
                                     <i class="fas fa-trash"></i> Remove
@@ -468,7 +468,7 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                 <h3>Local Admin Users</h3>
                 <p class="section-description">These users can access the admin panel with username and password login</p>
                 
-                <% if (typeof localAdminUsers !== 'undefined' && _localAdminUsers.length > 0) { %>
+                <% if (Array.isArray(_localAdminUsers) && _localAdminUsers.length > 0) { %>
                   <div class="table-responsive">
                     <table class="modern-table">
                       <thead>
@@ -532,7 +532,7 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                 <h3>Add New Discord Admin</h3>
                 <p class="section-description">Add a Discord user as an admin who can access via Discord OAuth</p>
                 
-                <form action="/admin/users/add" method="POST" class="modern-form">
+                <form action="/admin/settings/users/add" method="POST" class="modern-form">
                   <div class="form-row">
                     <div class="form-group form-group-half">
                       <label for="userId"><i class="fab fa-discord"></i> Discord User ID</label>
@@ -559,7 +559,7 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
                 <h3>Add New Local Admin</h3>
                 <p class="section-description">Create a new admin user who can log in directly with username and password</p>
                 
-                <form action="/admin/localusers/add" method="POST" class="modern-form">
+                <form action="/admin/settings/localusers/add" method="POST" class="modern-form">
                   <div class="form-row">
                     <div class="form-group form-group-half">
                       <label for="username"><i class="fas fa-user"></i> Username</label>
