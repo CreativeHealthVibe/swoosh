@@ -667,6 +667,19 @@ app.get('/download', (req, res) => {
   });
 });
 
+// Terms of Service page route
+app.get('/doc', (req, res) => {
+  res.render('doc', {
+    title: 'SWOOSH Bot - Terms of Service',
+    activeNav: 'terms'
+  });
+});
+
+// Terms of Service redirect (for footer link)
+app.get('/terms', (req, res) => {
+  res.redirect('/doc');
+});
+
 // Leaderboard page route
 app.get('/leaderboard', (req, res) => {
   res.render('leaderboard', {
