@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.ffmpeg
     pkgs.postgresql
     pkgs.jq
     pkgs.giflib
