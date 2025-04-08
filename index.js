@@ -80,7 +80,7 @@ client.once('ready', async () => {
       activities: [{ 
         name: '.gg/swoosh', // Support server invite
         type: 1, // 0 is "Playing", 1 is "Streaming", 2 is "Listening", 3 is "Watching", 5 is "Competing"
-        url: 'https://twitch.tv/swooshbot', // Using twitch URL (required for streaming to work properly)
+        url: 'https://www.twitch.tv/gh_sman', // Using exact Twitch URL as specified
       }],
       status: 'dnd' // 'online' (green), 'idle' (yellow), 'dnd' (red/purple), or 'invisible'
     });
