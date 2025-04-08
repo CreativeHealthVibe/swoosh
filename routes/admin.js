@@ -306,6 +306,28 @@ router.post('/blacklist/remove', (req, res) => {
  * Bot settings
  */
 router.get('/settings', async (req, res) => {
+  try {
+    // Mark this as a static page to prevent WebSocket refreshing
+    const staticPage = true;
+    
+    // Get user info for the settings page
+    const adminUsers = await getUserList('admin');
+    const localAdminUsers = await getLocalUsers();
+    
+    // Render the new settings page
+    res.render('admin/settings-new', {
+      user: req.user,
+      adminUsers,
+      localAdminUsers,
+      staticPage,
+      layout: 'layouts/admin'
+    });
+    return;
+  } catch (err) {
+    console.error('Error rendering settings page:', err);
+  }
+  
+  // Fallback to old settings page if there's an error
   // Get the bot configuration
   const config = require('../config');
   

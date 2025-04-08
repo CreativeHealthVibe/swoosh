@@ -1,56 +1,11 @@
-</div> <!-- end admin-content -->
+</div> <!-- End .admin-content -->
 
 <footer class="admin-footer">
   <div class="footer-content">
-    <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot Admin | Powered by Discord.js</p>
+    <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot. All rights reserved.</p>
   </div>
 </footer>
 
-<!-- Chart.js for data visualization -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-
-<script>
-  // Initialize WebSocket connection for real-time updates
-  let socket;
-  try {
-    // Try to connect to WebSocket
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
-    socket = new WebSocket(wsUrl);
-    
-    socket.onopen = function() {
-      console.log('WebSocket connection established');
-    };
-    
-    socket.onerror = function(error) {
-      console.error('WebSocket error:', error);
-    };
-    
-    socket.onclose = function() {
-      console.log('WebSocket connection closed');
-      // Try to reconnect after a delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 5000);
-    };
-  } catch (e) {
-    console.error('Failed to initialize WebSocket:', e);
-  }
-  
-  // Toggle user dropdown menu
-  document.addEventListener('DOMContentLoaded', function() {
-    const userMenu = document.querySelector('.admin-user-menu');
-    if (userMenu) {
-      userMenu.addEventListener('click', function() {
-        this.classList.toggle('active');
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(event) {
-        if (!userMenu.contains(event.target)) {
-          userMenu.classList.remove('active');
-        }
-      });
-    }
-  });
-</script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

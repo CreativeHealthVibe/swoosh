@@ -6,10 +6,112 @@ const _localAdminUsers = typeof localAdminUsers !== 'undefined' ? localAdminUser
 const isStaticPage = typeof staticPage !== 'undefined' && staticPage === true;
 %>
 
-<!-- Hidden flag to prevent WebSocket setup when on settings page -->
-<% if (isStaticPage) { %>
-<div id="static-page-flag" style="display: none;"></div>
-<% } %>
+<!-- Main settings content -->
+<div class="admin-main-content">
+  <div class="settings-container glass-panel">
+    <h2 class="gradient-text">Bot Settings</h2>
+    <p class="settings-description">Configure your Swoosh bot settings below</p>
+    
+    <div class="settings-section">
+      <!-- Settings content will go here -->
+      <div class="settings-tabs">
+        <button class="tab-button active" onclick="switchTab('general')">General</button>
+        <button class="tab-button" onclick="switchTab('advanced')">Advanced</button>
+        <button class="tab-button" onclick="switchTab('integrations')">Integrations</button>
+      </div>
+      
+      <div class="tab-content active" id="general">
+        <h3>General Settings</h3>
+        <div class="settings-form">
+          <div class="form-group">
+            <label>Bot Prefix</label>
+            <input type="text" value="!" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Default Language</label>
+            <select class="form-control">
+              <option>English</option>
+              <option>Spanish</option>
+              <option>French</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Embed Color</label>
+            <input type="color" value="#7289DA" class="form-control" />
+          </div>
+          <button class="glass-button">Save Changes</button>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="advanced">
+        <h3>Advanced Settings</h3>
+        <div class="settings-form">
+          <div class="form-group">
+            <label>Debug Mode</label>
+            <div class="toggle-switch">
+              <input type="checkbox" id="debug-toggle" />
+              <label for="debug-toggle"></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Cache Duration (minutes)</label>
+            <input type="number" value="60" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Log Level</label>
+            <select class="form-control">
+              <option>Info</option>
+              <option>Debug</option>
+              <option>Warning</option>
+              <option>Error</option>
+            </select>
+          </div>
+          <button class="glass-button">Save Changes</button>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="integrations">
+        <h3>Integrations</h3>
+        <div class="settings-form">
+          <div class="form-group">
+            <label>Web Dashboard</label>
+            <div class="toggle-switch">
+              <input type="checkbox" id="dashboard-toggle" checked />
+              <label for="dashboard-toggle"></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>API Access</label>
+            <div class="toggle-switch">
+              <input type="checkbox" id="api-toggle" />
+              <label for="api-toggle"></label>
+            </div>
+          </div>
+          <button class="glass-button">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<!-- Hidden flag to prevent WebSocket setup when on settings page -->
-<% if (isStaticPage) { %>
+<script>
+function switchTab(tabId) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Remove active class from all buttons
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.classList.remove('active');
+  });
+  
+  // Show the selected tab
+  document.getElementById(tabId).classList.add('active');
+  
+  // Add active class to clicked button
+  event.currentTarget.classList.add('active');
+}
+</script>
+
+<%- include('../partials/admin-footer') %>
