@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bounty Customization</title>
+</head>
+<body>
+    <h1>Bounty Customization</h1>
+    <form action="/admin/customization/save" method="POST">
+        <div>
+            <label for="bountyColor">Embed Color:</label>
+            <input type="color" id="bountyColor" name="bountyColor" value="#9B59B6">
+            <input type="text" id="bountyColorText" value="#9B59B6">
+        </div>
+        <div>
+            <label for="bountyName">Webhook Name:</label>
+            <input type="text" id="bountyName" name="bountyName" value="SWOOSH Bounty System">
+        </div>
+        <div>
+            <label for="bountyAvatarUrl">Avatar URL:</label>
+            <input type="text" id="bountyAvatarUrl" name="bountyAvatarUrl" value="https://i.imgur.com/YzOA3Rb.png">
+        </div>
+        <div>
+            <label for="defaultThumbnailUrl">Default Thumbnail:</label>
+            <input type="text" id="defaultThumbnailUrl" name="defaultThumbnailUrl" value="https://i.imgur.com/YzOA3Rb.png">
+        </div>
+        <div>
+            <label for="bountyMinAmount">Min Amount:</label>
+            <input type="number" id="bountyMinAmount" name="bountyMinAmount" value="15">
+        </div>
+        <div>
+            <label for="bountyMaxAmount">Max Amount:</label>
+            <input type="number" id="bountyMaxAmount" name="bountyMaxAmount" value="30000">
+        </div>
+        <button type="submit">Save Settings</button>
+    </form>
+
+    <div id="preview" style="margin-top: 20px; border: 1px solid #333; padding: 10px;">
+        <h2>Preview</h2>
+        <div id="discord-message" style="background-color: #36393f; color: white; padding: 10px; border-radius: 5px;">
+            <div id="webhook-info" style="display: flex; align-items: center;">
+                <img id="preview-avatar" src="https://i.imgur.com/YzOA3Rb.png" width="40" height="40" style="border-radius: 50%;">
+                <span id="preview-name" style="margin-left: 10px; font-weight: bold;">SWOOSH Bounty System</span>
+            </div>
+            <div id="embed" style="margin-top: 10px; border-left: 4px solid #9B59B6; padding-left: 10px;">
+                <div id="embed-title" style="font-weight: bold;">SWOOSH BOUNTY: EXAMPLE_USER</div>
+                <div id="embed-description">A new bounty has been placed!</div>
+                <div style="margin-top: 10px;">
+                    <div>👤 Target: ExampleUser</div>
+                    <div>💵 Reward: <span id="preview-amount">R$1,000</span></div>
+                </div>
+                <div style="display: flex; margin-top: 10px; align-items: center;">
+                    <img id="preview-thumbnail" src="https://i.imgur.com/YzOA3Rb.png" width="20" height="20" style="border-radius: 50%;">
+                    <span style="margin-left: 5px; font-size: 12px; color: #aaa;">To claim this bounty, open a ticket and provide evidence.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("bountyColor").addEventListener("input", updatePreview);
+            document.getElementById("bountyName").addEventListener("input", updatePreview);
+            document.getElementById("bountyAvatarUrl").addEventListener("input", updatePreview);
+            document.getElementById("defaultThumbnailUrl").addEventListener("input", updatePreview);
+            document.getElementById("bountyMinAmount").addEventListener("input", updatePreview);
+            document.getElementById("bountyMaxAmount").addEventListener("input", updatePreview);
+            
+            document.getElementById("bountyColor").addEventListener("input", function() {
+                document.getElementById("bountyColorText").value = this.value;
+            });
+            
+            document.getElementById("bountyColorText").addEventListener("input", function() {
+                document.getElementById("bountyColor").value = this.value;
+                updatePreview();
+            });
+            
+            updatePreview();
+        });
+        
+        function updatePreview() {
+            const color = document.getElementById("bountyColor").value;
+            const name = document.getElementById("bountyName").value;
+            const avatarUrl = document.getElementById("bountyAvatarUrl").value;
+            const thumbnailUrl = document.getElementById("defaultThumbnailUrl").value;
+            const minAmount = parseInt(document.getElementById("bountyMinAmount").value) || 15;
+            const maxAmount = parseInt(document.getElementById("bountyMaxAmount").value) || 30000;
+            
+            // Calculate preview amount (average of min and max)
+            const previewAmount = Math.floor((minAmount + maxAmount) / 2);
+            
+            // Update preview
+            document.getElementById("embed").style.borderLeftColor = color;
+            document.getElementById("preview-name").textContent = name;
+            document.getElementById("preview-avatar").src = avatarUrl;
+            document.getElementById("preview-thumbnail").src = thumbnailUrl;
+            document.getElementById("preview-amount").textContent = `R$${previewAmount.toLocaleString()}`;
+        }
+    </script>
+</body>
+</html>
