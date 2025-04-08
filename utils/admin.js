@@ -73,11 +73,24 @@ const canKickMembers = (member) => {
   return member.permissions.has('KICK_MEMBERS') || isAdmin(member);
 };
 
+/**
+ * Check if a user can create bounties
+ * @param {Object} member - Guild member
+ * @returns {boolean} - Whether the user can create bounties
+ */
+const canCreateBounty = (member) => {
+  if (!member) return false;
+  return isAdmin(member) || member.roles.cache.some(role => 
+    ['Bounty Master', 'Bounty Admin'].includes(role.name)
+  );
+};
+
 module.exports = {
   isAdmin,
   canCreateChannels,
   canManageTickets,
   canManageRoles,
   canBanMembers,
-  canKickMembers
+  canKickMembers,
+  canCreateBounty
 };

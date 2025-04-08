@@ -1,5 +1,5 @@
 // webhookManager.js - Manages webhook creation and sending
-const { WebhookClient, MessageAttachment } = require('discord.js');
+const { WebhookClient, AttachmentBuilder } = require('discord.js');
 const config = require('../config');
 
 module.exports = {
