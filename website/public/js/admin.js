@@ -158,11 +158,21 @@ function handleWebSocketMessage(data) {
   
   // Handle stats data
   if (data.type === 'stats') {
-    // Update all dashboard stats
-    updateDashboardStats(data);
+    // Only update stats if we're on the welcome or dashboard pages
+    const isWelcomePage = document.getElementById('server-count') || 
+                          document.getElementById('user-count') || 
+                          document.getElementById('ticket-count');
     
-    // Also update detailed stats display
-    updateStatsDisplay(data);
+    const isStatsPage = document.getElementById('detailed-stats-section');
+    
+    // Skip stats updates on other pages like users management
+    if (isWelcomePage || isStatsPage) {
+      // Update all dashboard stats
+      updateDashboardStats(data);
+      
+      // Also update detailed stats display
+      updateStatsDisplay(data);
+    }
     return;
   }
   
@@ -181,8 +191,19 @@ function handleWebSocketMessage(data) {
   // For backward compatibility, if no type is specified, assume it's stats data
   if (!data.type) {
     console.warn('Received WebSocket data without type, assuming stats:', data);
-    updateDashboardStats(data);
-    updateStatsDisplay(data);
+    
+    // Only update stats if we're on the welcome or dashboard pages
+    const isWelcomePage = document.getElementById('server-count') || 
+                          document.getElementById('user-count') || 
+                          document.getElementById('ticket-count');
+    
+    const isStatsPage = document.getElementById('detailed-stats-section');
+    
+    // Skip stats updates on other pages like users management
+    if (isWelcomePage || isStatsPage) {
+      updateDashboardStats(data);
+      updateStatsDisplay(data);
+    }
   }
 }
 
