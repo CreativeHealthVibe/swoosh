@@ -56,23 +56,15 @@ module.exports = {
         };
       }
       
-      // Get emoji IDs from the client - will use defaults if not found
-      const getEmoji = (emojiName, fallback) => {
-        // Try to find custom emoji in any guild the bot is in (prioritize SWOOSH STUDIO)
-        const emoji = interaction.client.emojis.cache.find(e => 
-          e.name.toLowerCase() === emojiName.toLowerCase()
-        );
-        return emoji ? emoji.toString() : fallback;
-      };
-      
-      // Prepare custom emoji variables
-      const moneyEmoji = getEmoji('moneybag', '💰');
-      const targetEmoji = getEmoji('target', '👤');
-      const idEmoji = getEmoji('idcard', '🆔');
-      const rewardEmoji = getEmoji('robux', '💵');
-      const clipEmoji = getEmoji('videocamera', '🎬');
-      const hostedEmoji = getEmoji('crown', '👑');
-      const timeEmoji = getEmoji('clock', '⏰');
+      // Use the specific custom emojis provided
+      // Custom emoji IDs directly from SWOOSH STUDIO server
+      const moneyEmoji = '💰'; // Using default for title
+      const targetEmoji = '👤'; // Using default for target
+      const idEmoji = '<:S__ID:1359205471633801457>';
+      const rewardEmoji = '💵'; // Using default for reward
+      const clipEmoji = '<:S__Clip:1359205711619555579>';
+      const hostedEmoji = '<:S__Crown:1359205562201411584>';
+      const timeEmoji = '<:S__Time:1359205638596464773>';
       
       // Create bounty embed with custom emojis
       const bountyEmbed = new EmbedBuilder()
