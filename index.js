@@ -680,6 +680,14 @@ app.get('/terms', (req, res) => {
   res.redirect('/doc');
 });
 
+// Privacy Policy page route
+app.get('/privacy', (req, res) => {
+  res.render('privacy', {
+    title: 'SWOOSH Bot - Privacy Policy',
+    activeNav: 'privacy'
+  });
+});
+
 // Leaderboard page route
 app.get('/leaderboard', (req, res) => {
   res.render('leaderboard', {
