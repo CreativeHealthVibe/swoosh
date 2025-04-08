@@ -579,27 +579,40 @@ function handleBlacklistRemove() {
  * Initialize tabs functionality
  */
 function initializeTabs() {
+  console.log('Initializing tabs...');
+  
   // Select all tab buttons
   const tabButtons = document.querySelectorAll('.tab-btn');
+  console.log('Found', tabButtons.length, 'tab buttons');
   
   // Add click event listeners to each tab button
   tabButtons.forEach(button => {
-    button.addEventListener('click', function() {
+    console.log('Tab button:', button.textContent.trim(), 'data-tab:', button.getAttribute('data-tab'));
+    
+    button.addEventListener('click', function(e) {
+      console.log('Tab button clicked:', this.textContent.trim(), 'data-tab:', this.getAttribute('data-tab'));
+      
+      // Prevent default behavior
+      e.preventDefault();
+      
       // Get the parent tab container
       const tabsContainer = this.closest('.admin-tabs') || this.closest('.settings-nav');
+      console.log('Tab container found:', tabsContainer ? true : false);
       
       // If we're in settings nav, get the correct container
       let tabContentContainer;
       if (this.closest('.settings-nav')) {
         tabContentContainer = document.querySelector('.settings-content');
+        console.log('Using settings-content as container');
       } else {
-        tabContentContainer = tabsContainer.nextElementSibling.querySelector('.tab-content') 
-          ? tabsContainer.nextElementSibling 
-          : tabsContainer.parentElement;
+        // For admin-tabs, look in the parent element for the tab panes
+        tabContentContainer = this.closest('.card-body');
+        console.log('Using card-body as container');
       }
       
       // Get the tab to show
       const tabToShow = this.getAttribute('data-tab');
+      console.log('Tab to show:', tabToShow);
       
       // Remove active class from all tab buttons
       const allButtons = tabsContainer.querySelectorAll('.tab-btn');
@@ -610,12 +623,19 @@ function initializeTabs() {
       
       // Hide all tab panes
       const allPanes = tabContentContainer.querySelectorAll('.tab-pane');
-      allPanes.forEach(pane => pane.classList.remove('active'));
+      console.log('Found', allPanes.length, 'tab panes');
+      allPanes.forEach(pane => {
+        console.log('Tab pane id:', pane.id);
+        pane.classList.remove('active');
+      });
       
       // Show the selected tab pane
       const selectedPane = tabContentContainer.querySelector(`#${tabToShow}`);
+      console.log('Selected pane found:', selectedPane ? true : false);
       if (selectedPane) {
         selectedPane.classList.add('active');
+      } else {
+        console.error('Tab pane not found:', tabToShow);
       }
     });
   });
