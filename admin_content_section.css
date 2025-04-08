@@ -1,0 +1,12 @@
+
+/* Admin content section styling */
+.admin-content-section {
+  margin: 15px 0 25px 0;
+  padding: 0 5px;
+}
+
+/* Add some spacing between the table and surrounding elements */
+.tab-pane {
+  padding: 15px;
+  border-radius: 10px;
+}
