@@ -251,15 +251,27 @@
                   <p class="group-description">Configure the types of tickets users can create</p>
                   
                   <div class="ticket-types-list">
-                    <% const ticketTypes = config.ticketTypes || ['Support', 'Report', 'Suggestion', 'Other']; %>
-                    <% ticketTypes.forEach((type, i) => { %>
+                    <% 
+                    // Ensure ticketTypes is an array
+                    const defaultTypes = ['Support', 'Report', 'Suggestion', 'Other'];
+                    let ticketTypesArray = defaultTypes;
+                    
+                    // Use config.ticketTypes if it's an array, otherwise use default
+                    if (config.ticketTypes && Array.isArray(config.ticketTypes)) {
+                      ticketTypesArray = config.ticketTypes;
+                    }
+                    
+                    // Loop through the array
+                    for(let i = 0; i < ticketTypesArray.length; i++) { 
+                      const type = ticketTypesArray[i];
+                    %>
                       <div class="ticket-type-item">
                         <input type="text" name="ticketType<%= i %>" value="<%= type %>" placeholder="Ticket type">
                         <% if (i > 0) { %>
                           <button type="button" class="btn btn-icon btn-danger remove-type"><i class="fas fa-trash-alt"></i></button>
                         <% } %>
                       </div>
-                    <% }) %>
+                    <% } %>
                     <button type="button" class="btn btn-sm btn-outline add-ticket-type" disabled>
                       <i class="fas fa-plus-circle"></i> Add Ticket Type
                     </button>
@@ -290,19 +302,23 @@
                 <p class="group-description">Users with full access to the admin dashboard</p>
                 
                 <div class="admin-users-list">
-                  <% for (const userId of config.adminUserIds) { %>
-                    <div class="admin-user-item">
-                      <div class="admin-user-info">
-                        <div class="admin-user-id"><%= userId %></div>
-                        <div class="admin-user-role">Full Administrator</div>
+                  <% if (Array.isArray(config.adminUserIds)) { %>
+                    <% for (const userId of config.adminUserIds) { %>
+                      <div class="admin-user-item">
+                        <div class="admin-user-info">
+                          <div class="admin-user-id"><%= userId %></div>
+                          <div class="admin-user-role">Full Administrator</div>
+                        </div>
+                        <form action="/admin/users/remove" method="POST" class="inline-form">
+                          <input type="hidden" name="userId" value="<%= userId %>">
+                          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this admin user? They will lose access to the dashboard.')">
+                            <i class="fas fa-trash-alt"></i> Remove
+                          </button>
+                        </form>
                       </div>
-                      <form action="/admin/users/remove" method="POST" class="inline-form">
-                        <input type="hidden" name="userId" value="<%= userId %>">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this admin user? They will lose access to the dashboard.')">
-                          <i class="fas fa-trash-alt"></i> Remove
-                        </button>
-                      </form>
-                    </div>
+                    <% } %>
+                  <% } else { %>
+                    <p>No admin users configured</p>
                   <% } %>
                 </div>
                 
@@ -341,12 +357,16 @@
                 <p class="group-description">Discord roles that have access to certain bot commands</p>
                 
                 <div class="staff-roles-list">
-                  <% config.staffRoles.forEach(role => { %>
-                    <div class="staff-role-item">
-                      <span class="role-id"><%= role %></span>
-                      <button class="btn btn-icon btn-danger remove-role" disabled><i class="fas fa-times"></i></button>
-                    </div>
-                  <% }); %>
+                  <% if (Array.isArray(config.staffRoles)) { %>
+                    <% config.staffRoles.forEach(role => { %>
+                      <div class="staff-role-item">
+                        <span class="role-id"><%= role %></span>
+                        <button class="btn btn-icon btn-danger remove-role" disabled><i class="fas fa-times"></i></button>
+                      </div>
+                    <% }); %>
+                  <% } else { %>
+                    <p>No staff roles configured</p>
+                  <% } %>
                 </div>
                 
                 <div class="add-role-section">
@@ -382,7 +402,7 @@
                     <div class="form-group half">
                       <label for="bountyMin">Minimum Bounty</label>
                       <div class="input-wrapper">
-                        <input type="number" id="bountyMin" name="bountyMin" value="<%= config.validation.bountyMin %>" min="1">
+                        <input type="number" id="bountyMin" name="bountyMin" value="<%= config.validation && config.validation.bountyMin ? config.validation.bountyMin : 10 %>" min="1">
                         <div class="input-hint">Minimum amount allowed for bounties</div>
                       </div>
                     </div>
@@ -390,7 +410,7 @@
                     <div class="form-group half">
                       <label for="bountyMax">Maximum Bounty</label>
                       <div class="input-wrapper">
-                        <input type="number" id="bountyMax" name="bountyMax" value="<%= config.validation.bountyMax %>" min="100">
+                        <input type="number" id="bountyMax" name="bountyMax" value="<%= config.validation && config.validation.bountyMax ? config.validation.bountyMax : 1000 %>" min="100">
                         <div class="input-hint">Maximum amount allowed for bounties</div>
                       </div>
                     </div>
@@ -405,7 +425,7 @@
                     <div class="form-group third">
                       <label for="maxWarningLength">Warning Reason</label>
                       <div class="input-wrapper">
-                        <input type="number" id="maxWarningLength" name="maxWarningLength" value="<%= config.validation.maxWarningLength || 100 %>" min="50" max="500">
+                        <input type="number" id="maxWarningLength" name="maxWarningLength" value="<%= config.validation && config.validation.maxWarningLength ? config.validation.maxWarningLength : 100 %>" min="50" max="500">
                         <div class="input-hint">Max characters for warning reasons</div>
                       </div>
                     </div>
@@ -413,7 +433,7 @@
                     <div class="form-group third">
                       <label for="maxTicketLength">Ticket Subject</label>
                       <div class="input-wrapper">
-                        <input type="number" id="maxTicketLength" name="maxTicketLength" value="<%= config.validation.maxTicketLength || 100 %>" min="50" max="200">
+                        <input type="number" id="maxTicketLength" name="maxTicketLength" value="<%= config.validation && config.validation.maxTicketLength ? config.validation.maxTicketLength : 100 %>" min="50" max="200">
                         <div class="input-hint">Max characters for ticket subjects</div>
                       </div>
                     </div>
@@ -421,7 +441,7 @@
                     <div class="form-group third">
                       <label for="maxRoleNameLength">Role Names</label>
                       <div class="input-wrapper">
-                        <input type="number" id="maxRoleNameLength" name="maxRoleNameLength" value="<%= config.validation.maxRoleNameLength || 30 %>" min="10" max="100">
+                        <input type="number" id="maxRoleNameLength" name="maxRoleNameLength" value="<%= config.validation && config.validation.maxRoleNameLength ? config.validation.maxRoleNameLength : 30 %>" min="10" max="100">
                         <div class="input-hint">Max characters for role names</div>
                       </div>
                     </div>
@@ -1020,8 +1040,8 @@
       
       if (min >= max) {
         alert('Minimum bounty must be less than maximum bounty');
-        bountyMinInput.value = <%= config.validation.bountyMin %>;
-        bountyMaxInput.value = <%= config.validation.bountyMax %>;
+        bountyMinInput.value = '<%= config.validation && config.validation.bountyMin ? config.validation.bountyMin : 10 %>';
+        bountyMaxInput.value = '<%= config.validation && config.validation.bountyMax ? config.validation.bountyMax : 1000 %>';
       }
     }
     
