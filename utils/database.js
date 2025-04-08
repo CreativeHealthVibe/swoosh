@@ -492,6 +492,15 @@ const getLocalUserByDiscordId = async (discordId) => {
   return result.rows[0] || null;
 };
 
+/**
+ * Get a user by username (alias for getLocalUserByUsername for compatibility)
+ * @param {string} username - Username
+ * @returns {Promise<Object|null>} - User object or null
+ */
+const getUserByUsername = async (username) => {
+  return await getLocalUserByUsername(username);
+};
+
 module.exports = {
   pool,
   initDatabase,
@@ -500,6 +509,7 @@ module.exports = {
   generateSecurePassword,
   createLocalUser,
   getLocalUserByUsername,
+  getUserByUsername, // Added alias for compatibility
   getLocalUserById,
   getLocalUserByDiscordId,
   updateLocalUser,
