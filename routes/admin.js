@@ -629,8 +629,17 @@ router.get('/customization', (req, res) => {
   try {
     // Get the current configuration
     const botConfig = require('../config');
+    
+    // For debug, log the template render attempt
+    console.log('Attempting to render customization page with data:', {
+      title: 'Bounty Customization',
+      user: req.user ? 'User authenticated' : 'No user',
+      path: '/admin/customization',
+      config: 'Config loaded'
+    });
 
-    res.render('customization', {
+    // Use admin/customization path explicitly to match directory structure
+    res.render('admin/customization', {
       title: 'Bounty Customization',
       user: req.user,
       path: '/admin/customization',
