@@ -18,6 +18,7 @@
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/responsive-fixes.css">
   
   <style>
     /* Admin layout styles - Using the main website purple theme */
@@ -113,6 +114,8 @@
       display: flex;
       list-style: none;
       gap: 1.5rem;
+      margin: 0;
+      padding: 0;
     }
     
     .admin-nav a {
@@ -145,6 +148,10 @@
     .admin-nav a:hover::after,
     .admin-nav a.active::after {
       width: 100%;
+    }
+    
+    .admin-nav a.active {
+      color: var(--primary-color);
     }
     
     /* User Menu */
@@ -250,44 +257,112 @@
       background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
       -webkit-background-clip: text;
       background-clip: text;
-      color: transparent;
-      display: inline-block;
+      -webkit-text-fill-color: transparent;
     }
     
-    /* Buttons */
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--border-radius);
-      font-weight: 600;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
+    /* Mobile Navigation */
+    .mobile-nav-toggle {
+      display: none;
+      background: transparent;
       border: none;
+      color: var(--text-primary);
+      font-size: 1.5rem;
       cursor: pointer;
+      z-index: 110;
+      padding: 0.25rem;
     }
     
-    .btn-primary {
-      background-color: var(--primary-color);
-      color: white;
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(20, 16, 31, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      padding: 5rem 2rem 2rem;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
     }
     
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(156, 77, 255, 0.3);
+    .mobile-nav.active {
+      transform: translateX(0);
     }
     
-    .btn-secondary {
-      background-color: rgba(156, 77, 255, 0.15);
+    .mobile-nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .mobile-nav li {
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-nav a {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      border-radius: 12px;
+      background: rgba(156, 77, 255, 0.1);
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+    
+    .mobile-nav a i {
+      margin-right: 1rem;
+      font-size: 1.25rem;
       color: var(--primary-color);
-      border: 1px solid var(--primary-color);
+      transition: all 0.3s ease;
     }
     
-    .btn-secondary:hover {
-      background-color: rgba(156, 77, 255, 0.25);
-      transform: translateY(-3px);
+    .mobile-nav a:hover, .mobile-nav a.active {
+      background: linear-gradient(135deg, rgba(156, 77, 255, 0.2), rgba(0, 229, 255, 0.1));
+      transform: translateX(5px);
+    }
+    
+    .mobile-nav a:hover i, .mobile-nav a.active i {
+      color: var(--accent-color);
+    }
+    
+    .mobile-nav a.active {
+      border-left: 3px solid var(--primary-color);
+    }
+    
+    .mobile-profile {
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(156, 77, 255, 0.1);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .mobile-profile .user-avatar,
+    .mobile-profile .user-avatar-placeholder {
+      margin-right: 1rem;
+    }
+    
+    .logout-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      margin-left: auto;
+    }
+    
+    .logout-link:hover {
+      color: var(--danger-color);
     }
     
     /* Responsive styles */
@@ -295,15 +370,85 @@
       .admin-nav {
         display: none;
       }
+      
+      .mobile-nav-toggle {
+        display: block;
+      }
+      
+      .mobile-nav {
+        display: flex;
+      }
+      
+      .admin-header-brand span {
+        font-size: 1rem;
+      }
+      
+      .admin-user-menu {
+        display: none;
+      }
     }
     
     @media (max-width: 768px) {
       .admin-content {
-        padding: 1.5rem;
+        padding: 1.5rem 1rem;
       }
       
       .admin-header {
         padding: 0.75rem 1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+      }
+      
+      .log-table th:nth-child(2),
+      .log-table td:nth-child(2) {
+        display: none;
+      }
+      
+      .log-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .btn-view, .btn-download, .log-btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .log-table th:nth-child(3),
+      .log-table td:nth-child(3) {
+        display: none;
+      }
+      
+      .admin-header-brand span {
+        display: none;
+      }
+      
+      .log-title {
+        font-size: 1.2rem;
+      }
+      
+      .log-count {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.7rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+      }
+      
+      .stat-value {
+        font-size: 1.4rem !important;
+      }
+      
+      .stat-icon {
+        font-size: 2rem !important;
+        margin-bottom: 0.5rem !important;
       }
     }
   </style>
@@ -314,7 +459,85 @@
   <% } %>
 </head>
 <body>
-  <%- body %>
+  <!-- Main header/navigation -->
+  <header class="admin-header">
+    <div class="admin-header-brand">
+      <a href="/admin/welcome">
+        <img src="/images/swoosh-logo.png" alt="SWOOSH Bot" class="admin-logo">
+        <span>SWOOSH Admin</span>
+      </a>
+    </div>
+    
+    <nav class="admin-nav">
+      <ul>
+        <li><a href="/admin/welcome" class="<%= title.includes('Welcome') ? 'active' : '' %>"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="/admin/blacklist" class="<%= title.includes('Blacklist') ? 'active' : '' %>"><i class="fas fa-ban"></i> Blacklist</a></li>
+        <li><a href="/admin/settings" class="<%= title.includes('Settings') ? 'active' : '' %>"><i class="fas fa-cog"></i> Settings</a></li>
+        <li><a href="/admin/logs" class="<%= title.includes('Log') ? 'active' : '' %>"><i class="fas fa-list"></i> Logs</a></li>
+        <li><a href="/admin/members" class="<%= title.includes('Member') ? 'active' : '' %>"><i class="fas fa-users"></i> Members</a></li>
+      </ul>
+    </nav>
+    
+    <div class="admin-user-menu">
+      <div class="user-info">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <% if (user.avatar) { %>
+            <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=32" alt="<%= user.username %>'s Avatar" class="user-avatar">
+          <% } else if (user.username) { %>
+            <div class="user-avatar-placeholder"><%= user.username.charAt(0).toUpperCase() %></div>
+          <% } else { %>
+            <div class="user-avatar-placeholder">A</div>
+          <% } %>
+          <span class="username"><%= user.username || 'Admin' %></span>
+        <% } else { %>
+          <div class="user-avatar-placeholder">A</div>
+          <span class="username">Admin</span>
+        <% } %>
+        <a href="/auth/logout" class="logout-link" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+      </div>
+      <div class="dropdown-menu">
+        <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+    </div>
+    
+    <!-- Mobile navigation toggle -->
+    <button class="mobile-nav-toggle">
+      <i class="fas fa-bars"></i>
+    </button>
+  </header>
+  
+  <!-- Mobile navigation menu -->
+  <div class="mobile-nav">
+    <ul>
+      <li><a href="/admin/welcome" class="<%= title.includes('Welcome') ? 'active' : '' %>"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li><a href="/admin/blacklist" class="<%= title.includes('Blacklist') ? 'active' : '' %>"><i class="fas fa-ban"></i> Blacklist</a></li>
+      <li><a href="/admin/settings" class="<%= title.includes('Settings') ? 'active' : '' %>"><i class="fas fa-cog"></i> Settings</a></li>
+      <li><a href="/admin/logs" class="<%= title.includes('Log') ? 'active' : '' %>"><i class="fas fa-list"></i> Logs</a></li>
+      <li><a href="/admin/members" class="<%= title.includes('Member') ? 'active' : '' %>"><i class="fas fa-users"></i> Members</a></li>
+    </ul>
+    
+    <div class="mobile-profile">
+      <% if (typeof user !== 'undefined' && user) { %>
+        <% if (user.avatar) { %>
+          <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=32" alt="<%= user.username %>'s Avatar" class="user-avatar">
+        <% } else if (user.username) { %>
+          <div class="user-avatar-placeholder"><%= user.username.charAt(0).toUpperCase() %></div>
+        <% } else { %>
+          <div class="user-avatar-placeholder">A</div>
+        <% } %>
+        <span class="username"><%= user.username || 'Admin' %></span>
+      <% } else { %>
+        <div class="user-avatar-placeholder">A</div>
+        <span class="username">Admin</span>
+      <% } %>
+      <a href="/auth/logout" class="logout-link ms-auto" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+  
+  <!-- Main content -->
+  <div class="admin-content">
+    <%- body %>
+  </div>
   
   <!-- Additional scripts (if needed) -->
   <% if (typeof scripts !== 'undefined') { %>
@@ -322,22 +545,141 @@
   <% } %>
   
   <script>
-    // Toggle dropdown menu
+    // Utility script for the admin panel
     document.addEventListener('DOMContentLoaded', function() {
+      // User menu dropdown
       const userMenu = document.querySelector('.admin-user-menu');
       if (userMenu) {
-        userMenu.addEventListener('click', function() {
+        userMenu.addEventListener('click', function(e) {
           this.classList.toggle('active');
+          e.stopPropagation();
         });
         
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-          if (!userMenu.contains(event.target)) {
-            userMenu.classList.remove('active');
-          }
+        document.addEventListener('click', function() {
+          userMenu.classList.remove('active');
         });
       }
+      
+      // Mobile navigation
+      const mobileToggle = document.querySelector('.mobile-nav-toggle');
+      const mobileNav = document.querySelector('.mobile-nav');
+      
+      if (mobileToggle && mobileNav) {
+        mobileToggle.addEventListener('click', function() {
+          mobileNav.classList.toggle('active');
+          
+          // Change icon based on state
+          const icon = this.querySelector('i');
+          if (mobileNav.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+          } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        });
+        
+        // Close mobile nav when clicking a link
+        const mobileLinks = mobileNav.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+          link.addEventListener('click', function() {
+            mobileNav.classList.remove('active');
+            const icon = mobileToggle.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          });
+        });
+      }
+      
+      // WebSocket connection for real-time updates (if needed)
+      if (typeof WebSocket !== 'undefined' && <%= typeof staticPage !== 'undefined' && staticPage ? 'false' : 'true' %>) {
+        connectWebSocket();
+      }
     });
+    
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      const wsUrl = protocol + window.location.host;
+      
+      console.log('Connecting to WebSocket at:', wsUrl);
+      const socket = new WebSocket(wsUrl);
+      
+      socket.onopen = function() {
+        console.log('WebSocket connection established');
+        socket.send(JSON.stringify({ type: 'get_stats' }));
+        // Keep connection alive with ping
+        setInterval(() => {
+          socket.send(JSON.stringify({ 
+            type: 'ping',
+            timestamp: new Date().toISOString()
+          }));
+        }, 30000);
+      };
+      
+      socket.onmessage = function(event) {
+        console.log('WebSocket message received:', event.data);
+        try {
+          const data = JSON.parse(event.data);
+          console.log('Parsed WebSocket data:', data);
+          
+          // Update stats elements if they exist
+          if (data.type === 'stats') {
+            updateStats(data);
+          }
+          
+          // Forward to data handler
+          if (window.handleWebSocketData) {
+            window.handleWebSocketData(data);
+          }
+        } catch (e) {
+          console.error('Error parsing WebSocket data:', e);
+        }
+      };
+      
+      socket.onclose = function(event) {
+        console.log('WebSocket connection closed:', event.code, event.reason);
+        // Reconnect after delay
+        setTimeout(connectWebSocket, 5000);
+      };
+      
+      socket.onerror = function(error) {
+        console.error('WebSocket error:', error);
+      };
+      
+      // Store socket in window for access in other scripts
+      window.socket = socket;
+    }
+    
+    function updateStats(data) {
+      // Update any stats displays
+      const cpuUsage = document.getElementById('cpu-usage');
+      const memoryUsage = document.getElementById('memory-usage');
+      const uptimeDisplay = document.getElementById('uptime');
+      const pingDisplay = document.getElementById('ping');
+      
+      if (cpuUsage) cpuUsage.textContent = data.cpu + '%';
+      if (memoryUsage) memoryUsage.textContent = data.memory + '%';
+      if (uptimeDisplay) uptimeDisplay.textContent = formatUptime(data.uptime);
+      if (pingDisplay) pingDisplay.textContent = data.ping + 'ms';
+      
+      // Update any other UI elements with the data
+      // ...
+    }
+    
+    function formatUptime(seconds) {
+      const days = Math.floor(seconds / 86400);
+      const hours = Math.floor((seconds % 86400) / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60);
+      
+      let result = '';
+      if (days > 0) result += days + 'd ';
+      if (hours > 0) result += hours + 'h ';
+      if (minutes > 0) result += minutes + 'm ';
+      result += secs + 's';
+      
+      return result;
+    }
   </script>
 </body>
 </html>

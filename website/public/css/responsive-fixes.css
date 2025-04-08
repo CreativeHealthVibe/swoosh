@@ -1,0 +1,223 @@
+/* Global responsive fixes for the SWOOSH Discord Bot Website and Dashboard
+ * This CSS file addresses compatibility issues across different devices and screen sizes
+ */
+
+/* Base responsive fixes */
+html {
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape on iOS devices */
+}
+
+body {
+  overflow-x: hidden; /* Prevent horizontal scrolling on small screens */
+}
+
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Flexbox and Grid responsiveness */
+.row, .grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Input and form elements */
+input, select, textarea, button {
+  max-width: 100%;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation; /* Prevents double tap zoom on mobile */
+}
+
+/* Tables for mobile */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+}
+
+/* Responsive tables - horizontal scroll on small devices */
+@media (max-width: 768px) {
+  .table-responsive table {
+    min-width: 640px; /* Ensures table will scroll horizontally on small screens */
+  }
+}
+
+/* Improved visibility for focus states - accessibility */
+a:focus, button:focus, [tabindex]:focus {
+  outline: 3px solid rgba(156, 77, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Media query breakpoints */
+
+/* Extra small devices (phones) */
+@media (max-width: 575.98px) {
+  .hide-xs {
+    display: none !important;
+  }
+  
+  h1, .h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  h2, .h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Adjust spacing on small devices */
+  .container, .admin-content {
+    padding: 1rem !important;
+  }
+  
+  /* Make buttons easier to tap */
+  button, .btn, .btn-primary, .btn-secondary {
+    min-height: 44px; /* Apple recommends 44px minimum touch target size */
+    padding: 0.5rem 1rem !important;
+  }
+  
+  /* Stacked menu items */
+  .nav-links a, .admin-nav a {
+    padding: 0.75rem 0.5rem !important;
+  }
+  
+  /* Reduce card padding */
+  .card {
+    padding: 1rem !important;
+  }
+  
+  /* Adjust form fields */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS from zooming in on inputs */
+  }
+}
+
+/* Small devices (tablets) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .hide-sm {
+    display: none !important;
+  }
+  
+  .container, .admin-content {
+    padding: 1.25rem !important;
+  }
+}
+
+/* Medium devices (laptops) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .hide-md {
+    display: none !important;
+  }
+}
+
+/* Large devices (desktops) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .hide-lg {
+    display: none !important;
+  }
+}
+
+/* Extra large devices */
+@media (min-width: 1200px) {
+  .hide-xl {
+    display: none !important;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .force-light {
+    filter: brightness(1.2); /* Increase brightness for dark elements in dark mode */
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --text-secondary: #ffffff !important;
+    --text-muted: #e0e0e0 !important;
+  }
+  
+  a, button, input, select {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  
+  .card, .admin-header, .log-card {
+    border: 2px solid #ffffff !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+  a, button, .btn, .card {
+    transition: none !important; /* Disable hover transitions on touch devices */
+  }
+  
+  /* Increase spacing for touch targets */
+  nav a, .admin-nav a, .btn {
+    padding: 0.75rem 1rem !important;
+  }
+}
+
+/* Orientation specific adjustments */
+@media (orientation: portrait) {
+  /* Adjustments for portrait mode */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Fix for notch-based phones */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Animation adjustments for people who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Fix specific issues with older browsers */
+@supports not (display: grid) {
+  .grid, .stats-grid {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .grid > *, .stats-grid > * {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  @media (min-width: 576px) {
+    .grid > *, .stats-grid > * {
+      width: calc(50% - 1rem);
+      margin-right: 1rem;
+    }
+  }
+}
+
+/* Fix for dropdown menus on mobile */
+.dropdown-menu, .mobile-nav {
+  overscroll-behavior: contain; /* Prevent scroll chaining to parent elements */
+}
+
+/* Fix Safari specific overflow issues */
+@supports (-webkit-overflow-scrolling: touch) {
+  .table-responsive, .log-content, .mobile-nav {
+    -webkit-overflow-scrolling: touch;
+  }
+}
