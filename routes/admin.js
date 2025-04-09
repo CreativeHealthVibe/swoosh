@@ -85,7 +85,7 @@ router.get('/settings', async (req, res) => {
                            (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
     
     // Render the settings page
-    res.render('admin/settings', {
+    res.render('admin/settings-inline', {
       user: req.user,
       adminUsers,
       localAdminUsers,
@@ -98,7 +98,8 @@ router.get('/settings', async (req, res) => {
       path: '/admin/settings',
       title: 'Bot Settings | SWOOSH Bot',
       client: client, // Pass the Discord client to the template
-      config: config
+      config: config,
+      layout: false
     });
     return;
   } catch (err) {
