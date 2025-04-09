@@ -221,14 +221,33 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Bootstrap tabs
-            const triggerTabList = document.querySelectorAll('#customizationTabs button');
-            triggerTabList.forEach(triggerEl => {
-                const tabTrigger = new bootstrap.Tab(triggerEl);
-                
-                triggerEl.addEventListener('click', event => {
-                    event.preventDefault();
-                    tabTrigger.show();
+            // Simple direct tab switching - no Bootstrap JS dependency
+            const tabButtons = document.querySelectorAll('#customizationTabs button');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Hide all tabs
+                    tabPanes.forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+                    
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                    });
+                    
+                    // Show the selected tab
+                    const targetId = button.getAttribute('data-bs-target');
+                    const targetPane = document.querySelector(targetId);
+                    if (targetPane) {
+                        targetPane.classList.add('show', 'active');
+                    }
+                    
+                    // Set this button as active
+                    button.classList.add('active');
+                    button.setAttribute('aria-selected', 'true');
                 });
             });
             
