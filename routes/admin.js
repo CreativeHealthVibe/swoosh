@@ -679,8 +679,8 @@ router.get('/customization', (req, res) => {
       config: 'Config loaded'
     });
 
-    // Use admin/customization path explicitly to match directory structure
-    res.render('admin/customization', {
+    // Use the new template that works with admin layout
+    res.render('admin/customization-new', {
       title: 'Bounty Customization',
       user: req.user,
       path: '/admin/customization',
