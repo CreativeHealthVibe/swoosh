@@ -44,12 +44,12 @@ module.exports = {
       const guildId = interaction.guild.id;
       
       // Save the news channel to the database
-      await client.discordDB.set('configs', guildId, {
+      await client.discordDB.setDocument('configs', guildId, {
         newsChannel: channel.id,
         guild: guildId,
         updatedAt: new Date().toISOString(),
         updatedBy: interaction.user.id
-      }, true); // Using merge option to update existing record
+      }); // Note: setDocument method doesn't have a merge option
       
       // Create success embed
       const embed = new EmbedBuilder()
@@ -101,12 +101,12 @@ module.exports = {
       const guildId = message.guild.id;
       
       // Save the news channel to the database
-      await client.discordDB.set('configs', guildId, {
+      await client.discordDB.setDocument('configs', guildId, {
         newsChannel: channel.id,
         guild: guildId,
         updatedAt: new Date().toISOString(),
         updatedBy: message.author.id
-      }, true); // Using merge option to update existing record
+      }); // Note: setDocument method doesn't have a merge option
       
       // Create success embed
       const embed = new EmbedBuilder()
