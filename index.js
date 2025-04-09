@@ -1050,45 +1050,28 @@ app.get('/demo', (req, res) => {
 
 // API endpoint for team member data
 
-// Load routes for admin, auth, and API
+// Load routes for auth and API
 const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin-new');
 const apiRoutes = require('./routes/api');
 const apiAuthRoutes = require('./routes/api/auth');
-const apiMemberRoutes = require('./routes/api/members');
 const apiLeaderboardRoutes = require('./routes/api/leaderboard');
 const leaderboardRoutes = require('./routes/leaderboard');
 
-// Direct callback handler for OAuth redirect to /admin
-app.get('/admin', (req, res, next) => {
-  // If there's a code parameter, it's an OAuth callback
-  if (req.query.code) {
-    // Log OAuth callback received
-    console.log('OAuth callback received at /admin with code');
-    
-    // Redirect to the proper callback URL
-    const callbackUrl = `/auth/discord/callback${req.url.substring(req.url.indexOf('?'))}`;
-    console.log('Redirecting to:', callbackUrl);
-    return res.redirect(callbackUrl);
-  }
-  
-  // Otherwise redirect to welcome page if authenticated
-  if (req.isAuthenticated()) {
-    console.log('User already authenticated, redirecting to welcome page');
-    return res.redirect('/admin/welcome');
-  }
-  
-  // If not authenticated, redirect to login
-  console.log('User not authenticated, redirecting to login');
-  res.redirect('/auth/login');
+// Admin path now removed
+app.get('/admin', (req, res) => {
+  res.status(404).render('error', {
+    title: 'Admin Dashboard Removed',
+    message: 'The admin dashboard has been removed from this application.',
+    error: {
+      status: 404
+    }
+  });
 });
 
 // Register routes
 app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
 app.use('/api', apiRoutes); // General API routes
 app.use('/api', apiAuthRoutes); // Auth API routes
-app.use('/api/admin/members', apiMemberRoutes);
 app.use('/api/leaderboard', apiLeaderboardRoutes);
 app.use('/leaderboard', leaderboardRoutes);
 
