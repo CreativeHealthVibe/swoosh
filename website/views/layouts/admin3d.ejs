@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/admin3d.css">
+  
+  <!-- Custom JS -->
+  <script src="/js/admin3d-scene.js" defer></script>
+  <script src="/js/admin3d.js" defer></script>
+</head>
+<body class="admin3d-body">
+  <!-- 3D Canvas Container -->
+  <div id="three-container"></div>
+  
+  <!-- Main Container -->
+  <div class="admin3d-container">
+    <!-- Header -->
+    <header class="admin3d-header">
+      <div class="admin3d-header-left">
+        <div class="admin3d-logo">
+          <img src="/images/logo.png" alt="SWOOSH Bot Logo">
+          <span>SWOOSH Bot</span>
+        </div>
+        <button id="sidebar-toggle" class="sidebar-toggle">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      
+      <div class="admin3d-header-right">
+        <div class="admin3d-user">
+          <% if (typeof user !== 'undefined' && user) { %>
+            <span><%= user.username %></span>
+            <div class="admin3d-user-avatar">
+              <% if (user.avatar) { %>
+                <img src="<%= user.avatar %>" alt="<%= user.username %>'s avatar">
+              <% } else { %>
+                <i class="fas fa-user"></i>
+              <% } %>
+            </div>
+          <% } else { %>
+            <span>Guest</span>
+            <div class="admin3d-user-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+          <% } %>
+          <div class="admin3d-user-dropdown">
+            <a href="/admin3d/profile"><i class="fas fa-user-circle"></i> Profile</a>
+            <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main Content Area -->
+    <div class="admin3d-content-wrapper">
+      <!-- Sidebar -->
+      <aside class="admin3d-sidebar">
+        <nav class="admin3d-nav">
+          <ul>
+            <li>
+              <a href="/admin3d" class="<%= title.includes('Dashboard') ? 'active' : '' %>">
+                <div class="nav-icon">
+                  <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin3d/commands" class="<%= title.includes('Commands') ? 'active' : '' %>">
+                <div class="nav-icon">
+                  <i class="fas fa-terminal"></i>
+                </div>
+                <span>Commands</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin3d/moderation" class="<%= title.includes('Moderation') ? 'active' : '' %>">
+                <div class="nav-icon">
+                  <i class="fas fa-gavel"></i>
+                </div>
+                <span>Moderation</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin3d/messages" class="<%= title.includes('Message') ? 'active' : '' %>">
+                <div class="nav-icon">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <span>Messages</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin3d/tickets" class="<%= title.includes('Ticket') ? 'active' : '' %>">
+                <div class="nav-icon">
+                  <i class="fas fa-ticket-alt"></i>
+                </div>
+                <span>Tickets</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin3d/roles" class="<%= title.includes('Role') ? 'active' : '' %>">
+                <div class="nav-icon">
+                  <i class="fas fa-user-tag"></i>
+                </div>
+                <span>Roles</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin3d/blacklist" class="<%= title.includes('Blacklist') ? 'active' : '' %>">
+                <div class="nav-icon">
+                  <i class="fas fa-ban"></i>
+                </div>
+                <span>Blacklist</span>
+              </a>
+            </li>
+            <li>
+              <a href="/admin3d/stats" class="<%= title.includes('Statistics') ? 'active' : '' %>">
+                <div class="nav-icon">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <span>Statistics</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        
+        <!-- Connection Status -->
+        <div class="connection-status">
+          <% if (typeof client !== 'undefined' && client) { %>
+            <i class="fas fa-circle connected"></i>
+            <span>Bot Online</span>
+          <% } else { %>
+            <i class="fas fa-circle disconnected"></i>
+            <span>Bot Offline</span>
+          <% } %>
+        </div>
+      </aside>
+      
+      <!-- Main Content -->
+      <main class="admin3d-main">
+        <!-- Flash Messages -->
+        <% if (typeof messages !== 'undefined') { %>
+          <div class="flash-messages">
+            <% if (messages.success && messages.success.length > 0) { %>
+              <div class="flash-message success">
+                <i class="fas fa-check-circle"></i>
+                <span><%= messages.success %></span>
+                <button class="close-btn"><i class="fas fa-times"></i></button>
+              </div>
+            <% } %>
+            
+            <% if (messages.error && messages.error.length > 0) { %>
+              <div class="flash-message error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><%= messages.error %></span>
+                <button class="close-btn"><i class="fas fa-times"></i></button>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+        
+        <!-- Page Content -->
+        <%- body %>
+      </main>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="admin3d-footer">
+      <div class="admin3d-footer-left">
+        &copy; <%= new Date().getFullYear() %> SWOOSH Bot
+      </div>
+      <div class="admin3d-footer-right">
+        <a href="https://github.com/cjhetzle/discord-utility-bot" target="_blank">
+          <i class="fab fa-github"></i> GitHub
+        </a>
+        <span class="footer-separator">|</span>
+        <a href="/doc" target="_blank">Terms</a>
+        <span class="footer-separator">|</span>
+        <a href="/privacy" target="_blank">Privacy</a>
+      </div>
+    </footer>
+  </div>
+  
+  <!-- Notification Area -->
+  <div class="notification-area"></div>
+  
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" style="display: none;">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Processing...</div>
+  </div>
+</body>
+</html>
