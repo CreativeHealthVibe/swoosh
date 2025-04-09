@@ -192,6 +192,16 @@
 
 <!-- Page-specific styles -->
 <style>
+  /* Tab Content Styling */
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  
+  /* Discord UI Styling */
   .discord-preview {
     background-color: #36393f;
     border-radius: 8px;
@@ -276,27 +286,44 @@
 <!-- Page-specific script -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Tab switching
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+    // Tab switching - Fixed implementation
+    const bountyTabBtn = document.querySelector('[data-tab="bounty"]');
+    const newsTabBtn = document.querySelector('[data-tab="news"]');
+    const bountyTabContent = document.getElementById('bounty-tab');
+    const newsTabContent = document.getElementById('news-tab');
     
-    tabButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        const tabName = this.getAttribute('data-tab');
+    // Debug elements
+    console.log("Bounty tab button:", bountyTabBtn);
+    console.log("News tab button:", newsTabBtn);
+    console.log("Bounty content:", bountyTabContent);
+    console.log("News content:", newsTabContent);
+    
+    // Set click handlers
+    if (bountyTabBtn) {
+      bountyTabBtn.addEventListener('click', function() {
+        console.log("Bounty tab clicked");
+        // Update active buttons
+        bountyTabBtn.classList.add('active');
+        newsTabBtn.classList.remove('active');
         
-        // Update active button
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        this.classList.add('active');
-        
-        // Show correct tab content
-        tabContents.forEach(content => content.classList.remove('active'));
-        if (tabName === 'bounty') {
-          document.getElementById('bounty-tab').classList.add('active');
-        } else if (tabName === 'news') {
-          document.getElementById('news-tab').classList.add('active');
-        }
+        // Update visible content
+        bountyTabContent.classList.add('active');
+        newsTabContent.classList.remove('active');
       });
-    });
+    }
+    
+    if (newsTabBtn) {
+      newsTabBtn.addEventListener('click', function() {
+        console.log("News tab clicked");
+        // Update active buttons
+        newsTabBtn.classList.add('active');
+        bountyTabBtn.classList.remove('active');
+        
+        // Update visible content
+        newsTabContent.classList.add('active');
+        bountyTabContent.classList.remove('active');
+      });
+    }
     
     // Bounty Preview Updates
     function updateBountyPreview() {

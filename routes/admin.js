@@ -685,6 +685,7 @@ router.get('/customization', (req, res) => {
       user: req.user,
       path: '/admin/customization',
       config: botConfig,
+      messages: req.flash(), // Include flash messages
       layout: 'layouts/admin'
     });
   } catch (error) {
