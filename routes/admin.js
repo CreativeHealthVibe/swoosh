@@ -1267,16 +1267,18 @@ module.exports = {
 });
 
 /**
- * POST /admin/settings/send-news
- * Send news update to configured channel
+ * Send news to a configured channel
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {string} redirectUrl - URL to redirect to after sending
  */
-router.post('/settings/send-news', async (req, res) => {
+async function sendNewsToChannel(req, res, redirectUrl) {
   const { newsTitle, newsContent, newsColor, newsImage } = req.body;
   const client = req.app.get('client');
   
   if (!client) {
     req.flash('error', 'Bot client not available');
-    return res.redirect('/admin/settings');
+    return res.redirect(redirectUrl);
   }
   
   try {
@@ -1302,7 +1304,7 @@ router.post('/settings/send-news', async (req, res) => {
     
     if (!newsChannelId) {
       req.flash('error', 'No news channel configured. Use the /setnews command in Discord first.');
-      return res.redirect('/admin/settings');
+      return res.redirect(redirectUrl);
     }
     
     // Try to fetch the channel
@@ -1310,7 +1312,7 @@ router.post('/settings/send-news', async (req, res) => {
     
     if (!channel) {
       req.flash('error', 'News channel not found or bot does not have access to it');
-      return res.redirect('/admin/settings');
+      return res.redirect(redirectUrl);
     }
     
     // Create the news embed
@@ -1333,12 +1335,28 @@ router.post('/settings/send-news', async (req, res) => {
     await channel.send({ embeds: [embed] });
     
     req.flash('success', `News sent to #${channel.name} in ${guild.name}`);
-    return res.redirect('/admin/settings');
+    return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Error sending news:', error);
     req.flash('error', `Failed to send news: ${error.message}`);
-    return res.redirect('/admin/settings');
+    return res.redirect(redirectUrl);
   }
+}
+
+/**
+ * POST /admin/settings/send-news
+ * Send news update to configured channel (from Settings page)
+ */
+router.post('/settings/send-news', async (req, res) => {
+  return sendNewsToChannel(req, res, '/admin/settings');
+});
+
+/**
+ * POST /admin/customization/send-news
+ * Send news update to configured channel (from Customization page)
+ */
+router.post('/customization/send-news', async (req, res) => {
+  return sendNewsToChannel(req, res, '/admin/customization');
 });
 
 /**
