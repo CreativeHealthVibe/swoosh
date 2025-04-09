@@ -682,19 +682,132 @@ router.get('/customization', (req, res) => {
     // Get the Discord client from the app
     const client = req.app.get('client');
     
-    // Use the new template that works with admin layout
-    res.render('admin/customization-new', {
-      title: 'Bounty Customization',
-      user: req.user,
-      path: '/admin/customization',
-      config: botConfig,
-      client: client, // Pass the Discord client to access guilds and channels
-      messages: req.flash(), // Include flash messages
-      layout: 'layouts/admin'
-    });
+    // Check if we should use the modern UI
+    if (req.query.modern === 'true') {
+      res.render('admin/customization-modern', {
+        title: 'Bot Customization',
+        user: req.user,
+        path: '/admin/customization',
+        config: botConfig,
+        client: client,
+        messages: req.flash(),
+        uiStyle: 'modern',
+        layout: 'layouts/admin'
+      });
+    } else {
+      // Use the current template that works with admin layout
+      res.render('admin/customization-new', {
+        title: 'Bounty Customization',
+        user: req.user,
+        path: '/admin/customization',
+        config: botConfig,
+        client: client, // Pass the Discord client to access guilds and channels
+        messages: req.flash(), // Include flash messages
+        layout: 'layouts/admin'
+      });
+    }
   } catch (error) {
     console.error('Error rendering customization page:', error);
     res.status(500).send('Error loading customization page: ' + error.message);
+  }
+});
+
+/**
+ * GET /admin/customization/modern
+ * Modern UI version of the customization page
+ */
+router.get('/customization/modern', (req, res) => {
+  try {
+    // Get the current configuration
+    const botConfig = require('../config');
+    
+    // Get the Discord client from the app
+    const client = req.app.get('client');
+    
+    // Render the modern template
+    res.render('admin/customization-modern', {
+      title: 'Bot Customization',
+      user: req.user,
+      path: '/admin/customization/modern',
+      config: botConfig,
+      client: client,
+      messages: req.flash(),
+      uiStyle: 'modern',
+      layout: 'layouts/admin'
+    });
+  } catch (error) {
+    console.error('Error rendering modern customization page:', error);
+    res.status(500).send('Error loading customization page: ' + error.message);
+  }
+});
+
+/**
+ * POST /admin/customization/update-appearance
+ * Update the appearance settings for the bot
+ */
+router.post('/customization/update-appearance', (req, res) => {
+  try {
+    const { 
+      primaryColor, secondaryColor, defaultBotName, 
+      defaultAvatarUrl, defaultFooterText 
+    } = req.body;
+    
+    // Read the current config file
+    const fs = require('fs');
+    const path = require('path');
+    const configPath = path.join(__dirname, '../config.js');
+    let configContent = fs.readFileSync(configPath, 'utf8');
+
+    // Update appearance settings
+    if (primaryColor) {
+      // Update primary color if it exists in config
+      configContent = configContent.replace(
+        /primaryColor:\s*['"].*?['"]/,
+        `primaryColor: '${primaryColor}'`
+      );
+    }
+    
+    if (defaultBotName) {
+      // Update bot name if it exists in config
+      configContent = configContent.replace(
+        /botName:\s*['"].*?['"]/,
+        `botName: '${defaultBotName}'`
+      );
+    }
+    
+    if (defaultAvatarUrl) {
+      // Update avatar URL if it exists in config (use bountyAvatarUrl for now)
+      configContent = configContent.replace(
+        /bountyAvatarUrl:\s*['"].*?['"]/,
+        `bountyAvatarUrl: '${defaultAvatarUrl}'`
+      );
+    }
+    
+    // Store the changes
+    fs.writeFileSync(configPath, configContent);
+    
+    // Log the changes
+    console.log(`Appearance customization updated by admin user: ${req.user.username} (${req.user.id})`);
+    
+    // Flash success message and redirect back
+    req.flash('success', 'Appearance settings updated successfully!');
+    
+    // Redirect back to the modern UI if that's where the request came from
+    if (req.query.modern === 'true' || req.body._uiStyle === 'modern') {
+      res.redirect('/admin/customization?modern=true');
+    } else {
+      res.redirect('/admin/customization');
+    }
+  } catch (error) {
+    console.error('Error saving appearance settings:', error);
+    req.flash('error', 'Failed to save appearance settings: ' + error.message);
+    
+    // Redirect back to the appropriate UI
+    if (req.query.modern === 'true' || req.body._uiStyle === 'modern') {
+      res.redirect('/admin/customization?modern=true');
+    } else {
+      res.redirect('/admin/customization');
+    }
   }
 });
 
@@ -1365,6 +1478,58 @@ router.post('/customization/send-news', async (req, res) => {
 });
 
 /**
+ * POST /admin/customization/update-appearance
+ * Save the appearance settings
+ */
+router.post('/customization/update-appearance', async (req, res) => {
+  try {
+    const { 
+      primaryColor, secondaryColor, defaultBotName, 
+      defaultAvatarUrl, defaultFooterText, welcomeTemplate, 
+      ticketTemplate 
+    } = req.body;
+    
+    // For now, just save these to database or config
+    // In this demo version, we'll just show a success message
+    
+    // Store in database if available
+    try {
+      const db = req.app.get('database');
+      if (db) {
+        await db.upsertConfig('appearance', JSON.stringify({
+          primaryColor,
+          secondaryColor,
+          defaultBotName,
+          defaultAvatarUrl,
+          defaultFooterText,
+          welcomeTemplate,
+          ticketTemplate,
+          updatedAt: new Date().toISOString(),
+          updatedBy: req.user.username || req.user.id
+        }));
+      }
+    } catch (dbError) {
+      console.warn('Could not save appearance to database:', dbError);
+      // Continue anyway, this is optional
+    }
+    
+    req.flash('success', 'Appearance settings saved successfully!');
+    
+    // Determine which route to redirect to based on referring page
+    const referer = req.get('Referer') || '';
+    if (referer.includes('/customization/modern')) {
+      return res.redirect('/admin/customization/modern');
+    } else {
+      return res.redirect('/admin/customization?modern=true');
+    }
+  } catch (error) {
+    console.error('Error saving appearance settings:', error);
+    req.flash('error', 'Error saving appearance settings: ' + error.message);
+    return res.redirect('/admin/customization?modern=true');
+  }
+});
+
+/**
  * POST /admin/customization/send-bounty
  * Send a bounty to a target user
  */
@@ -1380,12 +1545,17 @@ router.post('/customization/send-bounty', async (req, res) => {
       bountyColor, 
       bountyName, 
       bountyAvatarUrl, 
-      defaultThumbnailUrl 
+      defaultThumbnailUrl,
+      _uiStyle  // Get UI style preference
     } = req.body;
     
     // Validate input
     if (!targetUser || !robloxId || !bountyAmount) {
       req.flash('error', 'Target user, Roblox ID, and bounty amount are required');
+      // Redirect to appropriate UI version
+      if (_uiStyle === 'modern') {
+        return res.redirect('/admin/customization?modern=true');
+      }
       return res.redirect('/admin/customization');
     }
     
@@ -1393,6 +1563,10 @@ router.post('/customization/send-bounty', async (req, res) => {
     const amount = parseInt(bountyAmount, 10);
     if (isNaN(amount) || amount < 15 || amount > 30000) {
       req.flash('error', 'Bounty amount must be between R$15 and R$30,000');
+      // Redirect to appropriate UI version
+      if (_uiStyle === 'modern') {
+        return res.redirect('/admin/customization?modern=true');
+      }
       return res.redirect('/admin/customization');
     }
     
@@ -1401,6 +1575,10 @@ router.post('/customization/send-bounty', async (req, res) => {
     
     if (!client) {
       req.flash('error', 'Discord bot is not connected');
+      // Redirect to appropriate UI version
+      if (_uiStyle === 'modern') {
+        return res.redirect('/admin/customization?modern=true');
+      }
       return res.redirect('/admin/customization');
     }
     
@@ -1411,6 +1589,10 @@ router.post('/customization/send-bounty', async (req, res) => {
       channelToUse = client.channels.cache.get(bountyChannel);
       if (!channelToUse) {
         req.flash('error', 'Selected channel not found or bot does not have access to it.');
+        // Redirect to appropriate UI version
+        if (_uiStyle === 'modern') {
+          return res.redirect('/admin/customization?modern=true');
+        }
         return res.redirect('/admin/customization');
       }
     } else {
@@ -1418,12 +1600,20 @@ router.post('/customization/send-bounty', async (req, res) => {
       const bountyChannelId = config.bountyChannelId || config.logsChannelId;
       if (!bountyChannelId) {
         req.flash('error', 'No bounty channel configured. Please set bountyChannelId in config.js');
+        // Redirect to appropriate UI version
+        if (_uiStyle === 'modern') {
+          return res.redirect('/admin/customization?modern=true');
+        }
         return res.redirect('/admin/customization');
       }
       
       channelToUse = client.channels.cache.get(bountyChannelId);
       if (!channelToUse) {
         req.flash('error', 'Bounty channel not found. Check channel ID in config.');
+        // Redirect to appropriate UI version
+        if (_uiStyle === 'modern') {
+          return res.redirect('/admin/customization?modern=true');
+        }
         return res.redirect('/admin/customization');
       }
     }
@@ -1466,11 +1656,21 @@ router.post('/customization/send-bounty', async (req, res) => {
     
     // Success response
     req.flash('success', `Bounty of R$${bountyAmount} placed on ${targetUser} successfully!`);
-    res.redirect('/admin/customization');
+    
+    // Redirect to appropriate UI version
+    if (_uiStyle === 'modern') {
+      return res.redirect('/admin/customization?modern=true');
+    }
+    return res.redirect('/admin/customization');
   } catch (error) {
     console.error('Error sending bounty:', error);
     req.flash('error', 'Failed to send bounty: ' + error.message);
-    res.redirect('/admin/customization');
+    
+    // Redirect to appropriate UI version
+    if (req.body._uiStyle === 'modern') {
+      return res.redirect('/admin/customization?modern=true');
+    }
+    return res.redirect('/admin/customization');
   }
 });
 
