@@ -36,22 +36,22 @@ router.get('/', (req, res) => {
  * Test page for new UI templates
  */
 router.get('/test-ui', (req, res) => {
-  res.render('admin/test-new-ui', {
-    title: 'Test New UI | SWOOSH Bot',
+  res.render('admin/test-ui', {
+    title: 'Test UI | SWOOSH Bot',
     user: req.user,
     layout: 'layouts/admin'
   });
 });
 
 /**
- * GET /admin/blacklist-new
- * New blacklist UI for testing
+ * GET /admin/blacklist-test
+ * Test endpoint for blacklist interface
  */
-router.get('/blacklist-new', (req, res) => {
+router.get('/blacklist-test', (req, res) => {
   const blacklistedUsers = blacklistManager.getBlacklist();
   
-  res.render('admin/blacklist-new', {
-    title: 'Modern Blacklist | SWOOSH Bot',
+  res.render('admin/blacklist', {
+    title: 'Blacklist Management | SWOOSH Bot',
     blacklistedUsers,
     user: req.user,
     layout: 'layouts/admin'
@@ -59,10 +59,10 @@ router.get('/blacklist-new', (req, res) => {
 });
 
 /**
- * GET /admin/logs-new
- * New logs UI for testing
+ * GET /admin/logs
+ * Logs dashboard
  */
-router.get('/logs-new', (req, res) => {
+router.get('/logs', (req, res) => {
   const logsDir = path.join(__dirname, '../logs');
   
   // Helper function to format file size
@@ -92,8 +92,8 @@ router.get('/logs-new', (req, res) => {
     console.error('Error reading log directory:', error);
   }
   
-  res.render('admin/logs-new', {
-    title: 'Modern Logs | SWOOSH Bot',
+  res.render('admin/logs', {
+    title: 'System Logs | SWOOSH Bot',
     logFiles,
     user: req.user,
     formatFileSize, // Pass the helper function to the template
@@ -102,8 +102,8 @@ router.get('/logs-new', (req, res) => {
 });
 
 /**
- * GET /admin/settings-new
- * New settings UI for testing
+ * GET /admin/settings
+ * Bot settings dashboard
  */
 router.get('/settings', async (req, res) => {
   try {
@@ -125,8 +125,8 @@ router.get('/settings', async (req, res) => {
     const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
                            (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
     
-    // Render the standalone settings page with everything inline
-    res.render('admin/settings-standalone', {
+    // Render the settings page
+    res.render('admin/settings', {
       user: req.user,
       adminUsers,
       localAdminUsers,
@@ -227,24 +227,13 @@ router.post('/api/bot/start', (req, res) => {
 router.get('/blacklist', (req, res) => {
   const blacklistedUsers = blacklistManager.getBlacklist();
   
-  // First try to render the new template
-  try {
-    res.render('admin/blacklist-new', {
-      title: 'Blacklist Management | SWOOSH Bot',
-      blacklistedUsers,
-      user: req.user,
-      layout: 'layouts/admin'
-    });
-  } catch (err) {
-    // Fall back to the original template if there's an error
-    console.error('Error rendering new blacklist template:', err);
-    res.render('admin/blacklist', {
-      title: 'Blacklist Management | SWOOSH Bot',
-      blacklistedUsers,
-      user: req.user,
-      layout: 'layouts/admin'
-    });
-  }
+  // Render the blacklist management page
+  res.render('admin/blacklist', {
+    title: 'Blacklist Management | SWOOSH Bot',
+    blacklistedUsers,
+    user: req.user,
+    layout: 'layouts/admin'
+  });
 });
 
 /**
@@ -299,70 +288,7 @@ router.post('/blacklist/remove', (req, res) => {
   res.redirect('/admin/blacklist');
 });
 
-/**
- * GET /admin/settings
- * Bot settings
- */
-router.get('/settings', async (req, res) => {
-  try {
-    // Mark this as a static page to prevent WebSocket refreshing
-    const staticPage = true;
-    
-    // Get the active tab from query params
-    const tab = req.query.tab || 'general';
-    
-    // Get admin users from the config file
-    const config = require('../config');
-    const adminUsers = config.adminUserIds || [];
-    
-    // Get Discord client from Express app (for fetching user details)
-    const client = req.app.get('client');
-    
-    // Get local admin users from the database
-    const db = req.app.locals.db;
-    const localAdminUsers = db && typeof db.getAllLocalUsers === 'function' ? 
-                           (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
-    
-    try {
-      // Use the modern settings page
-      res.render('admin/settings-new', {
-        user: req.user,
-        config: config,
-        adminUsers,
-        localAdminUsers,
-        staticPage,
-        tab,
-        messages: {
-          success: req.flash('success'),
-          error: req.flash('error')
-        },
-        path: '/admin/settings',
-        title: 'Bot Settings | SWOOSH Bot',
-        layout: 'layouts/admin',
-        client: client // Pass the Discord client to the template
-      });
-      return;
-    } catch (enhancedErr) {
-      console.error('Error rendering enhanced settings page, falling back to standalone:', enhancedErr);
-      
-      // Render the standalone settings page with everything inline
-      res.render('admin/settings-standalone', {
-        user: req.user,
-        adminUsers,
-        localAdminUsers,
-        staticPage,
-        tab,
-        title: 'Bot Settings | SWOOSH Bot',
-        client: client // Pass the Discord client to the template
-      });
-      return;
-    }
-  } catch (err) {
-    console.error('Error rendering settings page:', err);
-    // If there is an error, show a simple error page
-    res.send('<h1>Error loading settings page</h1><p>' + err.message + '</p><pre>' + err.stack + '</pre>');
-  }
-});
+// Note: First /admin/settings route is defined above
 
 /**
  * GET /admin/logs
@@ -446,9 +372,9 @@ router.get('/logs', (req, res) => {
     }
   };
   
-  // Use the modern logs template
+  // Render the logs template
   try {
-    res.render('admin/logs-new', {
+    res.render('admin/logs', {
       title: 'System Logs | SWOOSH Bot',
       logFiles,
       logStats,
@@ -459,34 +385,8 @@ router.get('/logs', (req, res) => {
       staticPage: true
     });
   } catch (err) {
-    console.error('Error rendering modern logs template:', err);
-    
-    // Fall back to older template if needed
-    try {
-      res.render('admin/logs-enhanced', {
-        title: 'System Logs | SWOOSH Bot',
-        logFiles,
-        logStats,
-        user: req.user,
-        formatFileSize,
-        path: '/admin/logs',
-        layout: 'layouts/admin',
-        staticPage: true
-      });
-    } catch (err2) {
-      // Last resort fallback
-      console.error('Error rendering enhanced logs template:', err2);
-      res.render('admin/logs', {
-        title: 'Bot Logs | SWOOSH Bot',
-        logFiles,
-        logStats,
-        user: req.user,
-        formatFileSize,
-        path: '/admin/logs',
-        layout: 'layouts/admin',
-        staticPage: true
-      });
-    }
+    console.error('Error rendering logs template:', err);
+    res.status(500).send('Error loading logs page: ' + err.message);
   }
 });
 
@@ -682,15 +582,14 @@ router.get('/customization', (req, res) => {
     // Get the Discord client from the app
     const client = req.app.get('client');
     
-    // Always use the modern UI
-    res.render('admin/customization-modern', {
+    // Render the customization page
+    res.render('admin/customization', {
       title: 'Bot Customization',
       user: req.user,
       path: '/admin/customization',
       config: botConfig,
       client: client,
       messages: req.flash(),
-      uiStyle: 'modern',
       layout: 'layouts/admin'
     });
   } catch (error) {
@@ -699,34 +598,7 @@ router.get('/customization', (req, res) => {
   }
 });
 
-/**
- * GET /admin/customization/modern
- * Modern UI version of the customization page
- */
-router.get('/customization/modern', (req, res) => {
-  try {
-    // Get the current configuration
-    const botConfig = require('../config');
-    
-    // Get the Discord client from the app
-    const client = req.app.get('client');
-    
-    // Render the modern template
-    res.render('admin/customization-modern', {
-      title: 'Bot Customization',
-      user: req.user,
-      path: '/admin/customization/modern',
-      config: botConfig,
-      client: client,
-      messages: req.flash(),
-      uiStyle: 'modern',
-      layout: 'layouts/admin'
-    });
-  } catch (error) {
-    console.error('Error rendering modern customization page:', error);
-    res.status(500).send('Error loading customization page: ' + error.message);
-  }
-});
+// Legacy customization route removed, now using standardized UI
 
 /**
  * POST /admin/customization/update-appearance
@@ -779,13 +651,13 @@ router.post('/customization/update-appearance', (req, res) => {
     // Flash success message and redirect back
     req.flash('success', 'Appearance settings updated successfully!');
     
-    // Always redirect to the customization page (which now uses modern UI)
+    // Redirect to the customization page
     res.redirect('/admin/customization');
   } catch (error) {
     console.error('Error saving appearance settings:', error);
     req.flash('error', 'Failed to save appearance settings: ' + error.message);
     
-    // Always redirect to the customization page (which now uses modern UI)
+    // Redirect to the customization page
     res.redirect('/admin/customization');
   }
 });
@@ -877,10 +749,9 @@ router.post('/customization/save', (req, res) => {
 router.get('/welcome', (req, res) => {
   const greeting = getTimeBasedGreeting();
   
-  // Make sure user is defined before accessing properties
   try {
-    // Use the modern welcome page
-    res.render('admin/welcome-enhanced-new', {
+    // Render the welcome page
+    res.render('admin/welcome', {
       title: 'Dashboard | SWOOSH Bot',
       greeting: `${greeting}`,
       user: req.user || null,
@@ -888,20 +759,8 @@ router.get('/welcome', (req, res) => {
       layout: 'layouts/admin'
     });
   } catch (error) {
-    console.error('Error rendering modern welcome page:', error);
-    // Fallback to previous versions if needed
-    try {
-      res.render('admin/welcome-final-fix', {
-        title: 'Dashboard | SWOOSH Bot',
-        greeting: `${greeting}`,
-        user: req.user || null,
-        path: '/admin/welcome',
-        layout: 'layouts/admin'
-      });
-    } catch (finalError) {
-      console.error('Error rendering final fixed welcome page:', finalError);
-      res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
-    }
+    console.error('Error rendering welcome page:', error);
+    res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
   }
 });
 
@@ -1472,17 +1331,12 @@ router.post('/customization/update-appearance', async (req, res) => {
     
     req.flash('success', 'Appearance settings saved successfully!');
     
-    // Determine which route to redirect to based on referring page
-    const referer = req.get('Referer') || '';
-    if (referer.includes('/customization/modern')) {
-      return res.redirect('/admin/customization/modern');
-    } else {
-      return res.redirect('/admin/customization?modern=true');
-    }
+    // Always redirect to customization page
+    return res.redirect('/admin/customization');
   } catch (error) {
     console.error('Error saving appearance settings:', error);
     req.flash('error', 'Error saving appearance settings: ' + error.message);
-    return res.redirect('/admin/customization?modern=true');
+    return res.redirect('/admin/customization');
   }
 });
 
@@ -1502,17 +1356,12 @@ router.post('/customization/send-bounty', async (req, res) => {
       bountyColor, 
       bountyName, 
       bountyAvatarUrl, 
-      defaultThumbnailUrl,
-      _uiStyle  // Get UI style preference
+      defaultThumbnailUrl
     } = req.body;
     
     // Validate input
     if (!targetUser || !robloxId || !bountyAmount) {
       req.flash('error', 'Target user, Roblox ID, and bounty amount are required');
-      // Redirect to appropriate UI version
-      if (_uiStyle === 'modern') {
-        return res.redirect('/admin/customization?modern=true');
-      }
       return res.redirect('/admin/customization');
     }
     
@@ -1520,10 +1369,6 @@ router.post('/customization/send-bounty', async (req, res) => {
     const amount = parseInt(bountyAmount, 10);
     if (isNaN(amount) || amount < 15 || amount > 30000) {
       req.flash('error', 'Bounty amount must be between R$15 and R$30,000');
-      // Redirect to appropriate UI version
-      if (_uiStyle === 'modern') {
-        return res.redirect('/admin/customization?modern=true');
-      }
       return res.redirect('/admin/customization');
     }
     
@@ -1532,10 +1377,6 @@ router.post('/customization/send-bounty', async (req, res) => {
     
     if (!client) {
       req.flash('error', 'Discord bot is not connected');
-      // Redirect to appropriate UI version
-      if (_uiStyle === 'modern') {
-        return res.redirect('/admin/customization?modern=true');
-      }
       return res.redirect('/admin/customization');
     }
     
@@ -1546,10 +1387,6 @@ router.post('/customization/send-bounty', async (req, res) => {
       channelToUse = client.channels.cache.get(bountyChannel);
       if (!channelToUse) {
         req.flash('error', 'Selected channel not found or bot does not have access to it.');
-        // Redirect to appropriate UI version
-        if (_uiStyle === 'modern') {
-          return res.redirect('/admin/customization?modern=true');
-        }
         return res.redirect('/admin/customization');
       }
     } else {
@@ -1557,20 +1394,12 @@ router.post('/customization/send-bounty', async (req, res) => {
       const bountyChannelId = config.bountyChannelId || config.logsChannelId;
       if (!bountyChannelId) {
         req.flash('error', 'No bounty channel configured. Please set bountyChannelId in config.js');
-        // Redirect to appropriate UI version
-        if (_uiStyle === 'modern') {
-          return res.redirect('/admin/customization?modern=true');
-        }
         return res.redirect('/admin/customization');
       }
       
       channelToUse = client.channels.cache.get(bountyChannelId);
       if (!channelToUse) {
         req.flash('error', 'Bounty channel not found. Check channel ID in config.');
-        // Redirect to appropriate UI version
-        if (_uiStyle === 'modern') {
-          return res.redirect('/admin/customization?modern=true');
-        }
         return res.redirect('/admin/customization');
       }
     }
@@ -1614,19 +1443,13 @@ router.post('/customization/send-bounty', async (req, res) => {
     // Success response
     req.flash('success', `Bounty of R$${bountyAmount} placed on ${targetUser} successfully!`);
     
-    // Redirect to appropriate UI version
-    if (_uiStyle === 'modern') {
-      return res.redirect('/admin/customization?modern=true');
-    }
+    // Always redirect to the customization page
     return res.redirect('/admin/customization');
   } catch (error) {
     console.error('Error sending bounty:', error);
     req.flash('error', 'Failed to send bounty: ' + error.message);
     
-    // Redirect to appropriate UI version
-    if (req.body._uiStyle === 'modern') {
-      return res.redirect('/admin/customization?modern=true');
-    }
+    // Always redirect to the customization page
     return res.redirect('/admin/customization');
   }
 });
