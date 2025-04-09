@@ -1361,6 +1361,85 @@ router.post('/customization/send-news', async (req, res) => {
 });
 
 /**
+ * POST /admin/customization/send-bounty
+ * Send a bounty to a target user
+ */
+router.post('/customization/send-bounty', async (req, res) => {
+  try {
+    const { targetUser, bountyAmount, bountyReason, bountyColor, bountyName, bountyAvatarUrl, defaultThumbnailUrl } = req.body;
+    
+    // Validate input
+    if (!targetUser || !bountyAmount) {
+      req.flash('error', 'Target user and bounty amount are required');
+      return res.redirect('/admin/customization');
+    }
+    
+    // Validate amount range
+    const amount = parseInt(bountyAmount, 10);
+    if (isNaN(amount) || amount < 15 || amount > 30000) {
+      req.flash('error', 'Bounty amount must be between R$15 and R$30,000');
+      return res.redirect('/admin/customization');
+    }
+    
+    // Get Discord client
+    const client = req.app.get('client');
+    
+    if (!client) {
+      req.flash('error', 'Discord bot is not connected');
+      return res.redirect('/admin/customization');
+    }
+    
+    // Find configured bounty channel
+    const bountyChannelId = config.bountyChannelId || config.logsChannelId;
+    if (!bountyChannelId) {
+      req.flash('error', 'No bounty channel configured. Please set bountyChannelId in config.js');
+      return res.redirect('/admin/customization');
+    }
+    
+    const bountyChannel = client.channels.cache.get(bountyChannelId);
+    if (!bountyChannel) {
+      req.flash('error', 'Bounty channel not found. Check channel ID in config.');
+      return res.redirect('/admin/customization');
+    }
+    
+    // Create bounty embed
+    const bountyEmbed = {
+      title: `SWOOSH BOUNTY: ${targetUser.toUpperCase()}`,
+      description: bountyReason ? `A new bounty has been placed!\n\nReason: ${bountyReason}` : 'A new bounty has been placed!',
+      color: bountyColor ? parseInt(bountyColor.replace('#', ''), 16) : 0x9B59B6,
+      fields: [
+        { name: '👤 Target', value: targetUser, inline: true },
+        { name: '💵 Reward', value: `R$${bountyAmount}`, inline: true }
+      ],
+      thumbnail: { url: defaultThumbnailUrl || 'https://i.imgur.com/YzOA3Rb.png' },
+      footer: {
+        text: 'To claim this bounty, open a ticket and provide evidence.',
+        icon_url: defaultThumbnailUrl || 'https://i.imgur.com/YzOA3Rb.png'
+      },
+      timestamp: new Date()
+    };
+    
+    // Send the bounty embed
+    await bountyChannel.send({ 
+      username: bountyName || 'SWOOSH Bounty System',
+      avatarURL: bountyAvatarUrl || 'https://i.imgur.com/YzOA3Rb.png',
+      embeds: [bountyEmbed] 
+    });
+    
+    // Log the action
+    console.log(`Bounty of R$${bountyAmount} placed on ${targetUser} by admin ${req.user.username} (${req.user.id})`);
+    
+    // Success response
+    req.flash('success', `Bounty of R$${bountyAmount} placed on ${targetUser} successfully!`);
+    res.redirect('/admin/customization');
+  } catch (error) {
+    console.error('Error sending bounty:', error);
+    req.flash('error', 'Failed to send bounty: ' + error.message);
+    res.redirect('/admin/customization');
+  }
+});
+
+/**
  * POST /admin/settings/send-message
  * Send message to channel as bot
  */
