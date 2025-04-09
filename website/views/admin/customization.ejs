@@ -1,90 +1,112 @@
-<%- include('../partials/admin/header') %>
-
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">SWOOSH Customization</h1>
-            
-            <ul class="nav nav-tabs mb-4" id="customizationTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="bounty-tab" data-bs-toggle="tab" data-bs-target="#bounty" type="button" role="tab" aria-controls="bounty" aria-selected="true">
-                        <i class="fas fa-money-bill-wave me-2"></i> Bounty System
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="news-tab" data-bs-toggle="tab" data-bs-target="#news" type="button" role="tab" aria-controls="news" aria-selected="false">
-                        <i class="fas fa-newspaper me-2"></i> News Updates
-                    </button>
-                </li>
-            </ul>
-            
-            <div class="tab-content" id="customizationTabContent">
-                <!-- Bounty System Tab -->
-                <div class="tab-pane fade show active" id="bounty" role="tabpanel" aria-labelledby="bounty-tab">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">💰 Bounty System Customization</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <form action="/admin/customization/save" method="POST">
-                                        <div class="mb-3">
-                                            <label for="bountyColor" class="form-label">Embed Color:</label>
-                                            <div class="d-flex">
-                                                <input type="color" class="form-control form-control-color me-2" id="bountyColor" name="bountyColor" value="#9B59B6">
-                                                <input type="text" class="form-control" id="bountyColorText" value="#9B59B6">
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="bountyName" class="form-label">Webhook Name:</label>
-                                            <input type="text" class="form-control" id="bountyName" name="bountyName" value="SWOOSH Bounty System">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="bountyAvatarUrl" class="form-label">Avatar URL:</label>
-                                            <input type="text" class="form-control" id="bountyAvatarUrl" name="bountyAvatarUrl" value="https://i.imgur.com/YzOA3Rb.png">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="defaultThumbnailUrl" class="form-label">Default Thumbnail:</label>
-                                            <input type="text" class="form-control" id="defaultThumbnailUrl" name="defaultThumbnailUrl" value="https://i.imgur.com/YzOA3Rb.png">
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="bountyMinAmount" class="form-label">Min Amount:</label>
-                                                    <input type="number" class="form-control" id="bountyMinAmount" name="bountyMinAmount" value="15">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bounty Customization</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .tab-content {
+            background-color: #fff;
+            border-radius: 0 0 5px 5px;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">SWOOSH Customization</h1>
+                
+                <ul class="nav nav-tabs mb-4" id="customizationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="bounty-tab" data-bs-toggle="tab" data-bs-target="#bounty" type="button" role="tab" aria-controls="bounty" aria-selected="true">
+                            <i class="fas fa-money-bill-wave me-2"></i> Bounty System
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="news-tab" data-bs-toggle="tab" data-bs-target="#news" type="button" role="tab" aria-controls="news" aria-selected="false">
+                            <i class="fas fa-newspaper me-2"></i> News Updates
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="customizationTabContent">
+                    <!-- Bounty System Tab -->
+                    <div class="tab-pane fade show active" id="bounty" role="tabpanel" aria-labelledby="bounty-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">💰 Bounty System Customization</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <form action="/admin/customization/save" method="POST">
+                                            <div class="mb-3">
+                                                <label for="bountyColor" class="form-label">Embed Color:</label>
+                                                <div class="d-flex">
+                                                    <input type="color" class="form-control form-control-color me-2" id="bountyColor" name="bountyColor" value="#9B59B6">
+                                                    <input type="text" class="form-control" id="bountyColorText" value="#9B59B6">
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="bountyMaxAmount" class="form-label">Max Amount:</label>
-                                                    <input type="number" class="form-control" id="bountyMaxAmount" name="bountyMaxAmount" value="30000">
+                                            <div class="mb-3">
+                                                <label for="bountyName" class="form-label">Webhook Name:</label>
+                                                <input type="text" class="form-control" id="bountyName" name="bountyName" value="SWOOSH Bounty System">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="bountyAvatarUrl" class="form-label">Avatar URL:</label>
+                                                <input type="text" class="form-control" id="bountyAvatarUrl" name="bountyAvatarUrl" value="https://i.imgur.com/YzOA3Rb.png">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="defaultThumbnailUrl" class="form-label">Default Thumbnail:</label>
+                                                <input type="text" class="form-control" id="defaultThumbnailUrl" name="defaultThumbnailUrl" value="https://i.imgur.com/YzOA3Rb.png">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="bountyMinAmount" class="form-label">Min Amount:</label>
+                                                        <input type="number" class="form-control" id="bountyMinAmount" name="bountyMinAmount" value="15">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="bountyMaxAmount" class="form-label">Max Amount:</label>
+                                                        <input type="number" class="form-control" id="bountyMaxAmount" name="bountyMaxAmount" value="30000">
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-save me-2"></i> Save Bounty Settings
-                                        </button>
-                                    </form>
-                                </div>
-                                <div class="col-md-6">
-                                    <div id="preview" class="border rounded p-3">
-                                        <h5 class="mb-3">Live Preview</h5>
-                                        <div id="discord-message" style="background-color: #36393f; color: white; padding: 15px; border-radius: 5px;">
-                                            <div id="webhook-info" style="display: flex; align-items: center;">
-                                                <img id="preview-avatar" src="https://i.imgur.com/YzOA3Rb.png" width="40" height="40" style="border-radius: 50%;">
-                                                <span id="preview-name" style="margin-left: 10px; font-weight: bold;">SWOOSH Bounty System</span>
-                                            </div>
-                                            <div id="embed" style="margin-top: 10px; border-left: 4px solid #9B59B6; padding-left: 10px;">
-                                                <div id="embed-title" style="font-weight: bold;">SWOOSH BOUNTY: EXAMPLE_USER</div>
-                                                <div id="embed-description">A new bounty has been placed!</div>
-                                                <div style="margin-top: 10px;">
-                                                    <div>👤 Target: ExampleUser</div>
-                                                    <div>💵 Reward: <span id="preview-amount">R$1,000</span></div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i> Save Bounty Settings
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="preview" class="border rounded p-3">
+                                            <h5 class="mb-3">Live Preview</h5>
+                                            <div id="discord-message" style="background-color: #36393f; color: white; padding: 15px; border-radius: 5px;">
+                                                <div id="webhook-info" style="display: flex; align-items: center;">
+                                                    <img id="preview-avatar" src="https://i.imgur.com/YzOA3Rb.png" width="40" height="40" style="border-radius: 50%;">
+                                                    <span id="preview-name" style="margin-left: 10px; font-weight: bold;">SWOOSH Bounty System</span>
                                                 </div>
-                                                <div style="display: flex; margin-top: 10px; align-items: center;">
-                                                    <img id="preview-thumbnail" src="https://i.imgur.com/YzOA3Rb.png" width="20" height="20" style="border-radius: 50%;">
-                                                    <span style="margin-left: 5px; font-size: 12px; color: #aaa;">To claim this bounty, open a ticket and provide evidence.</span>
+                                                <div id="embed" style="margin-top: 10px; border-left: 4px solid #9B59B6; padding-left: 10px;">
+                                                    <div id="embed-title" style="font-weight: bold;">SWOOSH BOUNTY: EXAMPLE_USER</div>
+                                                    <div id="embed-description">A new bounty has been placed!</div>
+                                                    <div style="margin-top: 10px;">
+                                                        <div>👤 Target: ExampleUser</div>
+                                                        <div>💵 Reward: <span id="preview-amount">R$1,000</span></div>
+                                                    </div>
+                                                    <div style="display: flex; margin-top: 10px; align-items: center;">
+                                                        <img id="preview-thumbnail" src="https://i.imgur.com/YzOA3Rb.png" width="20" height="20" style="border-radius: 50%;">
+                                                        <span style="margin-left: 5px; font-size: 12px; color: #aaa;">To claim this bounty, open a ticket and provide evidence.</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -93,69 +115,69 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- News Updates Tab -->
-                <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">📢 News Updates</h5>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted mb-3">Send news updates to the configured news channel</p>
-                            
-                            <form id="newsForm" action="/admin/customization/send-news" method="POST">
-                                <div class="mb-3">
-                                    <label for="newsTitle" class="form-label">Title</label>
-                                    <input type="text" class="form-control" id="newsTitle" name="newsTitle" required maxlength="100" placeholder="Announcement title">
-                                </div>
+                    
+                    <!-- News Updates Tab -->
+                    <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">📢 News Updates</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">Send news updates to the configured news channel</p>
                                 
-                                <div class="mb-3">
-                                    <label for="newsContent" class="form-label">Content</label>
-                                    <textarea class="form-control" id="newsContent" name="newsContent" rows="4" required placeholder="News content with detailed information..."></textarea>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="newsColor" class="form-label">Color</label>
-                                            <input type="color" class="form-control form-control-color" id="newsColor" name="newsColor" value="#5865F2">
-                                            <small class="form-text text-muted">Color for the news embed</small>
+                                <form id="newsForm" action="/admin/customization/send-news" method="POST">
+                                    <div class="mb-3">
+                                        <label for="newsTitle" class="form-label">Title</label>
+                                        <input type="text" class="form-control" id="newsTitle" name="newsTitle" required maxlength="100" placeholder="Announcement title">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="newsContent" class="form-label">Content</label>
+                                        <textarea class="form-control" id="newsContent" name="newsContent" rows="4" required placeholder="News content with detailed information..."></textarea>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="newsColor" class="form-label">Color</label>
+                                                <input type="color" class="form-control form-control-color" id="newsColor" name="newsColor" value="#5865F2">
+                                                <small class="form-text text-muted">Color for the news embed</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="newsImage" class="form-label">Image URL (Optional)</label>
+                                                <input type="url" class="form-control" id="newsImage" name="newsImage" placeholder="https://example.com/image.png">
+                                                <small class="form-text text-muted">Image to display with the news</small>
+                                            </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="newsImage" class="form-label">Image URL (Optional)</label>
-                                            <input type="url" class="form-control" id="newsImage" name="newsImage" placeholder="https://example.com/image.png">
-                                            <small class="form-text text-muted">Image to display with the news</small>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-info">
+                                                <i class="fas fa-info-circle me-1"></i> News will be sent to all servers with a configured news channel
+                                            </small>
                                         </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-paper-plane me-2"></i> Send News
+                                        </button>
                                     </div>
-                                </div>
+                                </form>
                                 
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <small class="text-info">
-                                            <i class="fas fa-info-circle me-1"></i> News will be sent to all servers with a configured news channel
-                                        </small>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-paper-plane me-2"></i> Send News
-                                    </button>
-                                </div>
-                            </form>
-                            
-                            <div class="mt-4 p-3 border rounded" id="newsPreview">
-                                <h5>News Preview</h5>
-                                <div style="background-color: #36393f; color: white; padding: 15px; border-radius: 5px;">
-                                    <div style="margin-top: 10px; border-left: 4px solid #5865F2; padding-left: 10px;" id="newsEmbedPreview">
-                                        <div id="newsTitlePreview" style="font-weight: bold; font-size: 1.1rem;">Announcement Title</div>
-                                        <div id="newsContentPreview" style="margin-top: 8px;">News content will appear here...</div>
-                                        <div id="newsImagePreviewContainer" style="margin-top: 10px; display: none;">
-                                            <img id="newsImagePreview" src="" style="max-width: 100%; max-height: 300px; border-radius: 3px;">
-                                        </div>
-                                        <div style="margin-top: 10px; font-size: 0.8rem; color: #aaa;">
-                                            <span>SWOOSH Bot • Just now</span>
+                                <div class="mt-4 p-3 border rounded" id="newsPreview">
+                                    <h5>News Preview</h5>
+                                    <div style="background-color: #36393f; color: white; padding: 15px; border-radius: 5px;">
+                                        <div style="margin-top: 10px; border-left: 4px solid #5865F2; padding-left: 10px;" id="newsEmbedPreview">
+                                            <div id="newsTitlePreview" style="font-weight: bold; font-size: 1.1rem;">Announcement Title</div>
+                                            <div id="newsContentPreview" style="margin-top: 8px;">News content will appear here...</div>
+                                            <div id="newsImagePreviewContainer" style="margin-top: 10px; display: none;">
+                                                <img id="newsImagePreview" src="" style="max-width: 100%; max-height: 300px; border-radius: 3px;">
+                                            </div>
+                                            <div style="margin-top: 10px; font-size: 0.8rem; color: #aaa;">
+                                                <span>SWOOSH Bot • Just now</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -166,101 +188,101 @@
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Bounty Preview Updates
-        function updateBountyPreview() {
-            const color = document.getElementById("bountyColor").value;
-            const name = document.getElementById("bountyName").value;
-            const avatarUrl = document.getElementById("bountyAvatarUrl").value;
-            const thumbnailUrl = document.getElementById("defaultThumbnailUrl").value;
-            const minAmount = parseInt(document.getElementById("bountyMinAmount").value) || 15;
-            const maxAmount = parseInt(document.getElementById("bountyMaxAmount").value) || 30000;
-            
-            // Calculate preview amount (average of min and max)
-            const previewAmount = Math.floor((minAmount + maxAmount) / 2);
-            
-            // Update preview
-            document.getElementById("embed").style.borderLeftColor = color;
-            document.getElementById("preview-name").textContent = name;
-            document.getElementById("preview-avatar").src = avatarUrl;
-            document.getElementById("preview-thumbnail").src = thumbnailUrl;
-            document.getElementById("preview-amount").textContent = `R$${previewAmount.toLocaleString()}`;
-        }
-        
-        // Update color text when color picker changes
-        const colorPicker = document.getElementById('bountyColor');
-        const colorText = document.getElementById('bountyColorText');
-        
-        colorPicker.addEventListener('input', function() {
-            colorText.value = this.value;
-            updateBountyPreview();
-        });
-        
-        colorText.addEventListener('input', function() {
-            colorPicker.value = this.value;
-            updateBountyPreview();
-        });
-        
-        // Update preview when inputs change
-        const nameInput = document.getElementById('bountyName');
-        const avatarInput = document.getElementById('bountyAvatarUrl');
-        const thumbnailInput = document.getElementById('defaultThumbnailUrl');
-        const minAmountInput = document.getElementById('bountyMinAmount');
-        const maxAmountInput = document.getElementById('bountyMaxAmount');
-        
-        nameInput.addEventListener('input', updateBountyPreview);
-        avatarInput.addEventListener('input', updateBountyPreview);
-        thumbnailInput.addEventListener('input', updateBountyPreview);
-        minAmountInput.addEventListener('input', updateBountyPreview);
-        maxAmountInput.addEventListener('input', updateBountyPreview);
-        
-        // News Preview Updates
-        const newsTitle = document.getElementById('newsTitle');
-        const newsContent = document.getElementById('newsContent');
-        const newsColor = document.getElementById('newsColor');
-        const newsImage = document.getElementById('newsImage');
-        
-        // Preview elements
-        const newsTitlePreview = document.getElementById('newsTitlePreview');
-        const newsContentPreview = document.getElementById('newsContentPreview');
-        const newsEmbedPreview = document.getElementById('newsEmbedPreview');
-        const newsImagePreview = document.getElementById('newsImagePreview');
-        const newsImagePreviewContainer = document.getElementById('newsImagePreviewContainer');
-        
-        // Update news preview
-        function updateNewsPreview() {
-            newsTitlePreview.textContent = newsTitle.value || 'Announcement Title';
-            newsContentPreview.textContent = newsContent.value || 'News content will appear here...';
-            newsEmbedPreview.style.borderLeftColor = newsColor.value;
-            
-            if (newsImage.value) {
-                newsImagePreview.src = newsImage.value;
-                newsImagePreviewContainer.style.display = 'block';
-            } else {
-                newsImagePreviewContainer.style.display = 'none';
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bounty Preview Updates
+            function updateBountyPreview() {
+                const color = document.getElementById("bountyColor").value;
+                const name = document.getElementById("bountyName").value;
+                const avatarUrl = document.getElementById("bountyAvatarUrl").value;
+                const thumbnailUrl = document.getElementById("defaultThumbnailUrl").value;
+                const minAmount = parseInt(document.getElementById("bountyMinAmount").value) || 15;
+                const maxAmount = parseInt(document.getElementById("bountyMaxAmount").value) || 30000;
+                
+                // Calculate preview amount (average of min and max)
+                const previewAmount = Math.floor((minAmount + maxAmount) / 2);
+                
+                // Update preview
+                document.getElementById("embed").style.borderLeftColor = color;
+                document.getElementById("preview-name").textContent = name;
+                document.getElementById("preview-avatar").src = avatarUrl;
+                document.getElementById("preview-thumbnail").src = thumbnailUrl;
+                document.getElementById("preview-amount").textContent = `R$${previewAmount.toLocaleString()}`;
             }
-        }
-        
-        // Add event listeners
-        newsTitle.addEventListener('input', updateNewsPreview);
-        newsContent.addEventListener('input', updateNewsPreview);
-        newsColor.addEventListener('input', updateNewsPreview);
-        newsImage.addEventListener('input', updateNewsPreview);
-        
-        // News form validation
-        document.getElementById('newsForm').addEventListener('submit', function(e) {
-            if (!confirm('Are you sure you want to send this news update?')) {
-                e.preventDefault();
+            
+            // Update color text when color picker changes
+            const colorPicker = document.getElementById('bountyColor');
+            const colorText = document.getElementById('bountyColorText');
+            
+            colorPicker.addEventListener('input', function() {
+                colorText.value = this.value;
+                updateBountyPreview();
+            });
+            
+            colorText.addEventListener('input', function() {
+                colorPicker.value = this.value;
+                updateBountyPreview();
+            });
+            
+            // Update preview when inputs change
+            const nameInput = document.getElementById('bountyName');
+            const avatarInput = document.getElementById('bountyAvatarUrl');
+            const thumbnailInput = document.getElementById('defaultThumbnailUrl');
+            const minAmountInput = document.getElementById('bountyMinAmount');
+            const maxAmountInput = document.getElementById('bountyMaxAmount');
+            
+            nameInput.addEventListener('input', updateBountyPreview);
+            avatarInput.addEventListener('input', updateBountyPreview);
+            thumbnailInput.addEventListener('input', updateBountyPreview);
+            minAmountInput.addEventListener('input', updateBountyPreview);
+            maxAmountInput.addEventListener('input', updateBountyPreview);
+            
+            // News Preview Updates
+            const newsTitle = document.getElementById('newsTitle');
+            const newsContent = document.getElementById('newsContent');
+            const newsColor = document.getElementById('newsColor');
+            const newsImage = document.getElementById('newsImage');
+            
+            // Preview elements
+            const newsTitlePreview = document.getElementById('newsTitlePreview');
+            const newsContentPreview = document.getElementById('newsContentPreview');
+            const newsEmbedPreview = document.getElementById('newsEmbedPreview');
+            const newsImagePreview = document.getElementById('newsImagePreview');
+            const newsImagePreviewContainer = document.getElementById('newsImagePreviewContainer');
+            
+            // Update news preview
+            function updateNewsPreview() {
+                newsTitlePreview.textContent = newsTitle.value || 'Announcement Title';
+                newsContentPreview.textContent = newsContent.value || 'News content will appear here...';
+                newsEmbedPreview.style.borderLeftColor = newsColor.value;
+                
+                if (newsImage.value) {
+                    newsImagePreview.src = newsImage.value;
+                    newsImagePreviewContainer.style.display = 'block';
+                } else {
+                    newsImagePreviewContainer.style.display = 'none';
+                }
             }
+            
+            // Add event listeners
+            newsTitle.addEventListener('input', updateNewsPreview);
+            newsContent.addEventListener('input', updateNewsPreview);
+            newsColor.addEventListener('input', updateNewsPreview);
+            newsImage.addEventListener('input', updateNewsPreview);
+            
+            // News form validation
+            document.getElementById('newsForm').addEventListener('submit', function(e) {
+                if (!confirm('Are you sure you want to send this news update?')) {
+                    e.preventDefault();
+                }
+            });
+            
+            // Initial update
+            updateBountyPreview();
+            updateNewsPreview();
         });
-        
-        // Initial update
-        updateBountyPreview();
-        updateNewsPreview();
-    });
-</script>
-
-<%- include('../partials/admin/footer') %>
+    </script>
+</body>
+</html>
