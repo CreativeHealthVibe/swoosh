@@ -35,7 +35,7 @@ module.exports = {
     const channel = interaction.options.getChannel('channel');
     
     // Check if we have a database connection
-    if (!client.db) {
+    if (!client.discordDB) {
       return interaction.editReply('❌ Database connection not available');
     }
     
@@ -44,7 +44,7 @@ module.exports = {
       const guildId = interaction.guild.id;
       
       // Save the news channel to the database
-      await client.db.set('configs', guildId, {
+      await client.discordDB.set('configs', guildId, {
         newsChannel: channel.id,
         guild: guildId,
         updatedAt: new Date().toISOString(),
@@ -92,7 +92,7 @@ module.exports = {
     const channel = message.mentions.channels.first();
     
     // Check if we have a database connection
-    if (!client.db) {
+    if (!client.discordDB) {
       return message.reply('❌ Database connection not available');
     }
     
@@ -101,7 +101,7 @@ module.exports = {
       const guildId = message.guild.id;
       
       // Save the news channel to the database
-      await client.db.set('configs', guildId, {
+      await client.discordDB.set('configs', guildId, {
         newsChannel: channel.id,
         guild: guildId,
         updatedAt: new Date().toISOString(),
