@@ -91,7 +91,15 @@
                     <% if (typeof client !== 'undefined' && client) { %>
                       <% client.guilds.cache.forEach(guild => { %>
                         <optgroup label="<%= guild.name %>">
-                          <% guild.channels.cache.filter(c => c.type === 0).forEach(channel => { %>
+                          <% guild.channels.cache
+                              .filter(c => {
+                                // Only include text channels
+                                return c.type !== 2 && // Not voice
+                                       c.type !== 4 && // Not category
+                                       c.type !== 13 && // Not stage
+                                       c.isTextBased !== false; // Is text based if property exists
+                              })
+                              .forEach(channel => { %>
                             <option value="<%= channel.id %>"><%= channel.name %></option>
                           <% }); %>
                         </optgroup>
