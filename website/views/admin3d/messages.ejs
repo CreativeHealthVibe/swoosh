@@ -1,0 +1,531 @@
+<%# 
+  SWOOSH Bot 3D Admin Dashboard
+  Premium Edition - £50,000 Value
+  
+  Messages management page with news and embed sending
+%>
+
+<div class="admin3d-messages">
+  <div class="dashboard-header">
+    <h1 class="section-title">Message Management</h1>
+  </div>
+  
+  <p class="section-description">
+    Send news updates, announcements, and embed messages to your Discord servers.
+  </p>
+  
+  <!-- Tabs Container -->
+  <div class="tabs-container" id="message-tabs">
+    <div class="admin3d-tabs">
+      <button class="tab-btn" data-tab="send-news">
+        <i class="fas fa-newspaper"></i> Send News
+      </button>
+      <button class="tab-btn" data-tab="send-embed">
+        <i class="fas fa-comment-alt"></i> Send Embed
+      </button>
+      <button class="tab-btn" data-tab="send-dm">
+        <i class="fas fa-envelope"></i> Send DM
+      </button>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="tab-content-container">
+      <!-- Send News Tab -->
+      <div id="send-news" class="tab-content">
+        <div class="admin3d-card" data-premium="true">
+          <div class="admin3d-card-header">
+            <div>
+              <div class="admin3d-card-icon">
+                <i class="fas fa-newspaper"></i>
+              </div>
+            </div>
+            <h3 class="admin3d-card-title">Send News Update</h3>
+          </div>
+          <div class="admin3d-card-content">
+            <p class="admin3d-card-description">
+              Send a news update to your server's configured news channel. Use <code>/setnews</code> command in Discord to set a news channel first.
+            </p>
+            
+            <form action="/admin3d/messages/send-news" method="POST" data-ajax="true" data-reset="true">
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="newsTitle">Title</label>
+                <input class="admin3d-form-input" type="text" id="newsTitle" name="newsTitle" placeholder="Enter news title" required>
+              </div>
+              
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="newsContent">Content</label>
+                <textarea class="admin3d-form-textarea" id="newsContent" name="newsContent" placeholder="Enter news content" required rows="5"></textarea>
+                <span class="admin3d-form-hint">Markdown formatting supported</span>
+              </div>
+              
+              <div class="admin3d-form-row">
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="newsColor">Color</label>
+                  <input class="admin3d-form-input" type="color" id="newsColor" name="newsColor" value="#8936ff">
+                </div>
+                
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="newsImage">Image URL (Optional)</label>
+                  <input class="admin3d-form-input" type="url" id="newsImage" name="newsImage" placeholder="https://example.com/image.png">
+                  <span class="admin3d-form-hint">Direct link to an image</span>
+                </div>
+              </div>
+              
+              <div class="admin3d-form-actions">
+                <button type="submit" class="admin3d-btn admin3d-btn-primary">
+                  <i class="fas fa-paper-plane"></i> Send News
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Send Embed Tab -->
+      <div id="send-embed" class="tab-content">
+        <div class="admin3d-card">
+          <div class="admin3d-card-header">
+            <div>
+              <div class="admin3d-card-icon">
+                <i class="fas fa-comment-alt"></i>
+              </div>
+            </div>
+            <h3 class="admin3d-card-title">Send Embed Message</h3>
+          </div>
+          <div class="admin3d-card-content">
+            <p class="admin3d-card-description">
+              Send a rich embed message to any text channel in your servers.
+            </p>
+            
+            <form action="/admin3d/messages/send-embed" method="POST" data-ajax="true" data-reset="true">
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="channel">Channel</label>
+                <select class="admin3d-form-select" id="channel" name="channel" required>
+                  <option value="">Select a channel</option>
+                  <% if (channels && channels.length > 0) { %>
+                    <% 
+                      // Group channels by guild
+                      const channelsByGuild = {};
+                      channels.forEach(channel => {
+                        if (!channelsByGuild[channel.guild]) {
+                          channelsByGuild[channel.guild] = [];
+                        }
+                        channelsByGuild[channel.guild].push(channel);
+                      });
+                    %>
+                    <% Object.keys(channelsByGuild).sort().forEach(guild => { %>
+                      <optgroup label="<%= guild %>">
+                        <% channelsByGuild[guild].forEach(channel => { %>
+                          <option value="<%= channel.id %>">#<%= channel.name %></option>
+                        <% }); %>
+                      </optgroup>
+                    <% }); %>
+                  <% } else { %>
+                    <option disabled>No channels available</option>
+                  <% } %>
+                </select>
+              </div>
+              
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="title">Title</label>
+                <input class="admin3d-form-input" type="text" id="title" name="title" placeholder="Enter embed title" required>
+              </div>
+              
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="description">Description</label>
+                <textarea class="admin3d-form-textarea" id="description" name="description" placeholder="Enter embed description" required rows="5"></textarea>
+                <span class="admin3d-form-hint">Markdown formatting supported</span>
+              </div>
+              
+              <div class="admin3d-form-row">
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="color">Color</label>
+                  <input class="admin3d-form-input" type="color" id="color" name="color" value="#8936ff">
+                </div>
+                
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="footer">Footer (Optional)</label>
+                  <input class="admin3d-form-input" type="text" id="footer" name="footer" placeholder="Enter footer text">
+                </div>
+              </div>
+              
+              <div class="admin3d-form-actions">
+                <button type="submit" class="admin3d-btn admin3d-btn-primary">
+                  <i class="fas fa-paper-plane"></i> Send Embed
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Live Preview -->
+        <div class="admin3d-card" style="margin-top: 2rem;">
+          <div class="admin3d-card-header">
+            <h3 class="admin3d-card-title">Live Preview</h3>
+          </div>
+          <div class="admin3d-card-content">
+            <div class="embed-preview">
+              <div class="embed-preview-container">
+                <div class="embed-preview-title" id="preview-title">Embed Title</div>
+                <div class="embed-preview-description" id="preview-description">Your embed description will appear here.</div>
+                <div class="embed-preview-footer" id="preview-footer">
+                  <span id="preview-footer-text">Footer text</span>
+                  <span class="embed-preview-timestamp">Today at <%= new Date().toLocaleTimeString() %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Send DM Tab -->
+      <div id="send-dm" class="tab-content">
+        <div class="admin3d-card">
+          <div class="admin3d-card-header">
+            <div>
+              <div class="admin3d-card-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+            </div>
+            <h3 class="admin3d-card-title">Send Direct Message</h3>
+          </div>
+          <div class="admin3d-card-content">
+            <p class="admin3d-card-description">
+              Send a direct message to a user via the bot.
+            </p>
+            
+            <form action="/admin3d/messages/send-dm" method="POST" data-ajax="true" data-reset="true">
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="userId">User ID</label>
+                <input class="admin3d-form-input" type="text" id="userId" name="userId" placeholder="Enter user ID" required>
+                <span class="admin3d-form-hint">The Discord user ID of the recipient</span>
+              </div>
+              
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="messageContent">Message</label>
+                <textarea class="admin3d-form-textarea" id="messageContent" name="messageContent" placeholder="Enter message" required rows="5"></textarea>
+                <span class="admin3d-form-hint">This message will be sent as a direct message from the bot</span>
+              </div>
+              
+              <div class="admin3d-form-actions">
+                <button type="submit" class="admin3d-btn admin3d-btn-primary">
+                  <i class="fas fa-paper-plane"></i> Send DM
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recent Messages -->
+  <h2 class="section-subtitle" style="margin-top: 3rem;">Recent Messages</h2>
+  <div class="admin3d-card">
+    <div class="admin3d-card-header">
+      <h3 class="admin3d-card-title">Message History</h3>
+    </div>
+    <div class="admin3d-card-content">
+      <div class="message-history">
+        <div class="message-history-item">
+          <div class="message-history-icon">
+            <i class="fas fa-newspaper"></i>
+          </div>
+          <div class="message-history-content">
+            <div class="message-history-title">News Update: Important Announcement</div>
+            <div class="message-history-meta">
+              <span class="message-history-channel">#announcements</span>
+              <span class="message-history-time">Today at <%= new Date().toLocaleTimeString() %></span>
+            </div>
+          </div>
+          <div class="message-history-actions">
+            <button class="admin3d-btn admin3d-btn-secondary">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="message-history-item">
+          <div class="message-history-icon">
+            <i class="fas fa-comment-alt"></i>
+          </div>
+          <div class="message-history-content">
+            <div class="message-history-title">Embed: Server Rules</div>
+            <div class="message-history-meta">
+              <span class="message-history-channel">#rules</span>
+              <span class="message-history-time">Yesterday at 3:45 PM</span>
+            </div>
+          </div>
+          <div class="message-history-actions">
+            <button class="admin3d-btn admin3d-btn-secondary">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Messages Page Styles */
+  .admin3d-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .admin3d-form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .admin3d-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+  }
+  
+  .tab-btn:hover {
+    color: var(--text);
+    background-color: var(--background-lighter);
+  }
+  
+  .tab-btn.active {
+    color: var(--text);
+    background-color: var(--background-lighter);
+  }
+  
+  .tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: -1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
+    border-radius: 3px;
+  }
+  
+  .tab-content-container {
+    margin-top: 2rem;
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Embed Preview */
+  .embed-preview {
+    background-color: #2f3136;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+  
+  .embed-preview-container {
+    border-left: 4px solid var(--primary);
+    padding: 0.5rem 1rem 1rem 0.75rem;
+    margin: 0.5rem;
+  }
+  
+  .embed-preview-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: white;
+  }
+  
+  .embed-preview-description {
+    font-size: 0.9375rem;
+    margin-bottom: 0.75rem;
+    color: #dcddde;
+    white-space: pre-wrap;
+  }
+  
+  .embed-preview-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #72767d;
+  }
+  
+  .embed-preview-timestamp {
+    font-size: 0.75rem;
+  }
+  
+  /* Message History */
+  .message-history {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .message-history-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background-color: var(--background-lighter);
+    border: 1px solid rgba(49, 41, 95, 0.3);
+    transition: all var(--transition-fast);
+  }
+  
+  .message-history-item:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(137, 54, 255, 0.1);
+  }
+  
+  .message-history-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background-color: rgba(137, 54, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--primary);
+  }
+  
+  .message-history-content {
+    flex: 1;
+  }
+  
+  .message-history-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .message-history-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+  
+  .message-history-channel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .message-history-channel::before {
+    content: "#";
+    opacity: 0.7;
+  }
+  
+  .message-history-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .admin3d-form-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .admin3d-tabs {
+      flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+      flex: 1;
+      min-width: 120px;
+      justify-content: center;
+      padding: 0.75rem 1rem;
+    }
+    
+    .message-history-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .message-history-actions {
+      align-self: flex-end;
+      margin-top: 1rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Live embed preview
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+    const colorInput = document.getElementById('color');
+    const footerInput = document.getElementById('footer');
+    
+    const previewTitle = document.getElementById('preview-title');
+    const previewDescription = document.getElementById('preview-description');
+    const previewFooter = document.getElementById('preview-footer-text');
+    const previewContainer = document.querySelector('.embed-preview-container');
+    
+    // Update preview on input changes
+    if (titleInput) {
+      titleInput.addEventListener('input', function() {
+        previewTitle.textContent = this.value || 'Embed Title';
+      });
+    }
+    
+    if (descriptionInput) {
+      descriptionInput.addEventListener('input', function() {
+        previewDescription.textContent = this.value || 'Your embed description will appear here.';
+      });
+    }
+    
+    if (colorInput) {
+      colorInput.addEventListener('input', function() {
+        previewContainer.style.borderLeftColor = this.value;
+      });
+    }
+    
+    if (footerInput) {
+      footerInput.addEventListener('input', function() {
+        previewFooter.textContent = this.value || 'Footer text';
+      });
+    }
+  });
+</script>
