@@ -1056,16 +1056,11 @@ const apiRoutes = require('./routes/api');
 const apiAuthRoutes = require('./routes/api/auth');
 const apiLeaderboardRoutes = require('./routes/api/leaderboard');
 const leaderboardRoutes = require('./routes/leaderboard');
+const admin3dRoutes = require('./routes/admin3d');
 
-// Admin path now removed
+// Admin path now redirects to 3D Admin
 app.get('/admin', (req, res) => {
-  res.status(404).render('error', {
-    title: 'Admin Dashboard Removed',
-    message: 'The admin dashboard has been removed from this application.',
-    error: {
-      status: 404
-    }
-  });
+  res.redirect('/admin3d');
 });
 
 // Register routes
@@ -1074,6 +1069,7 @@ app.use('/api', apiRoutes); // General API routes
 app.use('/api', apiAuthRoutes); // Auth API routes
 app.use('/api/leaderboard', apiLeaderboardRoutes);
 app.use('/leaderboard', leaderboardRoutes);
+app.use('/admin3d', admin3dRoutes); // Premium 3D Admin Panel
 
 // Error handling middleware
 app.use((req, res, next) => {
