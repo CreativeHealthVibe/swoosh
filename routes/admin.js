@@ -679,12 +679,16 @@ router.get('/customization', (req, res) => {
       config: 'Config loaded'
     });
 
+    // Get the Discord client from the app
+    const client = req.app.get('client');
+    
     // Use the new template that works with admin layout
     res.render('admin/customization-new', {
       title: 'Bounty Customization',
       user: req.user,
       path: '/admin/customization',
       config: botConfig,
+      client: client, // Pass the Discord client to access guilds and channels
       messages: req.flash(), // Include flash messages
       layout: 'layouts/admin'
     });
