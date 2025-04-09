@@ -1052,7 +1052,7 @@ app.get('/demo', (req, res) => {
 
 // Load routes for admin, auth, and API
 const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin');
+const adminRoutes = require('./routes/admin-new');
 const apiRoutes = require('./routes/api');
 const apiAuthRoutes = require('./routes/api/auth');
 const apiMemberRoutes = require('./routes/api/members');
