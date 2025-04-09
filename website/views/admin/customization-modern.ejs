@@ -1,0 +1,1209 @@
+<!-- Admin Customization Modern UI Template -->
+<div class="modern-admin-container">
+
+  <!-- Page header with actions -->
+  <div class="modern-header">
+    <h1 class="modern-title">Bot Customization</h1>
+    <div class="modern-actions">
+      <a href="/admin/customization" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Switch to Classic View
+      </a>
+    </div>
+  </div>
+
+  <!-- Flash Messages -->
+  <% if (messages.success && messages.success.length > 0) { %>
+    <div class="alert alert-success modern-alert" role="alert">
+      <i class="fas fa-check-circle alert-icon"></i>
+      <%= messages.success %>
+    </div>
+  <% } %>
+  <% if (messages.error && messages.error.length > 0) { %>
+    <div class="alert alert-danger modern-alert" role="alert">
+      <i class="fas fa-exclamation-circle alert-icon"></i>
+      <%= messages.error %>
+    </div>
+  <% } %>
+
+  <!-- Main content area with tabs -->
+  <div class="modern-content">
+    <!-- Tab navigation -->
+    <div class="modern-tabs">
+      <button class="modern-tab active" data-tab="appearance">
+        <i class="fas fa-palette"></i> Appearance
+      </button>
+      <button class="modern-tab" data-tab="bounty">
+        <i class="fas fa-trophy"></i> Bounty System
+      </button>
+      <button class="modern-tab" data-tab="templates">
+        <i class="fas fa-file-alt"></i> Message Templates
+      </button>
+      <button class="modern-tab" data-tab="announcements">
+        <i class="fas fa-bullhorn"></i> Announcements
+      </button>
+    </div>
+
+    <!-- Tab content -->
+    <div class="modern-tab-content">
+      <!-- Appearance Tab -->
+      <div class="modern-tab-pane active" id="appearance-tab">
+        <div class="modern-card">
+          <div class="modern-card-header">
+            <h2 class="modern-card-title">Bot Appearance</h2>
+            <p class="modern-card-subtitle">Customize how your bot looks across all interfaces</p>
+          </div>
+
+          <div class="modern-card-body">
+            <form action="/admin/customization/update-appearance" method="POST" class="modern-form">
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="primaryColor">Primary Color</label>
+                  <div class="color-picker-wrapper">
+                    <input type="color" id="primaryColor" name="primaryColor" value="#9c4dff" class="form-control color-picker">
+                    <input type="text" id="primaryColorHex" class="form-control color-text" value="#9c4dff">
+                  </div>
+                  <small class="form-text text-muted">Main color for buttons, links and highlights</small>
+                </div>
+
+                <div class="modern-form-group">
+                  <label for="secondaryColor">Secondary Color</label>
+                  <div class="color-picker-wrapper">
+                    <input type="color" id="secondaryColor" name="secondaryColor" value="#00e5ff" class="form-control color-picker">
+                    <input type="text" id="secondaryColorHex" class="form-control color-text" value="#00e5ff">
+                  </div>
+                  <small class="form-text text-muted">Accent color for badges, alerts and special elements</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="defaultBotName">Default Bot Name</label>
+                  <input type="text" id="defaultBotName" name="defaultBotName" class="form-control" value="SWOOSH Bot" placeholder="Your bot's display name">
+                  <small class="form-text text-muted">Default name for webhook messages</small>
+                </div>
+
+                <div class="modern-form-group">
+                  <label for="defaultAvatarUrl">Default Avatar URL</label>
+                  <input type="text" id="defaultAvatarUrl" name="defaultAvatarUrl" class="form-control" value="<%= config.bountyAvatarUrl %>" placeholder="https://example.com/avatar.png">
+                  <small class="form-text text-muted">Default avatar image for your bot</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group full-width">
+                  <label for="defaultFooterText">Default Footer Text</label>
+                  <input type="text" id="defaultFooterText" name="defaultFooterText" class="form-control" value="Powered by SWOOSH Bot" placeholder="Text shown in message footers">
+                  <small class="form-text text-muted">Text that appears in the footer of bot messages</small>
+                </div>
+              </div>
+
+              <div class="modern-card-actions">
+                <input type="hidden" name="_uiStyle" value="modern">
+                <button type="submit" class="btn btn-primary modern-btn">
+                  <i class="fas fa-save"></i> Save Appearance Settings
+                </button>
+                <button type="reset" class="btn btn-secondary modern-btn">
+                  <i class="fas fa-undo"></i> Reset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="modern-card">
+          <div class="modern-card-header">
+            <h2 class="modern-card-title">Preview</h2>
+            <p class="modern-card-subtitle">See how your bot will appear to users</p>
+          </div>
+
+          <div class="modern-card-body">
+            <div class="preview-container">
+              <div class="message-preview">
+                <div class="message-preview-header">
+                  <div class="message-preview-avatar" id="preview-avatar">
+                    <img src="<%= config.bountyAvatarUrl || 'https://i.imgur.com/YzOA3Rb.png' %>" alt="Bot Avatar">
+                  </div>
+                  <div class="message-preview-name" id="preview-name">SWOOSH Bot</div>
+                  <div class="message-preview-time">Today at 12:34 PM</div>
+                </div>
+                <div class="message-preview-embed" id="preview-embed">
+                  <div class="message-preview-embed-color" id="preview-color"></div>
+                  <div class="message-preview-embed-content">
+                    <div class="message-preview-title" id="preview-title">Welcome to the server!</div>
+                    <div class="message-preview-description" id="preview-description">
+                      This is a sample message to show how your bot's messages will appear to users.
+                      You can customize the colors, avatar, and text to match your server's style.
+                    </div>
+                    <div class="message-preview-fields">
+                      <div class="message-preview-field">
+                        <div class="field-name">Server</div>
+                        <div class="field-value">SWOOSH Community</div>
+                      </div>
+                      <div class="message-preview-field">
+                        <div class="field-name">Members</div>
+                        <div class="field-value">1,500+</div>
+                      </div>
+                    </div>
+                    <div class="message-preview-footer" id="preview-footer">
+                      <img src="<%= config.bountyAvatarUrl || 'https://i.imgur.com/YzOA3Rb.png' %>" class="footer-icon">
+                      <span>Powered by SWOOSH Bot</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bounty System Tab -->
+      <div class="modern-tab-pane" id="bounty-tab">
+        <div class="modern-card">
+          <div class="modern-card-header">
+            <h2 class="modern-card-title">Bounty System Configuration</h2>
+            <p class="modern-card-subtitle">Customize how bounties are displayed and managed</p>
+          </div>
+          <div class="modern-card-body">
+            <form action="/admin/customization/save" method="POST" class="modern-form">
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="bountyName">Bounty Webhook Name</label>
+                  <input type="text" id="bountyName" name="bountyName" class="form-control" value="<%= config.bountyName %>" placeholder="SWOOSH Bounty System">
+                  <small class="form-text text-muted">Name displayed when posting bounties</small>
+                </div>
+                <div class="modern-form-group">
+                  <label for="bountyColor">Bounty Embed Color</label>
+                  <div class="color-picker-wrapper">
+                    <input type="color" id="bountyColor" name="bountyColor" value="<%= config.bountyColor %>" class="form-control color-picker">
+                    <input type="text" id="bountyColorHex" class="form-control color-text" value="<%= config.bountyColor %>">
+                  </div>
+                  <small class="form-text text-muted">Color of the bounty message embeds</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="bountyAvatarUrl">Bounty Avatar URL</label>
+                  <input type="text" id="bountyAvatarUrl" name="bountyAvatarUrl" class="form-control" value="<%= config.bountyAvatarUrl %>" placeholder="https://example.com/bounty-avatar.png">
+                  <small class="form-text text-muted">Avatar shown for bounty webhook messages</small>
+                </div>
+                <div class="modern-form-group">
+                  <label for="defaultThumbnailUrl">Default Thumbnail URL</label>
+                  <input type="text" id="defaultThumbnailUrl" name="defaultThumbnailUrl" class="form-control" value="<%= config.defaultThumbnailUrl %>" placeholder="https://example.com/thumbnail.png">
+                  <small class="form-text text-muted">Default thumbnail for bounty embeds</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="bountyMinAmount">Minimum Bounty Amount</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">R$</span>
+                    </div>
+                    <input type="number" id="bountyMinAmount" name="bountyMinAmount" class="form-control" value="<%= config.bountyMin %>" min="1" max="100000">
+                  </div>
+                  <small class="form-text text-muted">Minimum allowed bounty amount</small>
+                </div>
+                <div class="modern-form-group">
+                  <label for="bountyMaxAmount">Maximum Bounty Amount</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">R$</span>
+                    </div>
+                    <input type="number" id="bountyMaxAmount" name="bountyMaxAmount" class="form-control" value="<%= config.bountyMax %>" min="1" max="100000">
+                  </div>
+                  <small class="form-text text-muted">Maximum allowed bounty amount</small>
+                </div>
+              </div>
+
+              <div class="modern-card-actions">
+                <input type="hidden" name="_uiStyle" value="modern">
+                <button type="submit" class="btn btn-primary modern-btn">
+                  <i class="fas fa-save"></i> Save Bounty Settings
+                </button>
+                <button type="reset" class="btn btn-secondary modern-btn">
+                  <i class="fas fa-undo"></i> Reset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="modern-card">
+          <div class="modern-card-header">
+            <h2 class="modern-card-title">Place Bounty</h2>
+            <p class="modern-card-subtitle">Create and send a new bounty announcement</p>
+          </div>
+          <div class="modern-card-body">
+            <form action="/admin/customization/send-bounty" method="POST" class="modern-form">
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="targetUser">Target Username</label>
+                  <input type="text" id="targetUser" name="targetUser" class="form-control" required placeholder="Username of the target">
+                  <small class="form-text text-muted">Username of the bounty target</small>
+                </div>
+                <div class="modern-form-group">
+                  <label for="robloxId">Roblox ID</label>
+                  <input type="text" id="robloxId" name="robloxId" class="form-control" required placeholder="Roblox ID of the target">
+                  <small class="form-text text-muted">Roblox ID of the bounty target</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="bountyAmount">Bounty Amount</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">R$</span>
+                    </div>
+                    <input type="number" id="bountyAmount" name="bountyAmount" class="form-control" required min="<%= config.bountyMin %>" max="<%= config.bountyMax %>" value="<%= config.bountyMin %>">
+                  </div>
+                  <small class="form-text text-muted">Amount of the bounty reward</small>
+                </div>
+                <div class="modern-form-group">
+                  <label for="bountyChannel">Channel</label>
+                  <select id="bountyChannel" name="bountyChannel" class="form-control">
+                    <option value="">Default Bounty Channel</option>
+                    <% if (client && client.channels && client.channels.cache) { %>
+                      <% client.channels.cache.filter(c => c.type === 0).forEach(channel => { %>
+                        <option value="<%= channel.id %>"><%= channel.name %> (<%= channel.guild.name %>)</option>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                  <small class="form-text text-muted">Channel where bounty will be posted</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group full-width">
+                  <label for="bountyReason">Reason (Optional)</label>
+                  <textarea id="bountyReason" name="bountyReason" class="form-control" rows="3" placeholder="Reason for the bounty (optional)"></textarea>
+                  <small class="form-text text-muted">Optional reason for placing the bounty</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label>Clip Required</label>
+                  <div class="modern-radio-group">
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="clipRequired" id="clipRequiredYes" value="true" checked>
+                      <label class="form-check-label" for="clipRequiredYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="clipRequired" id="clipRequiredNo" value="false">
+                      <label class="form-check-label" for="clipRequiredNo">No</label>
+                    </div>
+                  </div>
+                  <small class="form-text text-muted">Whether a clip is required for claiming the bounty</small>
+                </div>
+              </div>
+
+              <div class="modern-card-actions">
+                <input type="hidden" name="_uiStyle" value="modern">
+                <button type="submit" class="btn btn-primary modern-btn">
+                  <i class="fas fa-paper-plane"></i> Send Bounty
+                </button>
+                <button type="reset" class="btn btn-secondary modern-btn">
+                  <i class="fas fa-undo"></i> Reset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Templates Tab -->
+      <div class="modern-tab-pane" id="templates-tab">
+        <div class="modern-card">
+          <div class="modern-card-header">
+            <h2 class="modern-card-title">Message Templates</h2>
+            <p class="modern-card-subtitle">Customize templates for different bot messages</p>
+          </div>
+          <div class="modern-card-body">
+            <form action="/admin/customization/update-appearance" method="POST" class="modern-form">
+              <div class="modern-form-group full-width">
+                <label for="welcomeTemplate">Welcome Message Template</label>
+                <textarea id="welcomeTemplate" name="welcomeTemplate" class="form-control code-editor" rows="8">Hey {user}, welcome to {server}!
+
+Thanks for joining our community. Here are some tips to get started:
+• Read the rules in {rules-channel}
+• Get roles in {roles-channel}
+• Say hi in {general-channel}
+
+Need help? Just ask our staff team!</textarea>
+                <small class="form-text text-muted">Template for welcoming new members. Use {placeholders} for dynamic content.</small>
+              </div>
+
+              <div class="modern-form-group full-width">
+                <label for="ticketTemplate">Ticket Creation Template</label>
+                <textarea id="ticketTemplate" name="ticketTemplate" class="form-control code-editor" rows="8">Hello {user}, 
+
+This is your private ticket channel. Please describe your issue in detail and our staff will assist you as soon as possible.
+
+• Please be patient while waiting for a response
+• Share all relevant information
+• You can close this ticket when your issue is resolved
+
+Ticket ID: {ticket-id}</textarea>
+                <small class="form-text text-muted">Template for new support tickets. Use {placeholders} for dynamic content.</small>
+              </div>
+
+              <div class="modern-card-actions">
+                <input type="hidden" name="_uiStyle" value="modern">
+                <button type="submit" class="btn btn-primary modern-btn">
+                  <i class="fas fa-save"></i> Save Templates
+                </button>
+                <button type="reset" class="btn btn-secondary modern-btn">
+                  <i class="fas fa-undo"></i> Reset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="modern-card">
+          <div class="modern-card-header">
+            <h2 class="modern-card-title">Available Placeholders</h2>
+            <p class="modern-card-subtitle">Variables you can use in your templates</p>
+          </div>
+          <div class="modern-card-body">
+            <div class="placeholder-list">
+              <div class="placeholder-item">
+                <div class="placeholder-name">{user}</div>
+                <div class="placeholder-description">Mentions the user</div>
+              </div>
+              <div class="placeholder-item">
+                <div class="placeholder-name">{user.name}</div>
+                <div class="placeholder-description">Username without mention</div>
+              </div>
+              <div class="placeholder-item">
+                <div class="placeholder-name">{server}</div>
+                <div class="placeholder-description">Server name</div>
+              </div>
+              <div class="placeholder-item">
+                <div class="placeholder-name">{channel}</div>
+                <div class="placeholder-description">Current channel name</div>
+              </div>
+              <div class="placeholder-item">
+                <div class="placeholder-name">{date}</div>
+                <div class="placeholder-description">Current date</div>
+              </div>
+              <div class="placeholder-item">
+                <div class="placeholder-name">{time}</div>
+                <div class="placeholder-description">Current time</div>
+              </div>
+              <div class="placeholder-item">
+                <div class="placeholder-name">{ticket-id}</div>
+                <div class="placeholder-description">Unique ticket ID</div>
+              </div>
+              <div class="placeholder-item">
+                <div class="placeholder-name">{staff}</div>
+                <div class="placeholder-description">Staff member who created/assigned ticket</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Announcements Tab -->
+      <div class="modern-tab-pane" id="announcements-tab">
+        <div class="modern-card">
+          <div class="modern-card-header">
+            <h2 class="modern-card-title">News Announcements</h2>
+            <p class="modern-card-subtitle">Send news updates to your announcement channel</p>
+          </div>
+          <div class="modern-card-body">
+            <form action="/admin/customization/send-news" method="POST" class="modern-form">
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="newsTitle">Title</label>
+                  <input type="text" id="newsTitle" name="newsTitle" class="form-control" required placeholder="Announcement Title">
+                  <small class="form-text text-muted">Title of your announcement</small>
+                </div>
+                <div class="modern-form-group">
+                  <label for="newsChannel">Channel</label>
+                  <select id="newsChannel" name="newsChannel" class="form-control">
+                    <option value="">Default News Channel</option>
+                    <% if (client && client.channels && client.channels.cache) { %>
+                      <% client.channels.cache.filter(c => c.type === 0).forEach(channel => { %>
+                        <option value="<%= channel.id %>"><%= channel.name %> (<%= channel.guild.name %>)</option>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                  <small class="form-text text-muted">Channel where announcement will be posted</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group full-width">
+                  <label for="newsContent">Content</label>
+                  <textarea id="newsContent" name="newsContent" class="form-control rich-editor" rows="8" required placeholder="Write your announcement here..."></textarea>
+                  <small class="form-text text-muted">Content of your announcement message</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="newsPingRole">Ping Role (Optional)</label>
+                  <select id="newsPingRole" name="newsPingRole" class="form-control">
+                    <option value="">No role ping</option>
+                    <option value="everyone">@everyone</option>
+                    <option value="here">@here</option>
+                    <% if (client && client.guilds && client.guilds.cache) { %>
+                      <% client.guilds.cache.forEach(guild => { %>
+                        <% guild.roles.cache.filter(r => r.mentionable).forEach(role => { %>
+                          <option value="<%= role.id %>">@<%= role.name %> (<%= guild.name %>)</option>
+                        <% }); %>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                  <small class="form-text text-muted">Optional role to ping with this announcement</small>
+                </div>
+                <div class="modern-form-group">
+                  <label for="newsColor">Embed Color</label>
+                  <div class="color-picker-wrapper">
+                    <input type="color" id="newsColor" name="newsColor" value="<%= config.embedColor || '#5865F2' %>" class="form-control color-picker">
+                    <input type="text" id="newsColorHex" class="form-control color-text" value="<%= config.embedColor || '#5865F2' %>">
+                  </div>
+                  <small class="form-text text-muted">Color for the announcement embed</small>
+                </div>
+              </div>
+
+              <div class="modern-form-row">
+                <div class="modern-form-group">
+                  <label for="newsImageUrl">Image URL (Optional)</label>
+                  <input type="text" id="newsImageUrl" name="newsImageUrl" class="form-control" placeholder="https://example.com/image.png">
+                  <small class="form-text text-muted">Optional image to include in announcement</small>
+                </div>
+                <div class="modern-form-group">
+                  <label>Options</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="newsSendAsEmbed" name="sendAsEmbed" value="true" checked>
+                    <label class="form-check-label" for="newsSendAsEmbed">Send as embedded message</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="newsAddFooter" name="addFooter" value="true" checked>
+                    <label class="form-check-label" for="newsAddFooter">Add timestamp and footer</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modern-card-actions">
+                <input type="hidden" name="_uiStyle" value="modern">
+                <button type="submit" class="btn btn-primary modern-btn">
+                  <i class="fas fa-paper-plane"></i> Send Announcement
+                </button>
+                <button type="reset" class="btn btn-secondary modern-btn">
+                  <i class="fas fa-undo"></i> Reset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="modern-card">
+          <div class="modern-card-header">
+            <h2 class="modern-card-title">Announcement Preview</h2>
+            <p class="modern-card-subtitle">Preview how your announcement will look</p>
+          </div>
+          <div class="modern-card-body">
+            <div class="preview-container">
+              <div class="announcement-preview">
+                <div class="announcement-preview-header">
+                  <div class="announcement-preview-avatar">
+                    <img src="<%= config.bountyAvatarUrl || 'https://i.imgur.com/YzOA3Rb.png' %>" alt="Bot Avatar">
+                  </div>
+                  <div class="announcement-preview-info">
+                    <div class="announcement-preview-name">SWOOSH Bot</div>
+                    <div class="announcement-preview-time">Today at 12:34 PM</div>
+                  </div>
+                </div>
+                <div class="announcement-preview-content">
+                  <span class="announcement-ping">@Announcements</span>
+                </div>
+                <div class="announcement-preview-embed">
+                  <div class="announcement-preview-embed-color"></div>
+                  <div class="announcement-preview-embed-content">
+                    <div class="announcement-preview-title" id="preview-news-title">Announcement Title</div>
+                    <div class="announcement-preview-description" id="preview-news-content">
+                      This is a preview of how your announcement will look when posted.
+                      Write your content in the form above and see it updated here in real-time.
+                    </div>
+                    <div class="announcement-preview-image" id="preview-news-image">
+                      <img src="https://i.imgur.com/YzOA3Rb.png" alt="Announcement Image">
+                    </div>
+                    <div class="announcement-preview-footer">
+                      <img src="<%= config.bountyAvatarUrl || 'https://i.imgur.com/YzOA3Rb.png' %>" class="footer-icon">
+                      <span>SWOOSH Bot • Today at 12:34 PM</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabs = document.querySelectorAll('.modern-tab');
+    const tabPanes = document.querySelectorAll('.modern-tab-pane');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Remove active class from all tabs and panes
+        tabs.forEach(t => t.classList.remove('active'));
+        tabPanes.forEach(p => p.classList.remove('active'));
+        
+        // Add active class to clicked tab
+        this.classList.add('active');
+        
+        // Show corresponding tab pane
+        const tabName = this.getAttribute('data-tab');
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+      });
+    });
+    
+    // Color picker hex input synchronization
+    const colorPickers = document.querySelectorAll('.color-picker');
+    
+    colorPickers.forEach(picker => {
+      const hexInput = picker.nextElementSibling;
+      
+      // Update hex input when color changes
+      picker.addEventListener('input', function() {
+        hexInput.value = this.value;
+        updatePreview();
+      });
+      
+      // Update color picker when hex input changes
+      hexInput.addEventListener('input', function() {
+        if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+          picker.value = this.value;
+          updatePreview();
+        }
+      });
+    });
+    
+    // Preview update function
+    function updatePreview() {
+      // Appearance preview
+      const primaryColor = document.getElementById('primaryColor')?.value || '#9c4dff';
+      const avatarUrl = document.getElementById('defaultAvatarUrl')?.value;
+      const botName = document.getElementById('defaultBotName')?.value || 'SWOOSH Bot';
+      const footerText = document.getElementById('defaultFooterText')?.value || 'Powered by SWOOSH Bot';
+      
+      document.getElementById('preview-embed').style.borderLeft = `4px solid ${primaryColor}`;
+      document.getElementById('preview-color').style.backgroundColor = primaryColor;
+      
+      if (avatarUrl) {
+        document.querySelectorAll('#preview-avatar img, .footer-icon').forEach(img => {
+          img.src = avatarUrl;
+        });
+      }
+      
+      if (botName) {
+        document.getElementById('preview-name').textContent = botName;
+      }
+      
+      if (footerText) {
+        document.querySelector('#preview-footer span').textContent = footerText;
+      }
+      
+      // News announcement preview
+      const newsTitle = document.getElementById('newsTitle')?.value || 'Announcement Title';
+      const newsContent = document.getElementById('newsContent')?.value || 'This is a preview of how your announcement will look when posted.';
+      const newsColor = document.getElementById('newsColor')?.value || '#5865F2';
+      const newsImageUrl = document.getElementById('newsImageUrl')?.value;
+      
+      document.getElementById('preview-news-title').textContent = newsTitle;
+      document.getElementById('preview-news-content').textContent = newsContent;
+      document.querySelector('.announcement-preview-embed-color').style.backgroundColor = newsColor;
+      
+      if (newsImageUrl) {
+        document.querySelector('#preview-news-image img').src = newsImageUrl;
+        document.getElementById('preview-news-image').style.display = 'block';
+      } else {
+        document.getElementById('preview-news-image').style.display = 'none';
+      }
+    }
+    
+    // Connect form inputs to preview
+    const previewInputs = [
+      'primaryColor', 'defaultAvatarUrl', 'defaultBotName', 'defaultFooterText',
+      'newsTitle', 'newsContent', 'newsColor', 'newsImageUrl'
+    ];
+    
+    previewInputs.forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener('input', updatePreview);
+      }
+    });
+    
+    // Initial preview update
+    updatePreview();
+  });
+</script>
+
+<style>
+  /* Modern Admin UI Styles */
+  .modern-admin-container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  
+  /* Header */
+  .modern-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modern-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .modern-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+  
+  /* Alerts */
+  .modern-alert {
+    border-radius: var(--border-radius);
+    border: none;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .alert-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+  }
+  
+  /* Content Area */
+  .modern-content {
+    background: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  
+  /* Tabs */
+  .modern-tabs {
+    display: flex;
+    background: var(--background-light);
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+    padding: 0 1rem;
+  }
+  
+  .modern-tab {
+    padding: 1rem 1.25rem;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    position: relative;
+    transition: all var(--transition-fast);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .modern-tab:hover {
+    color: var(--text-primary);
+  }
+  
+  .modern-tab.active {
+    color: var(--primary-color);
+  }
+  
+  .modern-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    border-radius: 3px 3px 0 0;
+  }
+  
+  /* Tab Content */
+  .modern-tab-content {
+    padding: 1.5rem;
+  }
+  
+  .modern-tab-pane {
+    display: none;
+  }
+  
+  .modern-tab-pane.active {
+    display: block;
+  }
+  
+  /* Cards */
+  .modern-card {
+    background: var(--background-lighter);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .modern-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .modern-card-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .modern-card-subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  
+  .modern-card-body {
+    padding: 1.5rem;
+  }
+  
+  .modern-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  /* Forms */
+  .modern-form {
+    width: 100%;
+  }
+  
+  .modern-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modern-form-group {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .modern-form-group.full-width {
+    flex-basis: 100%;
+  }
+  
+  .modern-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  
+  .modern-form .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    background-color: rgba(20, 16, 31, 0.6);
+    border: 1px solid rgba(156, 77, 255, 0.3);
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+  }
+  
+  .modern-form .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(156, 77, 255, 0.2);
+    outline: none;
+  }
+  
+  .modern-form .form-text {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  /* Color picker */
+  .color-picker-wrapper {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .color-picker {
+    width: 50px !important;
+    height: 40px;
+    padding: 0.25rem;
+    cursor: pointer;
+  }
+  
+  .color-text {
+    flex: 1;
+  }
+  
+  /* Buttons */
+  .modern-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    transition: all var(--transition-fast);
+    border: none;
+  }
+  
+  .btn-primary.modern-btn {
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-primary);
+  }
+  
+  .btn-primary.modern-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(156, 77, 255, 0.5);
+  }
+  
+  .btn-secondary.modern-btn {
+    background: rgba(156, 77, 255, 0.1);
+    color: var(--text-primary);
+  }
+  
+  .btn-secondary.modern-btn:hover {
+    background: rgba(156, 77, 255, 0.2);
+  }
+  
+  /* Preview elements */
+  .preview-container {
+    background: rgba(20, 16, 31, 0.7);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    overflow: hidden;
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .message-preview {
+    width: 100%;
+    max-width: 550px;
+    margin: 0 auto;
+  }
+  
+  .message-preview-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .message-preview-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 0.75rem;
+  }
+  
+  .message-preview-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .message-preview-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .message-preview-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+  }
+  
+  .message-preview-embed {
+    display: flex;
+    margin-left: 40px;
+    background: rgba(20, 16, 31, 0.7);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  .message-preview-embed-color {
+    width: 4px;
+    background-color: var(--primary-color);
+  }
+  
+  .message-preview-embed-content {
+    padding: 0.75rem 1rem;
+    flex: 1;
+  }
+  
+  .message-preview-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  
+  .message-preview-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .message-preview-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .message-preview-field {
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .field-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+  
+  .field-value {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+  
+  .message-preview-footer {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    border-top: 1px solid rgba(156, 77, 255, 0.2);
+    padding-top: 0.75rem;
+  }
+  
+  .footer-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+  
+  /* Announcements preview */
+  .announcement-preview {
+    width: 100%;
+    max-width: 550px;
+    margin: 0 auto;
+  }
+  
+  .announcement-preview-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .announcement-preview-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 0.75rem;
+  }
+  
+  .announcement-preview-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .announcement-preview-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .announcement-preview-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .announcement-preview-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  
+  .announcement-preview-content {
+    margin-left: 55px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .announcement-ping {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    background-color: rgba(156, 77, 255, 0.2);
+    border-radius: 3px;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  
+  .announcement-preview-embed {
+    margin-left: 55px;
+    display: flex;
+    background: rgba(20, 16, 31, 0.7);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+  }
+  
+  .announcement-preview-embed-color {
+    width: 4px;
+    background-color: #5865F2;
+  }
+  
+  .announcement-preview-embed-content {
+    padding: 1rem;
+    flex: 1;
+  }
+  
+  .announcement-preview-title {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+  }
+  
+  .announcement-preview-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+  
+  .announcement-preview-image {
+    width: 100%;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+  }
+  
+  .announcement-preview-image img {
+    width: 100%;
+    object-fit: cover;
+  }
+  
+  .announcement-preview-footer {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+  
+  /* Placeholder list */
+  .placeholder-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .placeholder-item {
+    background: rgba(20, 16, 31, 0.7);
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(156, 77, 255, 0.2);
+  }
+  
+  .placeholder-name {
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+  }
+  
+  .placeholder-description {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+  
+  /* Code editor */
+  .code-editor {
+    font-family: monospace;
+    tab-size: 2;
+  }
+  
+  /* Rich editor */
+  .rich-editor {
+    min-height: 150px;
+  }
+  
+  /* Radio and checkbox groups */
+  .modern-radio-group {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .modern-tabs {
+      flex-wrap: wrap;
+    }
+    
+    .modern-tab {
+      flex: 1;
+      min-width: 100px;
+      justify-content: center;
+      padding: 0.75rem 0.5rem;
+    }
+    
+    .modern-form-group {
+      flex-basis: 100%;
+    }
+    
+    .modern-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .modern-actions {
+      width: 100%;
+    }
+    
+    .modern-card-actions {
+      flex-direction: column;
+    }
+    
+    .modern-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
