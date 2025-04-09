@@ -310,38 +310,53 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Simple, reliable tab system
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get tab elements
-            const bountyTab = document.getElementById('bounty-tab');
-            const newsTab = document.getElementById('news-tab');
-            const bountyContent = document.getElementById('bounty');
-            const newsContent = document.getElementById('news');
+        // SUPER SIMPLE tab system - most reliable approach possible
+        window.onload = function() {
+            // Direct DOM references
+            var bountyTab = document.getElementById('bounty-tab');
+            var newsTab = document.getElementById('news-tab');
+            var bountyContent = document.getElementById('bounty');
+            var newsContent = document.getElementById('news');
             
-            // Set initial state
-            bountyContent.style.display = 'block';
-            newsContent.style.display = 'none';
+            // Verify elements exist
+            console.log("Bounty tab:", bountyTab);
+            console.log("News tab:", newsTab);
+            console.log("Bounty content:", bountyContent);
+            console.log("News content:", newsContent);
             
-            // Tab click handlers
-            bountyTab.onclick = function() {
-                // Update tab styles
-                bountyTab.classList.add('active');
-                newsTab.classList.remove('active');
-                
-                // Show/hide content directly with style
-                bountyContent.style.display = 'block';
-                newsContent.style.display = 'none';
-            };
+            // Force initial state
+            if (bountyContent) bountyContent.style.display = 'block';
+            if (newsContent) newsContent.style.display = 'none';
             
-            newsTab.onclick = function() {
-                // Update tab styles
-                newsTab.classList.add('active');
-                bountyTab.classList.remove('active');
-                
-                // Show/hide content directly with style
-                newsContent.style.display = 'block';
-                bountyContent.style.display = 'none';
-            };
+            // Bounty tab click - most direct implementation possible
+            if (bountyTab) {
+                bountyTab.onclick = function() {
+                    console.log("Bounty tab clicked");
+                    // Update tabs
+                    bountyTab.className = 'tab-button active';
+                    newsTab.className = 'tab-button';
+                    
+                    // Direct style manipulation
+                    document.getElementById('bounty').style.display = 'block';
+                    document.getElementById('news').style.display = 'none';
+                    return false;
+                };
+            }
+            
+            // News tab click - most direct implementation possible
+            if (newsTab) {
+                newsTab.onclick = function() {
+                    console.log("News tab clicked");
+                    // Update tabs
+                    newsTab.className = 'tab-button active';
+                    bountyTab.className = 'tab-button';
+                    
+                    // Direct style manipulation
+                    document.getElementById('news').style.display = 'block';
+                    document.getElementById('bounty').style.display = 'none';
+                    return false;
+                };
+            }
             
             // Bounty Preview Updates
             function updateBountyPreview() {
