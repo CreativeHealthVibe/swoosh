@@ -324,8 +324,8 @@ router.get('/settings', async (req, res) => {
                            (await db.getAllLocalUsers()).filter(user => user.is_admin) : [];
     
     try {
-      // First try rendering the enhanced settings page
-      res.render('admin/settings-enhanced', {
+      // Use the modern settings page
+      res.render('admin/settings-new', {
         user: req.user,
         config: config,
         adminUsers,
@@ -446,24 +446,24 @@ router.get('/logs', (req, res) => {
     }
   };
   
-  // Use our new enhanced template first, with fallbacks
+  // Use the modern logs template
   try {
-    res.render('admin/logs-enhanced', {
+    res.render('admin/logs-new', {
       title: 'System Logs | SWOOSH Bot',
       logFiles,
       logStats,
       user: req.user,
-      formatFileSize, // Pass the helper function to the template
+      formatFileSize,
       path: '/admin/logs',
       layout: 'layouts/admin',
-      staticPage: true // Disable WebSocket on this page
+      staticPage: true
     });
   } catch (err) {
-    console.error('Error rendering enhanced logs template:', err);
+    console.error('Error rendering modern logs template:', err);
     
-    // Try the logs-new template as a fallback
+    // Fall back to older template if needed
     try {
-      res.render('admin/logs-new', {
+      res.render('admin/logs-enhanced', {
         title: 'System Logs | SWOOSH Bot',
         logFiles,
         logStats,
@@ -474,8 +474,8 @@ router.get('/logs', (req, res) => {
         staticPage: true
       });
     } catch (err2) {
-      // Fall back to the original template if all else fails
-      console.error('Error rendering new logs template:', err2);
+      // Last resort fallback
+      console.error('Error rendering enhanced logs template:', err2);
       res.render('admin/logs', {
         title: 'Bot Logs | SWOOSH Bot',
         logFiles,
@@ -682,30 +682,17 @@ router.get('/customization', (req, res) => {
     // Get the Discord client from the app
     const client = req.app.get('client');
     
-    // Check if we should use the modern UI
-    if (req.query.modern === 'true') {
-      res.render('admin/customization-modern', {
-        title: 'Bot Customization',
-        user: req.user,
-        path: '/admin/customization',
-        config: botConfig,
-        client: client,
-        messages: req.flash(),
-        uiStyle: 'modern',
-        layout: 'layouts/admin'
-      });
-    } else {
-      // Use the current template that works with admin layout
-      res.render('admin/customization-new', {
-        title: 'Bounty Customization',
-        user: req.user,
-        path: '/admin/customization',
-        config: botConfig,
-        client: client, // Pass the Discord client to access guilds and channels
-        messages: req.flash(), // Include flash messages
-        layout: 'layouts/admin'
-      });
-    }
+    // Always use the modern UI
+    res.render('admin/customization-modern', {
+      title: 'Bot Customization',
+      user: req.user,
+      path: '/admin/customization',
+      config: botConfig,
+      client: client,
+      messages: req.flash(),
+      uiStyle: 'modern',
+      layout: 'layouts/admin'
+    });
   } catch (error) {
     console.error('Error rendering customization page:', error);
     res.status(500).send('Error loading customization page: ' + error.message);
@@ -792,22 +779,14 @@ router.post('/customization/update-appearance', (req, res) => {
     // Flash success message and redirect back
     req.flash('success', 'Appearance settings updated successfully!');
     
-    // Redirect back to the modern UI if that's where the request came from
-    if (req.query.modern === 'true' || req.body._uiStyle === 'modern') {
-      res.redirect('/admin/customization?modern=true');
-    } else {
-      res.redirect('/admin/customization');
-    }
+    // Always redirect to the customization page (which now uses modern UI)
+    res.redirect('/admin/customization');
   } catch (error) {
     console.error('Error saving appearance settings:', error);
     req.flash('error', 'Failed to save appearance settings: ' + error.message);
     
-    // Redirect back to the appropriate UI
-    if (req.query.modern === 'true' || req.body._uiStyle === 'modern') {
-      res.redirect('/admin/customization?modern=true');
-    } else {
-      res.redirect('/admin/customization');
-    }
+    // Always redirect to the customization page (which now uses modern UI)
+    res.redirect('/admin/customization');
   }
 });
 
@@ -900,50 +879,28 @@ router.get('/welcome', (req, res) => {
   
   // Make sure user is defined before accessing properties
   try {
-    // Try the new page with external CSS fix first
-    res.render('admin/welcome-final-fix', {
+    // Use the modern welcome page
+    res.render('admin/welcome-enhanced-new', {
       title: 'Dashboard | SWOOSH Bot',
       greeting: `${greeting}`,
       user: req.user || null,
       path: '/admin/welcome',
       layout: 'layouts/admin'
     });
-  } catch (finalError) {
-    console.error('Error rendering final fixed welcome page:', finalError);
-    // Fallback to previous fixes if needed
+  } catch (error) {
+    console.error('Error rendering modern welcome page:', error);
+    // Fallback to previous versions if needed
     try {
-      res.render('admin/welcome-stair-fix', {
+      res.render('admin/welcome-final-fix', {
         title: 'Dashboard | SWOOSH Bot',
         greeting: `${greeting}`,
         user: req.user || null,
         path: '/admin/welcome',
         layout: 'layouts/admin'
       });
-    } catch (stairFixError) {
-      console.error('Error rendering stair-fix welcome page:', stairFixError);
-      try {
-        res.render('admin/welcome-enhanced-fix', {
-          title: 'Dashboard | SWOOSH Bot',
-          greeting: `${greeting}`,
-          user: req.user || null,
-          path: '/admin/welcome',
-          layout: 'layouts/admin'
-        });
-      } catch (enhancedFixError) {
-        console.error('Error rendering enhanced-fix welcome page:', enhancedFixError);
-        try {
-          res.render('admin/welcome-enhanced', {
-            title: 'Dashboard | SWOOSH Bot',
-            greeting: `${greeting}`,
-            user: req.user || null,
-            path: '/admin/welcome',
-            layout: 'layouts/admin'
-          });
-        } catch (err) {
-          console.error('Error rendering fallback welcome page:', err);
-          res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
-        }
-      }
+    } catch (finalError) {
+      console.error('Error rendering final fixed welcome page:', finalError);
+      res.status(500).send('An error occurred while rendering the welcome page. Please try again later.');
     }
   }
 });
