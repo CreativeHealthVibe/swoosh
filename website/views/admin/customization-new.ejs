@@ -58,6 +58,11 @@
                 </div>
                 
                 <div class="mb-4">
+                  <label for="robloxId" class="form-label">Roblox ID</label>
+                  <input type="text" class="form-control" id="robloxId" name="robloxId" placeholder="Enter Roblox ID" required>
+                </div>
+                
+                <div class="mb-4">
                   <label for="bountyAmount" class="form-label">Bounty Amount</label>
                   <div class="input-group">
                     <span class="input-group-text">R$</span>
@@ -69,6 +74,31 @@
                 <div class="mb-4">
                   <label for="bountyReason" class="form-label">Reason (Optional)</label>
                   <textarea class="form-control" id="bountyReason" name="bountyReason" rows="2" placeholder="Enter reason for the bounty"></textarea>
+                </div>
+                
+                <div class="mb-4">
+                  <label for="clipRequired" class="form-label">Clip Required</label>
+                  <select class="form-select" id="clipRequired" name="clipRequired">
+                    <option value="true" selected>Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </div>
+                
+                <div class="mb-4">
+                  <label for="bountyChannel" class="form-label">Target Channel</label>
+                  <select class="form-select" id="bountyChannel" name="bountyChannel">
+                    <option value="" selected>Use Default Channel (from Config)</option>
+                    <% if (typeof client !== 'undefined' && client) { %>
+                      <% client.guilds.cache.forEach(guild => { %>
+                        <optgroup label="<%= guild.name %>">
+                          <% guild.channels.cache.filter(c => c.type === 0).forEach(channel => { %>
+                            <option value="<%= channel.id %>"><%= channel.name %></option>
+                          <% }); %>
+                        </optgroup>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                  <small class="form-text text-muted">Select channel where bounty will be posted</small>
                 </div>
                 
                 <hr class="my-4">
@@ -109,11 +139,15 @@
                   <span id="preview-name" class="discord-username">SWOOSH Bounty System</span>
                 </div>
                 <div id="discord-embed" class="discord-embed">
-                  <div class="discord-embed-title">SWOOSH BOUNTY: EXAMPLE_USER</div>
-                  <div class="discord-embed-description">A new bounty has been placed!</div>
+                  <div class="discord-embed-title">:S__dollars: SWOOSH BOUNTY: <span id="preview-target-upper">EXAMPLE_USER</span> :S__dollars:</div>
+                  <div class="discord-embed-description">A new bounty has been placed! Eliminate the target to claim the reward.</div>
                   <div class="discord-embed-fields">
-                    <div class="discord-embed-field">👤 Target: ExampleUser</div>
-                    <div class="discord-embed-field">💵 Reward: <span id="preview-amount">R$1,000</span></div>
+                    <div class="discord-embed-field">👤 Target<br><span id="preview-target">ExampleUser</span></div>
+                    <div class="discord-embed-field">:S__ID: Roblox ID<br><span id="preview-roblox-id">55</span></div>
+                    <div class="discord-embed-field">💵 Reward<br><span id="preview-amount">R$1,000</span></div>
+                    <div class="discord-embed-field">:S__Clip: Clip Required<br><span id="preview-clip-required">✅ Yes</span></div>
+                    <div class="discord-embed-field">:S__Crown: Hosted By<br>@<span id="preview-host">admin</span></div>
+                    <div class="discord-embed-field">:S__Time: Posted<br>Just now</div>
                   </div>
                   <div class="discord-embed-footer">
                     <img id="preview-thumbnail" src="https://i.imgur.com/YzOA3Rb.png" class="discord-footer-icon">
@@ -346,8 +380,10 @@
       
       // Get target settings
       const targetUser = document.getElementById('targetUser').value || 'EXAMPLE_USER';
+      const robloxId = document.getElementById('robloxId').value || '55';
       const amount = document.getElementById('bountyAmount').value || '1,000';
       const reason = document.getElementById('bountyReason').value || '';
+      const clipRequired = document.getElementById('clipRequired').value === 'true' ? '✅ Yes' : '❌ No';
       
       // Update the preview
       document.getElementById('discord-embed').style.borderLeftColor = color;
@@ -356,23 +392,20 @@
       document.getElementById('preview-thumbnail').src = thumbnailUrl;
       
       // Update title and target
-      const embedTitle = document.querySelector('.discord-embed-title');
-      if (embedTitle) embedTitle.innerText = `SWOOSH BOUNTY: ${targetUser.toUpperCase()}`;
-      
-      // Update target field
-      const targetField = document.querySelector('.discord-embed-field:first-child');
-      if (targetField) targetField.innerHTML = `👤 Target: ${targetUser}`;
-      
-      // Update amount
+      document.getElementById('preview-target-upper').innerText = targetUser.toUpperCase();
+      document.getElementById('preview-target').innerText = targetUser;
+      document.getElementById('preview-roblox-id').innerText = robloxId;
       document.getElementById('preview-amount').innerText = `R$${amount}`;
+      document.getElementById('preview-clip-required').innerText = clipRequired;
+      document.getElementById('preview-host').innerText = '<%= user.username || "admin" %>';
       
       // Add reason if provided
       const description = document.querySelector('.discord-embed-description');
       if (description) {
         if (reason) {
-          description.innerHTML = `A new bounty has been placed!<br><br>Reason: ${reason}`;
+          description.innerHTML = `A new bounty has been placed! Eliminate the target to claim the reward.<br><br>Reason: ${reason}`;
         } else {
-          description.innerHTML = 'A new bounty has been placed!';
+          description.innerHTML = 'A new bounty has been placed! Eliminate the target to claim the reward.';
         }
       }
     }
@@ -398,13 +431,17 @@
     // Setup other input events for bounty
     const bountyFields = [
       'bountyName', 'bountyAvatarUrl', 'defaultThumbnailUrl', 
-      'targetUser', 'bountyAmount', 'bountyReason'
+      'targetUser', 'robloxId', 'bountyAmount', 'bountyReason', 'clipRequired'
     ];
     
     bountyFields.forEach(field => {
       const element = document.getElementById(field);
       if (element) {
         element.addEventListener('input', updateBountyPreview);
+        // For select elements use change event
+        if (element.tagName === 'SELECT') {
+          element.addEventListener('change', updateBountyPreview);
+        }
       }
     });
     
@@ -455,11 +492,18 @@
     if (bountyForm) {
       bountyForm.addEventListener('submit', function(e) {
         const targetUser = document.getElementById('targetUser').value;
+        const robloxId = document.getElementById('robloxId').value;
         const amount = document.getElementById('bountyAmount').value;
         
         if (!targetUser) {
           e.preventDefault();
           alert('Please provide a target username for the bounty.');
+          return;
+        }
+        
+        if (!robloxId) {
+          e.preventDefault();
+          alert('Please provide a Roblox ID for the target.');
           return;
         }
         

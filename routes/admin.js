@@ -1366,11 +1366,22 @@ router.post('/customization/send-news', async (req, res) => {
  */
 router.post('/customization/send-bounty', async (req, res) => {
   try {
-    const { targetUser, bountyAmount, bountyReason, bountyColor, bountyName, bountyAvatarUrl, defaultThumbnailUrl } = req.body;
+    const { 
+      targetUser, 
+      robloxId, 
+      bountyAmount, 
+      bountyReason, 
+      clipRequired, 
+      bountyChannel, 
+      bountyColor, 
+      bountyName, 
+      bountyAvatarUrl, 
+      defaultThumbnailUrl 
+    } = req.body;
     
     // Validate input
-    if (!targetUser || !bountyAmount) {
-      req.flash('error', 'Target user and bounty amount are required');
+    if (!targetUser || !robloxId || !bountyAmount) {
+      req.flash('error', 'Target user, Roblox ID, and bounty amount are required');
       return res.redirect('/admin/customization');
     }
     
@@ -1390,26 +1401,46 @@ router.post('/customization/send-bounty', async (req, res) => {
     }
     
     // Find configured bounty channel
-    const bountyChannelId = config.bountyChannelId || config.logsChannelId;
-    if (!bountyChannelId) {
-      req.flash('error', 'No bounty channel configured. Please set bountyChannelId in config.js');
-      return res.redirect('/admin/customization');
+    let channelToUse;
+    if (bountyChannel) {
+      // Use user-selected channel if provided
+      channelToUse = client.channels.cache.get(bountyChannel);
+      if (!channelToUse) {
+        req.flash('error', 'Selected channel not found or bot does not have access to it.');
+        return res.redirect('/admin/customization');
+      }
+    } else {
+      // Fallback to configured channel
+      const bountyChannelId = config.bountyChannelId || config.logsChannelId;
+      if (!bountyChannelId) {
+        req.flash('error', 'No bounty channel configured. Please set bountyChannelId in config.js');
+        return res.redirect('/admin/customization');
+      }
+      
+      channelToUse = client.channels.cache.get(bountyChannelId);
+      if (!channelToUse) {
+        req.flash('error', 'Bounty channel not found. Check channel ID in config.');
+        return res.redirect('/admin/customization');
+      }
     }
     
-    const bountyChannel = client.channels.cache.get(bountyChannelId);
-    if (!bountyChannel) {
-      req.flash('error', 'Bounty channel not found. Check channel ID in config.');
-      return res.redirect('/admin/customization');
-    }
+    // Determine clip required value
+    const isClipRequired = clipRequired === 'true';
     
     // Create bounty embed
     const bountyEmbed = {
-      title: `SWOOSH BOUNTY: ${targetUser.toUpperCase()}`,
-      description: bountyReason ? `A new bounty has been placed!\n\nReason: ${bountyReason}` : 'A new bounty has been placed!',
+      title: `:S__dollars: SWOOSH BOUNTY: ${targetUser.toUpperCase()} :S__dollars:`,
+      description: bountyReason 
+        ? `A new bounty has been placed! Eliminate the target to claim the reward.\n\nReason: ${bountyReason}` 
+        : 'A new bounty has been placed! Eliminate the target to claim the reward.',
       color: bountyColor ? parseInt(bountyColor.replace('#', ''), 16) : 0x9B59B6,
       fields: [
         { name: '👤 Target', value: targetUser, inline: true },
-        { name: '💵 Reward', value: `R$${bountyAmount}`, inline: true }
+        { name: ':S__ID: Roblox ID', value: robloxId, inline: true },
+        { name: '💵 Reward', value: `R$${bountyAmount}`, inline: true },
+        { name: ':S__Clip: Clip Required', value: isClipRequired ? '✅ Yes' : '❌ No', inline: true },
+        { name: ':S__Crown: Hosted By', value: `@${req.user.username || 'admin'}`, inline: true },
+        { name: ':S__Time: Posted', value: 'Just now', inline: true }
       ],
       thumbnail: { url: defaultThumbnailUrl || 'https://i.imgur.com/YzOA3Rb.png' },
       footer: {
@@ -1420,14 +1451,14 @@ router.post('/customization/send-bounty', async (req, res) => {
     };
     
     // Send the bounty embed
-    await bountyChannel.send({ 
+    await channelToUse.send({ 
       username: bountyName || 'SWOOSH Bounty System',
       avatarURL: bountyAvatarUrl || 'https://i.imgur.com/YzOA3Rb.png',
       embeds: [bountyEmbed] 
     });
     
     // Log the action
-    console.log(`Bounty of R$${bountyAmount} placed on ${targetUser} by admin ${req.user.username} (${req.user.id})`);
+    console.log(`Bounty of R$${bountyAmount} placed on ${targetUser} (Roblox ID: ${robloxId}) by admin ${req.user.username} (${req.user.id})`);
     
     // Success response
     req.flash('success', `Bounty of R$${bountyAmount} placed on ${targetUser} successfully!`);
