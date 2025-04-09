@@ -87,7 +87,7 @@ module.exports = {
   // Webhook settings
   webhooks: {
     bountyAvatarUrl: 'https://i.imgur.com/YzOA3Rb.png',
-    bountyName: 'Hi salman',
+    bountyName: 'huh',
     bountyColor: '#9b59b6', // Purple color for bounty embeds
     defaultThumbnailUrl: 'https://i.imgur.com/YzOA3Rb.png', // Default thumbnail for bounty embeds
   }
