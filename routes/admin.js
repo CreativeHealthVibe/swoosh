@@ -1285,12 +1285,12 @@ router.post('/settings/send-news', async (req, res) => {
     let guild = null;
     
     // Try to get the news channel from the database
-    if (client.db) {
+    if (client.discordDB) {
       const servers = client.guilds.cache.map(g => g.id);
       
       // Check each server for a news channel configuration
       for (const guildId of servers) {
-        const guildConfig = await client.db.get('configs', guildId);
+        const guildConfig = await client.discordDB.getDocument('configs', guildId);
         
         if (guildConfig && guildConfig.newsChannel) {
           newsChannelId = guildConfig.newsChannel;
