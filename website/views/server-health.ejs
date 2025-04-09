@@ -447,6 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin-top: 2rem;
+  padding: 0 0.5rem;
 }
 
 .dashboard-card {
@@ -508,8 +509,6 @@ document.addEventListener('DOMContentLoaded', function() {
   justify-content: center;
   margin-bottom: 10px;
 }
-  margin-bottom: 10px;
-}
 
 .gauge-value {
   position: absolute;
@@ -550,6 +549,9 @@ document.addEventListener('DOMContentLoaded', function() {
   font-size: 0.9rem;
   margin-top: 10px;
   clear: both;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .detail-item,
@@ -557,17 +559,19 @@ document.addEventListener('DOMContentLoaded', function() {
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.5rem;
+  width: calc(50% - 0.5rem);
 }
 
 .detail-label,
 .info-label {
   color: var(--text-secondary);
   font-weight: 500;
-\n.detail-value,
+}
+
+.detail-value,
 .info-value {
   font-weight: 600;
   color: var(--text-primary);
-}
 }
 
 .discord-metrics {
@@ -575,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
   justify-content: space-around;
   padding: 1.5rem 0;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .discord-metric {
@@ -639,6 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
 @media (max-width: 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
   
   .metric-card,
@@ -649,9 +654,63 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   .discord-metrics {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  
+  .discord-metric {
+    width: calc(50% - 1rem);
+    justify-content: flex-start;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .dashboard-grid {
+    gap: 1rem;
+    padding: 0;
+  }
+  
+  .dashboard-card {
+    padding: 1rem 1rem 1.5rem;
+  }
+  
+  .discord-metrics {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
+  }
+  
+  .discord-metric {
+    width: 100%;
+  }
+  
+  .metric-card {
+    min-height: 300px;
+  }
+  
+  .gauge-container canvas {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .system-info {
+    flex-direction: column;
+  }
+  
+  .info-item {
+    width: 100%;
+  }
+  
+  .metric-circle {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
   }
 }
 </style>
