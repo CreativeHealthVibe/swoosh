@@ -91,8 +91,14 @@ router.get('/settings', async (req, res) => {
       localAdminUsers,
       staticPage,
       tab,
+      messages: {
+        success: req.flash('success'),
+        error: req.flash('error')
+      },
+      path: '/admin/settings',
       title: 'Bot Settings | SWOOSH Bot',
-      client: client // Pass the Discord client to the template
+      client: client, // Pass the Discord client to the template
+      config: config
     });
     return;
   } catch (err) {
