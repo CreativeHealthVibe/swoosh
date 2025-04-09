@@ -1,0 +1,37 @@
+<%- include('../partials/admin-header.ejs') %>
+
+<div class="admin-page-header">
+  <div class="header-content">
+    <h1><i class="fas fa-cog"></i> Bot Settings</h1>
+    <p>Configure bot behavior and administration settings</p>
+  </div>
+</div>
+
+<% if (messages.success) { %>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <%= messages.success %>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<% } %>
+
+<% if (messages.error) { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <%= messages.error %>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<% } %>
+
+<div class="settings-container">
+  <!-- Bot Settings -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">Bot Configuration</h5>
+    </div>
+    <div class="card-body">
+      <p>Bot settings are configured through the config.js file.</p>
+      <p>The full settings panel will be available in a future update.</p>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/admin-footer.ejs') %>
