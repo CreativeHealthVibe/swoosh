@@ -3,9 +3,9 @@
   <div class="content-header">
     <h1 class="content-title">
       <i class="fas fa-sliders-h icon-gradient"></i>
-      Bounty System Customization
+      Bounty System & News
     </h1>
-    <p class="content-subtitle">Customize how the bounty system appears in Discord</p>
+    <p class="content-subtitle">Send bounties directly and manage news announcements</p>
   </div>
 
   <!-- Flash Messages -->
@@ -26,7 +26,7 @@
     <div class="admin-tabs">
       <button class="tab-btn active" data-tab="bounty">
         <i class="fas fa-money-bill-wave"></i>
-        Bounty Settings
+        Send Bounty
       </button>
       <button class="tab-btn" data-tab="news">
         <i class="fas fa-newspaper"></i>
@@ -40,10 +40,10 @@
         <div class="col-lg-7">
           <div class="admin-card">
             <div class="admin-card-header">
-              <h3><i class="fas fa-cog"></i> Bounty Configuration</h3>
+              <h3><i class="fas fa-crosshairs"></i> Send Bounty Target</h3>
             </div>
             <div class="admin-card-content">
-              <form action="/admin/customization/save" method="POST">
+              <form action="/admin/customization/send-bounty" method="POST">
                 <div class="mb-4">
                   <label for="bountyColor" class="form-label">Embed Color</label>
                   <div class="input-group">
@@ -52,6 +52,28 @@
                   </div>
                 </div>
 
+                <div class="mb-4">
+                  <label for="targetUser" class="form-label">Target Username</label>
+                  <input type="text" class="form-control" id="targetUser" name="targetUser" placeholder="Enter target username" required>
+                </div>
+                
+                <div class="mb-4">
+                  <label for="bountyAmount" class="form-label">Bounty Amount</label>
+                  <div class="input-group">
+                    <span class="input-group-text">R$</span>
+                    <input type="number" class="form-control" id="bountyAmount" name="bountyAmount" placeholder="Enter amount" min="15" max="30000" required>
+                  </div>
+                  <small class="form-text text-muted">Amount must be between R$15 and R$30,000</small>
+                </div>
+
+                <div class="mb-4">
+                  <label for="bountyReason" class="form-label">Reason (Optional)</label>
+                  <textarea class="form-control" id="bountyReason" name="bountyReason" rows="2" placeholder="Enter reason for the bounty"></textarea>
+                </div>
+                
+                <hr class="my-4">
+                <h5 class="mb-3">Appearance Settings</h5>
+              
                 <div class="mb-4">
                   <label for="bountyName" class="form-label">Webhook Name</label>
                   <input type="text" class="form-control" id="bountyName" name="bountyName" value="SWOOSH Bounty System">
@@ -67,19 +89,8 @@
                   <input type="text" class="form-control" id="defaultThumbnailUrl" name="defaultThumbnailUrl" value="https://i.imgur.com/YzOA3Rb.png">
                 </div>
 
-                <div class="row mb-4">
-                  <div class="col-md-6">
-                    <label for="bountyMinAmount" class="form-label">Minimum Amount</label>
-                    <input type="number" class="form-control" id="bountyMinAmount" name="bountyMinAmount" value="15">
-                  </div>
-                  <div class="col-md-6">
-                    <label for="bountyMaxAmount" class="form-label">Maximum Amount</label>
-                    <input type="number" class="form-control" id="bountyMaxAmount" name="bountyMaxAmount" value="30000">
-                  </div>
-                </div>
-
                 <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i> Save Configuration
+                  <i class="fas fa-paper-plane me-2"></i> Send Bounty
                 </button>
               </form>
             </div>
@@ -327,18 +338,43 @@
     
     // Bounty Preview Updates
     function updateBountyPreview() {
+      // Get basic appearance settings
       const color = document.getElementById('bountyColor').value || '#9B59B6';
       const name = document.getElementById('bountyName').value || 'SWOOSH Bounty System';
       const avatarUrl = document.getElementById('bountyAvatarUrl').value || 'https://i.imgur.com/YzOA3Rb.png';
       const thumbnailUrl = document.getElementById('defaultThumbnailUrl').value || 'https://i.imgur.com/YzOA3Rb.png';
-      const min = document.getElementById('bountyMinAmount').value || '15';
-      const max = document.getElementById('bountyMaxAmount').value || '30000';
       
+      // Get target settings
+      const targetUser = document.getElementById('targetUser').value || 'EXAMPLE_USER';
+      const amount = document.getElementById('bountyAmount').value || '1,000';
+      const reason = document.getElementById('bountyReason').value || '';
+      
+      // Update the preview
       document.getElementById('discord-embed').style.borderLeftColor = color;
       document.getElementById('preview-name').innerText = name;
       document.getElementById('preview-avatar').src = avatarUrl;
       document.getElementById('preview-thumbnail').src = thumbnailUrl;
-      document.getElementById('preview-amount').innerText = `R$${min} - R$${max}`;
+      
+      // Update title and target
+      const embedTitle = document.querySelector('.discord-embed-title');
+      if (embedTitle) embedTitle.innerText = `SWOOSH BOUNTY: ${targetUser.toUpperCase()}`;
+      
+      // Update target field
+      const targetField = document.querySelector('.discord-embed-field:first-child');
+      if (targetField) targetField.innerHTML = `👤 Target: ${targetUser}`;
+      
+      // Update amount
+      document.getElementById('preview-amount').innerText = `R$${amount}`;
+      
+      // Add reason if provided
+      const description = document.querySelector('.discord-embed-description');
+      if (description) {
+        if (reason) {
+          description.innerHTML = `A new bounty has been placed!<br><br>Reason: ${reason}`;
+        } else {
+          description.innerHTML = 'A new bounty has been placed!';
+        }
+      }
     }
     
     // Color picker sync
@@ -360,7 +396,11 @@
     }
     
     // Setup other input events for bounty
-    const bountyFields = ['bountyName', 'bountyAvatarUrl', 'defaultThumbnailUrl', 'bountyMinAmount', 'bountyMaxAmount'];
+    const bountyFields = [
+      'bountyName', 'bountyAvatarUrl', 'defaultThumbnailUrl', 
+      'targetUser', 'bountyAmount', 'bountyReason'
+    ];
+    
     bountyFields.forEach(field => {
       const element = document.getElementById(field);
       if (element) {
@@ -396,7 +436,7 @@
       }
     });
     
-    // Form validation
+    // Form validation for news
     const newsForm = document.getElementById('newsForm');
     if (newsForm) {
       newsForm.addEventListener('submit', function(e) {
@@ -406,6 +446,35 @@
         if (!title || !content) {
           e.preventDefault();
           alert('Please provide both a title and content for the news update.');
+        }
+      });
+    }
+    
+    // Form validation for bounty
+    const bountyForm = document.querySelector('#bounty-tab form');
+    if (bountyForm) {
+      bountyForm.addEventListener('submit', function(e) {
+        const targetUser = document.getElementById('targetUser').value;
+        const amount = document.getElementById('bountyAmount').value;
+        
+        if (!targetUser) {
+          e.preventDefault();
+          alert('Please provide a target username for the bounty.');
+          return;
+        }
+        
+        if (!amount) {
+          e.preventDefault();
+          alert('Please specify an amount for the bounty.');
+          return;
+        }
+        
+        // Validate amount range
+        const amountNum = parseInt(amount, 10);
+        if (isNaN(amountNum) || amountNum < 15 || amountNum > 30000) {
+          e.preventDefault();
+          alert('Bounty amount must be between R$15 and R$30,000.');
+          return;
         }
       });
     }
