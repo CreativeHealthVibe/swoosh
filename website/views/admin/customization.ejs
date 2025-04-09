@@ -23,6 +23,7 @@
             font-size: 1.1rem;
             color: #555;
             border: 1px solid transparent;
+            cursor: pointer;
         }
         .nav-tabs .nav-link.active {
             font-weight: bold;
@@ -37,14 +38,27 @@
         }
         .card {
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
         }
         .card-header {
             background-color: #f8f9fa;
             border-bottom: 1px solid #eaeaea;
+            padding: 1rem 1.25rem;
         }
         /* Discord-style preview */
         #discord-message {
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+        /* Fixed tab content display */
+        #bounty {
+            display: block; /* Show by default */
+        }
+        #news {
+            display: none; /* Hide by default */
+        }
+        /* Improved card body padding */
+        .card-body {
+            padding: 1.5rem;
         }
     </style>
 </head>
@@ -69,7 +83,7 @@
                 
                 <div class="tab-content" id="customizationTabContent">
                     <!-- Bounty System Tab -->
-                    <div class="tab-pane fade show active" id="bounty" role="tabpanel" aria-labelledby="bounty-tab">
+                    <div class="tab-pane" id="bounty" role="tabpanel" aria-labelledby="bounty-tab">
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="card-title">💰 Bounty System Customization</h5>
@@ -145,7 +159,7 @@
                     </div>
                     
                     <!-- News Updates Tab -->
-                    <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
+                    <div class="tab-pane" id="news" role="tabpanel" aria-labelledby="news-tab">
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="card-title">📢 News Updates</h5>
@@ -225,30 +239,27 @@
             const tabButtons = document.querySelectorAll('#customizationTabs button');
             const tabPanes = document.querySelectorAll('.tab-pane');
             
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Hide all tabs
-                    tabPanes.forEach(pane => {
-                        pane.classList.remove('show', 'active');
-                    });
-                    
-                    // Remove active class from all buttons
-                    tabButtons.forEach(btn => {
-                        btn.classList.remove('active');
-                        btn.setAttribute('aria-selected', 'false');
-                    });
-                    
-                    // Show the selected tab
-                    const targetId = button.getAttribute('data-bs-target');
-                    const targetPane = document.querySelector(targetId);
-                    if (targetPane) {
-                        targetPane.classList.add('show', 'active');
-                    }
-                    
-                    // Set this button as active
-                    button.classList.add('active');
-                    button.setAttribute('aria-selected', 'true');
-                });
+            // Define direct click handlers for each tab button
+            // Bounty tab
+            document.getElementById('bounty-tab').addEventListener('click', function() {
+                // Hide all content
+                document.getElementById('bounty').style.display = 'block';
+                document.getElementById('news').style.display = 'none';
+                
+                // Set active classes
+                this.classList.add('active');
+                document.getElementById('news-tab').classList.remove('active');
+            });
+            
+            // News tab
+            document.getElementById('news-tab').addEventListener('click', function() {
+                // Hide all content
+                document.getElementById('bounty').style.display = 'none';
+                document.getElementById('news').style.display = 'block';
+                
+                // Set active classes
+                this.classList.add('active');
+                document.getElementById('bounty-tab').classList.remove('active');
             });
             
             // Bounty Preview Updates
