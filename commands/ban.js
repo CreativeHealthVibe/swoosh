@@ -1,10 +1,13 @@
 // ban.js - Command to ban a user from the server
 const { 
-  EmbedBuilder 
+  EmbedBuilder,
+  MessageActionRow,
+  MessageButton 
 } = require('discord.js');
 const config = require('../config');
 const adminUtils = require('../utils/admin');
 const logging = require('../modules/logging');
+const banLogger = require('../modules/ban-logger');
 
 module.exports = {
   name: 'ban',
@@ -39,32 +42,122 @@ module.exports = {
       const reason = reasonArray.length > 0 ? reasonArray.join(' ') : 'No reason provided';
 
       try {
-        // Ban the user immediately without confirmation
-        await targetUser.ban({ reason: `${reason} | Banned by ${message.author.tag}` });
-        
-        // Format the current time
-        const now = new Date();
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const timeString = `Today at ${hours}:${minutes}`;
-        
-        // Create success embed with the requested format
-        const successEmbed = new EmbedBuilder()
-          .setTitle('🔨 User Banned')
-          .setDescription(`${targetUser.user.username} has been banned from the server.`)
+        // Create a confirmation message with buttons
+        const confirmEmbed = new EmbedBuilder()
+          .setTitle('⚠️ Confirm Ban')
+          .setDescription(`Are you sure you want to ban ${targetUser.user.tag}?`)
           .addFields(
-            { name: 'Reason', value: reason, inline: false },
-            { name: 'Banned by', value: message.author.username, inline: false }
+            { name: 'User', value: `${targetUser.user.tag} (${targetUser.id})`, inline: false },
+            { name: 'Reason', value: reason, inline: false }
           )
-          .setFooter({ text: timeString })
-          .setColor('#FF0000')
+          .setColor('#FFCC00')
           .setTimestamp();
         
-        await message.channel.send({ embeds: [successEmbed] });
+        // Create action row with buttons
+        const row = new MessageActionRow().addComponents(
+          new MessageButton()
+            .setCustomId('confirm-ban')
+            .setLabel('Confirm Ban')
+            .setStyle('DANGER'),
+          new MessageButton()
+            .setCustomId('cancel-ban')
+            .setLabel('Cancel')
+            .setStyle('SECONDARY')
+        );
         
-        // Log the action
-        logging.logAction('User Banned', targetUser.user, message.author, {
-          reason: reason
+        // Send confirmation message with buttons
+        const confirmMessage = await message.channel.send({
+          embeds: [confirmEmbed],
+          components: [row]
+        });
+        
+        // Create collector for button interactions
+        const collector = confirmMessage.createMessageComponentCollector({
+          filter: i => i.user.id === message.author.id,
+          time: 30000 // 30 seconds timeout
+        });
+        
+        // Handle button interactions
+        collector.on('collect', async interaction => {
+          if (interaction.customId === 'confirm-ban') {
+            try {
+              // Proceed with ban
+              await targetUser.ban({ reason: `${reason} | Banned by ${message.author.tag}` });
+              
+              // Log the ban to our specialized ban log for enhanced tracking
+              banLogger.logBan(
+                { 
+                  user: targetUser.user, 
+                  reason 
+                }, 
+                message.author, 
+                message.guild.id
+              );
+              
+              // Format the current time
+              const now = new Date();
+              const hours = now.getHours().toString().padStart(2, '0');
+              const minutes = now.getMinutes().toString().padStart(2, '0');
+              const timeString = `Today at ${hours}:${minutes}`;
+              
+              // Create success embed
+              const successEmbed = new EmbedBuilder()
+                .setTitle('🔨 User Banned')
+                .setDescription(`${targetUser.user.username} has been banned from the server.`)
+                .addFields(
+                  { name: 'Reason', value: reason, inline: false },
+                  { name: 'Banned by', value: message.author.username, inline: false }
+                )
+                .setFooter({ text: timeString })
+                .setColor('#FF0000')
+                .setTimestamp();
+              
+              await interaction.update({ 
+                embeds: [successEmbed], 
+                components: [] 
+              });
+              
+              // Log the action to the general logging system
+              logging.logAction('User Banned', targetUser.user, message.author, {
+                reason: reason
+              });
+            } catch (error) {
+              console.error('Ban execution error:', error);
+              await interaction.update({ 
+                content: '❌ An error occurred while trying to ban the user.', 
+                embeds: [], 
+                components: [] 
+              });
+            }
+          } else if (interaction.customId === 'cancel-ban') {
+            // Cancel the ban
+            const cancelEmbed = new EmbedBuilder()
+              .setTitle('❌ Ban Cancelled')
+              .setDescription(`Ban for ${targetUser.user.tag} has been cancelled.`)
+              .setColor('#00CC00')
+              .setTimestamp();
+              
+            await interaction.update({ 
+              embeds: [cancelEmbed], 
+              components: [] 
+            });
+          }
+        });
+        
+        // Handle collector timeout
+        collector.on('end', collected => {
+          if (collected.size === 0) {
+            const timeoutEmbed = new EmbedBuilder()
+              .setTitle('⏱️ Ban Timed Out')
+              .setDescription('Ban confirmation timed out.')
+              .setColor('#999999')
+              .setTimestamp();
+              
+            confirmMessage.edit({
+              embeds: [timeoutEmbed],
+              components: []
+            }).catch(console.error);
+          }
         });
       } catch (error) {
         console.error('Ban execution error:', error);

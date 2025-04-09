@@ -1053,6 +1053,7 @@ app.get('/demo', (req, res) => {
 // Load routes for admin, auth, and API
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const apiRoutes = require('./routes/api');
 const apiAuthRoutes = require('./routes/api/auth');
 const apiMemberRoutes = require('./routes/api/members');
 const apiLeaderboardRoutes = require('./routes/api/leaderboard');
@@ -1085,7 +1086,8 @@ app.get('/admin', (req, res, next) => {
 // Register routes
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
-app.use('/api', apiAuthRoutes);
+app.use('/api', apiRoutes); // General API routes
+app.use('/api', apiAuthRoutes); // Auth API routes
 app.use('/api/admin/members', apiMemberRoutes);
 app.use('/api/leaderboard', apiLeaderboardRoutes);
 app.use('/leaderboard', leaderboardRoutes);
