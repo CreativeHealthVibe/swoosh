@@ -1266,7 +1266,156 @@ module.exports = {
   }
 });
 
-module.exports = router;
+/**
+ * POST /admin/settings/send-news
+ * Send news update to configured channel
+ */
+router.post('/settings/send-news', async (req, res) => {
+  const { newsTitle, newsContent, newsColor, newsImage } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    req.flash('error', 'Bot client not available');
+    return res.redirect('/admin/settings');
+  }
+  
+  try {
+    // Get configurations from the database to find the news channel
+    let newsChannelId = null;
+    let guild = null;
+    
+    // Try to get the news channel from the database
+    if (client.db) {
+      const servers = client.guilds.cache.map(g => g.id);
+      
+      // Check each server for a news channel configuration
+      for (const guildId of servers) {
+        const guildConfig = await client.db.get('configs', guildId);
+        
+        if (guildConfig && guildConfig.newsChannel) {
+          newsChannelId = guildConfig.newsChannel;
+          guild = client.guilds.cache.get(guildId);
+          break;
+        }
+      }
+    }
+    
+    if (!newsChannelId) {
+      req.flash('error', 'No news channel configured. Use the /setnews command in Discord first.');
+      return res.redirect('/admin/settings');
+    }
+    
+    // Try to fetch the channel
+    const channel = await client.channels.fetch(newsChannelId).catch(() => null);
+    
+    if (!channel) {
+      req.flash('error', 'News channel not found or bot does not have access to it');
+      return res.redirect('/admin/settings');
+    }
+    
+    // Create the news embed
+    const embed = {
+      title: newsTitle,
+      description: newsContent,
+      color: parseInt(newsColor.replace('#', ''), 16),
+      timestamp: new Date(),
+      footer: {
+        text: `News by ${req.user.username} • SWOOSH Bot`
+      }
+    };
+    
+    // Add image if provided
+    if (newsImage && newsImage.trim()) {
+      embed.image = { url: newsImage };
+    }
+    
+    // Send the news
+    await channel.send({ embeds: [embed] });
+    
+    req.flash('success', `News sent to #${channel.name} in ${guild.name}`);
+    return res.redirect('/admin/settings');
+  } catch (error) {
+    console.error('Error sending news:', error);
+    req.flash('error', `Failed to send news: ${error.message}`);
+    return res.redirect('/admin/settings');
+  }
+});
+
+/**
+ * POST /admin/settings/send-message
+ * Send message to channel as bot
+ */
+router.post('/settings/send-message', async (req, res) => {
+  const { serverId, channelId, messageContent, embedMessage } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    req.flash('error', 'Bot client not available');
+    return res.redirect('/admin/settings');
+  }
+  
+  try {
+    // Try to fetch the channel
+    const channel = await client.channels.fetch(channelId).catch(() => null);
+    
+    if (!channel) {
+      req.flash('error', 'Channel not found or bot does not have access to it');
+      return res.redirect('/admin/settings');
+    }
+    
+    // Send the message
+    if (embedMessage === 'on') {
+      // Send as embed
+      const embed = {
+        description: messageContent,
+        color: parseInt(config.embedColor.replace('#', ''), 16) || 0x5865F2,
+        timestamp: new Date(),
+        footer: {
+          text: `Sent by ${req.user.username} • SWOOSH Bot`
+        }
+      };
+      
+      await channel.send({ embeds: [embed] });
+    } else {
+      // Send as regular message
+      await channel.send(messageContent);
+    }
+    
+    req.flash('success', `Message sent to #${channel.name}`);
+    return res.redirect('/admin/settings');
+  } catch (error) {
+    console.error('Error sending message:', error);
+    req.flash('error', `Failed to send message: ${error.message}`);
+    return res.redirect('/admin/settings');
+  }
+});
+
+/**
+ * GET /api/servers
+ * Get list of servers the bot is in
+ */
+router.get('/api/servers', (req, res) => {
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.status(500).json({ error: 'Bot client not available' });
+  }
+  
+  try {
+    const servers = client.guilds.cache.map(guild => ({
+      id: guild.id,
+      name: guild.name,
+      memberCount: guild.memberCount,
+      icon: guild.iconURL({ dynamic: true }),
+      owner: guild.ownerId
+    }));
+    
+    return res.json({ servers });
+  } catch (error) {
+    console.error('Error fetching servers:', error);
+    return res.status(500).json({ error: 'Failed to fetch servers' });
+  }
+});
 
 /**
  * POST /admin/localusers/add
@@ -1485,3 +1634,4 @@ router.post('/profile/update', async (req, res) => {
   }
 });
 
+module.exports = router;
