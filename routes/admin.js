@@ -58,48 +58,7 @@ router.get('/blacklist-test', (req, res) => {
   });
 });
 
-/**
- * GET /admin/logs
- * Logs dashboard
- */
-router.get('/logs', (req, res) => {
-  const logsDir = path.join(__dirname, '../logs');
-  
-  // Helper function to format file size
-  function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-  
-  // Get list of log files
-  let logFiles = [];
-  try {
-    logFiles = fs.readdirSync(logsDir)
-      .filter(file => file.endsWith('.log'))
-      .map(file => ({
-        name: file,
-        path: `/admin/logs/${file}`,
-        size: fs.statSync(path.join(logsDir, file)).size,
-        mtime: fs.statSync(path.join(logsDir, file)).mtime
-      }))
-      .sort((a, b) => b.mtime - a.mtime); // Sort by modification time, newest first
-  } catch (error) {
-    console.error('Error reading log directory:', error);
-  }
-  
-  res.render('admin/logs', {
-    title: 'System Logs | SWOOSH Bot',
-    logFiles,
-    user: req.user,
-    formatFileSize, // Pass the helper function to the template
-    layout: 'layouts/admin'
-  });
-});
+// First logs route was replaced by the more advanced version below
 
 /**
  * GET /admin/settings
