@@ -23,16 +23,7 @@
             <div class="gauge-value" id="cpu-value">0%</div>
           </div>
         </div>
-        <div class="metric-details">
-          <div class="detail-item">
-            <span class="detail-label">Cores:</span>
-            <span class="detail-value"><%= cpuCount %></span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Load Avg:</span>
-            <span class="detail-value" id="load-avg"><%= loadAverage.map(load => load.toFixed(2)).join(', ') %></span>
-          </div>
-        </div>
+        <!-- CPU details section removed as requested -->
       </div>
       
       <div class="dashboard-card metric-card">
@@ -45,16 +36,7 @@
             <div class="gauge-value" id="memory-value">0%</div>
           </div>
         </div>
-        <div class="metric-details">
-          <div class="detail-item">
-            <span class="detail-label">Total:</span>
-            <span class="detail-value"><%= (totalMemory / (1024 * 1024 * 1024)).toFixed(2) %> GB</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Used:</span>
-            <span class="detail-value" id="used-memory"><%= (usedMemory / (1024 * 1024 * 1024)).toFixed(2) %> GB</span>
-          </div>
-        </div>
+        <!-- Memory details section removed as requested -->
       </div>
       
       <div class="dashboard-card metric-card">
@@ -379,13 +361,7 @@ document.addEventListener('DOMContentLoaded', function() {
     drawGauge(memoryCtx, data.memory, '#9c4dff');
     document.getElementById('memory-value').textContent = `${data.memory}%`;
     
-    // Update load average
-    document.getElementById('load-avg').textContent = data.loadAverage ? 
-      data.loadAverage.map(load => load.toFixed(2)).join(', ') : '0.00, 0.00, 0.00';
-    
-    // Update used memory
-    const usedMemoryGB = (data.usedMemory / (1024 * 1024 * 1024)).toFixed(2);
-    document.getElementById('used-memory').textContent = `${usedMemoryGB} GB`;
+    // Removed load average and memory details display code as requested
     
     // Update uptime
     const days = Math.floor(data.uptime / 86400);
