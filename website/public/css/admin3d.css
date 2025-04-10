@@ -111,12 +111,29 @@ body {
   align-items: center;
   padding: 0 1.5rem;
   background-color: #07041f; /* Solid dark background matching screenshot */
-  border-top: 2px solid rgba(137, 54, 255, 0.8); /* Brighter top border with glow */
   position: relative;
   z-index: var(--z-above);
   width: 100%;
   box-sizing: border-box;
   overflow: visible; /* Allow logo to overflow if needed */
+}
+
+/* Adding a pseudo-element for the top border to match massive bottom border */
+.admin3d-header::before {
+  content: '';
+  position: absolute;
+  top: -55px; /* Position above the header */
+  left: 0;
+  width: 100%;
+  height: 60px; /* Slightly smaller than bottom border */
+  background: linear-gradient(to top, 
+              rgba(137, 54, 255, 0.9) 0%, 
+              rgba(137, 54, 255, 0.6) 50%,
+              rgba(137, 54, 255, 0.2) 100%); /* Vertical gradient for massive border */
+  box-shadow: 0 0 20px 5px rgba(137, 54, 255, 0.8); /* Enhanced neon glow effect */
+  z-index: 1; /* Make sure it's above other elements */
+  opacity: 0.8; /* Slight transparency for overlay effect */
+  backdrop-filter: blur(2px); /* Slight blur for better integration */
 }
 
 /* Adding a pseudo-element for the bottom border that's positioned lower */
@@ -126,16 +143,19 @@ body {
   bottom: -5%; /* Push down the bottom border by 5% */
   left: 0;
   width: 100%;
-  height: 2px; /* Thicker line */
-  background: linear-gradient(90deg, 
-              rgba(137, 54, 255, 0.3) 0%, 
-              rgba(137, 54, 255, 0.8) 50%,
-              rgba(137, 54, 255, 0.3) 100%); /* Gradient for more visibility */
-  box-shadow: 0 0 8px rgba(137, 54, 255, 0.6); /* Neon glow effect */
+  height: 110px; /* 55x bigger border (2px * 55 = 110px) */
+  background: linear-gradient(to bottom, 
+              rgba(137, 54, 255, 0.9) 0%, 
+              rgba(137, 54, 255, 0.6) 50%,
+              rgba(137, 54, 255, 0.3) 100%); /* Vertical gradient for massive border */
+  box-shadow: 0 0 20px 5px rgba(137, 54, 255, 0.8); /* Enhanced neon glow effect */
   z-index: 1; /* Make sure it's above other elements */
+  opacity: 0.8; /* Slight transparency for overlay effect */
+  backdrop-filter: blur(2px); /* Slight blur for better integration */
 }
 
-.admin3d-header::before {
+/* Background blur for the header itself */
+.admin3d-header-bg {
   content: '';
   position: absolute;
   top: 0;
