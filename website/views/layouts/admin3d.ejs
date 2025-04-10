@@ -64,12 +64,12 @@
   <script src="/js/admin3d-scene.js" defer></script>
   <script src="/js/admin3d.js" defer></script>
 </head>
-<body class="admin3d-body <%= title.includes('Message') ? 'no-three-js' : '' %>">
-  <!-- 3D Canvas Container (hidden on Message Management page) -->
-  <div id="three-container" class="<%= title.includes('Message') ? 'three-js-disabled' : '' %>"></div>
+<body class="admin3d-body <%= title.includes('Message') || title.includes('Moderation') ? 'no-three-js' : '' %>">
+  <!-- 3D Canvas Container (hidden on form-heavy pages) -->
+  <div id="three-container" class="<%= title.includes('Message') || title.includes('Moderation') ? 'three-js-disabled' : '' %>"></div>
   
-  <!-- Special fix for form inputs on the Messages page -->
-  <% if (title.includes('Message')) { %>
+  <!-- Special fix for form inputs on pages with forms -->
+  <% if (title.includes('Message') || title.includes('Moderation')) { %>
   <style>
     /* Completely disable THREE.js on the Messages page */
     .no-three-js #three-container {
