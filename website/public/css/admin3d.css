@@ -111,8 +111,8 @@ body {
   align-items: center;
   padding: 0 1.5rem;
   background-color: #07041f; /* Solid dark background matching screenshot */
-  border-bottom: 1px solid rgba(49, 41, 95, 0.5);
-  border-top: 1px solid rgba(49, 41, 95, 0.5); /* Add top border to match screenshot */
+  border-bottom: 1px solid rgba(79, 71, 125, 0.9); /* More visible border */
+  border-top: 1px solid rgba(79, 71, 125, 0.9); /* More visible border at top */
   position: relative;
   z-index: var(--z-above);
   width: 100%;
@@ -147,31 +147,36 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 22px;
-  width: 22px;
-  margin-top: -6px; /* Move up slightly to match screenshot */
+  height: 20px;
+  width: 20px;
+  margin-top: -5px; /* Move up slightly to match screenshot */
+  position: relative;
+  top: -1px; /* Fine-tune positioning */
 }
 
 .swoosh-logo-mark img {
-  height: 22px;
-  width: 22px;
+  height: 20px;
+  width: 20px;
   object-fit: contain;
 }
 
 .swoosh-text {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #fff;
   display: flex;
   align-items: center;
-  margin-top: -6px; /* Move up to match screenshot */
+  margin-top: -5px; /* Move up to match screenshot */
   letter-spacing: 0.5px;
+  position: relative;
+  top: -1px; /* Fine-tune positioning */
 }
 
 .bot-text {
   color: var(--primary);
   font-weight: bold;
   display: inline;
+  margin-left: 1px; /* Small gap between SWOOSH and Bot */
 }
 
 /* Additional header properties */
