@@ -160,7 +160,7 @@ body {
 .swoosh-logo-mark {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* Changed from center to flex-start */
   height: 30px; /* Increased size */
   width: 30px; /* Increased size */
   position: relative;

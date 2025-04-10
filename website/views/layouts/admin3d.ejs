@@ -137,42 +137,49 @@
   <!-- Main Container -->
   <div class="admin3d-container">
     <!-- Header -->
-    <header class="admin3d-header">
-      <div class="admin3d-header-left" style="justify-content: flex-start !important; text-align: left !important; margin-right: auto !important;">
-        <div class="admin3d-logo" style="justify-content: flex-start !important; text-align: left !important; margin: 0 !important; float: left !important;">
-          <div class="swoosh-logo-mark">
-            <img src="/images/swoosh-icon.png" alt="SWOOSH Bot Icon">
-          </div>
-          <span class="swoosh-text">SWOOSH<span class="bot-text">Bot</span></span>
-        </div>
-        <button id="sidebar-toggle" class="sidebar-toggle">
-          <i class="fas fa-bars"></i>
-        </button>
-      </div>
-      
-      <div class="admin3d-header-right">
-        <div class="admin3d-user">
-          <% if (typeof user !== 'undefined' && user) { %>
-            <span><%= user.username %></span>
-            <div class="admin3d-user-avatar">
-              <% if (user.avatar) { %>
-                <img src="<%= user.avatar %>" alt="<%= user.username %>'s avatar">
-              <% } else { %>
-                <i class="fas fa-user"></i>
-              <% } %>
+    <header class="admin3d-header" style="text-align: left !important;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;">
+        <tr>
+          <td align="left" width="70%">
+            <div class="admin3d-header-left" style="justify-content: flex-start !important; text-align: left !important; width: 100%;">
+              <div class="admin3d-logo" style="justify-content: flex-start !important; text-align: left !important; margin: 0 !important; float: left !important;">
+                <div class="swoosh-logo-mark">
+                  <img src="/images/swoosh-icon.png" alt="SWOOSH Bot Icon">
+                </div>
+                <span class="swoosh-text">SWOOSH<span class="bot-text">Bot</span></span>
+              </div>
+              <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+              </button>
             </div>
-          <% } else { %>
-            <span>Guest</span>
-            <div class="admin3d-user-avatar">
-              <i class="fas fa-user"></i>
+          </td>
+          <td align="right" width="30%">
+            <div class="admin3d-header-right">
+              <div class="admin3d-user">
+                <% if (typeof user !== 'undefined' && user) { %>
+                  <span><%= user.username %></span>
+                  <div class="admin3d-user-avatar">
+                    <% if (user.avatar) { %>
+                      <img src="<%= user.avatar %>" alt="<%= user.username %>'s avatar">
+                    <% } else { %>
+                      <i class="fas fa-user"></i>
+                    <% } %>
+                  </div>
+                <% } else { %>
+                  <span>Guest</span>
+                  <div class="admin3d-user-avatar">
+                    <i class="fas fa-user"></i>
+                  </div>
+                <% } %>
+                <div class="admin3d-user-dropdown">
+                  <a href="/admin3d/profile"><i class="fas fa-user-circle"></i> Profile</a>
+                  <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+              </div>
             </div>
-          <% } %>
-          <div class="admin3d-user-dropdown">
-            <a href="/admin3d/profile"><i class="fas fa-user-circle"></i> Profile</a>
-            <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-          </div>
-        </div>
-      </div>
+          </td>
+        </tr>
+      </table>
     </header>
     
     <!-- Main Content Area -->
