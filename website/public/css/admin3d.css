@@ -111,13 +111,23 @@ body {
   align-items: center;
   padding: 0 1.5rem;
   background-color: #07041f; /* Solid dark background matching screenshot */
-  border-bottom: 1px solid rgba(79, 71, 125, 0.9); /* More visible border */
   border-top: 1px solid rgba(79, 71, 125, 0.9); /* More visible border at top */
   position: relative;
   z-index: var(--z-above);
   width: 100%;
   box-sizing: border-box;
   overflow: visible; /* Allow logo to overflow if needed */
+}
+
+/* Adding a pseudo-element for the bottom border that's positioned lower */
+.admin3d-header::after {
+  content: '';
+  position: absolute;
+  bottom: -5%; /* Push down the bottom border by 5% */
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: rgba(79, 71, 125, 0.9); /* Same color as the top border */
 }
 
 .admin3d-header::before {
