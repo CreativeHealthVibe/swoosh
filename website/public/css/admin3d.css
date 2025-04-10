@@ -111,7 +111,7 @@ body {
   align-items: center;
   padding: 0 1.5rem;
   background-color: #07041f; /* Solid dark background matching screenshot */
-  border-top: 1px solid rgba(79, 71, 125, 0.9); /* More visible border at top */
+  border-top: 2px solid rgba(137, 54, 255, 0.8); /* Brighter top border with glow */
   position: relative;
   z-index: var(--z-above);
   width: 100%;
@@ -126,8 +126,13 @@ body {
   bottom: -5%; /* Push down the bottom border by 5% */
   left: 0;
   width: 100%;
-  height: 1px;
-  background-color: rgba(79, 71, 125, 0.9); /* Same color as the top border */
+  height: 2px; /* Thicker line */
+  background: linear-gradient(90deg, 
+              rgba(137, 54, 255, 0.3) 0%, 
+              rgba(137, 54, 255, 0.8) 50%,
+              rgba(137, 54, 255, 0.3) 100%); /* Gradient for more visibility */
+  box-shadow: 0 0 8px rgba(137, 54, 255, 0.6); /* Neon glow effect */
+  z-index: 1; /* Make sure it's above other elements */
 }
 
 .admin3d-header::before {
