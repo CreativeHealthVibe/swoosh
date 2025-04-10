@@ -10,6 +10,7 @@ const { isAdmin, isAuthenticated } = require('../../middlewares/auth');
 const blacklistRoutes = require('./blacklist');
 const rolesRoutes = require('./roles');
 const ticketsRoutes = require('./tickets');
+const moderationRoutes = require('./moderation');
 
 // Middleware for all API routes
 router.use(isAuthenticated);
@@ -18,6 +19,7 @@ router.use(isAuthenticated);
 router.use('/blacklist', blacklistRoutes);
 router.use('/', rolesRoutes); // Roles routes use server paths like /servers/:serverId/roles
 router.use('/', ticketsRoutes); // Tickets routes use server paths like /servers/:serverId/tickets
+router.use('/', moderationRoutes); // Moderation routes use server paths like /servers/:serverId/bans
 
 // API Status check
 router.get('/status', (req, res) => {
