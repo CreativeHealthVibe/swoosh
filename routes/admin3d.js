@@ -66,7 +66,7 @@ router.get('/moderation', (req, res) => {
   if (client) {
     servers = client.guilds.cache.map(guild => ({
       id: guild.id,
-      name: guild.name,
+      name: guild.name + ' (' + guild.memberCount + ')',
       memberCount: guild.memberCount
     })).sort((a, b) => a.name.localeCompare(b.name));
   }
@@ -76,6 +76,7 @@ router.get('/moderation', (req, res) => {
     user: req.user,
     client,
     servers,
+    customStyles: ['admin3d-moderation-custom.css'], // Add custom moderation styles
     layout: 'layouts/admin3d'
   });
 });
@@ -173,6 +174,58 @@ router.post('/moderation/automod-settings', (req, res) => {
   return res.json({
     success: true,
     message: 'Auto-moderation settings saved successfully'
+  });
+});
+
+/**
+ * POST /admin3d/moderation/save-filter
+ * Save a custom message filter
+ */
+router.post('/moderation/save-filter', (req, res) => {
+  const { 
+    serverId, filterName, conditionType, conditionValue, 
+    conditionLogic, customLogic, filterAction, actionMessage 
+  } = req.body;
+  
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!serverId || !filterName) {
+    return res.json({
+      success: false,
+      message: 'Server ID and filter name are required'
+    });
+  }
+  
+  // Log the filter details for demonstration
+  console.log('New filter created:', {
+    serverId,
+    filterName,
+    conditions: Array.isArray(conditionType) ? 
+      conditionType.map((type, i) => ({
+        type,
+        value: conditionValue[i]
+      })) : 
+      [{ type: conditionType, value: conditionValue }],
+    logic: conditionLogic === 'custom' ? customLogic : conditionLogic,
+    action: filterAction,
+    actionMessage
+  });
+  
+  // Create unique filter ID using timestamp
+  const filterId = `filter_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+  
+  // This would be replaced with actual database storage in a real implementation
+  return res.json({
+    success: true,
+    message: 'Message filter saved successfully',
+    filterId
   });
 });
 
