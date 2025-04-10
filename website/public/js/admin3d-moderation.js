@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Execute purge messages action
    */
   function executePurgeMessages() {
-    const channelId = document.getElementById('purge-channel-id')?.value;
+    const channelId = document.getElementById('purge-channel')?.value;
     const amount = document.getElementById('purge-amount')?.value;
     const serverId = serverSelect?.value;
     
