@@ -78,6 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
+    
+    // Make sure the canvas doesn't block interaction with page elements
+    renderer.domElement.style.pointerEvents = 'none';
+    renderer.domElement.style.position = 'fixed';
+    renderer.domElement.style.top = '0';
+    renderer.domElement.style.left = '0';
+    renderer.domElement.style.zIndex = '-1';
+    
     container.appendChild(renderer.domElement);
     
     // Setup raycaster for mouse interaction
@@ -450,7 +458,20 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Handle click on boxes
    */
-  function onContainerClick() {
+  function onContainerClick(event) {
+    // Ignore clicks on form elements
+    const target = event.target;
+    const isFormElement = target.tagName === 'INPUT' || 
+                         target.tagName === 'TEXTAREA' || 
+                         target.tagName === 'SELECT' || 
+                         target.tagName === 'BUTTON' || 
+                         target.closest('form') !== null;
+    
+    if (isFormElement) {
+      console.log('Click on form element detected - ignoring THREE.js interaction');
+      return;
+    }
+    
     // Check for intersections with command boxes
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(
