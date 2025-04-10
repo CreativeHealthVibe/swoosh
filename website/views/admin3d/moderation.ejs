@@ -6,30 +6,28 @@
 %>
 
 <div class="admin3d-moderation">
-  <div class="dashboard-header">
-    <div class="header-title-wrapper">
-      <h1 class="section-title">Moderation Center</h1>
-      <p class="section-description">
-        Advanced moderation tools for server management
-      </p>
+  <!-- Custom header for the admin3d moderation page -->
+  <div class="admin3d-page-header">
+    <div class="admin3d-page-title">
+      <div class="admin3d-page-title-content">
+        <h1>Moderation Command Center</h1>
+        <p>Advanced moderation tools for server management</p>
+      </div>
     </div>
-    
-    <!-- Server Selector -->
-    <div class="server-selector-container">
-      <label for="serverSelect">Server:</label>
-      <div class="server-select-wrapper">
-        <select class="admin3d-form-select" id="serverSelect">
-          <option value="">Select a server</option>
-          <% if (servers && servers.length > 0) { %>
-            <% servers.forEach(server => { %>
-              <option value="<%= server.id %>"><%= server.name %></option>
-            <% }); %>
-          <% } else { %>
-            <option disabled>No servers available</option>
-          <% } %>
-        </select>
-        <div class="server-select-arrow">
-          <i class="fas fa-chevron-down"></i>
+    <div class="admin3d-page-controls">
+      <div class="server-controls">
+        <span class="server-label">Server:</span>
+        <div class="server-select-container">
+          <select class="admin3d-form-select" id="serverSelect">
+            <option value="">Select a server</option>
+            <% if (servers && servers.length > 0) { %>
+              <% servers.forEach(server => { %>
+                <option value="<%= server.id %>"><%= server.name %></option>
+              <% }); %>
+            <% } else { %>
+              <option disabled>No servers available</option>
+            <% } %>
+          </select>
         </div>
       </div>
     </div>
