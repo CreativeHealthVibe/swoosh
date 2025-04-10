@@ -194,7 +194,7 @@
   color: #b9bbbe;
 }
 
-/* Enhanced £100K Ultra-Premium Card Styles */
+/* Enhanced Premium Card Styles */
 .premium-edition .admin3d-card {
   border: 1px solid rgba(114, 137, 218, 0.3);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -266,7 +266,7 @@
   }
 }
 
-/* Ultra-Premium £100k Title Enhancements */
+/* Premium Title Enhancements */
 .premium-edition .section-title {
   font-size: 2.5rem;
   margin-bottom: 1rem;
@@ -480,7 +480,7 @@
   z-index: 1;
 }
 
-/* Ultra-Premium £100k Buttons */
+/* Premium Buttons */
 .premium-edition .admin3d-btn {
   padding: 0.85rem 1.75rem;
   border-radius: 0.6rem;
