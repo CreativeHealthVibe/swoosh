@@ -1,0 +1,1223 @@
+<div class="admin3d-page-container">
+  <div class="admin3d-page-header">
+    <h1><i class="fas fa-user-shield"></i> Admin Profile</h1>
+    <p>Manage your account settings and view your Discord information</p>
+  </div>
+
+  <!-- Visualization Mode Switcher -->
+  <div class="visualization-mode-switcher">
+    <button id="mode-3d" class="mode-btn active"><i class="fas fa-cube"></i> 3D Mode</button>
+    <button id="mode-2d" class="mode-btn"><i class="fas fa-chart-bar"></i> 2D Mode</button>
+  </div>
+
+  <div class="profile-container">
+    <!-- User Profile Section -->
+    <div class="profile-card profile-info">
+      <div class="profile-card-header">
+        <h2>Profile Information</h2>
+      </div>
+      <div class="profile-card-body">
+        <div class="profile-avatar-container">
+          <div class="profile-avatar-wrapper">
+            <img src="<%= user.avatar %>" alt="<%= user.username %>'s avatar" class="profile-avatar">
+            <div class="profile-avatar-glow"></div>
+          </div>
+          <div class="profile-username">
+            <h3><%= user.username %></h3>
+            <% if (user.discriminator && user.discriminator !== '0') { %>
+              <span class="profile-discriminator">#<%= user.discriminator %></span>
+            <% } %>
+            <div class="profile-id">ID: <%= user.id %></div>
+          </div>
+        </div>
+        
+        <div class="profile-details">
+          <div class="profile-detail-item">
+            <div class="detail-label">Account Created</div>
+            <div class="detail-value">
+              <%= new Date(parseInt(BigInt(user.id) >> 22n) + 1420070400000).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }) %>
+            </div>
+          </div>
+          
+          <div class="profile-detail-item">
+            <div class="detail-label">Access Level</div>
+            <div class="detail-value">
+              <span class="admin-badge">Administrator</span>
+            </div>
+          </div>
+          
+          <div class="profile-detail-item">
+            <div class="detail-label">Email</div>
+            <div class="detail-value">
+              <%= user.email || 'Not provided' %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Discord Roles Section -->
+    <div class="profile-card discord-roles">
+      <div class="profile-card-header">
+        <h2>Discord Roles</h2>
+      </div>
+      <div class="profile-card-body">
+        <% if (userRoles && userRoles.length > 0) { %>
+          <div class="roles-grid">
+            <% userRoles.forEach(role => { %>
+              <div class="role-badge" style="border-color: <%= role.color %>">
+                <span class="role-name"><%= role.name %></span>
+                <span class="role-id"><%= role.id %></span>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="no-data-message">
+            <i class="fas fa-user-tag"></i>
+            <p>No role information available</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Mutual Servers Section -->
+    <div class="profile-card mutual-servers">
+      <div class="profile-card-header">
+        <h2>Mutual Servers</h2>
+      </div>
+      <div class="profile-card-body">
+        <% if (mutualGuilds && mutualGuilds.length > 0) { %>
+          <div class="servers-grid">
+            <% mutualGuilds.forEach(guild => { %>
+              <div class="server-card" data-server-id="<%= guild.id %>">
+                <div class="server-icon">
+                  <% if (guild.iconURL) { %>
+                    <img src="<%= guild.iconURL %>" alt="<%= guild.name %>">
+                  <% } else { %>
+                    <div class="server-icon-placeholder">
+                      <%= guild.name.charAt(0) %>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="server-info">
+                  <div class="server-name"><%= guild.name %></div>
+                  <div class="server-details">
+                    <span><i class="fas fa-users"></i> <%= guild.memberCount %></span>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="no-data-message">
+            <i class="fas fa-server"></i>
+            <p>No mutual servers found</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- API Tokens Section -->
+    <div class="profile-card api-tokens">
+      <div class="profile-card-header">
+        <h2>API Access</h2>
+      </div>
+      <div class="profile-card-body">
+        <div class="token-container">
+          <div class="token-info">
+            <h3>Personal API Token</h3>
+            <p>Use this token to access the SWOOSH Bot API endpoints.</p>
+            <div class="token-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              Never share your API token with others.
+            </div>
+          </div>
+          
+          <div class="token-display">
+            <div class="token-field">
+              <input type="password" id="api-token" value="****************************************" readonly>
+              <button id="toggle-token" class="token-btn">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button id="copy-token" class="token-btn">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="token-actions">
+            <button id="regenerate-token" class="btn btn-danger">
+              <i class="fas fa-sync-alt"></i> Regenerate Token
+            </button>
+          </div>
+        </div>
+        
+        <div class="endpoint-list">
+          <h3>Available Endpoints</h3>
+          <div class="endpoint-item">
+            <div class="endpoint-method get">GET</div>
+            <div class="endpoint-path">/api/v1/bot/stats</div>
+          </div>
+          <div class="endpoint-item">
+            <div class="endpoint-method get">GET</div>
+            <div class="endpoint-path">/api/v1/guilds</div>
+          </div>
+          <div class="endpoint-item">
+            <div class="endpoint-method post">POST</div>
+            <div class="endpoint-path">/api/v1/admin/messages/send</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Settings Section -->
+    <div class="profile-card settings">
+      <div class="profile-card-header">
+        <h2>Dashboard Settings</h2>
+      </div>
+      <div class="profile-card-body">
+        <div class="settings-form">
+          <div class="settings-group">
+            <h3>Display Preferences</h3>
+            
+            <div class="settings-item">
+              <label for="theme-select">Theme</label>
+              <select id="theme-select" class="settings-select">
+                <option value="dark" selected>Dark</option>
+                <option value="light">Light</option>
+                <option value="system">System</option>
+              </select>
+            </div>
+            
+            <div class="settings-item checkbox">
+              <input type="checkbox" id="enable-animations" checked>
+              <label for="enable-animations">Enable animations</label>
+            </div>
+            
+            <div class="settings-item checkbox">
+              <input type="checkbox" id="enable-sounds">
+              <label for="enable-sounds">Enable sounds</label>
+            </div>
+          </div>
+          
+          <div class="settings-group">
+            <h3>Notification Settings</h3>
+            
+            <div class="settings-item checkbox">
+              <input type="checkbox" id="email-notifications" checked>
+              <label for="email-notifications">Email notifications</label>
+            </div>
+            
+            <div class="settings-item checkbox">
+              <input type="checkbox" id="browser-notifications" checked>
+              <label for="browser-notifications">Browser notifications</label>
+            </div>
+          </div>
+          
+          <div class="settings-actions">
+            <button id="save-settings" class="btn btn-primary">
+              <i class="fas fa-save"></i> Save Settings
+            </button>
+            <button id="reset-settings" class="btn btn-secondary">
+              <i class="fas fa-undo"></i> Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3D Profile Rendering -->
+<div id="profile-3d-background" class="profile-3d-container"></div>
+
+<!-- JavaScript for 3D effects -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js" onerror="console.log('Backup CDN failed')"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Functions to handle token visibility and copying
+  const apiTokenInput = document.getElementById('api-token');
+  const toggleTokenBtn = document.getElementById('toggle-token');
+  const copyTokenBtn = document.getElementById('copy-token');
+  const regenerateTokenBtn = document.getElementById('regenerate-token');
+  
+  // Toggle token visibility
+  if (toggleTokenBtn && apiTokenInput) {
+    toggleTokenBtn.addEventListener('click', function() {
+      const type = apiTokenInput.getAttribute('type');
+      if (type === 'password') {
+        apiTokenInput.setAttribute('type', 'text');
+        toggleTokenBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        
+        // Generate a fake token for demo purposes
+        // In a real app, this would be fetched from the server
+        const fakeToken = 'sw_' + Array(32).fill(0).map(() => 
+          Math.random().toString(36).charAt(2)).join('');
+        apiTokenInput.value = fakeToken;
+      } else {
+        apiTokenInput.setAttribute('type', 'password');
+        toggleTokenBtn.innerHTML = '<i class="fas fa-eye"></i>';
+        apiTokenInput.value = '****************************************';
+      }
+    });
+  }
+  
+  // Copy token to clipboard
+  if (copyTokenBtn && apiTokenInput) {
+    copyTokenBtn.addEventListener('click', function() {
+      // First show the token
+      apiTokenInput.setAttribute('type', 'text');
+      toggleTokenBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+      
+      // Generate a fake token for demo purposes
+      const fakeToken = 'sw_' + Array(32).fill(0).map(() => 
+        Math.random().toString(36).charAt(2)).join('');
+      apiTokenInput.value = fakeToken;
+      
+      // Copy to clipboard
+      apiTokenInput.select();
+      document.execCommand('copy');
+      
+      // Show a notification
+      showPremiumNotification('success', 'Token Copied', 'API token copied to clipboard!', true);
+      
+      // Reset visibility
+      setTimeout(() => {
+        apiTokenInput.setAttribute('type', 'password');
+        toggleTokenBtn.innerHTML = '<i class="fas fa-eye"></i>';
+        apiTokenInput.value = '****************************************';
+      }, 3000);
+    });
+  }
+  
+  // Regenerate token
+  if (regenerateTokenBtn) {
+    regenerateTokenBtn.addEventListener('click', function() {
+      // Show a confirmation dialog
+      if (confirm('Are you sure you want to regenerate your API token? This will invalidate the current token.')) {
+        // Show loading state
+        regenerateTokenBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        regenerateTokenBtn.disabled = true;
+        
+        // Simulate API call
+        setTimeout(() => {
+          // Reset button state
+          regenerateTokenBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Regenerate Token';
+          regenerateTokenBtn.disabled = false;
+          
+          // Show success notification
+          showPremiumNotification('success', 'Token Regenerated', 'Your API token has been regenerated!', true);
+        }, 1500);
+      }
+    });
+  }
+  
+  // Save settings
+  const saveSettingsBtn = document.getElementById('save-settings');
+  if (saveSettingsBtn) {
+    saveSettingsBtn.addEventListener('click', function() {
+      // Show loading state
+      saveSettingsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      saveSettingsBtn.disabled = true;
+      
+      // Simulate API call
+      setTimeout(() => {
+        // Reset button state
+        saveSettingsBtn.innerHTML = '<i class="fas fa-save"></i> Save Settings';
+        saveSettingsBtn.disabled = false;
+        
+        // Show success notification
+        showPremiumNotification('success', 'Settings Saved', 'Your settings have been saved successfully!', true);
+      }, 1000);
+    });
+  }
+  
+  // Function to create a premium notification
+  function showPremiumNotification(type, title, message, autoHide = false) {
+    // Create the notification container
+    const notifDiv = document.createElement('div');
+    notifDiv.className = `premium-notification ${type}`;
+    
+    // Set icon based on type
+    let icon = 'info-circle';
+    if (type === 'error') icon = 'exclamation-triangle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'warning') icon = 'exclamation-circle';
+    
+    // Create the notification content
+    notifDiv.innerHTML = `
+      <div class="notification-icon">
+        <i class="fas fa-${icon}"></i>
+      </div>
+      <div class="notification-content">
+        <h4>${title}</h4>
+        <p>${message}</p>
+      </div>
+      <button class="notification-close">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    
+    // Style the notification
+    notifDiv.style.position = 'fixed';
+    notifDiv.style.top = '20px';
+    notifDiv.style.right = '20px';
+    notifDiv.style.zIndex = '9999';
+    notifDiv.style.minWidth = '300px';
+    notifDiv.style.maxWidth = '400px';
+    notifDiv.style.padding = '15px';
+    notifDiv.style.borderRadius = '8px';
+    notifDiv.style.display = 'flex';
+    notifDiv.style.alignItems = 'center';
+    notifDiv.style.gap = '15px';
+    notifDiv.style.backdropFilter = 'blur(10px)';
+    notifDiv.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+    notifDiv.style.border = '1px solid rgba(255,255,255,0.1)';
+    notifDiv.style.transform = 'translateY(-20px)';
+    notifDiv.style.opacity = '0';
+    notifDiv.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+    
+    // Set background based on type
+    if (type === 'error') {
+      notifDiv.style.background = 'rgba(255, 61, 113, 0.15)';
+      notifDiv.style.borderLeft = '4px solid rgba(255, 61, 113, 0.8)';
+    } else if (type === 'success') {
+      notifDiv.style.background = 'rgba(0, 230, 118, 0.15)';
+      notifDiv.style.borderLeft = '4px solid rgba(0, 230, 118, 0.8)';
+    } else if (type === 'warning') {
+      notifDiv.style.background = 'rgba(255, 179, 0, 0.15)';
+      notifDiv.style.borderLeft = '4px solid rgba(255, 179, 0, 0.8)';
+    } else {
+      notifDiv.style.background = 'rgba(77, 159, 255, 0.15)';
+      notifDiv.style.borderLeft = '4px solid rgba(77, 159, 255, 0.8)';
+    }
+    
+    // Style the icon
+    const iconEl = notifDiv.querySelector('.notification-icon i');
+    iconEl.style.fontSize = '24px';
+    if (type === 'error') iconEl.style.color = 'rgba(255, 61, 113, 0.9)';
+    else if (type === 'success') iconEl.style.color = 'rgba(0, 230, 118, 0.9)';
+    else if (type === 'warning') iconEl.style.color = 'rgba(255, 179, 0, 0.9)';
+    else iconEl.style.color = 'rgba(77, 159, 255, 0.9)';
+    
+    // Style the content
+    const contentEl = notifDiv.querySelector('.notification-content');
+    contentEl.style.flex = '1';
+    
+    // Style the title
+    const titleEl = notifDiv.querySelector('.notification-content h4');
+    titleEl.style.margin = '0 0 5px 0';
+    titleEl.style.color = 'white';
+    titleEl.style.fontSize = '16px';
+    
+    // Style the message
+    const msgEl = notifDiv.querySelector('.notification-content p');
+    msgEl.style.margin = '0';
+    msgEl.style.color = 'rgba(255,255,255,0.8)';
+    msgEl.style.fontSize = '14px';
+    
+    // Style the close button
+    const closeBtn = notifDiv.querySelector('.notification-close');
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.color = 'rgba(255,255,255,0.6)';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.padding = '5px';
+    closeBtn.style.fontSize = '14px';
+    closeBtn.style.transition = 'color 0.2s ease';
+    
+    // Add close functionality
+    closeBtn.addEventListener('click', () => {
+      notifDiv.style.transform = 'translateY(-20px)';
+      notifDiv.style.opacity = '0';
+      setTimeout(() => notifDiv.remove(), 300);
+    });
+    
+    // Add to document
+    document.body.appendChild(notifDiv);
+    
+    // Animate in
+    setTimeout(() => {
+      notifDiv.style.transform = 'translateY(0)';
+      notifDiv.style.opacity = '1';
+    }, 10);
+    
+    // Auto hide if needed
+    if (autoHide) {
+      setTimeout(() => {
+        notifDiv.style.transform = 'translateY(-20px)';
+        notifDiv.style.opacity = '0';
+        setTimeout(() => notifDiv.remove(), 300);
+      }, 5000);
+    }
+  }
+  
+  // Initialize 3D background if THREE.js is available
+  if (typeof THREE !== 'undefined') {
+    // Create a scene
+    const scene = new THREE.Scene();
+    
+    // Create a camera
+    const container = document.getElementById('profile-3d-background');
+    if (!container) return;
+    
+    const width = container.clientWidth;
+    const height = container.clientHeight || window.innerHeight;
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 30;
+    
+    // Create a renderer with transparency
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      alpha: true
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+    
+    // Add ambient light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    scene.add(ambientLight);
+    
+    // Add directional light
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+    
+    // Add colored point lights
+    const colors = [0x8936ff, 0x4d9fff, 0xff3d71, 0x00e676];
+    colors.forEach((color, i) => {
+      const pointLight = new THREE.PointLight(color, 1, 50);
+      const angle = (i / colors.length) * Math.PI * 2;
+      const radius = 20;
+      pointLight.position.set(
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius,
+        10
+      );
+      scene.add(pointLight);
+    });
+    
+    // Create glowing particles
+    const particleCount = 300;
+    const particleGeometry = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(particleCount * 3);
+    const particleSizes = new Float32Array(particleCount);
+    const particleColors = new Float32Array(particleCount * 3);
+    
+    for (let i = 0; i < particleCount; i++) {
+      const i3 = i * 3;
+      
+      // Random position in a sphere
+      const radius = 40 * Math.random();
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      
+      particlePositions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+      particlePositions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      particlePositions[i3 + 2] = radius * Math.cos(phi);
+      
+      // Random size
+      particleSizes[i] = Math.random() * 2 + 0.5;
+      
+      // Random color (from our colors array)
+      const color = new THREE.Color(colors[Math.floor(Math.random() * colors.length)]);
+      particleColors[i3] = color.r;
+      particleColors[i3 + 1] = color.g;
+      particleColors[i3 + 2] = color.b;
+    }
+    
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    particleGeometry.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
+    particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
+    
+    // Create particle material
+    const particleMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+        pixelRatio: { value: window.devicePixelRatio },
+      },
+      vertexShader: `
+        attribute float size;
+        attribute vec3 color;
+        varying vec3 vColor;
+        uniform float time;
+        uniform float pixelRatio;
+        
+        void main() {
+          vColor = color;
+          
+          // Oscillating movement
+          vec3 pos = position;
+          pos.x += sin(time * 0.5 + position.z * 0.1) * 0.5;
+          pos.y += cos(time * 0.4 + position.x * 0.1) * 0.5;
+          pos.z += sin(time * 0.3 + position.y * 0.1) * 0.5;
+          
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = size * pixelRatio * (300.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        
+        void main() {
+          // Create a circular particle
+          vec2 center = gl_PointCoord - vec2(0.5);
+          float dist = length(center);
+          float strength = 1.0 - smoothstep(0.0, 0.5, dist);
+          
+          if (dist > 0.5) discard;
+          
+          gl_FragColor = vec4(vColor, strength);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    
+    // Create particle system
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(particles);
+    
+    // Animation
+    const clock = new THREE.Clock();
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      const delta = clock.getDelta();
+      const time = clock.getElapsedTime();
+      
+      // Update uniforms
+      particleMaterial.uniforms.time.value = time;
+      
+      // Rotate particles slightly
+      particles.rotation.y += delta * 0.05;
+      particles.rotation.x += delta * 0.02;
+      
+      renderer.render(scene, camera);
+    }
+    
+    // Handle window resize
+    function onWindowResize() {
+      const width = container.clientWidth;
+      const height = container.clientHeight || window.innerHeight;
+      
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+    
+    window.addEventListener('resize', onWindowResize);
+    
+    // Start animation
+    animate();
+  } else {
+    console.log("THREE.js not available, background effects disabled");
+    document.body.classList.add('mode-2d');
+    
+    if (document.getElementById('mode-2d') && document.getElementById('mode-3d')) {
+      document.getElementById('mode-2d').classList.add('active');
+      document.getElementById('mode-3d').classList.remove('active');
+    }
+  }
+  
+  // Setup mode switching
+  const mode3dBtn = document.getElementById('mode-3d');
+  const mode2dBtn = document.getElementById('mode-2d');
+  
+  if (mode3dBtn && mode2dBtn) {
+    // 3D Mode button click
+    mode3dBtn.addEventListener('click', function() {
+      if (typeof THREE === 'undefined') {
+        // Show premium notification if THREE.js is not available
+        showPremiumNotification(
+          'error',
+          '3D Mode Unavailable',
+          'THREE.js library could not be loaded. Please refresh the page or try again later.',
+          true
+        );
+        return;
+      }
+      
+      // Switch to 3D mode
+      document.body.classList.remove('mode-2d');
+      mode3dBtn.classList.add('active');
+      mode2dBtn.classList.remove('active');
+      
+      // Show mode change notification
+      showPremiumNotification(
+        'info',
+        '3D Mode Activated',
+        'Switched to 3D visualization mode with real-time rendering.',
+        true
+      );
+    });
+    
+    // 2D Mode button click
+    mode2dBtn.addEventListener('click', function() {
+      // Switch to 2D mode
+      document.body.classList.add('mode-2d');
+      mode2dBtn.classList.add('active');
+      mode3dBtn.classList.remove('active');
+      
+      // Show mode change notification
+      showPremiumNotification(
+        'info',
+        '2D Mode Activated',
+        'Switched to 2D visualization mode for better compatibility.',
+        true
+      );
+    });
+  }
+});
+</script>
+
+<!-- Profile Page Specific CSS -->
+<style>
+.profile-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-card {
+  background: rgba(30, 30, 60, 0.7);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(100, 100, 255, 0.1);
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(100, 100, 255, 0.2);
+}
+
+.profile-card-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(100, 100, 255, 0.1);
+  background: rgba(35, 35, 70, 0.7);
+}
+
+.profile-card-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.profile-card-header h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 1.25rem;
+  background: #8936ff;
+  margin-right: 0.75rem;
+  border-radius: 2px;
+}
+
+.profile-card-body {
+  padding: 1.5rem;
+}
+
+/* Profile Info Styling */
+.profile-avatar-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-right: 1.5rem;
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(100, 100, 255, 0.2);
+}
+
+.profile-avatar-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(137, 54, 255, 0.5) 0%,
+    rgba(137, 54, 255, 0) 70%
+  );
+  filter: blur(8px);
+  opacity: 0.7;
+  z-index: -1;
+}
+
+.profile-username h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.profile-discriminator {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.profile-id {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.25rem;
+}
+
+.profile-details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.profile-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: white;
+}
+
+.admin-badge {
+  display: inline-block;
+  background: linear-gradient(45deg, #8936ff, #4d9fff);
+  color: white;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* Roles Grid Styling */
+.roles-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.role-badge {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 1rem;
+  background: rgba(40, 40, 80, 0.5);
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+
+.role-name {
+  font-size: 0.9rem;
+  color: white;
+  font-weight: 500;
+}
+
+.role-id {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.25rem;
+}
+
+/* Server Grid Styling */
+.servers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.server-card {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(40, 40, 80, 0.5);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.server-card:hover {
+  background: rgba(50, 50, 100, 0.6);
+  transform: translateY(-3px);
+}
+
+.server-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 1rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.server-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.server-icon-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4d9fff, #8936ff);
+  color: white;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.server-info {
+  flex: 1;
+}
+
+.server-name {
+  font-size: 0.9rem;
+  color: white;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.server-details {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Token Styling */
+.token-container {
+  margin-bottom: 2rem;
+}
+
+.token-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.token-info p {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.token-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #ffb300;
+  margin-bottom: 1rem;
+}
+
+.token-display {
+  margin-bottom: 1.5rem;
+}
+
+.token-field {
+  display: flex;
+  align-items: center;
+  background: rgba(20, 20, 40, 0.6);
+  border-radius: 6px;
+  padding: 0.5rem;
+  border: 1px solid rgba(100, 100, 255, 0.1);
+}
+
+.token-field input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: white;
+  font-family: monospace;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.token-btn {
+  background: rgba(100, 100, 255, 0.1);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.token-btn:hover {
+  background: rgba(100, 100, 255, 0.2);
+  color: white;
+}
+
+.token-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Endpoint List */
+.endpoint-list {
+  margin-top: 2rem;
+}
+
+.endpoint-list h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.endpoint-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(40, 40, 80, 0.4);
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  font-family: monospace;
+}
+
+.endpoint-method {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 1rem;
+  min-width: 50px;
+  text-align: center;
+}
+
+.endpoint-method.get {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+}
+
+.endpoint-method.post {
+  background: rgba(77, 159, 255, 0.15);
+  color: #4d9fff;
+}
+
+.endpoint-method.put {
+  background: rgba(255, 179, 0, 0.15);
+  color: #ffb300;
+}
+
+.endpoint-method.delete {
+  background: rgba(255, 61, 113, 0.15);
+  color: #ff3d71;
+}
+
+.endpoint-path {
+  color: white;
+  font-size: 0.9rem;
+}
+
+/* Settings Styling */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.settings-group h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.settings-item {
+  margin-bottom: 1rem;
+}
+
+.settings-item label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.settings-select {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(30, 30, 60, 0.6);
+  border: 1px solid rgba(100, 100, 255, 0.1);
+  border-radius: 6px;
+  color: white;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.settings-select option {
+  background: #1e1e3c;
+}
+
+.settings-item.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.settings-item.checkbox label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.settings-item.checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #8936ff;
+  cursor: pointer;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #8936ff, #4d9fff);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #7a2df2, #3a8af2);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: rgba(100, 100, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(100, 100, 255, 0.2);
+}
+
+.btn-secondary:hover {
+  background: rgba(100, 100, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: rgba(255, 61, 113, 0.15);
+  color: #ff3d71;
+  border: 1px solid rgba(255, 61, 113, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(255, 61, 113, 0.2);
+  transform: translateY(-2px);
+}
+
+/* No data message */
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+.no-data-message i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* 3D Profile Background */
+.profile-3d-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* For 2D mode */
+.mode-2d .profile-3d-container {
+  display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .profile-avatar-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .profile-avatar-wrapper {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .servers-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>
