@@ -346,10 +346,10 @@
 <!-- Custom Stats Dashboard -->
 <script src="/js/admin3d-stats.js"></script>
 
-<!-- Premium Error handling for THREE.js -->
+<!-- Error handling for THREE.js -->
 <script>
-  // Function to create a premium error notification
-  function showPremiumNotification(type, title, message, autoHide = false) {
+  // Function to create an enhanced notification
+  function showAdmin3DNotification(type, title, message, autoHide = false) {
     // Remove any existing notifications first
     const existingNotifications = document.querySelectorAll('.admin3d-notification');
     existingNotifications.forEach(el => el.remove());
@@ -490,8 +490,8 @@
 
   // Check if THREE is available
   if (typeof THREE === 'undefined') {
-    // Show premium notification
-    showPremiumNotification(
+    // Show notification
+    showAdmin3DNotification(
       'warning',
       'Visualization Mode Changed',
       'THREE.js library could not be loaded. Switching to 2D mode automatically.',
@@ -512,7 +512,7 @@
   } else {
     // THREE.js is available, show success notification
     setTimeout(function() {
-      showPremiumNotification(
+      showAdmin3DNotification(
         'success',
         '3D Visualizations Ready',
         'THREE.js loaded successfully. You can switch between 3D and 2D modes using the buttons above.',
@@ -533,8 +533,8 @@
       // 3D Mode button click
       mode3dBtn.addEventListener('click', function() {
         if (typeof THREE === 'undefined') {
-          // Show premium notification if THREE.js is not available
-          showPremiumNotification(
+          // Show notification if THREE.js is not available
+          showAdmin3DNotification(
             'error',
             '3D Mode Unavailable',
             'THREE.js library could not be loaded. Please refresh the page or try again later.',
@@ -549,7 +549,7 @@
         mode2dBtn.classList.remove('active');
         
         // Show mode change notification
-        showPremiumNotification(
+        showAdmin3DNotification(
           'info',
           '3D Mode Activated',
           'Switched to 3D visualization mode with real-time rendering.',
@@ -565,7 +565,7 @@
         mode3dBtn.classList.remove('active');
         
         // Show mode change notification
-        showPremiumNotification(
+        showAdmin3DNotification(
           'info',
           '2D Mode Activated',
           'Switched to 2D visualization mode for better compatibility.',
