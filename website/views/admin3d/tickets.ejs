@@ -2,7 +2,7 @@
   SWOOSH Bot 3D Admin Dashboard
   Premium Edition - £50,000 Value
   
-  Tickets Management Page
+  Ticket Management Page
 %>
 
 <div class="admin3d-tickets">
@@ -11,7 +11,7 @@
   </div>
   
   <p class="section-description">
-    Manage support tickets across your Discord servers. View active tickets, generate transcripts, and configure ticket settings.
+    Manage support tickets across your Discord servers. View ticket analytics, manage open tickets, generate transcripts, and configure your ticket system settings.
   </p>
   
   <!-- Server Selection -->
@@ -41,9 +41,49 @@
   </div>
   
   <!-- Ticket Management Section - Only visible after server selection -->
-  <div id="ticket-management-section" class="ticket-management-section" style="display: none;">
-    <!-- Active Tickets -->
-    <h2 class="section-subtitle">Active Tickets</h2>
+  <div id="ticket-section" class="ticket-section" style="display: none;">
+    <!-- Ticket Analytics -->
+    <h2 class="section-subtitle">Ticket Analytics</h2>
+    <div class="ticket-analytics">
+      <div class="analytics-card" data-premium="true">
+        <div class="analytics-card-header">
+          <i class="fas fa-ticket-alt"></i>
+          <h3>Total Tickets</h3>
+        </div>
+        <div class="analytics-card-value" id="total-tickets">0</div>
+        <div class="analytics-card-description">All-time tickets</div>
+      </div>
+      
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <i class="fas fa-envelope-open"></i>
+          <h3>Open Tickets</h3>
+        </div>
+        <div class="analytics-card-value" id="open-tickets">0</div>
+        <div class="analytics-card-description">Currently active</div>
+      </div>
+      
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <i class="fas fa-envelope"></i>
+          <h3>Closed Tickets</h3>
+        </div>
+        <div class="analytics-card-value" id="closed-tickets">0</div>
+        <div class="analytics-card-description">Resolved tickets</div>
+      </div>
+      
+      <div class="analytics-card" data-premium="true">
+        <div class="analytics-card-header">
+          <i class="fas fa-clock"></i>
+          <h3>Avg. Response Time</h3>
+        </div>
+        <div class="analytics-card-value" id="avg-response-time">--</div>
+        <div class="analytics-card-description">Time to first reply</div>
+      </div>
+    </div>
+    
+    <!-- Ticket List -->
+    <h2 class="section-subtitle">Ticket List</h2>
     <div class="admin3d-card">
       <div class="admin3d-card-header">
         <div>
@@ -51,30 +91,42 @@
             <i class="fas fa-ticket-alt"></i>
           </div>
         </div>
-        <h3 class="admin3d-card-title">Current Tickets</h3>
+        <h3 class="admin3d-card-title">All Tickets</h3>
+        <div class="admin3d-card-actions">
+          <div class="ticket-filter">
+            <select id="ticket-status-filter" class="admin3d-form-select">
+              <option value="all">All Tickets</option>
+              <option value="open">Open Tickets</option>
+              <option value="closed">Closed Tickets</option>
+            </select>
+          </div>
+          <button id="refresh-tickets" class="admin3d-btn admin3d-btn-secondary refresh-btn">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button>
+        </div>
       </div>
       <div class="admin3d-card-content">
         <div class="tickets-list-container">
           <div class="tickets-list-header">
-            <div class="ticket-id-col">Ticket ID</div>
-            <div class="ticket-creator-col">Created By</div>
-            <div class="ticket-category-col">Category</div>
-            <div class="ticket-created-col">Created</div>
+            <div class="ticket-id-col">ID</div>
+            <div class="ticket-user-col">User</div>
+            <div class="ticket-topic-col">Topic</div>
             <div class="ticket-status-col">Status</div>
+            <div class="ticket-created-col">Created</div>
             <div class="ticket-actions-col">Actions</div>
           </div>
           <div id="tickets-list" class="tickets-list">
             <!-- Ticket items will be added dynamically -->
             <div class="tickets-loading">
               <div class="spinner"></div>
-              <p>Loading tickets...</p>
+              <p>Select a server to view tickets</p>
             </div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Ticket Setup -->
+    <!-- Ticket Configuration -->
     <h2 class="section-subtitle">Ticket Configuration</h2>
     <div class="admin3d-card" data-premium="true">
       <div class="admin3d-card-header">
@@ -83,92 +135,114 @@
             <i class="fas fa-cogs"></i>
           </div>
         </div>
-        <h3 class="admin3d-card-title">Setup Ticket System</h3>
+        <h3 class="admin3d-card-title">Settings</h3>
       </div>
       <div class="admin3d-card-content">
-        <form id="ticket-setup-form">
-          <div class="admin3d-form-row">
+        <form id="ticket-config-form">
+          <!-- Basic Settings -->
+          <div class="config-section">
+            <h4>Basic Ticket Settings</h4>
+            
             <div class="admin3d-form-group">
-              <label class="admin3d-form-label" for="ticket-category">Ticket Category</label>
-              <select class="admin3d-form-select" id="ticket-category" name="categoryId">
-                <option value="">Select a category</option>
-                <!-- Categories will be loaded dynamically -->
+              <label class="admin3d-form-label" for="category-id">Ticket Category</label>
+              <select class="admin3d-form-select" id="category-id" name="categoryId">
+                <option value="">Loading categories...</option>
               </select>
               <span class="admin3d-form-hint">Category where ticket channels will be created</span>
             </div>
             
             <div class="admin3d-form-group">
-              <label class="admin3d-form-label" for="log-channel">Log Channel</label>
-              <select class="admin3d-form-select" id="log-channel" name="logChannelId">
-                <option value="">Select a channel</option>
-                <!-- Channels will be loaded dynamically -->
+              <label class="admin3d-form-label" for="support-role-id">Support Role</label>
+              <select class="admin3d-form-select" id="support-role-id" name="supportRoleId">
+                <option value="">Loading roles...</option>
+              </select>
+              <span class="admin3d-form-hint">Role that will have access to tickets</span>
+            </div>
+            
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label" for="log-channel-id">Log Channel</label>
+              <select class="admin3d-form-select" id="log-channel-id" name="logChannelId">
+                <option value="">Loading channels...</option>
               </select>
               <span class="admin3d-form-hint">Channel where ticket logs will be sent</span>
             </div>
-          </div>
-          
-          <div class="admin3d-form-row">
-            <div class="admin3d-form-group">
-              <label class="admin3d-form-label" for="welcome-message">Welcome Message</label>
-              <textarea class="admin3d-form-textarea" id="welcome-message" name="welcomeMessage" rows="3" placeholder="Welcome to your ticket! Please describe your issue..."></textarea>
-              <span class="admin3d-form-hint">Message sent when a ticket is created</span>
+            
+            <div class="admin3d-form-row">
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="max-tickets">Max Tickets per User</label>
+                <input class="admin3d-form-input" type="number" id="max-tickets" name="maxTickets" min="1" max="10" value="1">
+                <span class="admin3d-form-hint">Maximum number of open tickets per user</span>
+              </div>
+              
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="cooldown">Ticket Cooldown</label>
+                <div class="admin3d-form-input-group">
+                  <input class="admin3d-form-input" type="number" id="cooldown" name="cooldown" min="0" max="60" value="5">
+                  <span class="admin3d-form-input-suffix">minutes</span>
+                </div>
+                <span class="admin3d-form-hint">Time users must wait between creating tickets</span>
+              </div>
             </div>
           </div>
           
-          <div class="admin3d-form-group">
-            <label class="admin3d-form-label">Ticket Options</label>
+          <!-- Advanced Settings -->
+          <div class="config-section">
+            <h4>Advanced Settings</h4>
+            
             <div class="admin3d-checkbox-group">
               <label class="admin3d-checkbox">
-                <input type="checkbox" name="transcripts" id="enable-transcripts">
-                <span>Enable Ticket Transcripts</span>
+                <input type="checkbox" name="autoTranscript" id="auto-transcript" checked>
+                <span>Generate transcript when closing ticket</span>
               </label>
+              
               <label class="admin3d-checkbox">
                 <input type="checkbox" name="autoClose" id="auto-close">
-                <span>Auto-close Inactive Tickets</span>
+                <span>Auto-close inactive tickets</span>
               </label>
+              
               <label class="admin3d-checkbox">
-                <input type="checkbox" name="userClose" id="user-close">
-                <span>Allow Users to Close Their Tickets</span>
+                <input type="checkbox" name="requireTopic" id="require-topic" checked>
+                <span>Require topic when creating ticket</span>
               </label>
+              
+              <label class="admin3d-checkbox">
+                <input type="checkbox" name="useThreads" id="use-threads">
+                <span>Use threads instead of channels (experimental)</span>
+              </label>
+            </div>
+            
+            <div id="auto-close-options" class="config-options" style="display: none;">
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="inactive-hours">Auto-close after inactivity</label>
+                <div class="admin3d-form-input-group">
+                  <input class="admin3d-form-input" type="number" id="inactive-hours" name="inactiveHours" min="1" max="168" value="24">
+                  <span class="admin3d-form-input-suffix">hours</span>
+                </div>
+                <span class="admin3d-form-hint">Hours of inactivity before auto-closing a ticket</span>
+              </div>
+              
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="auto-close-message">Auto-close message</label>
+                <textarea class="admin3d-form-textarea" id="auto-close-message" name="autoCloseMessage" rows="3" placeholder="This ticket has been closed due to inactivity."></textarea>
+                <span class="admin3d-form-hint">Message sent when auto-closing a ticket</span>
+              </div>
             </div>
           </div>
           
-          <div class="admin3d-form-row inactivity-timeout" style="display: none;">
+          <!-- Messages -->
+          <div class="config-section">
+            <h4>Ticket Messages</h4>
+            
             <div class="admin3d-form-group">
-              <label class="admin3d-form-label" for="inactivity-time">Auto-close After Inactivity</label>
-              <select class="admin3d-form-select" id="inactivity-time" name="inactivityTime">
-                <option value="1d">1 Day</option>
-                <option value="3d">3 Days</option>
-                <option value="1w" selected>1 Week</option>
-                <option value="2w">2 Weeks</option>
-                <option value="1m">1 Month</option>
-              </select>
+              <label class="admin3d-form-label" for="welcome-message">Welcome Message</label>
+              <textarea class="admin3d-form-textarea" id="welcome-message" name="welcomeMessage" rows="3" placeholder="Thanks for creating a ticket! Please describe your issue and someone will assist you soon."></textarea>
+              <span class="admin3d-form-hint">First message sent when a ticket is created</span>
             </div>
-          </div>
-          
-          <div class="admin3d-form-group">
-            <label class="admin3d-form-label">Ticket Button Colors</label>
-            <div class="admin3d-color-options">
-              <label class="admin3d-radio color-option">
-                <input type="radio" name="buttonColor" value="PRIMARY" checked>
-                <span class="color-preview primary"></span>
-                <span>Blue</span>
-              </label>
-              <label class="admin3d-radio color-option">
-                <input type="radio" name="buttonColor" value="SUCCESS">
-                <span class="color-preview success"></span>
-                <span>Green</span>
-              </label>
-              <label class="admin3d-radio color-option">
-                <input type="radio" name="buttonColor" value="DANGER">
-                <span class="color-preview danger"></span>
-                <span>Red</span>
-              </label>
-              <label class="admin3d-radio color-option">
-                <input type="radio" name="buttonColor" value="SECONDARY">
-                <span class="color-preview secondary"></span>
-                <span>Grey</span>
-              </label>
+            
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label" for="close-message">Close Message</label>
+              <textarea class="admin3d-form-textarea" id="close-message" name="closeMessage" rows="3" placeholder="This ticket has been closed. A transcript will be generated if enabled."></textarea>
+              <span class="admin3d-form-hint">Message sent when closing a ticket</span>
             </div>
           </div>
           
@@ -181,13 +255,13 @@
       </div>
     </div>
     
-    <!-- Send Setup Message -->
+    <!-- Send Ticket Panel -->
     <h2 class="section-subtitle">Create Ticket Panel</h2>
-    <div class="admin3d-card" data-premium="true">
+    <div class="admin3d-card">
       <div class="admin3d-card-header">
         <div>
           <div class="admin3d-card-icon">
-            <i class="fas fa-comment-dots"></i>
+            <i class="fas fa-share-square"></i>
           </div>
         </div>
         <h3 class="admin3d-card-title">Send Ticket Panel</h3>
@@ -195,162 +269,197 @@
       <div class="admin3d-card-content">
         <form id="ticket-panel-form">
           <div class="admin3d-form-group">
-            <label class="admin3d-form-label" for="panel-channel">Destination Channel</label>
+            <label class="admin3d-form-label" for="panel-channel">Channel</label>
             <select class="admin3d-form-select" id="panel-channel" name="channelId" required>
-              <option value="">Select a channel</option>
-              <!-- Channels will be loaded dynamically -->
+              <option value="">Loading channels...</option>
             </select>
             <span class="admin3d-form-hint">Channel where the ticket panel will be sent</span>
           </div>
           
           <div class="admin3d-form-group">
-            <label class="admin3d-form-label" for="panel-title">Panel Title</label>
+            <label class="admin3d-form-label" for="panel-title">Title</label>
             <input class="admin3d-form-input" type="text" id="panel-title" name="title" placeholder="Support Tickets" value="Support Tickets">
+            <span class="admin3d-form-hint">Title of the ticket panel embed</span>
           </div>
           
           <div class="admin3d-form-group">
-            <label class="admin3d-form-label" for="panel-description">Panel Description</label>
-            <textarea class="admin3d-form-textarea" id="panel-description" name="description" rows="3" placeholder="Click the button below to create a support ticket...">Need help? Click the button below to create a support ticket and our team will assist you as soon as possible.</textarea>
+            <label class="admin3d-form-label" for="panel-description">Description</label>
+            <textarea class="admin3d-form-textarea" id="panel-description" name="description" rows="3" placeholder="Click the button below to create a support ticket.">Need help? Click the button below to create a support ticket.</textarea>
+            <span class="admin3d-form-hint">Description text of the ticket panel</span>
           </div>
           
           <div class="admin3d-form-group">
-            <label class="admin3d-form-label" for="button-label">Button Label</label>
-            <input class="admin3d-form-input" type="text" id="button-label" name="buttonLabel" placeholder="Create Ticket" value="Create Ticket">
+            <label class="admin3d-form-label" for="panel-button">Button Label</label>
+            <input class="admin3d-form-input" type="text" id="panel-button" name="buttonLabel" placeholder="Create Ticket" value="Create Ticket">
+            <span class="admin3d-form-hint">Text displayed on the button</span>
           </div>
           
           <div class="admin3d-form-actions">
             <button type="submit" class="admin3d-btn admin3d-btn-primary">
-              <i class="fas fa-paper-plane"></i> Send Panel
+              <i class="fas fa-paper-plane"></i> Send Ticket Panel
             </button>
           </div>
         </form>
       </div>
     </div>
-    
-    <!-- Ticket Analytics -->
-    <h2 class="section-subtitle">Ticket Analytics</h2>
-    <div class="admin3d-card" data-premium="true">
-      <div class="admin3d-card-header">
-        <div>
-          <div class="admin3d-card-icon">
-            <i class="fas fa-chart-bar"></i>
-          </div>
-        </div>
-        <h3 class="admin3d-card-title">Ticket Statistics</h3>
-      </div>
-      <div class="admin3d-card-content">
-        <div class="ticket-stats-container">
-          <div class="ticket-stats-row">
-            <div class="ticket-stat">
-              <div class="ticket-stat-value" id="total-tickets">--</div>
-              <div class="ticket-stat-label">Total Tickets</div>
-            </div>
-            
-            <div class="ticket-stat">
-              <div class="ticket-stat-value" id="open-tickets">--</div>
-              <div class="ticket-stat-label">Open Tickets</div>
-            </div>
-            
-            <div class="ticket-stat">
-              <div class="ticket-stat-value" id="closed-tickets">--</div>
-              <div class="ticket-stat-label">Closed Tickets</div>
-            </div>
-            
-            <div class="ticket-stat">
-              <div class="ticket-stat-value" id="avg-response">--</div>
-              <div class="ticket-stat-label">Avg. Response Time</div>
-            </div>
-          </div>
-          
-          <div class="ticket-chart-container">
-            <canvas id="ticket-chart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
-<!-- Ticket Information Modal -->
+<!-- Ticket Info Modal -->
 <div class="modal-overlay" id="ticket-info-modal">
   <div class="modal-container modal-large">
     <div class="modal-header">
-      <h3 class="modal-title">Ticket Details</h3>
+      <h3 class="modal-title">Ticket Information</h3>
       <button class="modal-close"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <div class="ticket-info-container">
-        <div class="ticket-info-header">
-          <div class="ticket-title" id="modal-ticket-title">Loading ticket information...</div>
-          <div class="ticket-badge" id="modal-ticket-status">--</div>
+      <div class="ticket-info">
+        <div class="ticket-user-header">
+          <div class="ticket-user-avatar" id="ticket-info-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="ticket-user-details">
+            <div class="ticket-user-name" id="ticket-info-name">User#0000</div>
+            <div class="ticket-user-id" id="ticket-info-id">000000000000000000</div>
+          </div>
+          <div class="ticket-status-badge" id="ticket-info-status">Open</div>
         </div>
         
-        <div class="ticket-info-section">
-          <h4>Ticket Information</h4>
-          <div class="ticket-info-grid">
-            <div class="ticket-info-item">
-              <div class="info-label">Ticket ID</div>
-              <div class="info-value" id="modal-ticket-id">--</div>
-            </div>
-            <div class="ticket-info-item">
-              <div class="info-label">Created</div>
-              <div class="info-value" id="modal-ticket-created">--</div>
-            </div>
-            <div class="ticket-info-item">
-              <div class="info-label">Created By</div>
-              <div class="info-value" id="modal-ticket-creator">--</div>
-            </div>
-            <div class="ticket-info-item">
-              <div class="info-label">Category</div>
-              <div class="info-value" id="modal-ticket-category">--</div>
-            </div>
+        <div class="ticket-details-section">
+          <div class="ticket-detail-item">
+            <div class="ticket-detail-label">Ticket ID</div>
+            <div class="ticket-detail-value" id="ticket-info-ticket-id">TICKET-0000</div>
+          </div>
+          
+          <div class="ticket-detail-item">
+            <div class="ticket-detail-label">Created</div>
+            <div class="ticket-detail-value" id="ticket-info-created">2023-01-01</div>
+          </div>
+          
+          <div class="ticket-detail-item">
+            <div class="ticket-detail-label">Topic</div>
+            <div class="ticket-detail-value" id="ticket-info-topic">Support request</div>
+          </div>
+          
+          <div class="ticket-detail-item">
+            <div class="ticket-detail-label">Channel</div>
+            <div class="ticket-detail-value" id="ticket-info-channel">#ticket-0000</div>
           </div>
         </div>
         
-        <div class="ticket-info-section">
-          <h4>Transcript Preview</h4>
-          <div class="transcript-preview" id="transcript-preview">
-            <div class="transcript-loading">
-              <div class="spinner"></div>
-              <p>Loading transcript preview...</p>
-            </div>
+        <h4>Recent Messages</h4>
+        <div id="ticket-messages" class="ticket-messages">
+          <div class="ticket-messages-loading">
+            <div class="spinner"></div>
+            <p>Loading messages...</p>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="admin3d-btn admin3d-btn-danger" id="close-ticket-btn">
+      <button class="admin3d-btn admin3d-btn-info" data-action="download-transcript">
+        <i class="fas fa-file-download"></i> Download Transcript
+      </button>
+      <button class="admin3d-btn admin3d-btn-danger" data-action="close-ticket">
         <i class="fas fa-times-circle"></i> Close Ticket
       </button>
-      <button class="admin3d-btn admin3d-btn-secondary" id="download-transcript-btn">
-        <i class="fas fa-download"></i> Download Transcript
-      </button>
-      <button class="admin3d-btn admin3d-btn-primary" id="view-channel-btn">
-        <i class="fas fa-external-link-alt"></i> View Channel
-      </button>
+      <button class="admin3d-btn admin3d-btn-secondary" data-action="close-modal">Close</button>
     </div>
   </div>
 </div>
 
-<!-- Confirmation Modal -->
-<div class="modal-overlay" id="confirm-modal">
+<!-- Close Ticket Modal -->
+<div class="modal-overlay" id="close-ticket-modal">
   <div class="modal-container">
     <div class="modal-header">
-      <h3 class="modal-title">Confirm Action</h3>
+      <h3 class="modal-title">Close Ticket</h3>
       <button class="modal-close"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <p id="confirm-message">Are you sure you want to perform this action?</p>
+      <p>Are you sure you want to close this ticket?</p>
+      <form id="close-ticket-form">
+        <div class="admin3d-form-group">
+          <label class="admin3d-form-label" for="close-reason">Reason</label>
+          <textarea class="admin3d-form-textarea" id="close-reason" name="reason" rows="3" placeholder="Reason for closing the ticket"></textarea>
+        </div>
+      </form>
     </div>
     <div class="modal-footer">
       <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
-      <button class="admin3d-btn admin3d-btn-danger" data-action="confirm">Confirm</button>
+      <button class="admin3d-btn admin3d-btn-danger" data-action="confirm-close">Close Ticket</button>
     </div>
   </div>
 </div>
 
 <style>
-  /* Ticket management specific styles */
+  /* Ticket specific styles */
+  .ticket-analytics {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .analytics-card {
+    background-color: rgba(19, 16, 58, 0.4);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(49, 41, 95, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    transition: all var(--transition-normal);
+  }
+  
+  .analytics-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 
+                0 0 15px var(--primary-glow);
+    border-color: var(--primary);
+  }
+  
+  .analytics-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .analytics-card-header i {
+    font-size: 1.5rem;
+    color: var(--primary);
+  }
+  
+  .analytics-card-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .analytics-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    background: linear-gradient(90deg, var(--primary) 0%, #8a53ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .analytics-card-description {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  
+  /* Ticket list styles */
+  .admin3d-card-actions {
+    display: flex;
+    gap: 1rem;
+    margin-left: auto;
+  }
+  
   .tickets-list-container {
     overflow-x: auto;
     background: rgba(19, 16, 58, 0.4);
@@ -362,7 +471,7 @@
   
   .tickets-list-header {
     display: grid;
-    grid-template-columns: 100px 1fr 120px 120px 100px 120px;
+    grid-template-columns: 100px 1fr 1fr 120px 180px 120px;
     gap: 10px;
     padding: 1rem;
     background-color: rgba(32, 26, 69, 0.5);
@@ -377,7 +486,7 @@
   
   .ticket-item {
     display: grid;
-    grid-template-columns: 100px 1fr 120px 120px 100px 120px;
+    grid-template-columns: 100px 1fr 1fr 120px 180px 120px;
     gap: 10px;
     padding: 1rem;
     border-bottom: 1px solid rgba(49, 41, 95, 0.3);
@@ -393,23 +502,48 @@
     background-color: rgba(49, 41, 95, 0.2);
   }
   
-  .ticket-creator {
+  .ticket-id {
+    font-family: monospace;
+    font-weight: 600;
+  }
+  
+  .ticket-user {
     display: flex;
     align-items: center;
     gap: 8px;
   }
   
-  .ticket-creator-avatar {
-    width: 24px;
-    height: 24px;
+  .ticket-user-avatar {
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: cover;
     background-color: var(--background-lighter);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 14px;
     color: var(--text-muted);
+  }
+  
+  .ticket-user-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .ticket-user-name {
+    font-weight: 600;
+  }
+  
+  .ticket-user-id {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  
+  .ticket-topic {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .ticket-status {
@@ -431,193 +565,90 @@
     color: var(--danger);
   }
   
+  .ticket-created {
+    white-space: nowrap;
+  }
+  
   .ticket-actions {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
   }
   
-  /* Ticket configuration form styles */
-  .inactivity-timeout {
-    margin-top: -1rem;
-  }
-  
-  .admin3d-color-options {
+  /* Ticket info modal styles */
+  .ticket-user-header {
     display: flex;
-    gap: 1.5rem;
-    margin-top: 0.5rem;
-  }
-  
-  .color-option {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
   }
   
-  .color-preview {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
+  .ticket-details-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
   
-  .color-preview.primary {
-    background-color: #5865F2;
-  }
-  
-  .color-preview.success {
-    background-color: #57F287;
-  }
-  
-  .color-preview.danger {
-    background-color: #ED4245;
-  }
-  
-  .color-preview.secondary {
-    background-color: #4F545C;
-  }
-  
-  /* Ticket analytics styles */
-  .ticket-stats-container {
+  .ticket-detail-item {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 0.25rem;
   }
   
-  .ticket-stats-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  .ticket-stat {
-    background-color: rgba(19, 16, 58, 0.4);
-    border-radius: 12px;
-    padding: 1.5rem;
-    text-align: center;
-    border: 1px solid rgba(49, 41, 95, 0.3);
-  }
-  
-  .ticket-stat-value {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-  }
-  
-  .ticket-stat-label {
+  .ticket-detail-label {
     font-size: 0.875rem;
     color: var(--text-muted);
   }
   
-  .ticket-chart-container {
-    height: 300px;
-    background-color: rgba(19, 16, 58, 0.4);
+  .ticket-detail-value {
+    font-weight: 500;
+  }
+  
+  .ticket-status-badge {
+    margin-left: auto;
+    padding: 0.35rem 1rem;
     border-radius: 12px;
-    padding: 1.5rem;
-    border: 1px solid rgba(49, 41, 95, 0.3);
-  }
-  
-  /* Ticket modal styles */
-  .ticket-info-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .ticket-info-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
-  }
-  
-  .ticket-title {
-    font-size: 1.25rem;
+    font-size: 0.875rem;
     font-weight: 600;
   }
   
-  .ticket-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.375rem 0.75rem;
-    border-radius: 16px;
-    font-weight: 600;
-  }
-  
-  .ticket-badge.open {
+  .ticket-status-badge.open {
     background-color: rgba(0, 230, 118, 0.2);
     color: var(--success);
   }
   
-  .ticket-badge.closed {
+  .ticket-status-badge.closed {
     background-color: rgba(255, 61, 113, 0.2);
     color: var(--danger);
   }
   
-  .ticket-info-section {
+  .ticket-messages {
     background-color: rgba(19, 16, 58, 0.2);
     border-radius: 12px;
-    padding: 1.5rem;
-  }
-  
-  .ticket-info-section h4 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-  
-  .ticket-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  .ticket-info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .info-label {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-  }
-  
-  .info-value {
-    font-weight: 500;
-  }
-  
-  .transcript-preview {
-    background-color: rgba(19, 16, 58, 0.4);
-    border-radius: 8px;
-    padding: 1rem;
     max-height: 300px;
     overflow-y: auto;
+    padding: 1rem;
   }
   
-  .transcript-message {
+  .ticket-message {
     display: flex;
-    gap: 1rem;
     margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
+    gap: 1rem;
   }
   
-  .transcript-message:last-child {
-    border-bottom: none;
+  .ticket-message:last-child {
     margin-bottom: 0;
-    padding-bottom: 0;
   }
   
-  .transcript-avatar {
+  .ticket-message-avatar {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    object-fit: cover;
     flex-shrink: 0;
+    object-fit: cover;
     background-color: var(--background-lighter);
     display: flex;
     align-items: center;
@@ -626,36 +657,78 @@
     color: var(--text-muted);
   }
   
-  .transcript-content {
+  .ticket-message-content {
     flex: 1;
   }
   
-  .transcript-header {
+  .ticket-message-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
   }
   
-  .transcript-author {
+  .ticket-message-name {
     font-weight: 600;
   }
   
-  .transcript-time {
+  .ticket-message-time {
     font-size: 0.75rem;
     color: var(--text-muted);
   }
   
-  .transcript-text {
+  .ticket-message-text {
     font-size: 0.9375rem;
-    line-height: 1.5;
-    overflow-wrap: break-word;
+    line-height: 1.4;
     word-break: break-word;
+  }
+  
+  .ticket-message-bot {
+    background-color: rgba(49, 41, 95, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem;
+  }
+  
+  /* Configuration styles */
+  .config-section {
+    margin-bottom: 2rem;
+  }
+  
+  .config-section h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .config-options {
+    margin-top: 1rem;
+    margin-left: 2rem;
+  }
+  
+  .admin3d-form-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .admin3d-form-row .admin3d-form-group {
+    flex: 1;
+  }
+  
+  .admin3d-form-input-group {
+    display: flex;
+    align-items: center;
+  }
+  
+  .admin3d-form-input-suffix {
+    margin-left: 0.5rem;
+    color: var(--text-muted);
   }
   
   /* Loading spinners */
   .tickets-loading,
-  .transcript-loading {
+  .ticket-messages-loading {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -667,9 +740,9 @@
   .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(156, 77, 255, 0.2);
-    border-top-color: var(--primary);
     border-radius: 50%;
+    border: 3px solid rgba(var(--primary-rgb), 0.3);
+    border-top-color: var(--primary);
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
   }
@@ -678,30 +751,50 @@
     to { transform: rotate(360deg); }
   }
   
-  /* Modal size variations */
-  .modal-large {
-    max-width: 800px;
-  }
-  
   /* Responsive adjustments */
-  @media (max-width: 992px) {
+  @media (max-width: 1200px) {
     .tickets-list-header,
     .ticket-item {
-      grid-template-columns: 100px 1fr 100px 100px;
+      grid-template-columns: 80px 1fr 1fr 120px 120px;
     }
     
-    .ticket-category-col,
     .ticket-created-col,
-    .ticket-category,
     .ticket-created {
       display: none;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .admin3d-form-row {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .ticket-analytics {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .tickets-list-header,
+    .ticket-item {
+      grid-template-columns: 80px 1fr 120px 80px;
+    }
+    
+    .ticket-topic-col,
+    .ticket-topic {
+      display: none;
+    }
+    
+    .ticket-analytics {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
   
   @media (max-width: 576px) {
     .tickets-list-header,
     .ticket-item {
-      grid-template-columns: 80px 1fr auto;
+      grid-template-columns: 80px 1fr 80px;
     }
     
     .ticket-status-col,
@@ -709,22 +802,34 @@
       display: none;
     }
     
-    .ticket-title {
-      font-size: 1.125rem;
-    }
-    
-    .ticket-info-grid {
+    .ticket-analytics {
       grid-template-columns: 1fr;
-      gap: 1rem;
     }
     
-    .admin3d-color-options {
-      flex-wrap: wrap;
+    .admin3d-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .admin3d-card-actions {
+      margin-left: 0;
+      margin-top: 1rem;
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .ticket-info .ticket-user-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .ticket-info .ticket-status-badge {
+      margin-left: 0;
+      margin-top: 0.5rem;
     }
   }
 </style>
 
-<!-- Include notification and ticket management scripts -->
-<script src="/js/admin3d-notifications.js"></script>
+<!-- Include ticket management script -->
 <script src="/js/admin3d-tickets.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
