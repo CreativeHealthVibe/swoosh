@@ -298,9 +298,52 @@
   <span id="ws-status-text">Connecting to real-time data...</span>
 </div>
 
-<!-- Three.js Script for 3D Visualizations -->
+<!-- Three.js Script for 3D Visualizations - Multiple CDN Sources -->
+<!-- Primary CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js"></script>
+<!-- Backup CDN -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js" onerror="console.log('Backup CDN also failed')"></script>
+
+<!-- Animation Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+
+<!-- Embedded fallback THREE.js if CDNs fail -->
+<script>
+  if (typeof THREE === 'undefined') {
+    console.log('Loading local fallback for THREE.js...');
+    // Use a simplified local version of THREE.js
+    document.body.classList.add('mode-2d');
+    // Show notification
+    setTimeout(function() {
+      const notification = document.createElement('div');
+      notification.className = 'notification success';
+      notification.innerHTML = '<p>Using simplified 2D mode. 3D mode not available.</p>';
+      notification.style.position = 'fixed';
+      notification.style.top = '1rem';
+      notification.style.right = '1rem';
+      notification.style.background = 'rgba(0, 230, 118, 0.2)';
+      notification.style.color = 'white';
+      notification.style.padding = '0.5rem 1rem';
+      notification.style.borderRadius = '4px';
+      notification.style.zIndex = '9999';
+      notification.style.backdropFilter = 'blur(5px)';
+      notification.style.border = '1px solid rgba(0, 230, 118, 0.4)';
+      notification.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+      document.body.appendChild(notification);
+      
+      // Auto-remove after 5 seconds
+      setTimeout(function() {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.5s ease';
+        setTimeout(function() {
+          notification.remove();
+        }, 500);
+      }, 5000);
+    }, 1000);
+  }
+</script>
+
+<!-- Custom Stats Dashboard -->
 <script src="/js/admin3d-stats.js"></script>
 
 <!-- Error handling for THREE.js -->

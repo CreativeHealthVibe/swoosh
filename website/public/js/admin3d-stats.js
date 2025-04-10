@@ -41,32 +41,134 @@ const config = {
  * @param {Object} initialData - Initial system data from server
  */
 function initStatsVisualizations(initialData) {
-  console.log('Initializing 3D stats visualizations with data:', initialData);
+  console.log('Initializing stats visualizations with data:', initialData);
   
-  // Double-check if Three.js is available
+  // Check if body already has mode-2d class
+  if (document.body.classList.contains('mode-2d')) {
+    console.log('Running in 2D fallback mode');
+    // Only update performance metrics and set up WebSocket
+    updatePerformanceMetrics(initialData);
+    setupWebSocket();
+    return;
+  }
+  
+  // Multi-CDN fallback system for THREE.js
   if (typeof THREE === 'undefined') {
-    console.error('THREE.js is not loaded! Visualizations will not work.');
-    // Add visible error on page
-    showErrorNotification('THREE.js library not loaded. Visualizations unavailable.');
+    console.warn('THREE.js not loaded from primary sources, trying additional CDNs...');
+    // Switch to 2D mode immediately to ensure interface is responsive
+    document.body.classList.add('mode-2d');
     
-    // Try to load Three.js dynamically as a fallback
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js';
-    script.async = true;
-    script.onload = function() {
-      console.log('THREE.js loaded dynamically!');
-      // Remove error notification
-      const existingErrors = document.querySelectorAll('.error-notification');
-      existingErrors.forEach(el => el.remove());
+    // Toggle mode buttons if they exist
+    if (document.getElementById('mode-2d') && document.getElementById('mode-3d')) {
+      document.getElementById('mode-2d').classList.add('active');
+      document.getElementById('mode-3d').classList.remove('active');
+    }
+    
+    // Try loading from multiple CDNs in sequence
+    const threejsCDNs = [
+      'https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js',
+      'https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js',
+      'https://unpkg.com/three@0.151.0/build/three.min.js'
+    ];
+    
+    let loadAttempt = 0;
+    
+    function attemptLoad() {
+      if (loadAttempt >= threejsCDNs.length) {
+        console.error('All THREE.js CDN attempts failed');
+        const notification = document.createElement('div');
+        notification.className = 'notification info';
+        notification.innerHTML = `
+          <p>Using 2D mode for visualizations.</p>
+          <p>3D mode is not available in your browser at this time.</p>
+        `;
+        notification.style.position = 'fixed';
+        notification.style.top = '1rem';
+        notification.style.right = '1rem';
+        notification.style.background = 'rgba(77, 159, 255, 0.2)';
+        notification.style.color = 'white';
+        notification.style.padding = '0.5rem 1rem';
+        notification.style.borderRadius = '4px';
+        notification.style.zIndex = '9999';
+        notification.style.backdropFilter = 'blur(5px)';
+        notification.style.border = '1px solid rgba(77, 159, 255, 0.4)';
+        notification.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transition = 'opacity 0.5s ease';
+          setTimeout(() => notification.remove(), 500);
+        }, 5000);
+        
+        // Still update performance metrics and set up WebSocket
+        updatePerformanceMetrics(initialData);
+        setupWebSocket();
+        return;
+      }
       
-      // Try initialization again after 500ms delay
-      setTimeout(() => initThreeJsVisualizations(initialData), 500);
-    };
-    script.onerror = function() {
-      console.error('Failed to load THREE.js dynamically.');
-      showErrorNotification('Failed to load THREE.js library. Please refresh the page and try again.');
-    };
-    document.head.appendChild(script);
+      const script = document.createElement('script');
+      script.src = threejsCDNs[loadAttempt];
+      script.async = true;
+      
+      script.onload = function() {
+        console.log(`THREE.js loaded successfully from CDN ${loadAttempt + 1}`);
+        // Check if THREE is actually available (sometimes onload fires but the library isn't defined)
+        if (typeof THREE !== 'undefined') {
+          // Remove 2D mode class 
+          document.body.classList.remove('mode-2d');
+          
+          // Toggle mode buttons if they exist
+          if (document.getElementById('mode-2d') && document.getElementById('mode-3d')) {
+            document.getElementById('mode-3d').classList.add('active');
+            document.getElementById('mode-2d').classList.remove('active');
+          }
+          
+          // Show success notification
+          const notification = document.createElement('div');
+          notification.className = 'notification success';
+          notification.innerHTML = '<p>3D visualizations loaded successfully!</p>';
+          notification.style.position = 'fixed';
+          notification.style.top = '1rem';
+          notification.style.right = '1rem';
+          notification.style.background = 'rgba(0, 230, 118, 0.2)';
+          notification.style.color = 'white';
+          notification.style.padding = '0.5rem 1rem';
+          notification.style.borderRadius = '4px';
+          notification.style.zIndex = '9999';
+          notification.style.backdropFilter = 'blur(5px)';
+          notification.style.border = '1px solid rgba(0, 230, 118, 0.4)';
+          notification.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+          document.body.appendChild(notification);
+          
+          // Auto-remove after 3 seconds
+          setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => notification.remove(), 500);
+          }, 3000);
+          
+          // Initialize 3D visualizations
+          setTimeout(() => initThreeJsVisualizations(initialData), 500);
+        } else {
+          console.warn('THREE.js failed to initialize properly');
+          loadAttempt++;
+          attemptLoad();
+        }
+      };
+      
+      script.onerror = function() {
+        console.error(`Failed to load THREE.js from CDN ${loadAttempt + 1}`);
+        loadAttempt++;
+        attemptLoad();
+      };
+      
+      document.head.appendChild(script);
+    }
+    
+    // Start the loading attempt sequence
+    attemptLoad();
     
     // Still update performance metrics (non-3D components)
     updatePerformanceMetrics(initialData);
