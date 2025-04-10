@@ -431,219 +431,197 @@
   </div>
 </div>
 
-<!-- Ban User Modal -->
-<div class="modal-overlay" id="ban-user-modal">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h3 class="modal-title">Ban User</h3>
-      <button class="modal-close"><i class="fas fa-times"></i></button>
+<!-- Ban User Modal - Ultra Premium Version -->
+<div class="ultra-premium-modal-overlay" id="ban-user-modal">
+  <div class="ultra-premium-modal">
+    <div class="ultra-premium-modal-header">
+      <h3 class="ultra-premium-modal-title">Ban User</h3>
+      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="ultra-premium-modal-body">
       <form id="ban-user-form">
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="ban-user-id">User ID</label>
-          <input class="admin3d-form-input" type="text" id="ban-user-id" name="userId" placeholder="Discord User ID" required>
-        </div>
+        <label class="ultra-premium-modal-label" for="ban-user-id">User ID</label>
+        <input class="ultra-premium-modal-input" type="text" id="ban-user-id" name="userId" placeholder="Discord User ID" required>
         
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="ban-reason">Reason</label>
-          <textarea class="admin3d-form-textarea" id="ban-reason" name="reason" rows="3" placeholder="Reason for ban" required></textarea>
-        </div>
+        <label class="ultra-premium-modal-label" for="ban-reason">Reason</label>
+        <textarea class="ultra-premium-modal-textarea" id="ban-reason" name="reason" rows="3" placeholder="Reason for ban" required></textarea>
         
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="ban-delete-days">Delete Messages</label>
-          <select class="admin3d-form-select" id="ban-delete-days" name="deleteDays">
-            <option value="0">Don't Delete Messages</option>
-            <option value="1" selected>Delete Last 24 Hours</option>
-            <option value="7">Delete Last 7 Days</option>
-          </select>
-        </div>
+        <label class="ultra-premium-modal-label" for="ban-delete-days">Delete Messages</label>
+        <select class="ultra-premium-modal-select" id="ban-delete-days" name="deleteDays">
+          <option value="0">Don't Delete Messages</option>
+          <option value="1" selected>Delete Last 24 Hours</option>
+          <option value="7">Delete Last 7 Days</option>
+        </select>
       </form>
     </div>
-    <div class="modal-footer">
-      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
-      <button class="admin3d-btn admin3d-btn-danger" data-action="ban">Ban User</button>
+    <div class="ultra-premium-modal-footer">
+      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
+      <button class="ultra-premium-button danger" data-action="ban">Ban User</button>
     </div>
   </div>
 </div>
 
-<!-- Kick User Modal -->
-<div class="modal-overlay" id="kick-user-modal">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h3 class="modal-title">Kick User</h3>
-      <button class="modal-close"><i class="fas fa-times"></i></button>
+<!-- Kick User Modal - Ultra Premium Version -->
+<div class="ultra-premium-modal-overlay" id="kick-user-modal">
+  <div class="ultra-premium-modal">
+    <div class="ultra-premium-modal-header">
+      <h3 class="ultra-premium-modal-title">Kick User</h3>
+      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="ultra-premium-modal-body">
       <form id="kick-user-form">
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="kick-user-id">User ID</label>
-          <input class="admin3d-form-input" type="text" id="kick-user-id" name="userId" placeholder="Discord User ID" required>
-        </div>
+        <label class="ultra-premium-modal-label" for="kick-user-id">User ID</label>
+        <input class="ultra-premium-modal-input" type="text" id="kick-user-id" name="userId" placeholder="Discord User ID" required>
         
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="kick-reason">Reason</label>
-          <textarea class="admin3d-form-textarea" id="kick-reason" name="reason" rows="3" placeholder="Reason for kick" required></textarea>
-        </div>
+        <label class="ultra-premium-modal-label" for="kick-reason">Reason</label>
+        <textarea class="ultra-premium-modal-textarea" id="kick-reason" name="reason" rows="3" placeholder="Reason for kick" required></textarea>
       </form>
     </div>
-    <div class="modal-footer">
-      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
-      <button class="admin3d-btn admin3d-btn-warning" data-action="kick">Kick User</button>
+    <div class="ultra-premium-modal-footer">
+      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
+      <button class="ultra-premium-button warning" data-action="kick">Kick User</button>
     </div>
   </div>
 </div>
 
-<!-- Timeout User Modal -->
-<div class="modal-overlay" id="timeout-user-modal">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h3 class="modal-title">Timeout User</h3>
-      <button class="modal-close"><i class="fas fa-times"></i></button>
+<!-- Timeout User Modal - Ultra Premium Version -->
+<div class="ultra-premium-modal-overlay" id="timeout-user-modal">
+  <div class="ultra-premium-modal">
+    <div class="ultra-premium-modal-header">
+      <h3 class="ultra-premium-modal-title">Timeout User</h3>
+      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="ultra-premium-modal-body">
       <form id="timeout-user-form">
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="timeout-user-id">User ID</label>
-          <input class="admin3d-form-input" type="text" id="timeout-user-id" name="userId" placeholder="Discord User ID" required>
-        </div>
+        <label class="ultra-premium-modal-label" for="timeout-user-id">User ID</label>
+        <input class="ultra-premium-modal-input" type="text" id="timeout-user-id" name="userId" placeholder="Discord User ID" required>
         
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="timeout-duration">Duration</label>
-          <select class="admin3d-form-select" id="timeout-duration" name="duration">
-            <option value="60">1 Minute</option>
-            <option value="300">5 Minutes</option>
-            <option value="3600">1 Hour</option>
-            <option value="21600">6 Hours</option>
-            <option value="86400" selected>1 Day</option>
-            <option value="604800">1 Week</option>
-          </select>
-        </div>
+        <label class="ultra-premium-modal-label" for="timeout-duration">Duration</label>
+        <select class="ultra-premium-modal-select" id="timeout-duration" name="duration">
+          <option value="60">1 Minute</option>
+          <option value="300">5 Minutes</option>
+          <option value="3600">1 Hour</option>
+          <option value="21600">6 Hours</option>
+          <option value="86400" selected>1 Day</option>
+          <option value="604800">1 Week</option>
+        </select>
         
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="timeout-reason">Reason</label>
-          <textarea class="admin3d-form-textarea" id="timeout-reason" name="reason" rows="3" placeholder="Reason for timeout" required></textarea>
-        </div>
+        <label class="ultra-premium-modal-label" for="timeout-reason">Reason</label>
+        <textarea class="ultra-premium-modal-textarea" id="timeout-reason" name="reason" rows="3" placeholder="Reason for timeout" required></textarea>
       </form>
     </div>
-    <div class="modal-footer">
-      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
-      <button class="admin3d-btn admin3d-btn-warning" data-action="timeout">Timeout User</button>
+    <div class="ultra-premium-modal-footer">
+      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
+      <button class="ultra-premium-button warning" data-action="timeout">Timeout User</button>
     </div>
   </div>
 </div>
 
-<!-- Purge Messages Modal -->
-<div class="modal-overlay" id="purge-messages-modal">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h3 class="modal-title">Purge Messages</h3>
-      <button class="modal-close"><i class="fas fa-times"></i></button>
+<!-- Purge Messages Modal - Ultra Premium Version -->
+<div class="ultra-premium-modal-overlay" id="purge-messages-modal">
+  <div class="ultra-premium-modal">
+    <div class="ultra-premium-modal-header">
+      <h3 class="ultra-premium-modal-title">Purge Messages</h3>
+      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="ultra-premium-modal-body">
       <form id="purge-messages-form">
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="purge-channel">Channel</label>
-          <select class="admin3d-form-select" id="purge-channel" name="channelId" required>
-            <option value="">Select a channel</option>
-            <!-- Channels will be loaded dynamically -->
-          </select>
-        </div>
+        <label class="ultra-premium-modal-label" for="purge-channel">Channel</label>
+        <select class="ultra-premium-modal-select" id="purge-channel" name="channelId" required>
+          <option value="">Select a channel</option>
+          <!-- Channels will be loaded dynamically -->
+        </select>
         
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="purge-amount">Amount</label>
-          <input class="admin3d-form-input" type="number" id="purge-amount" name="amount" min="1" max="100" value="10" required>
-          <span class="admin3d-form-hint">Number of messages to delete (1-100)</span>
-        </div>
+        <label class="ultra-premium-modal-label" for="purge-amount">Amount</label>
+        <input class="ultra-premium-modal-input" type="number" id="purge-amount" name="amount" min="1" max="100" value="10" required>
+        <span class="ultra-premium-modal-hint">Number of messages to delete (1-100)</span>
         
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label">Filters</label>
-          <div class="admin3d-checkbox-group">
-            <label class="admin3d-checkbox">
+        <div class="ultra-premium-modal-section">
+          <h4 class="ultra-premium-modal-section-title">Filters</h4>
+          <div class="ultra-premium-modal-checkbox-group">
+            <label class="ultra-premium-modal-checkbox">
               <input type="checkbox" name="onlyUsers" id="purge-only-users">
               <span>Only User Messages (Skip Bot Messages)</span>
             </label>
-            <label class="admin3d-checkbox">
+            <label class="ultra-premium-modal-checkbox">
               <input type="checkbox" name="withImages" id="purge-with-images">
               <span>Only Messages With Images</span>
             </label>
-            <label class="admin3d-checkbox">
+            <label class="ultra-premium-modal-checkbox">
               <input type="checkbox" name="withLinks" id="purge-with-links">
               <span>Only Messages With Links</span>
             </label>
           </div>
         </div>
         
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="purge-reason">Reason</label>
-          <textarea class="admin3d-form-textarea" id="purge-reason" name="reason" rows="3" placeholder="Reason for purging messages" required></textarea>
-        </div>
+        <label class="ultra-premium-modal-label" for="purge-reason">Reason</label>
+        <textarea class="ultra-premium-modal-textarea" id="purge-reason" name="reason" rows="3" placeholder="Reason for purging messages" required></textarea>
       </form>
     </div>
-    <div class="modal-footer">
-      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
-      <button class="admin3d-btn admin3d-btn-danger" data-action="purge">Purge Messages</button>
+    <div class="ultra-premium-modal-footer">
+      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
+      <button class="ultra-premium-button danger" data-action="purge">Purge Messages</button>
     </div>
   </div>
 </div>
 
-<!-- Ban Info Modal -->
-<div class="modal-overlay" id="ban-info-modal">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h3 class="modal-title">Ban Information</h3>
-      <button class="modal-close"><i class="fas fa-times"></i></button>
+<!-- Ban Info Modal - Ultra Premium Version -->
+<div class="ultra-premium-modal-overlay" id="ban-info-modal">
+  <div class="ultra-premium-modal">
+    <div class="ultra-premium-modal-header">
+      <h3 class="ultra-premium-modal-title">Ban Information</h3>
+      <button class="ultra-premium-modal-close" data-action="close"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal-body">
-      <div class="ban-info">
-        <div class="ban-user-header">
-          <div class="ban-user-avatar" id="ban-info-avatar">
-            <i class="fas fa-user"></i>
+    <div class="ultra-premium-modal-body">
+      <div class="ultra-premium-ban-info">
+        <div class="ban-user-header" style="display: flex; align-items: center; gap: 1rem; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+          <div class="ban-user-avatar" id="ban-info-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: rgba(25, 27, 40, 0.7); display: flex; align-items: center; justify-content: center; border: 2px solid rgba(157, 0, 255, 0.3);">
+            <i class="fas fa-user" style="font-size: 24px; color: rgba(157, 0, 255, 0.7);"></i>
           </div>
-          <div class="ban-user-details">
-            <div class="ban-user-name" id="ban-info-name">User#0000</div>
-            <div class="ban-user-id" id="ban-info-id">000000000000000000</div>
+          <div class="ban-user-details" style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <div class="ban-user-name" id="ban-info-name" style="font-size: 1.5rem; font-weight: 700; color: #fff;">User#0000</div>
+            <div class="ban-user-id" id="ban-info-id" style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.5);">000000000000000000</div>
           </div>
         </div>
         
-        <div class="ban-details-section">
-          <div class="ban-detail-item">
-            <div class="ban-detail-label">Banned By</div>
-            <div class="ban-detail-value" id="ban-info-executor">Admin#0000</div>
+        <div class="ultra-premium-ban-info" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="ultra-premium-ban-row">
+            <div class="ultra-premium-ban-label">Banned By</div>
+            <div class="ultra-premium-ban-value" id="ban-info-executor">Admin#0000</div>
           </div>
           
-          <div class="ban-detail-item">
-            <div class="ban-detail-label">Ban Date</div>
-            <div class="ban-detail-value" id="ban-info-date">2023-01-01</div>
+          <div class="ultra-premium-ban-row">
+            <div class="ultra-premium-ban-label">Ban Date</div>
+            <div class="ultra-premium-ban-value" id="ban-info-date">2023-01-01</div>
           </div>
           
-          <div class="ban-detail-item">
-            <div class="ban-detail-label">Reason</div>
-            <div class="ban-detail-value" id="ban-info-reason">No reason provided</div>
+          <div class="ultra-premium-ban-row">
+            <div class="ultra-premium-ban-label">Reason</div>
+            <div class="ultra-premium-ban-value" id="ban-info-reason">No reason provided</div>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="admin3d-btn admin3d-btn-danger" data-action="unban">Unban User</button>
-      <button class="admin3d-btn admin3d-btn-secondary" data-action="close">Close</button>
+    <div class="ultra-premium-modal-footer">
+      <button class="ultra-premium-button danger" data-action="unban">Unban User</button>
+      <button class="ultra-premium-button" data-action="close">Close</button>
     </div>
   </div>
 </div>
 
-<!-- Confirmation Modal -->
-<div class="modal-overlay" id="confirm-modal">
-  <div class="modal-container">
-    <div class="modal-header">
-      <h3 class="modal-title">Confirm Action</h3>
-      <button class="modal-close"><i class="fas fa-times"></i></button>
+<!-- Confirmation Modal - Ultra Premium Version -->
+<div class="ultra-premium-modal-overlay" id="confirm-modal">
+  <div class="ultra-premium-modal">
+    <div class="ultra-premium-modal-header">
+      <h3 class="ultra-premium-modal-title">Confirm Action</h3>
+      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal-body">
-      <p id="confirm-message">Are you sure you want to perform this action?</p>
+    <div class="ultra-premium-modal-body">
+      <p id="confirm-message" style="font-size: 1.1rem; line-height: 1.5; color: rgba(255, 255, 255, 0.9);">Are you sure you want to perform this action?</p>
     </div>
-    <div class="modal-footer">
-      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
-      <button class="admin3d-btn admin3d-btn-danger" data-action="confirm">Confirm</button>
+    <div class="ultra-premium-modal-footer">
+      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
+      <button class="ultra-premium-button danger" data-action="confirm">Confirm</button>
     </div>
   </div>
 </div>
