@@ -1,5 +1,5 @@
 /**
- * SWOOSH BOT - Premium Moderation 3D Visualization - £100,000 Edition
+ * SWOOSH BOT - Premium Moderation 3D Visualization
  * 
  * This specialized THREE.js implementation is designed specifically for the 
  * moderation page with optimized performance and enhanced visuals

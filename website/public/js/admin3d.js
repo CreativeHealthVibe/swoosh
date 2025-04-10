@@ -1,6 +1,6 @@
 /**
  * SWOOSH Bot 3D Admin Dashboard
- * Premium Edition - £50,000 Value
+ * Premium Edition
  * 
  * UI interaction handling and functionality
  * for the 3D admin dashboard interface.
@@ -317,14 +317,13 @@ function initPremiumFeatures() {
     feature.classList.add('premium-feature');
   });
   
-  // Add premium price tag if element exists
+  // Add premium badge if element exists
   const priceTag = document.querySelector('.premium-price-tag');
   if (priceTag) {
     priceTag.innerHTML = `
-      <span class="price-currency">£</span>
-      <span class="price-value">50,000</span>
+      <span class="premium-badge-text">PREMIUM</span>
     `;
-    priceTag.classList.add('price-tag');
+    priceTag.classList.add('premium-badge-container');
   }
 }
 

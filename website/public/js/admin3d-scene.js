@@ -1,6 +1,6 @@
 /**
  * SWOOSH Bot 3D Admin Dashboard
- * Premium Edition - £50,000 Value
+ * Premium Edition
  * 
  * Advanced Three.js visualization with interactive elements,
  * dynamic lighting, and immersive particle effects.
