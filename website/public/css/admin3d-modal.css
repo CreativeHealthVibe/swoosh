@@ -1,0 +1,392 @@
+/**
+ * SWOOSH ADMIN DASHBOARD
+ * Modal Dialog Styles
+ *
+ * These premium modal styles provide a professional experience
+ * for the admin dashboard.
+ */
+
+/* Modal Overlay */
+.ultra-premium-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 8, 30, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.ultra-premium-modal-overlay.modal-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Container */
+.ultra-premium-modal {
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  background: linear-gradient(135deg, rgba(25, 22, 57, 0.8) 0%, rgba(42, 35, 85, 0.8) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 100px rgba(149, 0, 255, 0.15),
+    inset 0 0 20px rgba(149, 0, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.modal-visible .ultra-premium-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* Modal Header */
+.ultra-premium-modal-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(25, 22, 57, 0.9);
+}
+
+.ultra-premium-modal-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(149, 0, 255, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.ultra-premium-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ultra-premium-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+/* Modal Body */
+.ultra-premium-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(80vh - 120px);
+}
+
+/* Modal Form Elements */
+.ultra-premium-modal-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.5px;
+}
+
+.ultra-premium-modal-input,
+.ultra-premium-modal-textarea,
+.ultra-premium-modal-select {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background: rgba(15, 12, 40, 0.5);
+  border: 1px solid rgba(149, 0, 255, 0.2);
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 0 0 rgba(149, 0, 255, 0.3);
+}
+
+.ultra-premium-modal-input:focus,
+.ultra-premium-modal-textarea:focus,
+.ultra-premium-modal-select:focus {
+  outline: none;
+  border-color: rgba(149, 0, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(149, 0, 255, 0.3);
+  background: rgba(25, 22, 57, 0.5);
+}
+
+.ultra-premium-modal-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.ultra-premium-modal-hint {
+  display: block;
+  margin-top: -15px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Modal Checkbox Styles */
+.ultra-premium-modal-section {
+  margin-bottom: 20px;
+}
+
+.ultra-premium-modal-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ultra-premium-modal-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ultra-premium-modal-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ultra-premium-modal-checkbox input[type="checkbox"] {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  appearance: none;
+  background: rgba(15, 12, 40, 0.5);
+  border: 1px solid rgba(149, 0, 255, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ultra-premium-modal-checkbox input[type="checkbox"]:checked {
+  background: rgba(149, 0, 255, 0.7);
+  border-color: rgba(149, 0, 255, 0.9);
+}
+
+.ultra-premium-modal-checkbox input[type="checkbox"]:checked::after {
+  content: '\f00c';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 11px;
+}
+
+.ultra-premium-modal-checkbox span {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Modal Footer */
+.ultra-premium-modal-footer {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 17, 46, 0.9);
+}
+
+/* Modal Buttons */
+.ultra-premium-button {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 0 rgba(149, 0, 255, 0);
+  position: relative;
+  overflow: hidden;
+}
+
+.ultra-premium-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.7s ease;
+}
+
+.ultra-premium-button:hover::before {
+  left: 100%;
+}
+
+.ultra-premium-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 5px 15px rgba(0, 0, 0, 0.3),
+    0 0 5px rgba(149, 0, 255, 0.5);
+}
+
+.ultra-premium-button.danger {
+  background: linear-gradient(135deg, rgba(255, 61, 113, 0.7) 0%, rgba(255, 0, 87, 0.7) 100%);
+  color: #fff;
+}
+
+.ultra-premium-button.danger:hover {
+  background: linear-gradient(135deg, rgba(255, 61, 113, 0.8) 0%, rgba(255, 0, 87, 0.8) 100%);
+}
+
+.ultra-premium-button.warning {
+  background: linear-gradient(135deg, rgba(255, 171, 0, 0.7) 0%, rgba(255, 123, 0, 0.7) 100%);
+  color: #fff;
+}
+
+.ultra-premium-button.warning:hover {
+  background: linear-gradient(135deg, rgba(255, 171, 0, 0.8) 0%, rgba(255, 123, 0, 0.8) 100%);
+}
+
+.ultra-premium-button.success {
+  background: linear-gradient(135deg, rgba(0, 230, 118, 0.7) 0%, rgba(0, 178, 105, 0.7) 100%);
+  color: #fff;
+}
+
+.ultra-premium-button.success:hover {
+  background: linear-gradient(135deg, rgba(0, 230, 118, 0.8) 0%, rgba(0, 178, 105, 0.8) 100%);
+}
+
+/* Ban Info Styles */
+.ultra-premium-ban-info {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ultra-premium-ban-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ultra-premium-ban-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ultra-premium-ban-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ultra-premium-ban-value {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .ultra-premium-modal {
+    width: 95%;
+    max-width: 500px;
+  }
+  
+  .ultra-premium-modal-header {
+    padding: 16px 20px;
+  }
+  
+  .ultra-premium-modal-body {
+    padding: 20px;
+  }
+  
+  .ultra-premium-modal-footer {
+    padding: 16px 20px;
+  }
+  
+  .ultra-premium-modal-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ultra-premium-modal-body {
+    max-height: 70vh;
+  }
+  
+  .ultra-premium-modal-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .ultra-premium-button {
+    width: 100%;
+  }
+}
+
+/* Animation for modal content */
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ultra-premium-modal-body > * {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+.ultra-premium-modal-body > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.ultra-premium-modal-body > *:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.ultra-premium-modal-body > *:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.ultra-premium-modal-body > *:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+/* Fix for the modal overlay display */
+.ultra-premium-modal-overlay.modal-visible {
+  display: flex;
+}

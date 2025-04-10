@@ -1,0 +1,297 @@
+/* SWOOSH Bot - Premium Notification System */
+
+/* Notification Area */
+.notification-area {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.notification-area.top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.notification-area.top-left {
+  top: 20px;
+  left: 20px;
+}
+
+.notification-area.bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
+
+.notification-area.bottom-left {
+  bottom: 20px;
+  left: 20px;
+}
+
+.notification-area.top-center {
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.notification-area.bottom-center {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Ultra Premium Notification */
+.admin3d-notification {
+  --success-color: #43b581;
+  --error-color: #f04747;
+  --warning-color: #faa61a;
+  --info-color: #7289da;
+  --accent-purple: #9d00ff;
+  --accent-gold: #ffd700;
+  --accent-pink: #ff00aa;
+  --accent-blue: #00a2ff;
+  --holographic-gradient: linear-gradient(135deg, var(--accent-blue), var(--accent-purple), var(--accent-pink), var(--accent-gold));
+  
+  display: flex;
+  width: 350px;
+  padding: 15px;
+  background: rgba(30, 32, 45, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  position: relative;
+  opacity: 0;
+  transform: translateX(30px);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  border: 1px solid rgba(157, 0, 255, 0.15);
+  color: #fff;
+  pointer-events: auto;
+}
+
+.admin3d-notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: var(--holographic-gradient);
+  background-size: 200% 200%;
+  animation: notification-shimmer 8s linear infinite;
+}
+
+.admin3d-notification.slide-left {
+  transform: translateX(-30px);
+}
+
+.admin3d-notification.slide-up {
+  transform: translateY(30px);
+}
+
+.admin3d-notification.slide-down {
+  transform: translateY(-30px);
+}
+
+.admin3d-notification.fade {
+  opacity: 0;
+  transform: translateX(0);
+}
+
+.admin3d-notification.notification-visible {
+  opacity: 1;
+  transform: translateX(0) translateY(0);
+}
+
+.admin3d-notification.notification-closing {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: all 0.3s ease;
+}
+
+.admin3d-notification.slide-left.notification-closing {
+  transform: translateX(-30px);
+}
+
+.admin3d-notification.slide-up.notification-closing {
+  transform: translateY(30px);
+}
+
+.admin3d-notification.slide-down.notification-closing {
+  transform: translateY(-30px);
+}
+
+.admin3d-notification.fade.notification-closing {
+  opacity: 0;
+  transform: translateY(0);
+}
+
+/* Notification types */
+.admin3d-notification.success::before {
+  background: var(--success-color);
+}
+
+.admin3d-notification.error::before {
+  background: var(--error-color);
+}
+
+.admin3d-notification.warning::before {
+  background: var(--warning-color);
+}
+
+.admin3d-notification.info::before {
+  background: var(--info-color);
+}
+
+/* Notification Icon */
+.admin3d-notification .notification-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin3d-notification .notification-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--holographic-gradient);
+  background-size: 200% 200%;
+  animation: notification-shimmer 8s linear infinite;
+  opacity: 0.2;
+}
+
+.admin3d-notification.success .notification-icon::before {
+  background: var(--success-color);
+  opacity: 0.15;
+}
+
+.admin3d-notification.error .notification-icon::before {
+  background: var(--error-color);
+  opacity: 0.15;
+}
+
+.admin3d-notification.warning .notification-icon::before {
+  background: var(--warning-color);
+  opacity: 0.15;
+}
+
+.admin3d-notification.info .notification-icon::before {
+  background: var(--info-color);
+  opacity: 0.15;
+}
+
+.admin3d-notification .notification-icon i {
+  font-size: 1.25rem;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+}
+
+.admin3d-notification.success .notification-icon i {
+  color: var(--success-color);
+}
+
+.admin3d-notification.error .notification-icon i {
+  color: var(--error-color);
+}
+
+.admin3d-notification.warning .notification-icon i {
+  color: var(--warning-color);
+}
+
+.admin3d-notification.info .notification-icon i {
+  color: var(--info-color);
+}
+
+/* Notification Content */
+.admin3d-notification .notification-content {
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
+.admin3d-notification .notification-message {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Close Button */
+.admin3d-notification .notification-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+}
+
+.admin3d-notification .notification-close:hover {
+  opacity: 1;
+}
+
+/* Progress Bar */
+.admin3d-notification .notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--holographic-gradient);
+  background-size: 200% 200%;
+  animation: notification-shimmer 8s linear infinite, progress-shrink linear forwards;
+  transform-origin: left;
+}
+
+.admin3d-notification.success .notification-progress {
+  background: var(--success-color);
+}
+
+.admin3d-notification.error .notification-progress {
+  background: var(--error-color);
+}
+
+.admin3d-notification.warning .notification-progress {
+  background: var(--warning-color);
+}
+
+.admin3d-notification.info .notification-progress {
+  background: var(--info-color);
+}
+
+/* Animations */
+@keyframes notification-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes progress-shrink {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
