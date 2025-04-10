@@ -8,22 +8,19 @@
   position: relative;
 }
 
-/* Moderation page styling that exactly matches the reference image */
+/* Moderation page styling that matches the /admin3d/messages page */
 .admin3d-moderation {
   width: 100%;
   padding: 0;
 }
 
-.mod-page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(137, 54, 255, 0.3);
-  padding-bottom: 1.25rem;
+/* Dashboard header styles from messages page */
+.dashboard-header {
+  margin-bottom: 1rem;
+  position: relative;
 }
 
-.mod-page-title h1 {
+.section-title {
   font-size: 2.2rem;
   font-weight: 700;
   margin: 0;
@@ -35,7 +32,7 @@
   position: relative;
 }
 
-.mod-page-title h1::after {
+.section-title::after {
   content: '';
   position: absolute;
   bottom: -10px;
@@ -46,11 +43,14 @@
   border-radius: 3px;
 }
 
-.mod-page-title p {
+.section-description {
   font-size: 0.95rem;
   color: rgba(185, 187, 190, 0.9);
-  margin: 15px 0 0;
+  margin: 1.25rem 0 1.5rem 0;
   font-weight: 400;
+  max-width: 80%;
+  border-bottom: 1px solid rgba(137, 54, 255, 0.3);
+  padding-bottom: 1.25rem;
 }
 
 .mod-server-selector {
