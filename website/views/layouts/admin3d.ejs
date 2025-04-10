@@ -60,13 +60,40 @@
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/admin3d.css">
   
+  <!-- Page-specific styles -->
+  <% if (title.includes('Moderation')) { %>
+    <link rel="stylesheet" href="/css/admin3d-moderation.css">
+  <% } else if (title.includes('Stats')) { %>
+    <link rel="stylesheet" href="/css/admin3d-stats.css">
+  <% } %>
+  
   <!-- Custom JS -->
   <script src="/js/admin3d-scene.js" defer></script>
   <script src="/js/admin3d.js" defer></script>
+  
+  <!-- Page-specific scripts - only load what's needed -->
+  <% if (title.includes('Moderation')) { %>
+    <script src="/js/admin3d-moderation-scene.js" defer></script>
+    <script src="/js/admin3d-moderation.js" defer></script>
+  <% } else if (title.includes('Ticket')) { %>
+    <script src="/js/admin3d-tickets.js" defer></script>
+  <% } else if (title.includes('Role')) { %>
+    <script src="/js/admin3d-roles.js" defer></script>
+  <% } else if (title.includes('Blacklist')) { %>
+    <script src="/js/admin3d-blacklist.js" defer></script>
+  <% } else if (title.includes('Stats')) { %>
+    <script src="/js/admin3d-stats.js" defer></script>
+  <% } %>
 </head>
-<body class="admin3d-body <%= title.includes('Message') || title.includes('Moderation') ? 'no-three-js' : '' %>">
-  <!-- 3D Canvas Container (hidden on form-heavy pages) -->
-  <div id="three-container" class="<%= title.includes('Message') || title.includes('Moderation') ? 'three-js-disabled' : '' %>"></div>
+<body class="admin3d-body <%= title.includes('Message') ? 'no-three-js' : '' %> <%= title.includes('Moderation') ? 'premium-moderation' : '' %>">
+  <!-- 3D Canvas Container (hidden on message page, modified for moderation) -->
+  <div id="three-container" class="<%= title.includes('Message') ? 'three-js-disabled' : '' %>"></div>
+  
+  <!-- Specialized moderation 3D container (only on moderation page) -->
+  <% if (title.includes('Moderation')) { %>
+    <!-- This is a dedicated container that won't interfere with forms -->
+    <div id="moderation-three-container" class="premium-three-container"></div>
+  <% } %>
   
   <!-- Special fix for form inputs on pages with forms -->
   <% if (title.includes('Message') || title.includes('Moderation')) { %>
