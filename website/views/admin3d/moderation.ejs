@@ -74,139 +74,178 @@
   
   <!-- Moderation Section - Only visible after server selection -->
   <div id="moderation-section" class="moderation-section" style="display: none;">
-    <!-- Quick Action Cards -->
-    <h2 class="section-subtitle">Quick Actions</h2>
+    <!-- Ultra Premium Quick Action Cards -->
+    <h2 class="ultra-premium-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Quick Actions</h2>
     <div class="moderation-actions">
-      <div class="admin3d-action-card" data-premium="true">
-        <div class="action-card-icon">
-          <i class="fas fa-gavel"></i>
+      <div class="ultra-premium-card" data-premium="true">
+        <div class="ultra-premium-card-header">
+          <div class="ultra-premium-card-icon">
+            <i class="fas fa-gavel"></i>
+          </div>
+          <h3 class="ultra-premium-card-title">Ban User</h3>
         </div>
-        <h3 class="action-card-title">Ban User</h3>
-        <p class="action-card-description">
-          Permanently ban a user from the server
-        </p>
-        <button class="admin3d-btn admin3d-btn-primary" data-action="ban-user">
-          <i class="fas fa-ban"></i> Ban User
-        </button>
+        <div class="ultra-premium-card-content">
+          <p>
+            Permanently ban a user from the server with customizable message deletion options
+          </p>
+          <button class="ultra-premium-button danger" data-action="ban-user">
+            <i class="fas fa-ban"></i> Ban User
+          </button>
+        </div>
       </div>
       
-      <div class="admin3d-action-card">
-        <div class="action-card-icon">
-          <i class="fas fa-user-slash"></i>
+      <div class="ultra-premium-card">
+        <div class="ultra-premium-card-header">
+          <div class="ultra-premium-card-icon">
+            <i class="fas fa-user-slash"></i>
+          </div>
+          <h3 class="ultra-premium-card-title">Kick User</h3>
         </div>
-        <h3 class="action-card-title">Kick User</h3>
-        <p class="action-card-description">
-          Remove a user from the server temporarily
-        </p>
-        <button class="admin3d-btn admin3d-btn-primary" data-action="kick-user">
-          <i class="fas fa-sign-out-alt"></i> Kick User
-        </button>
+        <div class="ultra-premium-card-content">
+          <p>
+            Remove a user from the server temporarily with advanced notification options
+          </p>
+          <button class="ultra-premium-button warning" data-action="kick-user">
+            <i class="fas fa-sign-out-alt"></i> Kick User
+          </button>
+        </div>
       </div>
       
-      <div class="admin3d-action-card">
-        <div class="action-card-icon">
-          <i class="fas fa-clock"></i>
+      <div class="ultra-premium-card">
+        <div class="ultra-premium-card-header">
+          <div class="ultra-premium-card-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3 class="ultra-premium-card-title">Timeout User</h3>
         </div>
-        <h3 class="action-card-title">Timeout User</h3>
-        <p class="action-card-description">
-          Temporarily mute a user for a set period
-        </p>
-        <button class="admin3d-btn admin3d-btn-primary" data-action="timeout-user">
-          <i class="fas fa-stopwatch"></i> Timeout User
-        </button>
+        <div class="ultra-premium-card-content">
+          <p>
+            Temporarily mute a user for a set period with precise duration control
+          </p>
+          <button class="ultra-premium-button" data-action="timeout-user">
+            <i class="fas fa-stopwatch"></i> Timeout User
+          </button>
+        </div>
       </div>
       
-      <div class="admin3d-action-card" data-premium="true">
-        <div class="action-card-icon">
-          <i class="fas fa-trash-alt"></i>
+      <div class="ultra-premium-card" data-premium="true">
+        <div class="ultra-premium-card-header">
+          <div class="ultra-premium-card-icon">
+            <i class="fas fa-trash-alt"></i>
+          </div>
+          <h3 class="ultra-premium-card-title">Purge Messages</h3>
         </div>
-        <h3 class="action-card-title">Purge Messages</h3>
-        <p class="action-card-description">
-          Delete multiple messages from a channel
-        </p>
-        <button class="admin3d-btn admin3d-btn-primary" data-action="purge-messages">
-          <i class="fas fa-broom"></i> Purge Messages
-        </button>
+        <div class="ultra-premium-card-content">
+          <p>
+            Delete multiple messages from a channel with pattern matching and retention options
+          </p>
+          <button class="ultra-premium-button" data-action="purge-messages">
+            <i class="fas fa-broom"></i> Purge Messages
+          </button>
+        </div>
       </div>
     </div>
     
-    <!-- Ban List -->
-    <h2 class="section-subtitle">Ban List</h2>
-    <div class="admin3d-card">
-      <div class="admin3d-card-header">
-        <div>
-          <div class="admin3d-card-icon">
-            <i class="fas fa-ban"></i>
-          </div>
+    <!-- Ban List with Ultra Premium Styling -->
+    <h2 class="ultra-premium-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Ban Management</h2>
+    <div class="ultra-premium-card">
+      <div class="ultra-premium-card-header">
+        <div class="ultra-premium-card-icon">
+          <i class="fas fa-ban"></i>
         </div>
-        <h3 class="admin3d-card-title">Server Bans</h3>
+        <h3 class="ultra-premium-card-title">Server Ban List</h3>
       </div>
-      <div class="admin3d-card-content">
-        <div class="ban-filters">
-          <div class="filter-group">
-            <input type="text" class="admin3d-form-input" id="ban-search" placeholder="Search by username or reason...">
+      <div class="ultra-premium-card-content">
+        <div class="ban-filters" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="filter-group" style="flex-grow: 1;">
+            <div class="ultra-premium-input-group" style="margin-bottom: 0;">
+              <input type="text" class="ultra-premium-input" id="ban-search" placeholder="Search by username or reason...">
+              <i class="fas fa-search ultra-premium-input-icon"></i>
+            </div>
           </div>
           
           <div class="filter-group">
-            <button class="admin3d-btn admin3d-btn-secondary refresh-btn" id="refresh-bans">
+            <button class="ultra-premium-button" id="refresh-bans">
               <i class="fas fa-sync-alt"></i> Refresh
             </button>
           </div>
         </div>
         
-        <div class="bans-list-container">
-          <div class="bans-list-header">
-            <div class="ban-user-col">User</div>
-            <div class="ban-reason-col">Reason</div>
-            <div class="ban-date-col">Date</div>
-            <div class="ban-actions-col">Actions</div>
-          </div>
-          <div id="bans-list" class="bans-list">
-            <!-- Ban items will be added dynamically -->
-            <div class="bans-loading">
-              <div class="spinner"></div>
-              <p>Loading bans...</p>
-            </div>
-          </div>
+        <div class="ultra-premium-table-container">
+          <table class="ultra-premium-table">
+            <thead class="ultra-premium-table-header">
+              <tr>
+                <th>User</th>
+                <th>Reason</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bans-list" class="bans-list">
+              <!-- Ban items will be added dynamically -->
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem;">
+                  <div class="spinner" style="margin: 0 auto;"></div>
+                  <p style="margin-top: 1rem;">Loading ban list...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
     
-    <!-- Recent Actions -->
-    <h2 class="section-subtitle">Recent Moderation Actions</h2>
-    <div class="admin3d-card" data-premium="true">
-      <div class="admin3d-card-header">
-        <div>
-          <div class="admin3d-card-icon">
-            <i class="fas fa-history"></i>
-          </div>
+    <!-- Recent Actions with Ultra Premium Styling -->
+    <h2 class="ultra-premium-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Activity Monitoring</h2>
+    <div class="ultra-premium-card" data-premium="true">
+      <div class="ultra-premium-card-header">
+        <div class="ultra-premium-card-icon">
+          <i class="fas fa-history"></i>
         </div>
-        <h3 class="admin3d-card-title">Action Log</h3>
+        <h3 class="ultra-premium-card-title">Moderation Action Logs</h3>
       </div>
-      <div class="admin3d-card-content">
+      <div class="ultra-premium-card-content">
         <div class="moderation-log-container">
-          <div class="log-controls">
-            <div class="log-filter">
-              <select class="admin3d-form-select" id="log-type-filter">
-                <option value="all">All Actions</option>
-                <option value="ban">Bans</option>
-                <option value="kick">Kicks</option>
-                <option value="timeout">Timeouts</option>
-                <option value="warn">Warnings</option>
-                <option value="purge">Message Purges</option>
-              </select>
+          <div class="log-controls" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="log-filter" style="flex-grow: 1;">
+              <div class="ultra-premium-input-group" style="margin-bottom: 0;">
+                <select class="ultra-premium-input" id="log-type-filter">
+                  <option value="all">All Actions</option>
+                  <option value="ban">Bans</option>
+                  <option value="kick">Kicks</option>
+                  <option value="timeout">Timeouts</option>
+                  <option value="warn">Warnings</option>
+                  <option value="purge">Message Purges</option>
+                </select>
+                <i class="fas fa-filter ultra-premium-input-icon"></i>
+              </div>
             </div>
-            <button class="admin3d-btn admin3d-btn-secondary" id="refresh-logs">
+            <button class="ultra-premium-button" id="refresh-logs">
               <i class="fas fa-sync-alt"></i> Refresh
             </button>
           </div>
           
-          <div id="moderation-log" class="moderation-log">
-            <!-- Log entries will be added dynamically -->
-            <div class="log-loading">
-              <div class="spinner"></div>
-              <p>Loading moderation logs...</p>
-            </div>
+          <div class="ultra-premium-table-container">
+            <table class="ultra-premium-table">
+              <thead class="ultra-premium-table-header">
+                <tr>
+                  <th>Action</th>
+                  <th>User</th>
+                  <th>Moderator</th>
+                  <th>Reason</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="moderation-log" class="moderation-log">
+                <!-- Log entries will be added dynamically -->
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 2rem;">
+                    <div class="spinner" style="margin: 0 auto;"></div>
+                    <p style="margin-top: 1rem;">Loading moderation logs...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
