@@ -5,8 +5,8 @@
   Moderation Management Page - Enterprise Edition
 %>
 
-<div class="admin3d-moderation premium-edition">
-  <!-- 3D Visualization Container -->
+<div class="admin3d-moderation premium-edition ultra-premium">
+  <!-- Ultra Premium 3D Experience - £100,000 Value -->
   <div class="moderation-3d-container">
     <div id="moderation-three-container" class="three-js-container moderation-scene">
       <!-- 3D scene will be rendered here -->
@@ -38,30 +38,27 @@
     </div>
   </div>
 
-  <div class="dashboard-header premium-header">
-    <div class="premium-badge">ULTRA ENTERPRISE EDITION</div>
-    <div class="price-badge">£100,000</div>
-    <h1 class="section-title glow-text">Advanced Moderation Command Center</h1>
+  <div class="ultra-premium-header">
+    <div class="ultra-premium-badge">ULTRA ENTERPRISE EDITION</div>
+    <div class="ultra-premium-price">£100,000</div>
+    <h1 class="ultra-premium-title">Advanced Moderation Command Center</h1>
+    <p class="ultra-premium-subtitle">
+      Manage users across your Discord servers with enterprise-grade moderation tools. Visualize server trends, enforce policies, and maintain server security with our exclusive ultra-premium suite of administrative tools.
+    </p>
   </div>
   
-  <p class="section-description">
-    Manage users across your Discord servers with enterprise-grade moderation tools. Visualize server trends, enforce policies, and maintain server security with our premium suite of tools.
-  </p>
-  
   <!-- Server Selection -->
-  <div class="admin3d-card glow-border">
-    <div class="admin3d-card-header">
-      <div>
-        <div class="admin3d-card-icon glow-bg">
-          <i class="fas fa-server"></i>
-        </div>
+  <div class="ultra-premium-card">
+    <div class="ultra-premium-card-header">
+      <div class="ultra-premium-card-icon">
+        <i class="fas fa-server"></i>
       </div>
-      <h3 class="admin3d-card-title glow-text">Select Server</h3>
+      <h3 class="ultra-premium-card-title">Select Server</h3>
     </div>
-    <div class="admin3d-card-content">
-      <div class="admin3d-form-group">
-        <label class="admin3d-form-label" for="server-select">Server</label>
-        <select class="admin3d-form-select" id="server-select">
+    <div class="ultra-premium-card-content">
+      <div class="ultra-premium-input-group">
+        <label class="ultra-premium-input-label" for="server-select">Server</label>
+        <select class="ultra-premium-input" id="server-select">
           <option value="">Select a server</option>
           <% if (client && client.guilds) { %>
             <% client.guilds.cache.sort((a, b) => a.name.localeCompare(b.name)).forEach(guild => { %>
@@ -69,6 +66,7 @@
             <% }); %>
           <% } %>
         </select>
+        <i class="fas fa-server ultra-premium-input-icon"></i>
         <span class="admin3d-form-hint">Select a server to manage moderation tools</span>
       </div>
     </div>
