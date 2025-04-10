@@ -72,11 +72,16 @@
               </div>
               
               <div class="admin3d-form-actions">
-                <button type="submit" class="admin3d-btn admin3d-btn-primary">
+                <button type="submit" class="admin3d-btn admin3d-btn-primary" id="sendNewsBtn">
                   <i class="fas fa-paper-plane"></i> Send News
                 </button>
               </div>
             </form>
+            
+            <!-- Manual trigger button for form (in case form submit button doesn't work) -->
+            <button onclick="document.getElementById('newsSendForm').dispatchEvent(new Event('submit'))" class="admin3d-btn admin3d-btn-secondary" style="margin-top: 10px; width: 100%;">
+              Alternate Submit (Try this if Send News doesn't work)
+            </button>
           </div>
         </div>
       </div>
@@ -97,7 +102,7 @@
               Send a rich embed message to any text channel in your servers.
             </p>
             
-            <form action="/admin3d/messages/send-embed" method="POST" data-ajax="true" data-reset="true">
+            <form action="/admin3d/messages/send-embed" method="POST" id="sendEmbedForm" data-ajax="true" data-reset="true">
               <div class="admin3d-form-group">
                 <label class="admin3d-form-label" for="channel">Channel</label>
                 <select class="admin3d-form-select" id="channel" name="channel" required>
@@ -150,11 +155,16 @@
               </div>
               
               <div class="admin3d-form-actions">
-                <button type="submit" class="admin3d-btn admin3d-btn-primary">
+                <button type="submit" class="admin3d-btn admin3d-btn-primary" id="sendEmbedBtn">
                   <i class="fas fa-paper-plane"></i> Send Embed
                 </button>
               </div>
             </form>
+            
+            <!-- Manual trigger button for form (in case form submit button doesn't work) -->
+            <button onclick="document.getElementById('sendEmbedForm').dispatchEvent(new Event('submit'))" class="admin3d-btn admin3d-btn-secondary" style="margin-top: 10px; width: 100%;">
+              Alternate Submit (Try this if Send Embed doesn't work)
+            </button>
           </div>
         </div>
         
@@ -194,7 +204,7 @@
               Send a direct message to a user via the bot.
             </p>
             
-            <form action="/admin3d/messages/send-dm" method="POST" data-ajax="true" data-reset="true">
+            <form action="/admin3d/messages/send-dm" method="POST" id="sendDmForm" data-ajax="true" data-reset="true">
               <div class="admin3d-form-group">
                 <label class="admin3d-form-label" for="userId">User ID</label>
                 <input class="admin3d-form-input" type="text" id="userId" name="userId" placeholder="Enter user ID" required>
@@ -208,11 +218,16 @@
               </div>
               
               <div class="admin3d-form-actions">
-                <button type="submit" class="admin3d-btn admin3d-btn-primary">
+                <button type="submit" class="admin3d-btn admin3d-btn-primary" id="sendDmBtn">
                   <i class="fas fa-paper-plane"></i> Send DM
                 </button>
               </div>
             </form>
+            
+            <!-- Manual trigger button for form (in case form submit button doesn't work) -->
+            <button onclick="document.getElementById('sendDmForm').dispatchEvent(new Event('submit'))" class="admin3d-btn admin3d-btn-secondary" style="margin-top: 10px; width: 100%;">
+              Alternate Submit (Try this if Send DM doesn't work)
+            </button>
           </div>
         </div>
       </div>
@@ -753,9 +768,19 @@
     
     // AJAX form submission
     const ajaxForms = document.querySelectorAll('form[data-ajax="true"]');
+    console.log('Found AJAX forms:', ajaxForms.length);
     
+    // Debug which forms were found
+    ajaxForms.forEach((form, index) => {
+      console.log(`Form ${index + 1} ID:`, form.id || 'No ID', 'Action:', form.action);
+    });
+    
+    // Attach submit handlers to each form
     ajaxForms.forEach(form => {
+      console.log('Attaching submit handler to form:', form.action);
+      
       form.addEventListener('submit', function(event) {
+        console.log('Form submitted:', this.action);
         event.preventDefault();
         
         // Create loading overlay
