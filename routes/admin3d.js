@@ -372,6 +372,79 @@ router.get('/blacklist', (req, res) => {
 });
 
 /**
+ * POST /admin3d/blacklist/add
+ * Add a user to the blacklist
+ */
+router.post('/blacklist/add', (req, res) => {
+  const { userId, reason, duration, level } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!userId || !reason) {
+    return res.json({
+      success: false,
+      message: 'User ID and reason are required'
+    });
+  }
+  
+  try {
+    // Use blacklist manager from the client
+    const blacklistManager = require('../handlers/blacklistManager');
+    
+    // Convert duration string to milliseconds if not permanent
+    let durationMs = null;
+    if (duration && duration !== 'permanent') {
+      const unit = duration.slice(-1);
+      const value = parseInt(duration.slice(0, -1));
+      
+      switch (unit) {
+        case 'h': // Hours
+          durationMs = value * 60 * 60 * 1000;
+          break;
+        case 'd': // Days
+          durationMs = value * 24 * 60 * 60 * 1000;
+          break;
+        default:
+          durationMs = 0; // Invalid unit
+      }
+    }
+    
+    // Add to blacklist
+    const result = blacklistManager.addToBlacklist(
+      userId,
+      req.user.id, // Admin ID
+      reason,
+      durationMs,
+      level || 'commands'
+    );
+    
+    if (result && result.success) {
+      return res.json({
+        success: true,
+        message: 'User added to blacklist successfully'
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: (result && result.message) || 'Failed to add user to blacklist'
+      });
+    }
+  } catch (error) {
+    console.error('Error adding to blacklist:', error);
+    return res.json({
+      success: false,
+      message: 'Failed to add to blacklist: ' + error.message
+    });
+  }
+});
+
+/**
  * GET /admin3d/stats
  * Server statistics and metrics
  */
