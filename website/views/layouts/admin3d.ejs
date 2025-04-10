@@ -63,6 +63,8 @@
   <!-- Page-specific styles -->
   <% if (title.includes('Moderation')) { %>
     <link rel="stylesheet" href="/css/admin3d-moderation.css">
+    <link rel="stylesheet" href="/css/ultra-premium-effects.css">
+    <link rel="stylesheet" href="/css/ultra-premium-notifications.css">
   <% } else if (title.includes('Stats')) { %>
     <link rel="stylesheet" href="/css/admin3d-stats.css">
   <% } %>
@@ -308,5 +310,23 @@
     <div class="loading-spinner"></div>
     <div class="loading-text">Processing...</div>
   </div>
+  
+  <!-- Ultra Premium Scripts (only on premium pages) -->
+  <% if (title.includes('Moderation')) { %>
+    <script src="/js/ultra-premium-particles.js" defer></script>
+    <script>
+      // Initialize with a welcome notification when page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          if (typeof UltraPremiumNotification !== 'undefined') {
+            UltraPremiumNotification.info('Welcome to the Ultra Premium Moderation System', {
+              duration: 6000,
+              animation: 'slide-right'
+            });
+          }
+        }, 1000);
+      });
+    </script>
+  <% } %>
 </body>
 </html>
