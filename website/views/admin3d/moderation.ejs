@@ -3,10 +3,33 @@
   Premium Edition - Moderation Command Center
 %>
 
-<div class="mod-container">
-  <!-- 3D Visualization Area -->
-  <div class="mod-3d-container">
-    <div class="mod-3d-stats">
+<div class="admin3d-moderation-container">
+  <div class="dashboard-header">
+    <h1 class="section-title">Moderation Command Center</h1>
+    <p class="section-description">Advanced tools for server management and protection</p>
+  </div>
+  
+  <!-- Server Selection & Statistics Area -->
+  <div class="server-stats-area">
+    <div class="server-selector-wrapper">
+      <div class="server-selector">
+        <label for="serverSelect">Server:</label>
+        <div class="custom-select">
+          <select id="serverSelect" class="admin3d-form-select">
+            <option value="">Select a server</option>
+            <% if (servers && servers.length > 0) { %>
+              <% servers.forEach(server => { %>
+                <option value="<%= server.id %>"><%= server.name %> (<%= server.memberCount %>)</option>
+              <% }); %>
+            <% } else { %>
+              <option disabled>No servers available</option>
+            <% } %>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mod-stats-dashboard">
       <div class="mod-stat-card glow-card">
         <div class="stat-icon"><i class="fas fa-gavel"></i></div>
         <div class="stat-content">
@@ -32,31 +55,6 @@
           <div class="stat-label">AutoMod Actions</div>
         </div>
         <div class="stat-chart" id="automodChart"></div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Header with Server Selection -->
-  <div class="mod-header">
-    <div class="mod-title-section">
-      <h1 class="mod-title">Moderation Command Center</h1>
-      <div class="mod-subtitle">Advanced tools for server management and protection</div>
-    </div>
-    
-    <div class="server-selector">
-      <label for="serverSelect">Server:</label>
-      <div class="custom-select">
-        <select id="serverSelect">
-          <option value="">Select a server</option>
-          <% if (servers && servers.length > 0) { %>
-            <% servers.forEach(server => { %>
-              <option value="<%= server.id %>"><%= server.name %> (<%= server.memberCount %>)</option>
-            <% }); %>
-          <% } else { %>
-            <option disabled>No servers available</option>
-          <% } %>
-        </select>
-        <div class="select-arrow"><i class="fas fa-chevron-down"></i></div>
       </div>
     </div>
   </div>
@@ -607,23 +605,23 @@
 <style>
   /* Modern Moderation Interface Styles */
   :root {
-    --mod-primary: #8936ff;
-    --mod-primary-light: #a165ff;
-    --mod-primary-dark: #7429e3;
+    --mod-primary: var(--primary, #8936ff);
+    --mod-primary-light: var(--primary-light, #a165ff);
+    --mod-primary-dark: var(--primary-dark, #7429e3);
     --mod-secondary: #00c3ff;
     --mod-danger: #ff3d71;
     --mod-warning: #ffaa00;
     --mod-success: #00e676;
     --mod-info: #0095ff;
     
-    --mod-background: #101027;
-    --mod-card-bg: rgba(23, 22, 50, 0.85);
-    --mod-card-border: rgba(91, 77, 164, 0.3);
+    --mod-background: var(--background, #101027);
+    --mod-card-bg: var(--card-bg, rgba(23, 22, 50, 0.85));
+    --mod-card-border: var(--card-border, rgba(91, 77, 164, 0.3));
     --mod-input-bg: rgba(30, 30, 60, 0.6);
     
-    --mod-text: #ffffff;
-    --mod-text-secondary: rgba(255, 255, 255, 0.7);
-    --mod-text-muted: rgba(255, 255, 255, 0.5);
+    --mod-text: var(--text, #ffffff);
+    --mod-text-secondary: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    --mod-text-muted: var(--text-muted, rgba(255, 255, 255, 0.5));
     
     --mod-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     --mod-glow: 0 0 15px rgba(137, 54, 255, 0.5);
@@ -635,12 +633,34 @@
     --mod-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   
-  .mod-container {
+  .admin3d-moderation-container {
     padding: 0;
     position: relative;
-    min-height: 100%;
     font-family: 'Inter', sans-serif;
     color: var(--mod-text);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Server Selection and Stats Area */
+  .server-stats-area {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .server-selector-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+  
+  .mod-stats-dashboard {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
   }
   
   /* 3D Stats Area */
@@ -1491,6 +1511,23 @@
     color: white;
   }
   
+  /* Special class to ensure proper integration with admin3d layout */
+  .admin3d-moderation-container {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 20px 20px;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure our styles don't conflict with admin3d */
+  .admin3d-moderation-container input[type="text"],
+  .admin3d-moderation-container input[type="number"],
+  .admin3d-moderation-container select,
+  .admin3d-moderation-container textarea {
+    z-index: 10;
+    position: relative;
+  }
+  
   /* Responsive adjustments */
   @media (max-width: 1200px) {
     .mod-panel-columns {
@@ -1498,9 +1535,9 @@
       gap: 1.5rem;
     }
     
-    .mod-3d-stats {
+    .mod-stats-dashboard {
       flex-direction: column;
-      padding: 1rem;
+      align-items: center;
       gap: 1rem;
     }
     
@@ -1511,10 +1548,12 @@
   }
   
   @media (max-width: 768px) {
-    .mod-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
+    .admin3d-moderation-container {
+      padding: 0 10px 10px;
+    }
+    
+    .server-selector-wrapper {
+      justify-content: center;
     }
     
     .server-selector {
