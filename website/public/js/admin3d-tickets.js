@@ -1,43 +1,38 @@
 /**
  * Admin 3D Dashboard - Ticket Management
- * Premium edition with advanced ticket management features
+ * Premium edition with advanced ticket features
  */
 
-// Store the currently selected server and ticket data
+// Store the currently selected server and data
 let currentServerId = '';
-let ticketData = {
-  tickets: [],
-  stats: {
-    total: 0,
-    open: 0,
-    closed: 0,
-    avgResponseTime: 0
-  }
-};
+let serverChannels = [];
+let serverCategories = [];
+let serverRoles = [];
+let tickets = [];
+let ticketConfig = null;
 
 // DOM Elements
 const serverSelect = document.getElementById('server-select');
-const ticketManagementSection = document.getElementById('ticket-management-section');
+const ticketSection = document.getElementById('ticket-section');
+const totalTicketsEl = document.getElementById('total-tickets');
+const openTicketsEl = document.getElementById('open-tickets');
+const closedTicketsEl = document.getElementById('closed-tickets');
+const avgResponseTimeEl = document.getElementById('avg-response-time');
 const ticketsList = document.getElementById('tickets-list');
-const ticketCategory = document.getElementById('ticket-category');
-const logChannel = document.getElementById('log-channel');
-const panelChannel = document.getElementById('panel-channel');
-const autoCloseCheckbox = document.getElementById('auto-close');
-const inactivityTimeout = document.querySelector('.inactivity-timeout');
-const ticketSetupForm = document.getElementById('ticket-setup-form');
+const ticketStatusFilter = document.getElementById('ticket-status-filter');
+const refreshTicketsButton = document.getElementById('refresh-tickets');
+const categoryIdSelect = document.getElementById('category-id');
+const supportRoleIdSelect = document.getElementById('support-role-id');
+const logChannelIdSelect = document.getElementById('log-channel-id');
+const panelChannelSelect = document.getElementById('panel-channel');
+const ticketConfigForm = document.getElementById('ticket-config-form');
 const ticketPanelForm = document.getElementById('ticket-panel-form');
+const autoCloseCheckbox = document.getElementById('auto-close');
+const autoCloseOptions = document.getElementById('auto-close-options');
+
+// Modals
 const ticketInfoModal = document.getElementById('ticket-info-modal');
-const confirmModal = document.getElementById('confirm-modal');
-
-// Stats elements
-const totalTicketsElement = document.getElementById('total-tickets');
-const openTicketsElement = document.getElementById('open-tickets');
-const closedTicketsElement = document.getElementById('closed-tickets');
-const avgResponseElement = document.getElementById('avg-response');
-const ticketChartCanvas = document.getElementById('ticket-chart');
-
-// Chart instance
-let ticketChart = null;
+const closeTicketModal = document.getElementById('close-ticket-modal');
 
 /**
  * Initialize the tickets page
@@ -48,54 +43,64 @@ function initTicketsPage() {
     serverSelect.addEventListener('change', handleServerChange);
   }
   
-  // Auto-close checkbox
+  // Set up ticket status filter
+  if (ticketStatusFilter) {
+    ticketStatusFilter.addEventListener('change', filterTickets);
+  }
+  
+  // Set up refresh button
+  if (refreshTicketsButton) {
+    refreshTicketsButton.addEventListener('click', () => loadTickets());
+  }
+  
+  // Set up auto-close checkbox
   if (autoCloseCheckbox) {
     autoCloseCheckbox.addEventListener('change', () => {
-      inactivityTimeout.style.display = autoCloseCheckbox.checked ? 'block' : 'none';
+      autoCloseOptions.style.display = autoCloseCheckbox.checked ? 'block' : 'none';
     });
   }
   
-  // Set up ticket setup form
-  if (ticketSetupForm) {
-    ticketSetupForm.addEventListener('submit', handleTicketSetup);
+  // Set up ticket config form
+  if (ticketConfigForm) {
+    ticketConfigForm.addEventListener('submit', handleSaveConfig);
   }
   
   // Set up ticket panel form
   if (ticketPanelForm) {
-    ticketPanelForm.addEventListener('submit', handleSendTicketPanel);
+    ticketPanelForm.addEventListener('submit', handleSendPanel);
   }
   
-  // Modal close buttons
-  document.querySelectorAll('.modal-close, [data-action="cancel"]').forEach(button => {
+  // Set up modal close buttons
+  document.querySelectorAll('.modal-close, [data-action="close-modal"], [data-action="cancel"]').forEach(button => {
     button.addEventListener('click', closeAllModals);
   });
   
-  // Set up ticket action buttons
-  document.getElementById('close-ticket-btn').addEventListener('click', () => {
-    const ticketId = ticketInfoModal.getAttribute('data-ticket-id');
-    if (ticketId) {
-      openConfirmModal('close-ticket', ticketId);
-    }
-  });
+  // Set up close ticket button
+  const closeTicketButton = document.querySelector('[data-action="close-ticket"]');
+  if (closeTicketButton) {
+    closeTicketButton.addEventListener('click', () => {
+      const ticketId = ticketInfoModal.getAttribute('data-ticket-id');
+      if (ticketId) {
+        openCloseTicketModal(ticketId);
+      }
+    });
+  }
   
-  document.getElementById('download-transcript-btn').addEventListener('click', () => {
-    const ticketId = ticketInfoModal.getAttribute('data-ticket-id');
-    if (ticketId) {
-      downloadTranscript(ticketId);
-    }
-  });
+  // Set up download transcript button
+  const downloadTranscriptButton = document.querySelector('[data-action="download-transcript"]');
+  if (downloadTranscriptButton) {
+    downloadTranscriptButton.addEventListener('click', () => {
+      const ticketId = ticketInfoModal.getAttribute('data-ticket-id');
+      if (ticketId) {
+        downloadTranscript(ticketId);
+      }
+    });
+  }
   
-  document.getElementById('view-channel-btn').addEventListener('click', () => {
-    const channelId = ticketInfoModal.getAttribute('data-channel-id');
-    if (channelId) {
-      window.open(`https://discord.com/channels/${currentServerId}/${channelId}`, '_blank');
-    }
-  });
-  
-  // Set up confirm modal
-  const confirmButton = document.querySelector('#confirm-modal [data-action="confirm"]');
-  if (confirmButton) {
-    confirmButton.addEventListener('click', handleConfirmAction);
+  // Set up confirm close button
+  const confirmCloseButton = document.querySelector('[data-action="confirm-close"]');
+  if (confirmCloseButton) {
+    confirmCloseButton.addEventListener('click', handleCloseTicket);
   }
 }
 
@@ -106,69 +111,59 @@ async function handleServerChange() {
   const serverId = serverSelect.value;
   
   if (!serverId) {
-    ticketManagementSection.style.display = 'none';
+    ticketSection.style.display = 'none';
     return;
   }
   
   currentServerId = serverId;
-  ticketManagementSection.style.display = 'block';
+  ticketSection.style.display = 'block';
   
   // Load server data
   await Promise.all([
-    loadChannels(),
+    loadServerData(),
     loadTickets(),
     loadTicketConfig()
   ]);
-  
-  // Initialize chart
-  initTicketChart();
 }
 
 /**
- * Load channels for the selected server
+ * Load server data (channels, categories, roles)
  */
-async function loadChannels() {
+async function loadServerData() {
   if (!currentServerId) return;
   
   try {
-    // Fetch channels from API
-    const response = await fetch(`/api/v2/servers/${currentServerId}/channels`);
-    const data = await response.json();
+    // Fetch channels and categories
+    const channelsResponse = await fetch(`/api/v2/servers/${currentServerId}/channels`);
+    const channelsData = await channelsResponse.json();
     
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to load channels');
+    if (!channelsData.success) {
+      throw new Error(channelsData.message || 'Failed to load channels');
     }
     
-    // Clear dropdown selects
-    ticketCategory.innerHTML = '<option value="">Select a category</option>';
-    logChannel.innerHTML = '<option value="">Select a channel</option>';
-    panelChannel.innerHTML = '<option value="">Select a channel</option>';
+    // Store channels and categories
+    serverChannels = channelsData.channels || [];
+    serverCategories = channelsData.categories || [];
     
-    // Add categories to category select
-    data.categories.sort((a, b) => a.position - b.position).forEach(category => {
-      const option = document.createElement('option');
-      option.value = category.id;
-      option.textContent = category.name;
-      ticketCategory.appendChild(option);
-    });
+    // Fetch roles
+    const rolesResponse = await fetch(`/api/v2/servers/${currentServerId}/roles`);
+    const rolesData = await rolesResponse.json();
     
-    // Add text channels to channel selects
-    data.channels.sort((a, b) => a.position - b.position).forEach(channel => {
-      // Add to log channel select
-      const logOption = document.createElement('option');
-      logOption.value = channel.id;
-      logOption.textContent = `#${channel.name}`;
-      logChannel.appendChild(logOption);
-      
-      // Add to panel channel select
-      const panelOption = document.createElement('option');
-      panelOption.value = channel.id;
-      panelOption.textContent = `#${channel.name}`;
-      panelChannel.appendChild(panelOption);
-    });
+    if (!rolesData.success) {
+      throw new Error(rolesData.message || 'Failed to load roles');
+    }
+    
+    // Store roles
+    serverRoles = rolesData.roles || [];
+    
+    // Populate dropdowns
+    populateChannelSelect(logChannelIdSelect, serverChannels);
+    populateChannelSelect(panelChannelSelect, serverChannels);
+    populateCategorySelect(categoryIdSelect, serverCategories);
+    populateRoleSelect(supportRoleIdSelect, serverRoles);
   } catch (error) {
-    console.error('Error loading channels:', error);
-    createNotification('error', 'Error', `Failed to load channels: ${error.message}`);
+    console.error('Error loading server data:', error);
+    createNotification('error', 'Error', `Failed to load server data: ${error.message}`);
   }
 }
 
@@ -186,6 +181,12 @@ async function loadTickets() {
     </div>
   `;
   
+  // Reset analytics
+  totalTicketsEl.textContent = '0';
+  openTicketsEl.textContent = '0';
+  closedTicketsEl.textContent = '0';
+  avgResponseTimeEl.textContent = '--';
+  
   try {
     // Fetch tickets from API
     const response = await fetch(`/api/v2/servers/${currentServerId}/tickets`);
@@ -195,20 +196,24 @@ async function loadTickets() {
       throw new Error(data.message || 'Failed to load tickets');
     }
     
-    // Store tickets and stats
-    ticketData.tickets = data.tickets || [];
-    ticketData.stats = data.stats || {
-      total: 0,
-      open: 0,
-      closed: 0,
-      avgResponseTime: 0
-    };
+    // Store tickets
+    tickets = data.tickets || [];
+    
+    // Update analytics
+    if (data.stats) {
+      totalTicketsEl.textContent = data.stats.total || '0';
+      openTicketsEl.textContent = data.stats.open || '0';
+      closedTicketsEl.textContent = data.stats.closed || '0';
+      
+      if (data.stats.avgResponseTime) {
+        avgResponseTimeEl.textContent = formatDuration(data.stats.avgResponseTime);
+      } else {
+        avgResponseTimeEl.textContent = '--';
+      }
+    }
     
     // Render tickets
-    renderTicketsList();
-    
-    // Update stats
-    updateTicketStats();
+    renderTickets();
   } catch (error) {
     console.error('Error loading tickets:', error);
     ticketsList.innerHTML = `
@@ -228,49 +233,29 @@ async function loadTicketConfig() {
   if (!currentServerId) return;
   
   try {
-    // Fetch ticket configuration from API
+    // Fetch ticket config from API
     const response = await fetch(`/api/v2/servers/${currentServerId}/ticket-config`);
     const data = await response.json();
     
     if (!data.success) {
-      // If no configuration exists, don't throw error
+      // If no config found, don't show error
       if (data.code === 'CONFIG_NOT_FOUND') {
+        ticketConfig = null;
+        resetConfigForm();
         return;
       }
+      
       throw new Error(data.message || 'Failed to load ticket configuration');
     }
     
-    // Populate form with config
-    const config = data.config;
+    // Store config
+    ticketConfig = data.config || null;
     
-    if (config.categoryId) {
-      ticketCategory.value = config.categoryId;
-    }
-    
-    if (config.logChannelId) {
-      logChannel.value = config.logChannelId;
-    }
-    
-    if (config.welcomeMessage) {
-      document.getElementById('welcome-message').value = config.welcomeMessage;
-    }
-    
-    // Set checkboxes
-    document.getElementById('enable-transcripts').checked = config.enableTranscripts || false;
-    document.getElementById('auto-close').checked = config.autoClose || false;
-    document.getElementById('user-close').checked = config.userClose || false;
-    
-    // Set inactivity timeout
-    if (config.inactivityTime) {
-      document.getElementById('inactivity-time').value = config.inactivityTime;
-    }
-    
-    // Toggle inactivity timeout display
-    inactivityTimeout.style.display = config.autoClose ? 'block' : 'none';
-    
-    // Set button color
-    if (config.buttonColor) {
-      document.querySelector(`input[name="buttonColor"][value="${config.buttonColor}"]`).checked = true;
+    // Update form
+    if (ticketConfig) {
+      updateConfigForm(ticketConfig);
+    } else {
+      resetConfigForm();
     }
   } catch (error) {
     console.error('Error loading ticket configuration:', error);
@@ -279,44 +264,74 @@ async function loadTicketConfig() {
 }
 
 /**
- * Render the tickets list
+ * Render tickets list
  */
-function renderTicketsList() {
-  if (!ticketData.tickets || !ticketData.tickets.length) {
-    ticketsList.innerHTML = '<p class="empty-message">No tickets found for this server.</p>';
+function renderTickets() {
+  if (!tickets || tickets.length === 0) {
+    ticketsList.innerHTML = '<p class="empty-message">No tickets found for this server</p>';
     return;
   }
+  
+  // Apply current filter
+  filterTickets();
+}
+
+/**
+ * Filter tickets based on status
+ */
+function filterTickets() {
+  const filterValue = ticketStatusFilter.value;
   
   // Clear the list
   ticketsList.innerHTML = '';
   
+  // Filter tickets
+  let filteredTickets = tickets;
+  if (filterValue !== 'all') {
+    filteredTickets = tickets.filter(ticket => ticket.status.toLowerCase() === filterValue.toLowerCase());
+  }
+  
+  if (filteredTickets.length === 0) {
+    ticketsList.innerHTML = '<p class="empty-message">No tickets match the selected filter</p>';
+    return;
+  }
+  
+  // Sort tickets (newest first)
+  filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  
   // Render each ticket
-  ticketData.tickets.forEach(ticket => {
+  filteredTickets.forEach(ticket => {
     const ticketItem = document.createElement('div');
     ticketItem.className = 'ticket-item';
     
-    // Format created time
-    const createdDate = new Date(ticket.createdAt);
-    const createdFormatted = `${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString()}`;
+    // Format date
+    const date = new Date(ticket.createdAt);
+    const dateFormatted = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    
+    // Create avatar element
+    const avatar = ticket.user && ticket.user.avatar ? 
+      `<img src="${ticket.user.avatar}" alt="${escapeHTML(ticket.user.username)}">` : 
+      `<i class="fas fa-user"></i>`;
     
     ticketItem.innerHTML = `
-      <div class="ticket-id">${ticket.id}</div>
-      <div class="ticket-creator">
-        <div class="ticket-creator-avatar">
-          ${ticket.creator.avatar ? 
-            `<img src="${ticket.creator.avatar}" alt="${escapeHTML(ticket.creator.username)}">` : 
-            `<i class="fas fa-user"></i>`}
+      <div class="ticket-id">${escapeHTML(ticket.id || `#${ticket.number}`)}</div>
+      <div class="ticket-user">
+        <div class="ticket-user-avatar">
+          ${avatar}
         </div>
-        <span>${escapeHTML(ticket.creator.username)}</span>
+        <div class="ticket-user-details">
+          <div class="ticket-user-name">${escapeHTML(ticket.user ? ticket.user.username : 'Unknown User')}</div>
+          <div class="ticket-user-id">${ticket.user ? ticket.user.id : 'Unknown'}</div>
+        </div>
       </div>
-      <div class="ticket-category">${escapeHTML(ticket.category || 'Support')}</div>
-      <div class="ticket-created">${createdFormatted}</div>
+      <div class="ticket-topic">${escapeHTML(ticket.topic || 'No topic')}</div>
       <div class="ticket-status ${ticket.status.toLowerCase()}">${ticket.status}</div>
+      <div class="ticket-created">${dateFormatted}</div>
       <div class="ticket-actions">
-        <button class="admin3d-btn admin3d-btn-sm admin3d-btn-primary" data-action="view-ticket" data-ticket-id="${ticket.id}" data-channel-id="${ticket.channelId}">
+        <button class="admin3d-btn admin3d-btn-sm admin3d-btn-info" data-action="view-ticket" data-ticket-id="${ticket.id}">
           <i class="fas fa-eye"></i>
         </button>
-        ${ticket.status === 'OPEN' ? `
+        ${ticket.status.toLowerCase() === 'open' ? `
           <button class="admin3d-btn admin3d-btn-sm admin3d-btn-danger" data-action="close-ticket" data-ticket-id="${ticket.id}">
             <i class="fas fa-times"></i>
           </button>
@@ -329,8 +344,7 @@ function renderTicketsList() {
     if (viewButton) {
       viewButton.addEventListener('click', () => {
         const ticketId = viewButton.getAttribute('data-ticket-id');
-        const channelId = viewButton.getAttribute('data-channel-id');
-        openTicketInfoModal(ticketId, channelId);
+        openTicketInfoModal(ticketId);
       });
     }
     
@@ -338,7 +352,7 @@ function renderTicketsList() {
     if (closeButton) {
       closeButton.addEventListener('click', () => {
         const ticketId = closeButton.getAttribute('data-ticket-id');
-        openConfirmModal('close-ticket', ticketId);
+        openCloseTicketModal(ticketId);
       });
     }
     
@@ -347,216 +361,285 @@ function renderTicketsList() {
 }
 
 /**
- * Update ticket statistics display
+ * Update config form with values from config
+ * @param {Object} config - Ticket configuration
  */
-function updateTicketStats() {
-  const stats = ticketData.stats;
+function updateConfigForm(config) {
+  if (!config) return;
   
-  // Update number displays
-  totalTicketsElement.textContent = stats.total || 0;
-  openTicketsElement.textContent = stats.open || 0;
-  closedTicketsElement.textContent = stats.closed || 0;
+  // Basic settings
+  if (config.categoryId) {
+    document.getElementById('category-id').value = config.categoryId;
+  }
   
-  // Format average response time
-  if (stats.avgResponseTime) {
-    const minutes = Math.floor(stats.avgResponseTime / 60);
-    if (minutes < 60) {
-      avgResponseElement.textContent = `${minutes} min`;
+  if (config.supportRoleId) {
+    document.getElementById('support-role-id').value = config.supportRoleId;
+  }
+  
+  if (config.logChannelId) {
+    document.getElementById('log-channel-id').value = config.logChannelId;
+  }
+  
+  if (config.maxTickets) {
+    document.getElementById('max-tickets').value = config.maxTickets;
+  }
+  
+  if (config.cooldown !== undefined) {
+    document.getElementById('cooldown').value = config.cooldown;
+  }
+  
+  // Advanced settings
+  document.getElementById('auto-transcript').checked = config.autoTranscript !== false;
+  document.getElementById('auto-close').checked = !!config.autoClose;
+  document.getElementById('require-topic').checked = config.requireTopic !== false;
+  document.getElementById('use-threads').checked = !!config.useThreads;
+  
+  autoCloseOptions.style.display = !!config.autoClose ? 'block' : 'none';
+  
+  if (config.inactiveHours) {
+    document.getElementById('inactive-hours').value = config.inactiveHours;
+  }
+  
+  if (config.autoCloseMessage) {
+    document.getElementById('auto-close-message').value = config.autoCloseMessage;
+  }
+  
+  // Messages
+  if (config.welcomeMessage) {
+    document.getElementById('welcome-message').value = config.welcomeMessage;
+  }
+  
+  if (config.closeMessage) {
+    document.getElementById('close-message').value = config.closeMessage;
+  }
+}
+
+/**
+ * Reset config form to default values
+ */
+function resetConfigForm() {
+  // Reset dropdowns
+  document.getElementById('category-id').value = '';
+  document.getElementById('support-role-id').value = '';
+  document.getElementById('log-channel-id').value = '';
+  
+  // Reset inputs
+  document.getElementById('max-tickets').value = '1';
+  document.getElementById('cooldown').value = '5';
+  
+  // Reset checkboxes
+  document.getElementById('auto-transcript').checked = true;
+  document.getElementById('auto-close').checked = false;
+  document.getElementById('require-topic').checked = true;
+  document.getElementById('use-threads').checked = false;
+  
+  // Hide auto-close options
+  autoCloseOptions.style.display = 'none';
+  
+  // Reset auto-close options
+  document.getElementById('inactive-hours').value = '24';
+  document.getElementById('auto-close-message').value = '';
+  
+  // Reset messages
+  document.getElementById('welcome-message').value = '';
+  document.getElementById('close-message').value = '';
+}
+
+/**
+ * Open ticket info modal
+ * @param {string} ticketId - Ticket ID
+ */
+async function openTicketInfoModal(ticketId) {
+  // Find ticket in list
+  const ticket = tickets.find(t => t.id === ticketId);
+  
+  if (!ticket) {
+    createNotification('error', 'Error', 'Ticket not found');
+    return;
+  }
+  
+  // Set ticket ID
+  ticketInfoModal.setAttribute('data-ticket-id', ticketId);
+  
+  // Update modal content
+  const avatar = ticket.user && ticket.user.avatar ? 
+    `<img src="${ticket.user.avatar}" alt="${escapeHTML(ticket.user.username)}">` : 
+    `<i class="fas fa-user"></i>`;
+  
+  document.getElementById('ticket-info-avatar').innerHTML = avatar;
+  document.getElementById('ticket-info-name').textContent = ticket.user ? ticket.user.username : 'Unknown User';
+  document.getElementById('ticket-info-id').textContent = ticket.user ? ticket.user.id : 'Unknown';
+  
+  const statusEl = document.getElementById('ticket-info-status');
+  statusEl.textContent = ticket.status;
+  statusEl.className = `ticket-status-badge ${ticket.status.toLowerCase()}`;
+  
+  document.getElementById('ticket-info-ticket-id').textContent = ticket.id || `#${ticket.number}`;
+  
+  // Format date
+  const date = new Date(ticket.createdAt);
+  const dateFormatted = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  document.getElementById('ticket-info-created').textContent = dateFormatted;
+  
+  document.getElementById('ticket-info-topic').textContent = ticket.topic || 'No topic';
+  document.getElementById('ticket-info-channel').textContent = ticket.channelName ? `#${ticket.channelName}` : ticket.channelId || 'Unknown';
+  
+  // Load messages
+  const messagesContainer = document.getElementById('ticket-messages');
+  messagesContainer.innerHTML = `
+    <div class="ticket-messages-loading">
+      <div class="spinner"></div>
+      <p>Loading messages...</p>
+    </div>
+  `;
+  
+  try {
+    const response = await fetch(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/transcript-preview`);
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to load messages');
+    }
+    
+    const messages = data.messages || [];
+    
+    if (messages.length === 0) {
+      messagesContainer.innerHTML = '<p class="empty-message">No messages found</p>';
     } else {
-      const hours = Math.floor(minutes / 60);
-      avgResponseElement.textContent = `${hours} hour${hours !== 1 ? 's' : ''}`;
+      messagesContainer.innerHTML = '';
+      
+      // Render each message
+      messages.forEach(message => {
+        const messageEl = document.createElement('div');
+        messageEl.className = `ticket-message ${message.author.isBot ? 'ticket-message-bot' : ''}`;
+        
+        // Format date
+        const date = new Date(message.timestamp);
+        const timeFormatted = date.toLocaleTimeString();
+        
+        // Create avatar element
+        const avatar = message.author.avatar ? 
+          `<img src="${message.author.avatar}" alt="${escapeHTML(message.author.username)}">` : 
+          `<i class="fas fa-user"></i>`;
+        
+        messageEl.innerHTML = `
+          <div class="ticket-message-avatar">
+            ${avatar}
+          </div>
+          <div class="ticket-message-content">
+            <div class="ticket-message-header">
+              <div class="ticket-message-name">${escapeHTML(message.author.username)}</div>
+              <div class="ticket-message-time">${timeFormatted}</div>
+            </div>
+            <div class="ticket-message-text">${escapeHTML(message.content)}</div>
+          </div>
+        `;
+        
+        messagesContainer.appendChild(messageEl);
+      });
     }
-  } else {
-    avgResponseElement.textContent = 'N/A';
+  } catch (error) {
+    console.error('Error loading ticket messages:', error);
+    messagesContainer.innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Error loading messages: ${error.message}</p>
+      </div>
+    `;
   }
   
-  // Update chart if it exists
-  if (ticketChart) {
-    updateTicketChart();
+  // Update button visibility
+  const downloadButton = document.querySelector('[data-action="download-transcript"]');
+  const closeTicketButton = document.querySelector('[data-action="close-ticket"]');
+  
+  if (downloadButton) {
+    downloadButton.style.display = 'block';
   }
+  
+  if (closeTicketButton) {
+    closeTicketButton.style.display = ticket.status.toLowerCase() === 'open' ? 'block' : 'none';
+  }
+  
+  // Show the modal
+  ticketInfoModal.classList.add('active');
 }
 
 /**
- * Initialize the ticket statistics chart
+ * Open close ticket modal
+ * @param {string} ticketId - Ticket ID
  */
-function initTicketChart() {
-  if (!ticketChartCanvas) return;
+function openCloseTicketModal(ticketId) {
+  // Find ticket in list
+  const ticket = tickets.find(t => t.id === ticketId);
   
-  // If chart already exists, destroy it
-  if (ticketChart) {
-    ticketChart.destroy();
+  if (!ticket) {
+    createNotification('error', 'Error', 'Ticket not found');
+    return;
   }
   
-  // Get ticket data by day
-  const ticketsByDay = getTicketDataByDay();
+  // Set ticket ID
+  closeTicketModal.setAttribute('data-ticket-id', ticketId);
   
-  // Create chart
-  const ctx = ticketChartCanvas.getContext('2d');
-  ticketChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ticketsByDay.labels,
-      datasets: [
-        {
-          label: 'Created',
-          data: ticketsByDay.created,
-          borderColor: 'rgba(88, 101, 242, 1)', // Discord blue
-          backgroundColor: 'rgba(88, 101, 242, 0.1)',
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: 'Closed',
-          data: ticketsByDay.closed,
-          borderColor: 'rgba(237, 66, 69, 1)', // Discord red
-          backgroundColor: 'rgba(237, 66, 69, 0.1)',
-          tension: 0.4,
-          fill: true
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-          labels: {
-            color: 'rgba(255, 255, 255, 0.8)'
-          }
-        },
-        tooltip: {
-          mode: 'index',
-          intersect: false
-        }
-      },
-      scales: {
-        x: {
-          grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          },
-          ticks: {
-            color: 'rgba(255, 255, 255, 0.6)'
-          }
-        },
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          },
-          ticks: {
-            precision: 0,
-            color: 'rgba(255, 255, 255, 0.6)'
-          }
-        }
-      }
-    }
-  });
+  // Reset form
+  document.getElementById('close-ticket-form').reset();
+  
+  // Show the modal
+  closeTicketModal.classList.add('active');
 }
 
 /**
- * Update the ticket statistics chart
+ * Handle saving ticket configuration
+ * @param {Event} e - Form submit event
  */
-function updateTicketChart() {
-  if (!ticketChart) return;
-  
-  // Get ticket data by day
-  const ticketsByDay = getTicketDataByDay();
-  
-  // Update chart data
-  ticketChart.data.labels = ticketsByDay.labels;
-  ticketChart.data.datasets[0].data = ticketsByDay.created;
-  ticketChart.data.datasets[1].data = ticketsByDay.closed;
-  
-  // Update chart
-  ticketChart.update();
-}
-
-/**
- * Get ticket data organized by day for the chart
- */
-function getTicketDataByDay() {
-  // Get dates for the last 7 days
-  const dates = [];
-  const created = [];
-  const closed = [];
-  
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    date.setHours(0, 0, 0, 0);
-    
-    const dateString = date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    });
-    
-    dates.push(dateString);
-    
-    // Count tickets created on this day
-    const createdCount = ticketData.tickets.filter(ticket => {
-      const ticketDate = new Date(ticket.createdAt);
-      return ticketDate.toDateString() === date.toDateString();
-    }).length;
-    
-    created.push(createdCount);
-    
-    // Count tickets closed on this day
-    const closedCount = ticketData.tickets.filter(ticket => {
-      if (!ticket.closedAt) return false;
-      const closedDate = new Date(ticket.closedAt);
-      return closedDate.toDateString() === date.toDateString();
-    }).length;
-    
-    closed.push(closedCount);
-  }
-  
-  return {
-    labels: dates,
-    created,
-    closed
-  };
-}
-
-/**
- * Handle ticket setup form submission
- */
-async function handleTicketSetup(event) {
-  event.preventDefault();
+async function handleSaveConfig(e) {
+  e.preventDefault();
   
   if (!currentServerId) {
     createNotification('error', 'Error', 'No server selected');
     return;
   }
   
+  // Get form data
+  const formData = new FormData(ticketConfigForm);
+  
+  // Convert to config object
+  const config = {
+    // Basic settings
+    categoryId: formData.get('categoryId'),
+    supportRoleId: formData.get('supportRoleId'),
+    logChannelId: formData.get('logChannelId'),
+    maxTickets: parseInt(formData.get('maxTickets')),
+    cooldown: parseInt(formData.get('cooldown')),
+    
+    // Advanced settings
+    autoTranscript: formData.get('autoTranscript') === 'on',
+    autoClose: formData.get('autoClose') === 'on',
+    requireTopic: formData.get('requireTopic') === 'on',
+    useThreads: formData.get('useThreads') === 'on',
+    inactiveHours: parseInt(formData.get('inactiveHours')),
+    autoCloseMessage: formData.get('autoCloseMessage'),
+    
+    // Messages
+    welcomeMessage: formData.get('welcomeMessage'),
+    closeMessage: formData.get('closeMessage')
+  };
+  
+  // Validate required fields
+  if (!config.categoryId) {
+    createNotification('error', 'Error', 'Ticket category is required');
+    return;
+  }
+  
+  if (!config.supportRoleId) {
+    createNotification('error', 'Error', 'Support role is required');
+    return;
+  }
+  
   try {
     // Show loading state
-    const submitButton = ticketSetupForm.querySelector('button[type="submit"]');
+    const submitButton = ticketConfigForm.querySelector('button[type="submit"]');
     submitButton.disabled = true;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    
-    // Get form data
-    const formData = new FormData(ticketSetupForm);
-    const categoryId = formData.get('categoryId');
-    const logChannelId = formData.get('logChannelId');
-    const welcomeMessage = formData.get('welcomeMessage');
-    const enableTranscripts = formData.get('transcripts') === 'on';
-    const autoClose = formData.get('autoClose') === 'on';
-    const userClose = formData.get('userClose') === 'on';
-    const inactivityTime = formData.get('inactivityTime');
-    const buttonColor = formData.get('buttonColor');
-    
-    // Prepare data for API
-    const configData = {
-      categoryId,
-      logChannelId,
-      welcomeMessage,
-      enableTranscripts,
-      autoClose,
-      userClose,
-      inactivityTime: autoClose ? inactivityTime : null,
-      buttonColor
-    };
     
     // Send request to API
     const response = await fetch(`/api/v2/servers/${currentServerId}/ticket-config`, {
@@ -564,7 +647,7 @@ async function handleTicketSetup(event) {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(configData)
+      body: JSON.stringify(config)
     });
     
     const data = await response.json();
@@ -577,6 +660,9 @@ async function handleTicketSetup(event) {
       throw new Error(data.message || 'Failed to save ticket configuration');
     }
     
+    // Update config
+    ticketConfig = data.config || config;
+    
     // Show success notification
     createNotification('success', 'Success', 'Ticket configuration saved successfully');
   } catch (error) {
@@ -584,7 +670,7 @@ async function handleTicketSetup(event) {
     createNotification('error', 'Error', `Failed to save ticket configuration: ${error.message}`);
     
     // Reset button state
-    const submitButton = ticketSetupForm.querySelector('button[type="submit"]');
+    const submitButton = ticketConfigForm.querySelector('button[type="submit"]');
     submitButton.disabled = false;
     submitButton.innerHTML = '<i class="fas fa-save"></i> Save Configuration';
   }
@@ -592,12 +678,26 @@ async function handleTicketSetup(event) {
 
 /**
  * Handle sending ticket panel
+ * @param {Event} e - Form submit event
  */
-async function handleSendTicketPanel(event) {
-  event.preventDefault();
+async function handleSendPanel(e) {
+  e.preventDefault();
   
   if (!currentServerId) {
     createNotification('error', 'Error', 'No server selected');
+    return;
+  }
+  
+  // Get form data
+  const formData = new FormData(ticketPanelForm);
+  const channelId = formData.get('channelId');
+  const title = formData.get('title') || 'Support Tickets';
+  const description = formData.get('description') || 'Click the button below to create a support ticket.';
+  const buttonLabel = formData.get('buttonLabel') || 'Create Ticket';
+  
+  // Validate required fields
+  if (!channelId) {
+    createNotification('error', 'Error', 'Channel is required');
     return;
   }
   
@@ -607,39 +707,25 @@ async function handleSendTicketPanel(event) {
     submitButton.disabled = true;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     
-    // Get form data
-    const formData = new FormData(ticketPanelForm);
-    const channelId = formData.get('channelId');
-    const title = formData.get('title');
-    const description = formData.get('description');
-    const buttonLabel = formData.get('buttonLabel');
-    
-    if (!channelId) {
-      throw new Error('Please select a channel');
-    }
-    
-    // Prepare data for API
-    const panelData = {
-      channelId,
-      title,
-      description,
-      buttonLabel
-    };
-    
     // Send request to API
     const response = await fetch(`/api/v2/servers/${currentServerId}/ticket-panel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(panelData)
+      body: JSON.stringify({
+        channelId,
+        title,
+        description,
+        buttonLabel
+      })
     });
     
     const data = await response.json();
     
     // Reset button state
     submitButton.disabled = false;
-    submitButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send Panel';
+    submitButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send Ticket Panel';
     
     if (!data.success) {
       throw new Error(data.message || 'Failed to send ticket panel');
@@ -647,6 +733,12 @@ async function handleSendTicketPanel(event) {
     
     // Show success notification
     createNotification('success', 'Success', 'Ticket panel sent successfully');
+    
+    // Reset form
+    ticketPanelForm.reset();
+    
+    // Reset channel select
+    populateChannelSelect(panelChannelSelect, serverChannels);
   } catch (error) {
     console.error('Error sending ticket panel:', error);
     createNotification('error', 'Error', `Failed to send ticket panel: ${error.message}`);
@@ -654,179 +746,54 @@ async function handleSendTicketPanel(event) {
     // Reset button state
     const submitButton = ticketPanelForm.querySelector('button[type="submit"]');
     submitButton.disabled = false;
-    submitButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send Panel';
+    submitButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send Ticket Panel';
   }
 }
 
 /**
- * Open ticket info modal
+ * Handle closing a ticket
  */
-async function openTicketInfoModal(ticketId, channelId) {
-  // Find ticket in data
-  const ticket = ticketData.tickets.find(t => t.id === ticketId);
+async function handleCloseTicket() {
+  // Get ticket ID from modal
+  const ticketId = closeTicketModal.getAttribute('data-ticket-id');
   
-  if (!ticket) {
-    createNotification('error', 'Error', 'Ticket not found');
+  if (!currentServerId || !ticketId) {
+    createNotification('error', 'Error', 'Invalid server or ticket ID');
     return;
   }
   
-  // Set modal data
-  ticketInfoModal.setAttribute('data-ticket-id', ticketId);
-  ticketInfoModal.setAttribute('data-channel-id', channelId);
+  // Get reason
+  const reason = document.getElementById('close-reason').value;
   
-  // Update UI with ticket info
-  document.getElementById('modal-ticket-title').textContent = `Ticket #${ticketId}`;
-  document.getElementById('modal-ticket-status').textContent = ticket.status;
-  document.getElementById('modal-ticket-status').className = `ticket-badge ${ticket.status.toLowerCase()}`;
-  document.getElementById('modal-ticket-id').textContent = ticketId;
-  
-  // Format created time
-  const createdDate = new Date(ticket.createdAt);
-  document.getElementById('modal-ticket-created').textContent = 
-    `${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString()}`;
-  
-  document.getElementById('modal-ticket-creator').textContent = ticket.creator.username;
-  document.getElementById('modal-ticket-category').textContent = ticket.category || 'Support';
-  
-  // Show loading state for transcript
-  document.getElementById('transcript-preview').innerHTML = `
-    <div class="transcript-loading">
-      <div class="spinner"></div>
-      <p>Loading transcript preview...</p>
-    </div>
-  `;
-  
-  // Update button states
-  document.getElementById('close-ticket-btn').style.display = ticket.status === 'OPEN' ? '' : 'none';
-  
-  // Show the modal
-  ticketInfoModal.classList.add('active');
-  
-  // Load transcript
-  await loadTranscriptPreview(ticketId);
-}
-
-/**
- * Load transcript preview for a ticket
- */
-async function loadTranscriptPreview(ticketId) {
   try {
-    // Fetch transcript from API
-    const response = await fetch(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/transcript-preview`);
+    // Show loading state
+    const closeButton = closeTicketModal.querySelector('[data-action="confirm-close"]');
+    closeButton.disabled = true;
+    closeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Closing...';
+    
+    // Send request to API
+    const response = await fetch(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/close`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        reason
+      })
+    });
+    
     const data = await response.json();
     
+    // Reset button state
+    closeButton.disabled = false;
+    closeButton.innerHTML = 'Close Ticket';
+    
     if (!data.success) {
-      throw new Error(data.message || 'Failed to load transcript preview');
+      throw new Error(data.message || 'Failed to close ticket');
     }
     
-    const transcriptContainer = document.getElementById('transcript-preview');
-    
-    // If no messages, show a message
-    if (!data.messages || !data.messages.length) {
-      transcriptContainer.innerHTML = '<p class="empty-message">No messages found for this ticket.</p>';
-      return;
-    }
-    
-    // Clear container
-    transcriptContainer.innerHTML = '';
-    
-    // Add messages to preview
-    data.messages.forEach(message => {
-      const messageElement = document.createElement('div');
-      messageElement.className = 'transcript-message';
-      
-      // Format timestamp
-      const timestamp = new Date(message.timestamp);
-      const timeFormatted = timestamp.toLocaleTimeString();
-      const dateFormatted = timestamp.toLocaleDateString();
-      
-      messageElement.innerHTML = `
-        <div class="transcript-avatar">
-          ${message.author.avatar ? 
-            `<img src="${message.author.avatar}" alt="${escapeHTML(message.author.username)}">` : 
-            `<i class="fas fa-user"></i>`}
-        </div>
-        <div class="transcript-content">
-          <div class="transcript-header">
-            <div class="transcript-author">${escapeHTML(message.author.username)}</div>
-            <div class="transcript-time">${dateFormatted} ${timeFormatted}</div>
-          </div>
-          <div class="transcript-text">${escapeHTML(message.content)}</div>
-        </div>
-      `;
-      
-      transcriptContainer.appendChild(messageElement);
-    });
-  } catch (error) {
-    console.error('Error loading transcript preview:', error);
-    document.getElementById('transcript-preview').innerHTML = `
-      <div class="error-message">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p>Error loading transcript: ${error.message}</p>
-      </div>
-    `;
-  }
-}
-
-/**
- * Download transcript for a ticket
- */
-async function downloadTranscript(ticketId) {
-  try {
-    // Open the transcript URL in a new tab
-    window.open(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/transcript-download`, '_blank');
-  } catch (error) {
-    console.error('Error downloading transcript:', error);
-    createNotification('error', 'Error', `Failed to download transcript: ${error.message}`);
-  }
-}
-
-/**
- * Open the confirmation modal
- */
-function openConfirmModal(action, ticketId) {
-  // Set modal data
-  confirmModal.setAttribute('data-action', action);
-  confirmModal.setAttribute('data-ticket-id', ticketId);
-  
-  // Set confirm message
-  const confirmMessage = document.getElementById('confirm-message');
-  
-  switch (action) {
-    case 'close-ticket':
-      confirmMessage.textContent = `Are you sure you want to close ticket #${ticketId}?`;
-      break;
-    default:
-      confirmMessage.textContent = 'Are you sure you want to perform this action?';
-  }
-  
-  // Show the modal
-  confirmModal.classList.add('active');
-}
-
-/**
- * Handle confirming an action in the confirm modal
- */
-async function handleConfirmAction() {
-  const action = confirmModal.getAttribute('data-action');
-  const ticketId = confirmModal.getAttribute('data-ticket-id');
-  
-  if (!action || !ticketId || !currentServerId) {
-    closeAllModals();
-    return;
-  }
-  
-  // Disable confirm button
-  const confirmButton = confirmModal.querySelector('[data-action="confirm"]');
-  confirmButton.disabled = true;
-  confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-  
-  try {
-    switch (action) {
-      case 'close-ticket':
-        await closeTicket(ticketId);
-        break;
-    }
+    // Show success notification
+    createNotification('success', 'Success', 'Ticket closed successfully');
     
     // Close modals
     closeAllModals();
@@ -834,40 +801,31 @@ async function handleConfirmAction() {
     // Reload tickets
     await loadTickets();
   } catch (error) {
-    console.error(`Error performing action ${action}:`, error);
-    createNotification('error', 'Error', `Failed to perform action: ${error.message}`);
+    console.error('Error closing ticket:', error);
+    createNotification('error', 'Error', `Failed to close ticket: ${error.message}`);
     
     // Reset button state
-    confirmButton.disabled = false;
-    confirmButton.innerHTML = 'Confirm';
+    const closeButton = closeTicketModal.querySelector('[data-action="confirm-close"]');
+    closeButton.disabled = false;
+    closeButton.innerHTML = 'Close Ticket';
   }
 }
 
 /**
- * Close a ticket
+ * Download ticket transcript
+ * @param {string} ticketId - Ticket ID
  */
-async function closeTicket(ticketId) {
-  if (!ticketId || !currentServerId) {
-    throw new Error('Invalid ticket or server');
+function downloadTranscript(ticketId) {
+  if (!currentServerId || !ticketId) {
+    createNotification('error', 'Error', 'Invalid server or ticket ID');
+    return;
   }
   
-  // Send request to API
-  const response = await fetch(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/close`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ reason: 'Closed by admin via dashboard' })
-  });
-  
-  const data = await response.json();
-  
-  if (!data.success) {
-    throw new Error(data.message || 'Failed to close ticket');
-  }
-  
-  // Show success notification
-  createNotification('success', 'Success', `Ticket #${ticketId} closed successfully`);
+  // Create link and click it
+  const link = document.createElement('a');
+  link.href = `/api/v2/servers/${currentServerId}/tickets/${ticketId}/transcript-download`;
+  link.download = `ticket-${ticketId}.html`;
+  link.click();
 }
 
 /**
@@ -880,11 +838,103 @@ function closeAllModals() {
 }
 
 /**
+ * Populate channel select dropdown
+ * @param {HTMLElement} selectEl - Select element
+ * @param {Array} channels - Channels list
+ */
+function populateChannelSelect(selectEl, channels) {
+  if (!selectEl) return;
+  
+  // Clear options
+  selectEl.innerHTML = '<option value="">Select a channel</option>';
+  
+  // Sort channels by name
+  const sortedChannels = [...channels].sort((a, b) => a.name.localeCompare(b.name));
+  
+  // Add options
+  sortedChannels.forEach(channel => {
+    const option = document.createElement('option');
+    option.value = channel.id;
+    option.textContent = `#${channel.name}`;
+    selectEl.appendChild(option);
+  });
+}
+
+/**
+ * Populate category select dropdown
+ * @param {HTMLElement} selectEl - Select element
+ * @param {Array} categories - Categories list
+ */
+function populateCategorySelect(selectEl, categories) {
+  if (!selectEl) return;
+  
+  // Clear options
+  selectEl.innerHTML = '<option value="">Select a category</option>';
+  
+  // Sort categories by name
+  const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+  
+  // Add options
+  sortedCategories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category.id;
+    option.textContent = category.name;
+    selectEl.appendChild(option);
+  });
+}
+
+/**
+ * Populate role select dropdown
+ * @param {HTMLElement} selectEl - Select element
+ * @param {Array} roles - Roles list
+ */
+function populateRoleSelect(selectEl, roles) {
+  if (!selectEl) return;
+  
+  // Clear options
+  selectEl.innerHTML = '<option value="">Select a role</option>';
+  
+  // Sort roles by name
+  const sortedRoles = [...roles].sort((a, b) => a.name.localeCompare(b.name));
+  
+  // Add options
+  sortedRoles.forEach(role => {
+    const option = document.createElement('option');
+    option.value = role.id;
+    option.textContent = role.name;
+    selectEl.appendChild(option);
+  });
+}
+
+/**
+ * Format duration in seconds to human-readable string
+ * @param {number} seconds - Duration in seconds
+ * @returns {string} - Formatted duration
+ */
+function formatDuration(seconds) {
+  if (seconds < 60) {
+    return `${seconds}s`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}m`;
+  } else if (seconds < 86400) {
+    const hours = Math.floor(seconds / 3600);
+    return `${hours}h`;
+  } else {
+    const days = Math.floor(seconds / 86400);
+    return `${days}d`;
+  }
+}
+
+/**
  * Escape HTML to prevent XSS
+ * @param {string} text - Text to escape
+ * @returns {string} - Escaped text
  */
 function escapeHTML(text) {
   if (!text) return '';
   return text
+    .toString()
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
