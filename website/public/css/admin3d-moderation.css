@@ -9,13 +9,18 @@
 }
 
 /* Moderation page styling that exactly matches the reference image */
+.admin3d-moderation {
+  width: 100%;
+  padding: 0;
+}
+
 .mod-page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(137, 54, 255, 0.2);
-  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(137, 54, 255, 0.3);
+  padding-bottom: 1.25rem;
 }
 
 .mod-page-title h1 {
@@ -65,7 +70,7 @@
 
 .server-selector-wrapper {
   position: relative;
-  min-width: 200px;
+  min-width: 160px;
 }
 
 .server-selector-wrapper select {
@@ -85,18 +90,18 @@
   outline: none;
 }
 
-/* Stats Cards Styling */
+/* Stats Cards Styling - Exact match to screenshot */
 .mod-stats-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .mod-stat-card {
   background: rgba(26, 26, 48, 0.6);
   border-radius: 10px;
-  padding: 1.25rem;
+  padding: 1.5rem;
   display: flex;
   align-items: center;
   border: 1px solid rgba(91, 77, 164, 0.2);
@@ -110,9 +115,9 @@
 }
 
 .mod-stat-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -149,59 +154,210 @@
   color: rgba(185, 187, 190, 0.8);
 }
 
-/* Tabs Styling */
-.mod-tabs-container {
-  background: rgba(26, 26, 48, 0.6);
+/* Tab Navigation - Exact match to screenshot */
+.mod-tab-navigation {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.mod-nav-btn {
+  background: rgba(26, 26, 48, 0.5);
+  border: none;
+  color: rgba(185, 187, 190, 0.8);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.mod-nav-btn:hover {
+  color: white;
+  background: rgba(26, 26, 48, 0.7);
+}
+
+.mod-nav-btn.active {
+  color: white;
+  background: rgba(137, 54, 255, 0.5);
+  border-bottom: 3px solid #8936ff;
+}
+
+.mod-nav-btn i {
+  font-size: 0.95rem;
+}
+
+/* Content Container - Exact match to screenshot */
+.mod-content-container {
+  background: rgba(26, 26, 48, 0.4);
   border-radius: 12px;
   padding: 1.5rem;
   border: 1px solid rgba(91, 77, 164, 0.2);
   margin-bottom: 2rem;
 }
 
-.mod-tabs {
-  display: flex;
-  gap: 0.75rem;
-  border-bottom: 1px solid rgba(91, 77, 164, 0.2);
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
+/* Ban Section Styling - Exact match to screenshot */
+.mod-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
-.mod-tab-btn {
-  background: none;
-  border: none;
-  color: rgba(185, 187, 190, 0.7);
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.mod-ban-user, .mod-current-bans {
+  background: rgba(26, 26, 48, 0.5);
+  border-radius: 10px;
+  border: 1px solid rgba(91, 77, 164, 0.2);
+  overflow: hidden;
+}
+
+.mod-section-header {
+  background: rgba(20, 20, 38, 0.7);
+  padding: 1rem 1.25rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  position: relative;
+  border-bottom: 1px solid rgba(91, 77, 164, 0.3);
 }
 
-.mod-tab-btn:hover {
-  color: white;
-  background: rgba(26, 26, 48, 0.7);
-}
-
-.mod-tab-btn.active {
-  color: white;
-  background: rgba(137, 54, 255, 0.3);
-}
-
-.mod-tab-btn.active::after {
-  content: "";
-  position: absolute;
-  bottom: -1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 3px;
+.mod-section-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
   background: #8936ff;
-  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.list-icon {
+  background: #6a5acd;
+}
+
+.mod-section-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  color: white;
+}
+
+.mod-premium-badge {
+  background: linear-gradient(90deg, #ffaa00, #ffc800);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.mod-refresh-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8f8f9d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mod-refresh-btn:hover {
+  color: white;
+  transform: rotate(30deg);
+}
+
+.mod-section-content {
+  padding: 1.25rem;
+}
+
+.mod-desc {
+  color: #8f8f9d;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Form Styling - Exact match to screenshot */
+.form-field {
+  margin-bottom: 1.25rem;
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #a9a9b8;
+  font-weight: 500;
+}
+
+.form-field input, 
+.form-field textarea,
+.form-field select {
+  width: 100%;
+  background: rgba(20, 20, 38, 0.6);
+  border: 1px solid rgba(91, 77, 164, 0.3);
+  border-radius: 6px;
+  padding: 0.75rem;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-field select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238f8f9d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 10px) center;
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+}
+
+.mod-btn {
+  background: #8936ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.mod-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.danger-btn {
+  background: #ff3d71;
+}
+
+/* Empty States - Exact match to screenshot */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: #8f8f9d;
+  font-size: 0.9rem;
 }
 
 /* Stats Overview */
