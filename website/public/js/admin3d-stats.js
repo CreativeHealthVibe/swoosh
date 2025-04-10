@@ -43,17 +43,81 @@ const config = {
 function initStatsVisualizations(initialData) {
   console.log('Initializing 3D stats visualizations with data:', initialData);
   
-  // Check if Three.js is available
+  // Double-check if Three.js is available
   if (typeof THREE === 'undefined') {
     console.error('THREE.js is not loaded! Visualizations will not work.');
     // Add visible error on page
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-notification';
-    errorDiv.innerHTML = '<strong>Error:</strong> THREE.js library not loaded. Visualizations unavailable.';
-    document.body.appendChild(errorDiv);
+    showErrorNotification('THREE.js library not loaded. Visualizations unavailable.');
+    
+    // Try to load Three.js dynamically as a fallback
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js';
+    script.async = true;
+    script.onload = function() {
+      console.log('THREE.js loaded dynamically!');
+      // Remove error notification
+      const existingErrors = document.querySelectorAll('.error-notification');
+      existingErrors.forEach(el => el.remove());
+      
+      // Try initialization again after 500ms delay
+      setTimeout(() => initThreeJsVisualizations(initialData), 500);
+    };
+    script.onerror = function() {
+      console.error('Failed to load THREE.js dynamically.');
+      showErrorNotification('Failed to load THREE.js library. Please refresh the page and try again.');
+    };
+    document.head.appendChild(script);
+    
+    // Still update performance metrics (non-3D components)
+    updatePerformanceMetrics(initialData);
+    // Init WebSocket connection for real-time updates
+    setupWebSocket();
+    
     return;
   }
   
+  // THREE.js is available, proceed with initialization
+  initThreeJsVisualizations(initialData);
+}
+
+/**
+ * Show error notification on the page
+ * @param {string} message - Error message to display
+ */
+function showErrorNotification(message) {
+  // Remove any existing notifications first
+  const existingErrors = document.querySelectorAll('.error-notification');
+  existingErrors.forEach(el => el.remove());
+  
+  // Create new notification
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'error-notification';
+  errorDiv.innerHTML = `<strong>Error:</strong> ${message}`;
+  document.body.appendChild(errorDiv);
+  
+  // Add a close button
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.className = 'close-btn';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '10px';
+  closeBtn.style.right = '10px';
+  closeBtn.style.background = 'none';
+  closeBtn.style.border = 'none';
+  closeBtn.style.color = 'white';
+  closeBtn.style.fontSize = '16px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = function() {
+    errorDiv.remove();
+  };
+  errorDiv.appendChild(closeBtn);
+}
+
+/**
+ * Initialize THREE.js visualizations
+ * @param {Object} initialData - Initial system data from server
+ */
+function initThreeJsVisualizations(initialData) {
   // Init WebSocket connection for real-time updates
   setupWebSocket();
   
@@ -77,12 +141,7 @@ function initStatsVisualizations(initialData) {
     console.log('All 3D visualizations initialized successfully!');
   } catch (error) {
     console.error('Error initializing 3D visualizations:', error);
-    
-    // Add visible error on page
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-notification';
-    errorDiv.innerHTML = '<strong>Error:</strong> Failed to initialize 3D visualizations. ' + error.message;
-    document.body.appendChild(errorDiv);
+    showErrorNotification('Failed to initialize 3D visualizations: ' + error.message);
   }
   
   // Create and populate activity log
