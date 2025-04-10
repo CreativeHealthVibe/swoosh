@@ -116,10 +116,10 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1.5rem; /* Add vertical padding */
-  background-color: #2a1987; /* More vibrant, lighter background for better visibility */
-  background-image: linear-gradient(to right, #2a1987, #3a259a); /* Gradient for added visibility */
-  border-bottom: 2px solid rgba(137, 109, 235, 0.9); /* Thicker, more visible border */
-  border-top: 2px solid rgba(137, 109, 235, 0.9); /* Thicker, more visible border at top */
+  background-color: #000000; /* Black background */
+  background-image: none; /* Remove gradient */
+  border-bottom: 2px solid rgba(137, 54, 255, 0.6); /* Purple border with less opacity */
+  border-top: 2px solid rgba(137, 54, 255, 0.6); /* Purple border with less opacity */
   position: relative;
   z-index: var(--z-above);
   width: 100%;
@@ -266,8 +266,8 @@ body {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  background-color: #2a1987; /* Matching header background for better visibility */
-  background-image: linear-gradient(to bottom, #2a1987, #3a259a); /* Gradient for added visibility */
+  background-color: #000000; /* Black background */
+  background-image: none; /* Remove gradient */
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5), 0 0 10px var(--primary-glow); /* Enhanced shadow with glow */
   padding: 1.25rem; /* Larger padding */
@@ -305,7 +305,7 @@ body {
 }
 
 .admin3d-user-dropdown a:hover {
-  background-color: rgba(62, 45, 145, 0.7); /* Lighter background for visibility */
+  background-color: rgba(20, 20, 20, 0.7); /* Dark background with slight transparency */
   color: white; /* Brighter text on hover */
   border-color: var(--primary-light); /* Show border on hover */
   transform: translateX(3px); /* Slight movement effect */
@@ -1155,7 +1155,8 @@ body {
     justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
-    background-image: linear-gradient(to right, #2a1987, #462cb0); /* Even brighter gradient */
+    background-color: #000000; /* Black background */
+    background-image: none; /* Remove gradient */
   }
   
   /* Better logo visibility for very small screens, aligned to the left */
@@ -1206,7 +1207,7 @@ body {
     width: 48px; /* Larger button */
     height: 48px; /* Larger button */
     margin-left: 0.5rem; /* Reduced margin */
-    background-color: rgba(62, 45, 145, 0.7); /* More visible background */
+    background-color: rgba(20, 20, 20, 0.7); /* Dark background with slight transparency */
     animation: pulseBorder 2s infinite alternate;
     font-size: 1.3rem; /* Larger icon */
   }
