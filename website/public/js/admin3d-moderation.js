@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeWebSocket();
   
   /**
-   * Add the premium badge to action cards
+   * Add badges to action cards
    */
   function addPremiumBadges() {
     const premiumCards = document.querySelectorAll('[data-premium="true"]');
@@ -179,14 +179,14 @@ document.addEventListener('DOMContentLoaded', () => {
     premiumCards.forEach(card => {
       const badgeSpan = document.createElement('span');
       badgeSpan.className = 'premium-item-badge';
-      badgeSpan.textContent = 'PREMIUM';
+      badgeSpan.textContent = '';
       
       card.appendChild(badgeSpan);
     });
   }
   
   /**
-   * Apply premium animation effect to the moderation section
+   * Apply animation effect to the moderation section
    */
   function applyPremiumAnimation() {
     // Add reveal class to each card in sequence
