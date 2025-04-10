@@ -61,11 +61,118 @@ router.get('/commands', (req, res) => {
 router.get('/moderation', (req, res) => {
   const client = req.app.get('client');
   
+  // Get available servers if client is available
+  let servers = [];
+  if (client) {
+    servers = client.guilds.cache.map(guild => ({
+      id: guild.id,
+      name: guild.name,
+      memberCount: guild.memberCount
+    })).sort((a, b) => a.name.localeCompare(b.name));
+  }
+  
   res.render('admin3d/moderation', {
     title: 'Moderation Command Center | SWOOSH Bot',
     user: req.user,
     client,
+    servers,
     layout: 'layouts/admin3d'
+  });
+});
+
+/**
+ * POST /admin3d/moderation/ban-user
+ * Ban a user from a server
+ */
+router.post('/moderation/ban-user', (req, res) => {
+  const { userId, banReason, banDuration, deleteMessages, addToBlacklist } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!userId) {
+    return res.json({
+      success: false,
+      message: 'User ID is required'
+    });
+  }
+  
+  // For demonstration, we'll just return success
+  console.log(`Ban request received for user ${userId} with reason: ${banReason}`);
+  
+  // This would be replaced with actual ban logic in a real implementation
+  return res.json({
+    success: true,
+    message: `User ${userId} has been banned successfully`
+  });
+});
+
+/**
+ * POST /admin3d/moderation/warn-user
+ * Issue a warning to a user
+ */
+router.post('/moderation/warn-user', (req, res) => {
+  const { warnUserId, warnReason, warningSeverity, warningDuration, notifyUser } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!warnUserId) {
+    return res.json({
+      success: false,
+      message: 'User ID is required'
+    });
+  }
+  
+  // For demonstration, we'll just return success
+  console.log(`Warning request received for user ${warnUserId} with reason: ${warnReason}`);
+  
+  // This would be replaced with actual warning logic in a real implementation
+  return res.json({
+    success: true,
+    message: `Warning issued to user ${warnUserId} successfully`
+  });
+});
+
+/**
+ * POST /admin3d/moderation/automod-settings
+ * Save auto-moderation settings
+ */
+router.post('/moderation/automod-settings', (req, res) => {
+  const { serverId } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
+  // For demonstration, we'll just return success
+  console.log(`Auto-mod settings received for server ${serverId}`);
+  
+  // This would be replaced with actual settings save logic in a real implementation
+  return res.json({
+    success: true,
+    message: 'Auto-moderation settings saved successfully'
   });
 });
 

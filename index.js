@@ -1056,6 +1056,7 @@ const authRoutes = require('./routes/auth');
 const apiRoutes = require('./routes/api');
 const apiAuthRoutes = require('./routes/api/auth');
 const apiLeaderboardRoutes = require('./routes/api/leaderboard');
+const apiModerationRoutes = require('./routes/api/moderation');
 const leaderboardRoutes = require('./routes/leaderboard');
 const admin3dRoutes = require('./routes/admin3d');
 const apiV2Routes = require('./routes/api/index');
@@ -1070,6 +1071,7 @@ app.use('/auth', authRoutes);
 app.use('/api', apiRoutes); // General API routes
 app.use('/api', apiAuthRoutes); // Auth API routes
 app.use('/api/leaderboard', apiLeaderboardRoutes);
+app.use('/api/moderation', apiModerationRoutes); // Moderation API routes
 app.use('/leaderboard', leaderboardRoutes);
 app.use('/admin3d', admin3dRoutes); // Premium 3D Admin Panel
 app.use('/api/v2', apiV2Routes); // New V2 API Routes
