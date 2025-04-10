@@ -118,6 +118,8 @@ body {
   width: 100%;
   box-sizing: border-box;
   overflow: visible; /* Allow logo to overflow if needed */
+  padding-top: 0.5rem; /* Add more space at the top */
+  padding-bottom: 0.5rem; /* Add more space at the bottom */
 }
 
 .admin3d-header::before {
@@ -140,6 +142,9 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  padding: 0.75rem 0; /* Add vertical padding */
+  margin-top: 0.25rem; /* Push down slightly */
+  margin-bottom: 0.25rem; /* Push up slightly */
 }
 
 /* SWOOSH Bot Logo Styling to match screenshot exactly */
@@ -149,9 +154,8 @@ body {
   justify-content: center;
   height: 20px;
   width: 20px;
-  margin-top: -5px; /* Move up slightly to match screenshot */
   position: relative;
-  top: -1px; /* Fine-tune positioning */
+  top: 0px; /* Center vertically */
 }
 
 .swoosh-logo-mark img {
@@ -166,10 +170,10 @@ body {
   color: #fff;
   display: flex;
   align-items: center;
-  margin-top: -5px; /* Move up to match screenshot */
   letter-spacing: 0.5px;
   position: relative;
-  top: -1px; /* Fine-tune positioning */
+  top: 0px; /* Center vertically */
+  padding: 0.75rem 0; /* Add padding top and bottom */
 }
 
 .bot-text {
