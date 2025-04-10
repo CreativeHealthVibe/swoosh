@@ -336,6 +336,25 @@
   z-index: 100;
 }
 
+/* Error notification for Three.js errors */
+.error-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 1.5rem;
+  background: rgba(255, 61, 113, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 61, 113, 0.6);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  max-width: 80%;
+  text-align: center;
+  font-size: 1.1rem;
+  box-shadow: 0 0 30px rgba(255, 61, 113, 0.3);
+}
+
 .status-indicator {
   width: 10px;
   height: 10px;

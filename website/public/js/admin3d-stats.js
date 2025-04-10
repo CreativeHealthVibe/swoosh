@@ -41,17 +41,49 @@ const config = {
  * @param {Object} initialData - Initial system data from server
  */
 function initStatsVisualizations(initialData) {
+  console.log('Initializing 3D stats visualizations with data:', initialData);
+  
+  // Check if Three.js is available
+  if (typeof THREE === 'undefined') {
+    console.error('THREE.js is not loaded! Visualizations will not work.');
+    // Add visible error on page
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-notification';
+    errorDiv.innerHTML = '<strong>Error:</strong> THREE.js library not loaded. Visualizations unavailable.';
+    document.body.appendChild(errorDiv);
+    return;
+  }
+  
   // Init WebSocket connection for real-time updates
   setupWebSocket();
   
   // Update performance metrics initially
   updatePerformanceMetrics(initialData);
   
-  // Create 3D visualizations
-  initServerActivity();
-  initMemoryVisualization();
-  initCommandUsageChart();
-  initGuildGlobe();
+  try {
+    // Create 3D visualizations
+    console.log('Initializing 3D server activity chart...');
+    initServerActivity();
+    
+    console.log('Initializing 3D memory visualization...');
+    initMemoryVisualization();
+    
+    console.log('Initializing 3D command usage chart...');
+    initCommandUsageChart();
+    
+    console.log('Initializing 3D guild globe...');
+    initGuildGlobe();
+    
+    console.log('All 3D visualizations initialized successfully!');
+  } catch (error) {
+    console.error('Error initializing 3D visualizations:', error);
+    
+    // Add visible error on page
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-notification';
+    errorDiv.innerHTML = '<strong>Error:</strong> Failed to initialize 3D visualizations. ' + error.message;
+    document.body.appendChild(errorDiv);
+  }
   
   // Create and populate activity log
   generateActivityLog();
@@ -61,6 +93,8 @@ function initStatsVisualizations(initialData) {
   
   // Add resize listeners
   window.addEventListener('resize', onWindowResize);
+  
+  console.log('Stats visualization initialization complete.');
 }
 
 /**
