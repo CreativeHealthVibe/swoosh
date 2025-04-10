@@ -67,7 +67,10 @@ const setupDiscordStrategy = () => {
         type: userType,
         username: user.username,
         discriminator: user.discriminator,
-        avatar: user.avatar
+        avatar: user.avatar,
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        is_super_admin: user.is_super_admin
       });
     } else {
       done(null, {
@@ -97,6 +100,9 @@ const setupDiscordStrategy = () => {
           username: obj.username || 'Discord Admin',
           discriminator: obj.discriminator,
           avatar: obj.avatar,
+          accessToken: obj.accessToken,
+          refreshToken: obj.refreshToken,
+          is_super_admin: obj.is_super_admin,
           isAdmin: true,
           userType: 'discord'
         });

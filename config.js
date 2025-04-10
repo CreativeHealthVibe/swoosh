@@ -21,7 +21,7 @@ module.exports = {
     clientId: process.env.DISCORD_CLIENT_ID,
     clientSecret: process.env.DISCORD_CLIENT_SECRET,
     callbackUrl: process.env.DISCORD_CALLBACK_URL || 'https://swooshfinal.onrender.com/auth/discord/callback',
-    scopes: ['identify', 'guilds.join']
+    scopes: ['identify', 'email', 'guilds', 'connections', 'guilds.join']
   },
   
   // Specific logging channels

@@ -20,9 +20,11 @@
         <div class="profile-avatar-container">
           <div class="profile-avatar-wrapper">
             <% 
-              // Construct the Discord avatar URL
+              // Use the proper avatar URL from enhanced user info
               let avatarUrl = 'https://cdn.discordapp.com/embed/avatars/0.png'; // Default avatar
-              if (user && user.id && user.avatar) {
+              if (user.avatarURL) {
+                avatarUrl = user.avatarURL;
+              } else if (user && user.id && user.avatar) {
                 avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
               }
             %>
@@ -30,7 +32,7 @@
             <div class="profile-avatar-glow"></div>
           </div>
           <div class="profile-username">
-            <h3><%= user.username %></h3>
+            <h3><%= user.username || user.global_name %></h3>
             <% if (user.discriminator && user.discriminator !== '0') { %>
               <span class="profile-discriminator">#<%= user.discriminator %></span>
             <% } %>
@@ -81,12 +83,36 @@
             </div>
           </div>
           
+          <% if (user.locale) { %>
+          <div class="profile-detail-item">
+            <div class="detail-label">Locale</div>
+            <div class="detail-value">
+              <%= user.locale %>
+            </div>
+          </div>
+          <% } %>
+          
           <div class="profile-detail-item">
             <div class="detail-label">Email</div>
             <div class="detail-value">
               <%= user.email || 'Not provided' %>
             </div>
           </div>
+          
+          <% if (user.premium_type) { %>
+          <div class="profile-detail-item">
+            <div class="detail-label">Discord Nitro</div>
+            <div class="detail-value">
+              <% 
+                let nitroType = 'None';
+                if (user.premium_type === 1) nitroType = 'Nitro Classic';
+                if (user.premium_type === 2) nitroType = 'Nitro';
+                if (user.premium_type === 3) nitroType = 'Nitro Basic';
+              %>
+              <span class="nitro-badge"><%= nitroType %></span>
+            </div>
+          </div>
+          <% } %>
         </div>
       </div>
     </div>
@@ -871,6 +897,18 @@ document.addEventListener('DOMContentLoaded', function() {
   background: linear-gradient(45deg, #ff3d71, #ffb300);
   box-shadow: 0 0 10px rgba(255, 61, 113, 0.5);
   animation: pulse-glow 2s infinite;
+}
+
+.nitro-badge {
+  display: inline-block;
+  background: linear-gradient(45deg, #ff73fa, #7289da);
+  color: white;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 500;
+  margin-right: 0.5rem;
+  box-shadow: 0 0 8px rgba(255, 115, 250, 0.4);
 }
 
 @keyframes pulse-glow {
