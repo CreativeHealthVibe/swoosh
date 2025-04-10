@@ -473,20 +473,131 @@ router.get('/stats', (req, res) => {
  * GET /admin3d/profile
  * Admin profile and settings
  */
-router.get('/profile', (req, res) => {
+router.get('/profile', async (req, res) => {
   const client = req.app.get('client');
   
   // Get user roles from Discord if client is available
   let userRoles = [];
   let mutualGuilds = [];
+  let userInfo = req.user; // Start with the basic user info from session
   
-  if (client && req.user) {
-    // Get mutual guilds between the bot and the user
+  try {
+    // Check if we have the user's access token from OAuth
+    if (req.user && req.user.accessToken) {
+      // Make a call to Discord API to get detailed user info
+      const fetch = require('node-fetch');
+      
+      // Get user profile from Discord
+      const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
+        headers: {
+          'Authorization': `Bearer ${req.user.accessToken}`
+        }
+      });
+      
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        console.log('Discord user data fetched:', userData.username);
+        
+        // Enhance user object with more details from the API
+        userInfo = {
+          ...req.user,
+          ...userData,
+          // Make sure we have the avatar URL properly formatted
+          avatarURL: userData.avatar 
+            ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png?size=256`
+            : 'https://cdn.discordapp.com/embed/avatars/0.png'
+        };
+        
+        // Get user's connections if authorized
+        try {
+          const connectionsResponse = await fetch('https://discord.com/api/v10/users/@me/connections', {
+            headers: {
+              'Authorization': `Bearer ${req.user.accessToken}`
+            }
+          });
+          
+          if (connectionsResponse.ok) {
+            userInfo.connections = await connectionsResponse.json();
+          }
+        } catch (connErr) {
+          console.error('Error fetching user connections:', connErr);
+        }
+        
+        // Get user's guilds if authorized
+        try {
+          const guildsResponse = await fetch('https://discord.com/api/v10/users/@me/guilds', {
+            headers: {
+              'Authorization': `Bearer ${req.user.accessToken}`
+            }
+          });
+          
+          if (guildsResponse.ok) {
+            const userGuilds = await guildsResponse.json();
+            // Process user's guilds
+            
+            // Now get mutual guilds with the bot
+            if (client) {
+              const botGuildIds = client.guilds.cache.map(g => g.id);
+              
+              mutualGuilds = userGuilds
+                .filter(g => botGuildIds.includes(g.id))
+                .map(guild => {
+                  // If we have the guild in the bot's cache, use that for member count
+                  const botGuild = client.guilds.cache.get(guild.id);
+                  return {
+                    id: guild.id,
+                    name: guild.name,
+                    iconURL: guild.icon 
+                      ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=128`
+                      : null,
+                    memberCount: botGuild ? botGuild.memberCount : '?',
+                    permissions: guild.permissions
+                  };
+                });
+                
+              // For the first mutual guild, try to get the user's roles
+              if (mutualGuilds.length > 0) {
+                const primaryGuild = client.guilds.cache.get(mutualGuilds[0].id);
+                if (primaryGuild) {
+                  try {
+                    // Fetch member to ensure we have the latest data
+                    const member = await primaryGuild.members.fetch(req.user.id);
+                    
+                    if (member) {
+                      userRoles = member.roles.cache
+                        .sort((a, b) => b.position - a.position)
+                        .map(role => ({
+                          id: role.id,
+                          name: role.name,
+                          color: role.hexColor,
+                          position: role.position
+                        }))
+                        .filter(role => role.name !== '@everyone');
+                    }
+                  } catch (memberErr) {
+                    console.error('Error fetching guild member:', memberErr);
+                  }
+                }
+              }
+            }
+          }
+        } catch (guildsErr) {
+          console.error('Error fetching user guilds:', guildsErr);
+        }
+      } else {
+        console.error('Failed to fetch user data from Discord:', await userResponse.text());
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching Discord user data:', err);
+  }
+  
+  // If client is available but we didn't get mutual guilds from API (token might be expired)
+  if (client && req.user && mutualGuilds.length === 0) {
+    // Get mutual guilds between the bot and the user using the bot's cache
     mutualGuilds = client.guilds.cache
       .filter(guild => {
-        // Check if user is in this guild
-        return guild.members.cache.has(req.user.id) || 
-          (req.user.guilds && req.user.guilds.some(g => g.id === guild.id));
+        return guild.members.cache.has(req.user.id);
       })
       .map(guild => ({
         id: guild.id,
@@ -496,7 +607,7 @@ router.get('/profile', (req, res) => {
       }));
       
     // Get user roles from the first mutual guild
-    if (mutualGuilds.length > 0 && client.guilds.cache.has(mutualGuilds[0].id)) {
+    if (mutualGuilds.length > 0 && userRoles.length === 0) {
       const guild = client.guilds.cache.get(mutualGuilds[0].id);
       const member = guild.members.cache.get(req.user.id);
       
@@ -516,7 +627,7 @@ router.get('/profile', (req, res) => {
   
   res.render('admin3d/profile', {
     title: 'Admin Profile | SWOOSH Bot',
-    user: req.user,
+    user: userInfo,
     client,
     userRoles,
     mutualGuilds,
