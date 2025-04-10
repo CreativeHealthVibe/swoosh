@@ -1011,3 +1011,64 @@
     };
   });
 </script>
+
+<!-- Special Form Fix Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Fixing form input focus issues on Messages page...');
+    
+    // Completely disable THREE.js if present
+    if (window.disposeThreeScene) {
+      window.disposeThreeScene();
+      console.log('THREE.js scene disposed for form compatibility');
+    }
+    
+    // Apply special form fix styles
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `
+      #three-container {
+        display: none !important;
+        z-index: -9999 !important;
+        pointer-events: none !important;
+      }
+      
+      /* Ensure form elements work properly */
+      input, textarea, select, button, .admin3d-form-group, .admin3d-form-input, 
+      .admin3d-form-textarea, .admin3d-form-select, .admin3d-btn {
+        position: relative !important;
+        z-index: 9999 !important;
+        pointer-events: auto !important; 
+      }
+      
+      /* Make the form containers have proper stacking context */
+      .admin3d-card-content, form, .tab-content {
+        position: relative !important;
+        z-index: 9998 !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+    
+    // Fix any potential event capturing issues
+    const fixInputs = function() {
+      const inputs = document.querySelectorAll('input, textarea, select');
+      inputs.forEach(input => {
+        // Ensure events reach the form elements
+        input.style.pointerEvents = 'auto';
+        input.style.position = 'relative';
+        input.style.zIndex = '9999';
+        
+        // Add direct event handlers
+        input.addEventListener('click', function(e) {
+          e.stopPropagation();
+          this.focus();
+        });
+      });
+      
+      console.log('Form input fixes applied to', inputs.length, 'elements');
+    };
+    
+    // Run immediately and after a delay to ensure everything is loaded
+    fixInputs();
+    setTimeout(fixInputs, 500);
+  });
+</script>
