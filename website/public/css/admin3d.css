@@ -140,14 +140,31 @@ body {
   gap: 0.75rem;
 }
 
-.admin3d-logo img {
-  height: 36px;
-  width: auto;
+/* SWOOSH Bot Logo Styling to match screenshot exactly */
+.swoosh-logo-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  width: 30px;
+}
+
+.swoosh-logo-mark img {
+  height: 30px;
+  width: 30px;
   object-fit: contain;
 }
 
-.admin3d-logo span {
+.swoosh-text {
   font-size: 1.25rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.bot-text {
+  color: var(--primary);
+  font-weight: bold;
+}
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.02em;
