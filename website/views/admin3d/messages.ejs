@@ -462,6 +462,151 @@
   }
   
   /* Responsive Styles */
+  /* Loading Spinner */
+  .loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(16, 16, 46, 0.8);
+    z-index: 100;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+  }
+  
+  .spinner {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    animation: spin 1.5s infinite linear;
+  }
+  
+  .loading-text {
+    font-size: 1rem;
+    color: white;
+    font-weight: 500;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Premium Notification Styling */
+  .premium-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    z-index: 9999;
+  }
+  
+  .premium-notification.success {
+    background: rgba(0, 230, 118, 0.15);
+    border-color: rgba(0, 230, 118, 0.3);
+  }
+  
+  .premium-notification.error {
+    background: rgba(255, 61, 113, 0.15);
+    border-color: rgba(255, 61, 113, 0.3);
+  }
+  
+  .premium-notification.warning {
+    background: rgba(255, 179, 0, 0.15);
+    border-color: rgba(255, 179, 0, 0.3);
+  }
+  
+  .premium-notification.info {
+    background: rgba(77, 159, 255, 0.15);
+    border-color: rgba(77, 159, 255, 0.3);
+  }
+  
+  .notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+  
+  .premium-notification.success .notification-icon {
+    color: #00e676;
+    background: rgba(0, 230, 118, 0.15);
+  }
+  
+  .premium-notification.error .notification-icon {
+    color: #ff3d71;
+    background: rgba(255, 61, 113, 0.15);
+  }
+  
+  .premium-notification.warning .notification-icon {
+    color: #ffb300;
+    background: rgba(255, 179, 0, 0.15);
+  }
+  
+  .premium-notification.info .notification-icon {
+    color: #4d9fff;
+    background: rgba(77, 159, 255, 0.15);
+  }
+  
+  .notification-content {
+    flex: 1;
+  }
+  
+  .notification-content h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .notification-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .notification-close {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .notification-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+  
+  /* Media Queries */
   @media (max-width: 768px) {
     .admin3d-form-row {
       grid-template-columns: 1fr;
@@ -487,11 +632,43 @@
       align-self: flex-end;
       margin-top: 1rem;
     }
+    
+    .premium-notification {
+      width: 90%;
+      max-width: 90%;
+      left: 5%;
+      right: 5%;
+    }
   }
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    // Set default active tab
+    if (tabButtons.length > 0) {
+      tabButtons[0].classList.add('active');
+      const activeTabId = tabButtons[0].getAttribute('data-tab');
+      document.getElementById(activeTabId).classList.add('active');
+    }
+    
+    // Tab click event
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Remove active class from all tabs
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // Add active class to clicked tab
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
     // Live embed preview
     const titleInput = document.getElementById('title');
     const descriptionInput = document.getElementById('description');
@@ -527,5 +704,203 @@
         previewFooter.textContent = this.value || 'Footer text';
       });
     }
+    
+    // AJAX form submission
+    const ajaxForms = document.querySelectorAll('form[data-ajax="true"]');
+    
+    ajaxForms.forEach(form => {
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Create loading overlay
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.innerHTML = `
+          <div class="spinner">
+            <i class="fas fa-circle-notch fa-spin"></i>
+          </div>
+          <div class="loading-text">Processing...</div>
+        `;
+        
+        // Style the overlay
+        loadingOverlay.style.position = 'absolute';
+        loadingOverlay.style.top = '0';
+        loadingOverlay.style.left = '0';
+        loadingOverlay.style.width = '100%';
+        loadingOverlay.style.height = '100%';
+        loadingOverlay.style.backgroundColor = 'rgba(16, 16, 46, 0.8)';
+        loadingOverlay.style.display = 'flex';
+        loadingOverlay.style.flexDirection = 'column';
+        loadingOverlay.style.alignItems = 'center';
+        loadingOverlay.style.justifyContent = 'center';
+        loadingOverlay.style.zIndex = '100';
+        loadingOverlay.style.borderRadius = '12px';
+        loadingOverlay.style.backdropFilter = 'blur(8px)';
+        
+        // Position the parent relatively if not already
+        if (getComputedStyle(this.parentElement).position !== 'relative') {
+          this.parentElement.style.position = 'relative';
+        }
+        
+        this.parentElement.appendChild(loadingOverlay);
+        
+        // Get form data
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => {
+          data[key] = value;
+        });
+        
+        // AJAX request
+        fetch(this.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Remove loading overlay
+          this.parentElement.removeChild(loadingOverlay);
+          
+          // Show notification
+          showPremiumNotification(
+            data.success ? 'success' : 'error',
+            data.success ? 'Success!' : 'Error!',
+            data.message,
+            true
+          );
+          
+          // Reset form if specified
+          if (data.success && this.hasAttribute('data-reset')) {
+            this.reset();
+          }
+          
+          // Update embed preview if needed
+          if (data.success && this.action.includes('send-embed') && titleInput) {
+            titleInput.value = '';
+            descriptionInput.value = '';
+            footerInput.value = '';
+            previewTitle.textContent = 'Embed Title';
+            previewDescription.textContent = 'Your embed description will appear here.';
+            previewFooter.textContent = 'Footer text';
+          }
+        })
+        .catch(error => {
+          // Remove loading overlay
+          this.parentElement.removeChild(loadingOverlay);
+          
+          // Show error notification
+          showPremiumNotification(
+            'error',
+            'Error!',
+            'Failed to process your request: ' + error.message,
+            true
+          );
+          console.error('AJAX Error:', error);
+        });
+      });
+    });
+    
+    // Function to create a premium notification
+    window.showPremiumNotification = function(type, title, message, autoHide = false) {
+      // Create the notification container
+      const notifDiv = document.createElement('div');
+      notifDiv.className = `premium-notification ${type}`;
+      
+      // Set icon based on type
+      let icon = 'info-circle';
+      if (type === 'error') icon = 'exclamation-triangle';
+      if (type === 'success') icon = 'check-circle';
+      if (type === 'warning') icon = 'exclamation-circle';
+      
+      // Create the notification content
+      notifDiv.innerHTML = `
+        <div class="notification-icon">
+          <i class="fas fa-${icon}"></i>
+        </div>
+        <div class="notification-content">
+          <h4>${title}</h4>
+          <p>${message}</p>
+        </div>
+        <button class="notification-close">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      // Style the notification
+      Object.assign(notifDiv.style, {
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        zIndex: '9999',
+        minWidth: '300px',
+        maxWidth: '400px',
+        padding: '15px',
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '15px',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        transform: 'translateY(-20px)',
+        opacity: '0',
+        transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55)'
+      });
+      
+      // Set background based on type
+      if (type === 'error') {
+        notifDiv.style.background = 'rgba(255, 61, 113, 0.15)';
+        notifDiv.style.borderColor = 'rgba(255, 61, 113, 0.3)';
+      } else if (type === 'success') {
+        notifDiv.style.background = 'rgba(0, 230, 118, 0.15)';
+        notifDiv.style.borderColor = 'rgba(0, 230, 118, 0.3)';
+      } else if (type === 'warning') {
+        notifDiv.style.background = 'rgba(255, 179, 0, 0.15)';
+        notifDiv.style.borderColor = 'rgba(255, 179, 0, 0.3)';
+      } else {
+        notifDiv.style.background = 'rgba(77, 159, 255, 0.15)';
+        notifDiv.style.borderColor = 'rgba(77, 159, 255, 0.3)';
+      }
+      
+      // Add to DOM
+      document.body.appendChild(notifDiv);
+      
+      // Handle close button
+      const closeBtn = notifDiv.querySelector('.notification-close');
+      closeBtn.addEventListener('click', () => {
+        notifDiv.style.opacity = '0';
+        notifDiv.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+          document.body.removeChild(notifDiv);
+        }, 300);
+      });
+      
+      // Animate in
+      setTimeout(() => {
+        notifDiv.style.opacity = '1';
+        notifDiv.style.transform = 'translateY(0)';
+      }, 10);
+      
+      // Auto-hide if set
+      if (autoHide) {
+        setTimeout(() => {
+          if (document.body.contains(notifDiv)) {
+            notifDiv.style.opacity = '0';
+            notifDiv.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+              if (document.body.contains(notifDiv)) {
+                document.body.removeChild(notifDiv);
+              }
+            }, 300);
+          }
+        }, 5000);
+      }
+      
+      return notifDiv;
+    };
   });
 </script>

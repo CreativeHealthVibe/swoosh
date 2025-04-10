@@ -300,6 +300,79 @@ router.post('/messages/send-embed', (req, res) => {
 });
 
 /**
+ * POST /admin3d/messages/send-dm
+ * Send a direct message to a Discord user
+ */
+router.post('/messages/send-dm', (req, res) => {
+  const { userId, messageContent } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!userId || !messageContent) {
+    return res.json({
+      success: false,
+      message: 'User ID and message content are required'
+    });
+  }
+  
+  // Validate user ID format
+  if (!/^\d{17,19}$/.test(userId)) {
+    return res.json({
+      success: false,
+      message: 'Invalid Discord user ID format'
+    });
+  }
+  
+  (async () => {
+    try {
+      // Try to fetch the user
+      const targetUser = await client.users.fetch(userId);
+      
+      if (!targetUser) {
+        return res.json({
+          success: false,
+          message: 'Could not find that user'
+        });
+      }
+      
+      // Create the DM embed
+      const embed = {
+        title: 'Message from Bot Admin',
+        description: messageContent,
+        color: 0x8936ff,
+        timestamp: new Date(),
+        footer: {
+          text: `Sent by ${req.user.username || 'Administrator'} • SWOOSH Bot`
+        }
+      };
+      
+      // Send the DM
+      await targetUser.send({ embeds: [embed] });
+      
+      // Log the DM
+      console.log(`DM sent to ${targetUser.tag} (${targetUser.id}) by ${req.user.username}`);
+      
+      return res.json({
+        success: true,
+        message: `Message sent to ${targetUser.tag}`
+      });
+    } catch (error) {
+      console.error('Error sending DM:', error);
+      return res.json({
+        success: false,
+        message: `Failed to send DM: ${error.message}`
+      });
+    }
+  })();
+});
+
+/**
  * GET /admin3d/tickets
  * Ticket management interface
  */
