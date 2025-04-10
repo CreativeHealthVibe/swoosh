@@ -15,23 +15,45 @@
 }
 
 /* Dashboard header styles from messages page */
-.mod-intro {
-  margin: 1.25rem 0 1.5rem;
+.moderation-header {
+  margin: 1rem 0 2rem;
+  background: linear-gradient(135deg, #2a1987, #1a124a);
+  padding: 1.5rem 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(137, 54, 255, 0.5);
+  border-left: 5px solid #8936ff;
+  position: relative;
+  overflow: hidden;
+}
+
+.moderation-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(137, 54, 255, 0.2), transparent 70%);
+  pointer-events: none;
+}
+
+.moderation-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 0.5rem;
+  text-shadow: 0 0 15px rgba(137, 54, 255, 0.8);
+  letter-spacing: 0.5px;
   position: relative;
 }
 
-.mod-section-label {
-  display: inline-block;
-  font-size: 1.1rem;
-  color: rgba(235, 235, 245, 0.95);
-  padding: 0.5rem 1rem;
-  background: rgba(27, 24, 60, 0.7);
-  border-left: 3px solid #8936ff;
-  border-radius: 0 6px 6px 0;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+.moderation-subtitle {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  font-weight: 400;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.25px;
 }
 
 .mod-server-selector {
@@ -77,6 +99,22 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+/* Make stat cards stack on small screens */
+@media (max-width: 768px) {
+  .mod-stats-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .moderation-title {
+    font-size: 2.5rem;  /* Even larger on mobile */
+  }
+  
+  .moderation-subtitle {
+    font-size: 1.25rem;
+  }
 }
 
 .mod-stat-card {
@@ -140,6 +178,27 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap; /* Allow tabs to wrap on small screens */
+}
+
+/* Make tabs take full width on small screens */
+@media (max-width: 768px) {
+  .mod-nav-btn {
+    flex: 1 0 100%; /* Take full width */
+    text-align: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem; /* Larger font */
+    padding: 1rem 1.25rem; /* Taller buttons */
+  }
+  
+  .mod-section {
+    grid-template-columns: 1fr; /* Stack sections on small screens */
+  }
+  
+  .admin3d-grid {
+    grid-template-columns: 1fr; /* Stack grid items on small screens */
+  }
 }
 
 .mod-nav-btn {
@@ -165,8 +224,11 @@
 
 .mod-nav-btn.active {
   color: white;
-  background: rgba(137, 54, 255, 0.5);
+  background: linear-gradient(135deg, rgba(137, 54, 255, 0.9), rgba(137, 54, 255, 0.6));
   border-bottom: 3px solid #8936ff;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(137, 54, 255, 0.4);
+  font-weight: 600;
 }
 
 .mod-nav-btn i {
