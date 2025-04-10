@@ -16,8 +16,46 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Three.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js"></script>
+  <!-- Three.js Library with multi-CDN fallback -->
+  <script>
+    // Add THREE.js from multiple CDNs with fallback
+    (function loadThreeJs() {
+      // List of CDN URLs to try
+      const threeJsCdns = [
+        'https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js',
+        'https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js',
+        'https://unpkg.com/three@0.151.0/build/three.min.js'
+      ];
+      
+      // Try loading from each CDN sequentially
+      function loadFromNextCdn(index) {
+        if (index >= threeJsCdns.length) {
+          console.warn('Failed to load THREE.js from all CDNs');
+          // Set a flag in case we need to check
+          window.threeJsLoadFailed = true;
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = threeJsCdns[index];
+        script.async = true;
+        
+        script.onload = function() {
+          console.log('THREE.js loaded successfully from ' + threeJsCdns[index]);
+        };
+        
+        script.onerror = function() {
+          console.warn('Failed to load THREE.js from ' + threeJsCdns[index]);
+          loadFromNextCdn(index + 1);
+        };
+        
+        document.head.appendChild(script);
+      }
+      
+      // Start loading from the first CDN
+      loadFromNextCdn(0);
+    })();
+  </script>
   
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/admin3d.css">

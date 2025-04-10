@@ -22,6 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
   let windowHalfX = window.innerWidth / 2;
   let windowHalfY = window.innerHeight / 2;
   
+  // Make sure THREE is defined before using it
+  if (typeof THREE === 'undefined') {
+    console.warn('THREE.js not loaded! Falling back to 2D mode.');
+    // Add a class to the body to indicate 3D is not available
+    document.body.classList.add('three-js-unavailable');
+    return; // Exit initialization
+  }
+  
   // Scene configuration options
   const config = {
     particleCount: 400,
