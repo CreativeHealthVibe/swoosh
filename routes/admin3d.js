@@ -321,37 +321,10 @@ router.get('/tickets', (req, res) => {
 router.get('/roles', (req, res) => {
   const client = req.app.get('client');
   
-  // Get server roles if client is available
-  let servers = [];
-  if (client) {
-    client.guilds.cache.forEach(guild => {
-      // Get all roles except @everyone
-      const roles = guild.roles.cache
-        .filter(role => role.id !== guild.id) // Filter out @everyone
-        .sort((a, b) => b.position - a.position) // Sort by position (highest first)
-        .map(role => ({
-          id: role.id,
-          name: role.name,
-          color: role.hexColor,
-          position: role.position
-        }));
-      
-      servers.push({
-        id: guild.id,
-        name: guild.name,
-        roles: roles
-      });
-    });
-    
-    // Sort servers by name
-    servers.sort((a, b) => a.name.localeCompare(b.name));
-  }
-  
   res.render('admin3d/roles', {
     title: 'Role Management | SWOOSH Bot',
     user: req.user,
     client,
-    servers,
     layout: 'layouts/admin3d'
   });
 });

@@ -8,12 +8,14 @@ const { isAdmin, isAuthenticated } = require('../../middlewares/auth');
 
 // Import route handlers
 const blacklistRoutes = require('./blacklist');
+const rolesRoutes = require('./roles');
 
 // Middleware for all API routes
 router.use(isAuthenticated);
 
 // Register routes
 router.use('/blacklist', blacklistRoutes);
+router.use('/', rolesRoutes); // Roles routes use server paths like /servers/:serverId/roles
 
 // API Status check
 router.get('/status', (req, res) => {

@@ -1,0 +1,664 @@
+<%# 
+  SWOOSH Bot 3D Admin Dashboard
+  Premium Edition - £50,000 Value
+  
+  Roles Management Page
+%>
+
+<div class="admin3d-roles">
+  <div class="dashboard-header">
+    <h1 class="section-title">Role Management</h1>
+  </div>
+  
+  <p class="section-description">
+    Manage server roles, assign roles to users, and configure auto-roles for new members joining your server.
+  </p>
+  
+  <!-- Server Selection -->
+  <div class="admin3d-card glow-border">
+    <div class="admin3d-card-header">
+      <div>
+        <div class="admin3d-card-icon glow-bg">
+          <i class="fas fa-server"></i>
+        </div>
+      </div>
+      <h3 class="admin3d-card-title glow-text">Select Server</h3>
+    </div>
+    <div class="admin3d-card-content">
+      <div class="admin3d-form-group">
+        <label class="admin3d-form-label" for="server-select">Server</label>
+        <select class="admin3d-form-select" id="server-select">
+          <option value="">Select a server</option>
+          <% if (client && client.guilds) { %>
+            <% client.guilds.cache.sort((a, b) => a.name.localeCompare(b.name)).forEach(guild => { %>
+              <option value="<%= guild.id %>"><%= guild.name %> (<%= guild.memberCount %> members)</option>
+            <% }); %>
+          <% } %>
+        </select>
+        <span class="admin3d-form-hint">Select a server to manage roles</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Role Information - Only visible after server selection -->
+  <div id="role-management-section" class="role-management-section" style="display: none;">
+    <!-- Role List -->
+    <h2 class="section-subtitle">Server Roles</h2>
+    <div class="admin3d-card">
+      <div class="admin3d-card-header">
+        <div>
+          <div class="admin3d-card-icon">
+            <i class="fas fa-user-tag"></i>
+          </div>
+        </div>
+        <h3 class="admin3d-card-title">Manage Roles</h3>
+      </div>
+      <div class="admin3d-card-content">
+        <div class="roles-list-container">
+          <div class="roles-list-header">
+            <div class="role-name-col">Role Name</div>
+            <div class="role-color-col">Color</div>
+            <div class="role-members-col">Members</div>
+            <div class="role-position-col">Position</div>
+            <div class="role-actions-col">Actions</div>
+          </div>
+          <div id="roles-list" class="roles-list">
+            <!-- Role items will be added dynamically -->
+            <div class="roles-loading">
+              <div class="spinner"></div>
+              <p>Loading roles...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Create New Role -->
+    <h2 class="section-subtitle">Create New Role</h2>
+    <div class="admin3d-card" data-premium="true">
+      <div class="admin3d-card-header">
+        <div>
+          <div class="admin3d-card-icon">
+            <i class="fas fa-plus-circle"></i>
+          </div>
+        </div>
+        <h3 class="admin3d-card-title">Create Role</h3>
+      </div>
+      <div class="admin3d-card-content">
+        <form id="create-role-form">
+          <div class="admin3d-form-row">
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label" for="role-name">Role Name</label>
+              <input class="admin3d-form-input" type="text" id="role-name" name="name" placeholder="New Role" required>
+            </div>
+            
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label" for="role-color">Role Color</label>
+              <input class="admin3d-form-input color-picker" type="color" id="role-color" name="color" value="#5865F2">
+            </div>
+          </div>
+          
+          <div class="admin3d-form-group">
+            <label class="admin3d-form-label">Role Display</label>
+            <div class="admin3d-checkbox-group">
+              <label class="admin3d-checkbox">
+                <input type="checkbox" name="hoist" id="role-hoist">
+                <span>Display role members separately</span>
+              </label>
+              <label class="admin3d-checkbox">
+                <input type="checkbox" name="mentionable" id="role-mentionable">
+                <span>Allow anyone to @mention this role</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="admin3d-form-group">
+            <label class="admin3d-form-label">Permissions</label>
+            <div class="permissions-grid" id="permissions-grid">
+              <!-- General Permissions -->
+              <div class="permission-category">
+                <h4>General</h4>
+                <div class="permission-items">
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="ViewChannel">
+                    <span>View Channels</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="ManageChannels">
+                    <span>Manage Channels</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="ManageRoles">
+                    <span>Manage Roles</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="ManageGuild">
+                    <span>Manage Server</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="Administrator">
+                    <span>Administrator</span>
+                  </label>
+                </div>
+              </div>
+              
+              <!-- Text Channel Permissions -->
+              <div class="permission-category">
+                <h4>Text Channels</h4>
+                <div class="permission-items">
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="SendMessages">
+                    <span>Send Messages</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="EmbedLinks">
+                    <span>Embed Links</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="AttachFiles">
+                    <span>Attach Files</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="ReadMessageHistory">
+                    <span>Read Message History</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="MentionEveryone">
+                    <span>Mention @everyone</span>
+                  </label>
+                </div>
+              </div>
+              
+              <!-- Moderation Permissions -->
+              <div class="permission-category">
+                <h4>Moderation</h4>
+                <div class="permission-items">
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="KickMembers">
+                    <span>Kick Members</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="BanMembers">
+                    <span>Ban Members</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="ManageMessages">
+                    <span>Manage Messages</span>
+                  </label>
+                  <label class="admin3d-checkbox permission-item">
+                    <input type="checkbox" name="permissions" value="ModerateMembers">
+                    <span>Timeout Members</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="admin3d-form-actions">
+            <button type="submit" class="admin3d-btn admin3d-btn-primary">
+              <i class="fas fa-plus"></i> Create Role
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Auto-roles Configuration -->
+    <h2 class="section-subtitle">Auto-Roles</h2>
+    <div class="admin3d-card" data-premium="true">
+      <div class="admin3d-card-header">
+        <div>
+          <div class="admin3d-card-icon">
+            <i class="fas fa-user-plus"></i>
+          </div>
+        </div>
+        <h3 class="admin3d-card-title">Auto Roles Setup</h3>
+      </div>
+      <div class="admin3d-card-content">
+        <p class="admin3d-card-description">
+          Auto-roles are automatically assigned to new members when they join your server.
+        </p>
+        
+        <div class="autoroles-container">
+          <div class="autoroles-list" id="autoroles-list">
+            <!-- Auto roles will be loaded here -->
+            <div class="autoroles-loading">
+              <div class="spinner"></div>
+              <p>Loading auto-roles...</p>
+            </div>
+          </div>
+          
+          <form id="add-autorole-form">
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label" for="autorole-select">Add Auto-Role</label>
+              <select class="admin3d-form-select" id="autorole-select" name="roleId">
+                <option value="">Select a role</option>
+                <!-- Roles will be loaded here dynamically -->
+              </select>
+            </div>
+            
+            <div class="admin3d-form-actions">
+              <button type="submit" class="admin3d-btn admin3d-btn-primary">
+                <i class="fas fa-plus"></i> Add Auto-Role
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bulk Role Assignment -->
+    <h2 class="section-subtitle">Bulk Role Assignment</h2>
+    <div class="admin3d-card" data-premium="true">
+      <div class="admin3d-card-header">
+        <div>
+          <div class="admin3d-card-icon">
+            <i class="fas fa-users-cog"></i>
+          </div>
+        </div>
+        <h3 class="admin3d-card-title">Assign Role to Multiple Users</h3>
+      </div>
+      <div class="admin3d-card-content">
+        <form id="bulk-role-form">
+          <div class="admin3d-form-group">
+            <label class="admin3d-form-label" for="bulk-role-select">Role to Assign</label>
+            <select class="admin3d-form-select" id="bulk-role-select" name="roleId">
+              <option value="">Select a role</option>
+              <!-- Roles will be loaded here dynamically -->
+            </select>
+          </div>
+          
+          <div class="admin3d-form-group">
+            <label class="admin3d-form-label">Assignment Type</label>
+            <div class="admin3d-radio-group">
+              <label class="admin3d-radio">
+                <input type="radio" name="assignmentType" value="all" checked>
+                <span>All Members</span>
+              </label>
+              <label class="admin3d-radio">
+                <input type="radio" name="assignmentType" value="humans">
+                <span>Humans Only (exclude bots)</span>
+              </label>
+              <label class="admin3d-radio">
+                <input type="radio" name="assignmentType" value="bots">
+                <span>Bots Only</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="admin3d-form-group">
+            <label class="admin3d-form-label">Confirmation</label>
+            <div class="admin3d-checkbox-group">
+              <label class="admin3d-checkbox">
+                <input type="checkbox" name="confirmation" id="bulk-confirmation" required>
+                <span>I understand this action will assign the selected role to multiple users</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="admin3d-form-actions">
+            <button type="submit" class="admin3d-btn admin3d-btn-warning">
+              <i class="fas fa-user-tag"></i> Assign to Multiple Users
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Role Modal -->
+<div class="modal-overlay" id="edit-role-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Role</h3>
+      <button class="modal-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="edit-role-form">
+        <input type="hidden" id="edit-role-id" name="roleId">
+        
+        <div class="admin3d-form-row">
+          <div class="admin3d-form-group">
+            <label class="admin3d-form-label" for="edit-role-name">Role Name</label>
+            <input class="admin3d-form-input" type="text" id="edit-role-name" name="name" required>
+          </div>
+          
+          <div class="admin3d-form-group">
+            <label class="admin3d-form-label" for="edit-role-color">Role Color</label>
+            <input class="admin3d-form-input color-picker" type="color" id="edit-role-color" name="color">
+          </div>
+        </div>
+        
+        <div class="admin3d-form-group">
+          <label class="admin3d-form-label">Role Display</label>
+          <div class="admin3d-checkbox-group">
+            <label class="admin3d-checkbox">
+              <input type="checkbox" name="hoist" id="edit-role-hoist">
+              <span>Display role members separately</span>
+            </label>
+            <label class="admin3d-checkbox">
+              <input type="checkbox" name="mentionable" id="edit-role-mentionable">
+              <span>Allow anyone to @mention this role</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="admin3d-form-group">
+          <label class="admin3d-form-label">Position</label>
+          <div class="position-control">
+            <button type="button" class="admin3d-btn admin3d-btn-secondary" id="move-role-up">
+              <i class="fas fa-arrow-up"></i> Move Up
+            </button>
+            <button type="button" class="admin3d-btn admin3d-btn-secondary" id="move-role-down">
+              <i class="fas fa-arrow-down"></i> Move Down
+            </button>
+          </div>
+          <span class="admin3d-form-hint">Higher positioned roles have more permissions</span>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
+      <button class="admin3d-btn admin3d-btn-danger" data-action="delete">Delete Role</button>
+      <button class="admin3d-btn admin3d-btn-primary" data-action="save">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Members Modal -->
+<div class="modal-overlay" id="view-members-modal">
+  <div class="modal-container modal-large">
+    <div class="modal-header">
+      <h3 class="modal-title">Role Members</h3>
+      <button class="modal-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="member-search">
+        <input type="text" class="admin3d-form-input" id="member-search" placeholder="Search members...">
+      </div>
+      <div class="member-list-container">
+        <div class="member-list" id="role-members-list">
+          <!-- Members will be loaded here -->
+          <div class="members-loading">
+            <div class="spinner"></div>
+            <p>Loading members...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="admin3d-btn admin3d-btn-secondary" data-action="close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirm Action</h3>
+      <button class="modal-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-message">Are you sure you want to perform this action?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
+      <button class="admin3d-btn admin3d-btn-danger" data-action="confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Role management specific styles */
+  .roles-list-container {
+    overflow-x: auto;
+    background: rgba(19, 16, 58, 0.4);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(49, 41, 95, 0.3);
+    overflow: hidden;
+  }
+  
+  .roles-list-header {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 80px 150px;
+    gap: 10px;
+    padding: 1rem;
+    background-color: rgba(32, 26, 69, 0.5);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
+  }
+  
+  .roles-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .role-item {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 80px 150px;
+    gap: 10px;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
+    align-items: center;
+    transition: background-color var(--transition-fast);
+  }
+  
+  .role-item:last-child {
+    border-bottom: none;
+  }
+  
+  .role-item:hover {
+    background-color: rgba(49, 41, 95, 0.2);
+  }
+  
+  .role-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .role-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .role-position {
+    text-align: center;
+  }
+  
+  .role-members {
+    text-align: center;
+    cursor: pointer;
+    color: var(--text);
+    transition: color var(--transition-fast);
+  }
+  
+  .role-members:hover {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+  
+  .role-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  
+  /* Permissions grid */
+  .permissions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    margin: 1rem 0;
+    background-color: rgba(19, 16, 58, 0.2);
+    border-radius: 12px;
+  }
+  
+  .permission-category h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
+  }
+  
+  .permission-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  /* Auto-roles section */
+  .autoroles-container {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+  }
+  
+  .autoroles-list {
+    background-color: rgba(19, 16, 58, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    min-height: 200px;
+  }
+  
+  .autorole-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: rgba(49, 41, 95, 0.2);
+    margin-bottom: 0.75rem;
+  }
+  
+  .autorole-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  /* Member list in modal */
+  .member-search {
+    margin-bottom: 1rem;
+  }
+  
+  .member-list-container {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .member-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .member-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: rgba(49, 41, 95, 0.2);
+  }
+  
+  .member-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--background-lighter);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .member-name {
+    font-weight: 600;
+  }
+  
+  .member-tag {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  
+  /* Loading spinners */
+  .roles-loading,
+  .autoroles-loading,
+  .members-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: var(--text-muted);
+  }
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(156, 77, 255, 0.2);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Modal size variations */
+  .modal-large {
+    max-width: 800px;
+  }
+  
+  /* Position control */
+  .position-control {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .autoroles-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .roles-list-header,
+    .role-item {
+      grid-template-columns: 2fr 80px 80px auto;
+    }
+    
+    .role-position-col,
+    .role-position {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .roles-list-header,
+    .role-item {
+      grid-template-columns: 1fr auto;
+    }
+    
+    .role-color-col,
+    .role-members-col,
+    .role-color,
+    .role-members {
+      display: none;
+    }
+  }
+</style>
+
+<!-- Include roles management scripts -->
+<script src="/js/admin3d-notifications.js"></script>
+<script src="/js/admin3d-roles.js"></script>
