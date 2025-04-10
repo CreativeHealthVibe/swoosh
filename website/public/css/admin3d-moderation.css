@@ -1,0 +1,447 @@
+/* Admin 3D Dashboard - Premium Moderation Page */
+
+/* Premium container styles */
+.premium-edition {
+  --premium-glow: 0 0 15px rgba(114, 137, 218, 0.7);
+  --premium-purple: #5865f2;
+  --premium-pink: #eb459e;
+  --premium-gradient: linear-gradient(45deg, var(--premium-purple), var(--premium-pink));
+  --premium-badge-bg: linear-gradient(135deg, #ff6b6b, #c44fff);
+}
+
+/* Premium header styling */
+.premium-header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.premium-badge {
+  background: var(--premium-badge-bg);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  position: absolute;
+  top: -0.75rem;
+  right: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 3D Moderation Scene Container */
+.moderation-3d-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin-bottom: 2rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: rgba(23, 25, 35, 0.8);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.premium-three-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.moderation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.moderation-stats {
+  display: flex;
+  justify-content: space-around;
+  width: 80%;
+  max-width: 800px;
+}
+
+.stat-item {
+  background: rgba(43, 45, 55, 0.7);
+  backdrop-filter: blur(5px);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  margin: 0 0.5rem;
+  border: 1px solid rgba(114, 137, 218, 0.3);
+  min-width: 150px;
+}
+
+.stat-icon {
+  background: var(--premium-gradient);
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  box-shadow: 0 0 10px rgba(92, 110, 200, 0.5);
+}
+
+.stat-icon i {
+  color: white;
+  font-size: 1.25rem;
+}
+
+.stat-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 5px rgba(114, 137, 218, 0.7);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #b9bbbe;
+}
+
+/* Enhanced Card Styles */
+.premium-edition .admin3d-card {
+  border: 1px solid rgba(114, 137, 218, 0.3);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.premium-edition .admin3d-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(114, 137, 218, 0.5);
+}
+
+/* Section title enhancements */
+.premium-edition .section-title {
+  font-size: 2.25rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  background: var(--premium-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(88, 101, 242, 0.4);
+}
+
+.premium-edition .section-subtitle {
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin: 2rem 0 1rem;
+  position: relative;
+  display: inline-block;
+}
+
+.premium-edition .section-subtitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: var(--premium-gradient);
+  border-radius: 3px;
+}
+
+/* Premium action cards */
+.premium-edition .moderation-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.premium-edition .admin3d-action-card {
+  background: rgba(54, 57, 63, 0.9);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(114, 137, 218, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-edition .admin3d-action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--premium-gradient);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.premium-edition .admin3d-action-card:hover::before {
+  transform: scaleX(1);
+}
+
+.premium-edition .action-card-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(114, 137, 218, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(114, 137, 218, 0.2);
+}
+
+.premium-edition .admin3d-action-card:hover .action-card-icon {
+  background: var(--premium-gradient);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(88, 101, 242, 0.6);
+}
+
+.premium-edition .action-card-icon i {
+  font-size: 1.5rem;
+  color: #7289da;
+  transition: all 0.3s ease;
+}
+
+.premium-edition .admin3d-action-card:hover .action-card-icon i {
+  color: white;
+}
+
+.premium-edition .admin3d-action-card[data-premium="true"]::after {
+  content: 'PREMIUM';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.6rem;
+  font-weight: bold;
+  background: var(--premium-badge-bg);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* Enhanced Buttons */
+.premium-edition .admin3d-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-edition .admin3d-btn::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: -100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.1), rgba(255,255,255,0));
+  transition: all 0.5s ease;
+}
+
+.premium-edition .admin3d-btn:hover::after {
+  left: 100%;
+}
+
+.premium-edition .admin3d-btn-primary {
+  background: var(--premium-gradient);
+  color: white;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+}
+
+.premium-edition .admin3d-btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+  transform: translateY(-2px);
+}
+
+.premium-edition .admin3d-btn-danger {
+  background: linear-gradient(45deg, #f04747, #ff7675);
+  color: white;
+  box-shadow: 0 4px 15px rgba(240, 71, 71, 0.4);
+}
+
+.premium-edition .admin3d-btn-danger:hover {
+  box-shadow: 0 6px 20px rgba(240, 71, 71, 0.6);
+  transform: translateY(-2px);
+}
+
+.premium-edition .admin3d-btn-warning {
+  background: linear-gradient(45deg, #faa61a, #ffbe76);
+  color: white;
+  box-shadow: 0 4px 15px rgba(250, 166, 26, 0.4);
+}
+
+/* Enhanced Form Inputs */
+.premium-edition .admin3d-form-input,
+.premium-edition .admin3d-form-textarea,
+.premium-edition .admin3d-form-select {
+  background: rgba(30, 31, 40, 0.7);
+  border: 1px solid rgba(114, 137, 218, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.premium-edition .admin3d-form-input:focus,
+.premium-edition .admin3d-form-textarea:focus,
+.premium-edition .admin3d-form-select:focus {
+  border-color: #7289da;
+  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.3);
+  background: rgba(35, 37, 48, 0.9);
+}
+
+/* Enhanced Ban List */
+.premium-edition .bans-list-container {
+  background: rgba(30, 31, 40, 0.5);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.premium-edition .bans-list-header {
+  background: rgba(50, 55, 70, 0.8);
+  padding: 0.75rem 1rem;
+  display: grid;
+  grid-template-columns: 2fr 3fr 1fr 1fr;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(114, 137, 218, 0.3);
+}
+
+.premium-edition .ban-item {
+  display: grid;
+  grid-template-columns: 2fr 3fr 1fr 1fr;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(79, 84, 92, 0.2);
+  transition: all 0.2s ease;
+}
+
+.premium-edition .ban-item:hover {
+  background: rgba(50, 53, 68, 0.5);
+}
+
+/* Enhanced Warning System */
+.premium-edition .warnings-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background: rgba(30, 31, 40, 0.3);
+  border-radius: 0.5rem;
+}
+
+.premium-edition .warning-item {
+  background: rgba(40, 43, 54, 0.6);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border-left: 3px solid;
+  transition: all 0.2s ease;
+}
+
+.premium-edition .warning-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.premium-edition .warning-item.low {
+  border-left-color: #43b581;
+}
+
+.premium-edition .warning-item.medium {
+  border-left-color: #faa61a;
+}
+
+.premium-edition .warning-item.high {
+  border-left-color: #f04747;
+}
+
+/* Modals */
+.premium-edition .modal-container {
+  background: rgba(50, 53, 68, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(114, 137, 218, 0.3);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.premium-edition .modal-header {
+  border-bottom: 1px solid rgba(114, 137, 218, 0.2);
+  padding: 1.25rem 1.5rem;
+}
+
+.premium-edition .modal-title {
+  font-size: 1.4rem;
+  color: white;
+}
+
+/* Special styling for premium moderation */
+body.premium-moderation {
+  --moderation-primary: #5865f2;
+  --moderation-accent: #eb459e;
+}
+
+.premium-moderation #moderation-three-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  z-index: 10;
+}
+
+.premium-moderation .admin3d-glow-card {
+  position: relative;
+}
+
+.premium-moderation .admin3d-glow-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: var(--premium-gradient);
+  z-index: -1;
+  border-radius: calc(0.75rem + 2px);
+  opacity: 0.7;
+  filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.premium-moderation .admin3d-glow-card:hover::before {
+  opacity: 1;
+  filter: blur(12px);
+}
