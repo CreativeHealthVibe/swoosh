@@ -67,8 +67,7 @@
       <div class="stat-value" id="memory-usage">
         <% 
           const memoryUsage = process.memoryUsage();
-          const totalMemory = require('os').totalmem();
-          const usedMemoryPercent = Math.round((memoryUsage.rss / totalMemory) * 100);
+          const usedMemoryPercent = Math.round((memoryUsage.rss / (1024 * 1024 * 1024)) * 100);
         %>
         <%= usedMemoryPercent %>%
       </div>
