@@ -64,6 +64,14 @@
   <% if (title.includes('Stats')) { %>
     <link rel="stylesheet" href="/css/admin3d-stats.css">
   <% } %>
+  <% if (title.includes('Moderation')) { %>
+    <link rel="stylesheet" href="/css/admin3d-moderation.css">
+    <% if (typeof customStyles !== 'undefined' && customStyles) { %>
+      <% customStyles.forEach(style => { %>
+        <link rel="stylesheet" href="/css/<%= style %>">
+      <% }); %>
+    <% } %>
+  <% } %>
   <!-- Common functionality styles for all admin pages -->
   <link rel="stylesheet" href="/css/admin3d-notifications.css">
   <link rel="stylesheet" href="/css/admin3d-modal.css">
@@ -81,6 +89,9 @@
     <script src="/js/admin3d-blacklist.js" defer></script>
   <% } else if (title.includes('Stats')) { %>
     <script src="/js/admin3d-stats.js" defer></script>
+  <% } else if (title.includes('Moderation')) { %>
+    <script src="/js/admin3d-moderation.js" defer></script>
+    <script src="/js/admin3d-moderation-scene.js" defer></script>
   <% } %>
 </head>
 <body class="admin3d-body <%= title.includes('Message') ? 'no-three-js' : '' %>">
