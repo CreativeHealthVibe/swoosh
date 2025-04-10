@@ -155,7 +155,7 @@
           </td>
           <td align="right" width="30%" style="text-align: right !important;">
             <div class="admin3d-header-right" style="justify-content: flex-end !important; margin-left: auto !important;">
-              <div class="admin3d-user" style="display: flex; justify-content: flex-end; margin-left: auto; position: relative; cursor: pointer;" onclick="toggleUserDropdown()">
+              <div class="admin3d-user" style="display: flex; justify-content: flex-end; margin-left: auto; position: relative; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s ease;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'" onmouseout="this.style.backgroundColor='transparent'" onclick="toggleUserDropdown()">
                 <% if (typeof user !== 'undefined' && user) { %>
                   <span><%= user.username %></span>
                   <div class="admin3d-user-avatar">
@@ -165,13 +165,15 @@
                       <i class="fas fa-user"></i>
                     <% } %>
                   </div>
+                  <i class="fas fa-caret-down" style="margin-left: 5px; color: rgba(255,255,255,0.7);"></i>
                 <% } else { %>
                   <span>Guest</span>
                   <div class="admin3d-user-avatar">
                     <i class="fas fa-user"></i>
                   </div>
+                  <i class="fas fa-caret-down" style="margin-left: 5px; color: rgba(255,255,255,0.7);"></i>
                 <% } %>
-                <div id="userDropdown" class="admin3d-user-dropdown" style="display: none; position: absolute; top: calc(100% + 10px); right: 0; background-color: #2a1987; background-image: linear-gradient(to bottom, #2a1987, #3a259a); border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5), 0 0 10px rgba(137, 54, 255, 0.4); padding: 1.25rem; width: 220px; z-index: 1000; border: 2px solid rgba(137, 109, 235, 0.9);">
+                <div id="userDropdown" class="admin3d-user-dropdown" style="display: none; position: fixed; top: 80px; right: 20px; background-color: #2a1987; background-image: linear-gradient(to bottom, #2a1987, #3a259a); border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5), 0 0 10px rgba(137, 54, 255, 0.4); padding: 1.25rem; width: 220px; z-index: 9999; border: 2px solid rgba(137, 109, 235, 0.9);">
                   <a href="/admin3d/profile" style="color: white; text-decoration: none; padding: 0.75rem 1rem; display: block; border-radius: 8px; transition: all 0.3s ease; margin-bottom: 0.5rem;" onmouseover="this.style.backgroundColor='rgba(62, 45, 145, 0.7)';this.style.transform='translateX(3px)'" onmouseout="this.style.backgroundColor='transparent';this.style.transform='translateX(0)'"><i class="fas fa-user-circle" style="margin-right: 10px; color: #b37aff;"></i> Profile</a>
                   <a href="/auth/logout" style="color: white; text-decoration: none; padding: 0.75rem 1rem; display: block; border-radius: 8px; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='rgba(62, 45, 145, 0.7)';this.style.transform='translateX(3px)'" onmouseout="this.style.backgroundColor='transparent';this.style.transform='translateX(0)'"><i class="fas fa-sign-out-alt" style="margin-right: 10px; color: #b37aff;"></i> Logout</a>
                 </div>
@@ -180,10 +182,40 @@
               <script>
                 function toggleUserDropdown() {
                   var dropdown = document.getElementById("userDropdown");
+                  var caretIcon = document.querySelector(".admin3d-user .fa-caret-down");
+                  
                   if (dropdown.style.display === "none") {
+                    // Show dropdown with animation
                     dropdown.style.display = "block";
+                    dropdown.style.opacity = "0";
+                    dropdown.style.transform = "translateY(-10px)";
+                    
+                    // Rotate caret icon
+                    if (caretIcon) {
+                      caretIcon.style.transform = "rotate(180deg)";
+                      caretIcon.style.color = "#b37aff";
+                    }
+                    
+                    // Trigger animation
+                    setTimeout(function() {
+                      dropdown.style.opacity = "1";
+                      dropdown.style.transform = "translateY(0)";
+                    }, 10);
                   } else {
-                    dropdown.style.display = "none";
+                    // Hide dropdown with animation
+                    dropdown.style.opacity = "0";
+                    dropdown.style.transform = "translateY(-10px)";
+                    
+                    // Reset caret icon
+                    if (caretIcon) {
+                      caretIcon.style.transform = "rotate(0deg)";
+                      caretIcon.style.color = "rgba(255,255,255,0.7)";
+                    }
+                    
+                    // Complete hiding after animation
+                    setTimeout(function() {
+                      dropdown.style.display = "none";
+                    }, 200);
                   }
                 }
                 
@@ -191,11 +223,39 @@
                 document.addEventListener('click', function(event) {
                   var dropdown = document.getElementById("userDropdown");
                   var userAvatar = document.querySelector(".admin3d-user");
+                  var caretIcon = document.querySelector(".admin3d-user .fa-caret-down");
                   
                   if (!userAvatar.contains(event.target) && dropdown.style.display === "block") {
-                    dropdown.style.display = "none";
+                    // Hide dropdown with animation
+                    dropdown.style.opacity = "0";
+                    dropdown.style.transform = "translateY(-10px)";
+                    
+                    // Reset caret icon
+                    if (caretIcon) {
+                      caretIcon.style.transform = "rotate(0deg)";
+                      caretIcon.style.color = "rgba(255,255,255,0.7)";
+                    }
+                    
+                    // Complete hiding after animation
+                    setTimeout(function() {
+                      dropdown.style.display = "none";
+                    }, 200);
                   }
                 }, true);
+                
+                // Add transition styles to dropdown and caret
+                document.addEventListener("DOMContentLoaded", function() {
+                  var dropdown = document.getElementById("userDropdown");
+                  var caretIcon = document.querySelector(".admin3d-user .fa-caret-down");
+                  
+                  if (dropdown) {
+                    dropdown.style.transition = "opacity 0.2s ease, transform 0.2s ease";
+                  }
+                  
+                  if (caretIcon) {
+                    caretIcon.style.transition = "transform 0.2s ease, color 0.2s ease";
+                  }
+                });
               </script>
             </div>
           </td>
