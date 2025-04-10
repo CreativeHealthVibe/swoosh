@@ -2,16 +2,49 @@
   SWOOSH Bot 3D Admin Dashboard
   Premium Edition - £50,000 Value
   
-  Moderation Management Page
+  Moderation Management Page - Enterprise Edition
 %>
 
-<div class="admin3d-moderation">
-  <div class="dashboard-header">
-    <h1 class="section-title">Moderation Tools</h1>
+<div class="admin3d-moderation premium-edition">
+  <!-- 3D Visualization Container -->
+  <div class="moderation-3d-container">
+    <div id="moderation-three-container" class="three-js-container moderation-scene">
+      <!-- 3D scene will be rendered here -->
+    </div>
+    <div class="moderation-overlay">
+      <div class="moderation-stats">
+        <div class="stat-item glow-border">
+          <div class="stat-icon"><i class="fas fa-ban"></i></div>
+          <div class="stat-data">
+            <span class="stat-value" id="total-bans">0</span>
+            <span class="stat-label">Total Bans</span>
+          </div>
+        </div>
+        <div class="stat-item glow-border">
+          <div class="stat-icon"><i class="fas fa-user-slash"></i></div>
+          <div class="stat-data">
+            <span class="stat-value" id="total-kicks">0</span>
+            <span class="stat-label">Total Kicks</span>
+          </div>
+        </div>
+        <div class="stat-item glow-border">
+          <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="stat-data">
+            <span class="stat-value" id="total-warnings">0</span>
+            <span class="stat-label">Total Warnings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-header premium-header">
+    <div class="premium-badge">ENTERPRISE EDITION</div>
+    <h1 class="section-title glow-text">Advanced Moderation Suite</h1>
   </div>
   
   <p class="section-description">
-    Manage users across your Discord servers with advanced moderation tools. Ban, kick, mute users, view moderation history, and manage server-wide moderation settings.
+    Manage users across your Discord servers with enterprise-grade moderation tools. Visualize server trends, enforce policies, and maintain server security with our premium suite of tools.
   </p>
   
   <!-- Server Selection -->
