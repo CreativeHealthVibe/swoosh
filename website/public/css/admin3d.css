@@ -304,13 +304,14 @@ body {
   font-size: 1.05rem; /* Slightly larger text */
   font-weight: 500; /* Medium weight for better visibility */
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); /* Subtle text glow for readability */
-  border: 1px solid transparent; /* Prepare for hover effect */
+  border: none; /* No border at all */
+  outline: none; /* No outline */
 }
 
 .admin3d-user-dropdown a:hover {
   background-color: rgba(20, 20, 20, 0.7); /* Dark background with slight transparency */
   color: white; /* Brighter text on hover */
-  border-color: var(--primary-light); /* Show border on hover */
+  border: none; /* No border on hover */
   transform: translateX(3px); /* Slight movement effect */
   box-shadow: 0 0 10px rgba(137, 54, 255, 0.4); /* Subtle glow effect */
 }
