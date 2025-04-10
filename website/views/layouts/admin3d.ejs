@@ -126,7 +126,7 @@
   <!-- Main Container -->
   <div class="admin3d-container">
     <!-- Header -->
-    <header class="admin3d-header" style="text-align: left !important; padding-top: 10px; padding-bottom: 10px; margin-top: 0; display: flex; align-items: center; height: 60px; background-color: #000; box-shadow: 0 0 10px rgba(137, 54, 255, 0.7); border-radius: 8px;">
+    <header class="admin3d-header" style="text-align: left !important; padding-top: 10px; padding-bottom: 10px; margin-top: 0; display: flex; align-items: center; height: 60px; background-color: #000; box-shadow: 0 0 10px rgba(137, 54, 255, 0.7); border-radius: 8px; border: none;">
       <table width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;">
         <tr style="vertical-align: middle;">
           <td align="left" width="70%" style="vertical-align: middle;">
@@ -147,7 +147,7 @@
               <div class="admin3d-user" style="display: flex; justify-content: flex-end; margin-left: auto; position: relative; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s ease; background-color: rgba(42, 25, 135, 0.3); box-shadow: 0 0 4px rgba(137, 54, 255, 0.6); border: none;" onmouseover="this.style.backgroundColor='rgba(98, 54, 163, 0.7)'; this.style.boxShadow='0 0 12px rgba(137, 54, 255, 1)'; this.style.border='1px solid rgba(137, 54, 255, 0.8)';" onmouseout="this.style.backgroundColor='rgba(42, 25, 135, 0.3)'; this.style.boxShadow='0 0 4px rgba(137, 54, 255, 0.6)'; this.style.border='none';" onclick="toggleUserDropdown()">
                 <% if (typeof user !== 'undefined' && user) { %>
                   <span style="text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; color: white;"><%= user.username %></span>
-                  <div class="admin3d-user-avatar" style="background-color: rgba(0, 0, 0, 0.8); box-shadow: 0 0 8px rgba(137, 54, 255, 0.8); border-radius: 50%; margin-left: 10px;">
+                  <div class="admin3d-user-avatar" style="background-color: rgba(0, 0, 0, 0.8); box-shadow: 0 0 8px rgba(137, 54, 255, 0.8); border-radius: 50%; margin-left: 10px; border: none; transition: all 0.2s ease;" onmouseover="this.style.border='1px solid rgba(137, 54, 255, 0.8)'; this.style.boxShadow='0 0 12px rgba(137, 54, 255, 1)';" onmouseout="this.style.border='none'; this.style.boxShadow='0 0 8px rgba(137, 54, 255, 0.8)';">
                     <% if (user.avatar) { %>
                       <img src="<%= user.avatar %>" alt="<%= user.username %>'s avatar" style="border-radius: 50%; filter: drop-shadow(0 0 4px rgba(137, 54, 255, 0.7));">
                     <% } else { %>
@@ -157,7 +157,7 @@
                   <i class="fas fa-caret-down" style="margin-left: 5px; color: #a970ff; text-shadow: 1px 1px 0 #000;"></i>
                 <% } else { %>
                   <span style="text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; color: white;">Guest</span>
-                  <div class="admin3d-user-avatar" style="background-color: rgba(0, 0, 0, 0.8); box-shadow: 0 0 8px rgba(137, 54, 255, 0.8); border-radius: 50%; margin-left: 10px;">
+                  <div class="admin3d-user-avatar" style="background-color: rgba(0, 0, 0, 0.8); box-shadow: 0 0 8px rgba(137, 54, 255, 0.8); border-radius: 50%; margin-left: 10px; border: none; transition: all 0.2s ease;" onmouseover="this.style.border='1px solid rgba(137, 54, 255, 0.8)'; this.style.boxShadow='0 0 12px rgba(137, 54, 255, 1)';" onmouseout="this.style.border='none'; this.style.boxShadow='0 0 8px rgba(137, 54, 255, 0.8)';">
                     <i class="fas fa-user" style="color: #a970ff; text-shadow: 1px 1px 0 #000;"></i>
                   </div>
                   <i class="fas fa-caret-down" style="margin-left: 5px; color: #a970ff; text-shadow: 1px 1px 0 #000;"></i>
