@@ -469,4 +469,59 @@ router.get('/stats', (req, res) => {
   });
 });
 
+/**
+ * GET /admin3d/profile
+ * Admin profile and settings
+ */
+router.get('/profile', (req, res) => {
+  const client = req.app.get('client');
+  
+  // Get user roles from Discord if client is available
+  let userRoles = [];
+  let mutualGuilds = [];
+  
+  if (client && req.user) {
+    // Get mutual guilds between the bot and the user
+    mutualGuilds = client.guilds.cache
+      .filter(guild => {
+        // Check if user is in this guild
+        return guild.members.cache.has(req.user.id) || 
+          (req.user.guilds && req.user.guilds.some(g => g.id === guild.id));
+      })
+      .map(guild => ({
+        id: guild.id,
+        name: guild.name,
+        iconURL: guild.iconURL({ dynamic: true }) || null,
+        memberCount: guild.memberCount
+      }));
+      
+    // Get user roles from the first mutual guild
+    if (mutualGuilds.length > 0 && client.guilds.cache.has(mutualGuilds[0].id)) {
+      const guild = client.guilds.cache.get(mutualGuilds[0].id);
+      const member = guild.members.cache.get(req.user.id);
+      
+      if (member) {
+        userRoles = member.roles.cache
+          .sort((a, b) => b.position - a.position)
+          .map(role => ({
+            id: role.id,
+            name: role.name,
+            color: role.hexColor,
+            position: role.position
+          }))
+          .filter(role => role.name !== '@everyone');
+      }
+    }
+  }
+  
+  res.render('admin3d/profile', {
+    title: 'Admin Profile | SWOOSH Bot',
+    user: req.user,
+    client,
+    userRoles,
+    mutualGuilds,
+    layout: 'layouts/admin3d'
+  });
+});
+
 module.exports = router;
