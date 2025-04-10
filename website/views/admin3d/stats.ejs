@@ -346,35 +346,179 @@
 <!-- Custom Stats Dashboard -->
 <script src="/js/admin3d-stats.js"></script>
 
-<!-- Error handling for THREE.js -->
+<!-- Premium Error handling for THREE.js -->
 <script>
+  // Function to create a premium error notification
+  function showPremiumNotification(type, title, message, autoHide = false) {
+    // Remove any existing notifications first
+    const existingNotifications = document.querySelectorAll('.premium-notification');
+    existingNotifications.forEach(el => el.remove());
+    
+    // Create the notification container
+    const notifDiv = document.createElement('div');
+    notifDiv.className = `premium-notification ${type}`;
+    
+    // Set icon based on type
+    let icon = 'info-circle';
+    if (type === 'error') icon = 'exclamation-triangle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'warning') icon = 'exclamation-circle';
+    
+    // Create the notification content
+    notifDiv.innerHTML = `
+      <div class="notification-icon">
+        <i class="fas fa-${icon}"></i>
+      </div>
+      <div class="notification-content">
+        <h4>${title}</h4>
+        <p>${message}</p>
+      </div>
+      <button class="notification-close">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    
+    // Style the notification
+    notifDiv.style.position = 'fixed';
+    notifDiv.style.top = '20px';
+    notifDiv.style.right = '20px';
+    notifDiv.style.zIndex = '9999';
+    notifDiv.style.minWidth = '300px';
+    notifDiv.style.maxWidth = '400px';
+    notifDiv.style.padding = '15px';
+    notifDiv.style.borderRadius = '8px';
+    notifDiv.style.display = 'flex';
+    notifDiv.style.alignItems = 'center';
+    notifDiv.style.gap = '15px';
+    notifDiv.style.backdropFilter = 'blur(10px)';
+    notifDiv.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+    notifDiv.style.border = '1px solid rgba(255,255,255,0.1)';
+    notifDiv.style.transform = 'translateY(-20px)';
+    notifDiv.style.opacity = '0';
+    notifDiv.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+    
+    // Set background based on type
+    if (type === 'error') {
+      notifDiv.style.background = 'rgba(255, 61, 113, 0.15)';
+      notifDiv.style.borderLeft = '4px solid rgba(255, 61, 113, 0.8)';
+    } else if (type === 'success') {
+      notifDiv.style.background = 'rgba(0, 230, 118, 0.15)';
+      notifDiv.style.borderLeft = '4px solid rgba(0, 230, 118, 0.8)';
+    } else if (type === 'warning') {
+      notifDiv.style.background = 'rgba(255, 179, 0, 0.15)';
+      notifDiv.style.borderLeft = '4px solid rgba(255, 179, 0, 0.8)';
+    } else {
+      notifDiv.style.background = 'rgba(77, 159, 255, 0.15)';
+      notifDiv.style.borderLeft = '4px solid rgba(77, 159, 255, 0.8)';
+    }
+    
+    // Style the icon
+    const iconEl = notifDiv.querySelector('.notification-icon i');
+    iconEl.style.fontSize = '24px';
+    if (type === 'error') iconEl.style.color = 'rgba(255, 61, 113, 0.9)';
+    else if (type === 'success') iconEl.style.color = 'rgba(0, 230, 118, 0.9)';
+    else if (type === 'warning') iconEl.style.color = 'rgba(255, 179, 0, 0.9)';
+    else iconEl.style.color = 'rgba(77, 159, 255, 0.9)';
+    
+    // Style the content
+    const contentEl = notifDiv.querySelector('.notification-content');
+    contentEl.style.flex = '1';
+    
+    // Style the title
+    const titleEl = notifDiv.querySelector('.notification-content h4');
+    titleEl.style.margin = '0 0 5px 0';
+    titleEl.style.color = 'white';
+    titleEl.style.fontSize = '16px';
+    
+    // Style the message
+    const msgEl = notifDiv.querySelector('.notification-content p');
+    msgEl.style.margin = '0';
+    msgEl.style.color = 'rgba(255,255,255,0.8)';
+    msgEl.style.fontSize = '14px';
+    
+    // Style the close button
+    const closeBtn = notifDiv.querySelector('.notification-close');
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.color = 'rgba(255,255,255,0.6)';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.padding = '5px';
+    closeBtn.style.fontSize = '14px';
+    closeBtn.style.transition = 'color 0.2s ease';
+    
+    // Add hover effect to close button
+    closeBtn.addEventListener('mouseover', () => {
+      closeBtn.style.color = 'white';
+    });
+    closeBtn.addEventListener('mouseout', () => {
+      closeBtn.style.color = 'rgba(255,255,255,0.6)';
+    });
+    
+    // Add close functionality
+    closeBtn.addEventListener('click', () => {
+      notifDiv.style.transform = 'translateY(-20px)';
+      notifDiv.style.opacity = '0';
+      setTimeout(() => notifDiv.remove(), 300);
+    });
+    
+    // Add to document
+    document.body.appendChild(notifDiv);
+    
+    // Animate in
+    setTimeout(() => {
+      notifDiv.style.transform = 'translateY(0)';
+      notifDiv.style.opacity = '1';
+    }, 10);
+    
+    // Auto hide if needed
+    if (autoHide) {
+      setTimeout(() => {
+        if (document.body.contains(notifDiv)) {
+          notifDiv.style.transform = 'translateY(-20px)';
+          notifDiv.style.opacity = '0';
+          setTimeout(() => {
+            if (document.body.contains(notifDiv)) {
+              notifDiv.remove();
+            }
+          }, 300);
+        }
+      }, 5000);
+    }
+    
+    return notifDiv;
+  }
+
   // Check if THREE is available
   if (typeof THREE === 'undefined') {
-    // Create and display error notification
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-notification';
-    errorDiv.innerHTML = `
-      <p><strong>Error:</strong> THREE.js library failed to load.</p>
-      <p>Switching to 2D mode automatically.</p>
-      <p>You can try refreshing the page if you want to use 3D mode.</p>
-      <button id="close-error" class="btn">Close</button>
-    `;
-    document.body.appendChild(errorDiv);
-    
-    // Add close button functionality
-    document.getElementById('close-error').addEventListener('click', function() {
-      errorDiv.remove();
-    });
+    // Show premium notification
+    showPremiumNotification(
+      'warning',
+      'Visualization Mode Changed',
+      'THREE.js library could not be loaded. Switching to 2D mode automatically.',
+      true
+    );
     
     // Automatically switch to 2D mode
     setTimeout(function() {
       document.body.classList.add('mode-2d');
-      document.getElementById('mode-2d').classList.add('active');
-      document.getElementById('mode-3d').classList.remove('active');
+      if (document.getElementById('mode-2d') && document.getElementById('mode-3d')) {
+        document.getElementById('mode-2d').classList.add('active');
+        document.getElementById('mode-3d').classList.remove('active');
+      }
     }, 500);
     
     // Log the error
     console.error('THREE.js library not loaded. Switching to 2D mode.');
+  } else {
+    // THREE.js is available, show success notification
+    setTimeout(function() {
+      showPremiumNotification(
+        'success',
+        '3D Visualizations Ready',
+        'THREE.js loaded successfully. You can switch between 3D and 2D modes using the buttons above.',
+        true
+      );
+    }, 1000);
   }
 </script>
 
@@ -389,22 +533,13 @@
       // 3D Mode button click
       mode3dBtn.addEventListener('click', function() {
         if (typeof THREE === 'undefined') {
-          // Show error if THREE.js is not available
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'error-notification';
-          errorDiv.innerHTML = `
-            <p><strong>Error:</strong> 3D visualizations are not available.</p>
-            <p>THREE.js library could not be loaded.</p>
-            <p>Please refresh the page or try again later.</p>
-            <button id="close-3d-error" class="btn">Close</button>
-          `;
-          document.body.appendChild(errorDiv);
-          
-          // Add close button functionality
-          document.getElementById('close-3d-error').addEventListener('click', function() {
-            errorDiv.remove();
-          });
-          
+          // Show premium notification if THREE.js is not available
+          showPremiumNotification(
+            'error',
+            '3D Mode Unavailable',
+            'THREE.js library could not be loaded. Please refresh the page or try again later.',
+            true
+          );
           return;
         }
         
@@ -412,6 +547,14 @@
         document.body.classList.remove('mode-2d');
         mode3dBtn.classList.add('active');
         mode2dBtn.classList.remove('active');
+        
+        // Show mode change notification
+        showPremiumNotification(
+          'info',
+          '3D Mode Activated',
+          'Switched to 3D visualization mode with real-time rendering.',
+          true
+        );
       });
       
       // 2D Mode button click
@@ -420,6 +563,14 @@
         document.body.classList.add('mode-2d');
         mode2dBtn.classList.add('active');
         mode3dBtn.classList.remove('active');
+        
+        // Show mode change notification
+        showPremiumNotification(
+          'info',
+          '2D Mode Activated',
+          'Switched to 2D visualization mode for better compatibility.',
+          true
+        );
       });
     }
   });
