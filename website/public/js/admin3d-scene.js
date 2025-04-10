@@ -257,15 +257,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       `,
       fragmentShader: `
-        uniform sampler2D texture;
         varying vec3 vColor;
         
         void main() {
-          // Get the texture color
-          vec4 texColor = texture2D(texture, gl_PointCoord);
+          // Create a circular particle
+          vec2 center = gl_PointCoord - vec2(0.5);
+          float dist = length(center);
+          float strength = 1.0 - smoothstep(0.0, 0.5, dist);
           
-          // Combine with the vertex color
-          gl_FragColor = vec4(vColor, 1.0) * texColor;
+          if (dist > 0.5) discard;
+          
+          gl_FragColor = vec4(vColor, strength);
         }
       `,
       transparent: true,
