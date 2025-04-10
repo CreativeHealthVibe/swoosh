@@ -1,5 +1,5 @@
 /**
- * SWOOSH BOT - Administration Dashboard
+ * SWOOSH BOT - Premium Administration Dashboard
  * Moderation Interface Controller
  * 
  * This script handles the enhanced moderation interface functionality
@@ -7,8 +7,8 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Add the admin3d class to body for enhanced styling
-  document.body.classList.add('admin3d-edition');
+  // Add premium edition class to body for enhanced styling
+  document.body.classList.add('premium-edition');
   
   // DOM Elements
   const serverSelect = document.getElementById('server-select');
@@ -43,16 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load server data
         loadServerData(serverId);
         
-        // Add animation effect for selection
-        applyAdmin3DAnimation();
+        // Add a premium animation effect for selection
+        applyPremiumAnimation();
       } else {
         moderationSection.style.display = 'none';
       }
     });
   }
   
-  // Add hover effects to enhanced cards
-  addEnhancedBadges();
+  // Add hover effects to all premium badges
+  addPremiumBadges();
   
   // Initialize action buttons
   if (actionButtons) {
@@ -173,12 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Add badges to action cards
    */
-  function addEnhancedBadges() {
-    const enhancedCards = document.querySelectorAll('[data-enhanced="true"]');
+  function addPremiumBadges() {
+    const premiumCards = document.querySelectorAll('[data-premium="true"]');
     
-    enhancedCards.forEach(card => {
+    premiumCards.forEach(card => {
       const badgeSpan = document.createElement('span');
-      badgeSpan.className = 'admin3d-item-badge';
+      badgeSpan.className = 'premium-item-badge';
       badgeSpan.textContent = '';
       
       card.appendChild(badgeSpan);
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Apply animation effect to the moderation section
    */
-  function applyAdmin3DAnimation() {
+  function applyPremiumAnimation() {
     // Add reveal class to each card in sequence
     const cards = moderationSection.querySelectorAll('.admin3d-card, .admin3d-action-card');
     
@@ -258,11 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modal) {
       modal.classList.add('modal-visible');
       
-      // Add admin3d animation effect
-      if (modal.classList.contains('admin3d-modal-overlay')) {
-        const modalContent = modal.querySelector('.admin3d-modal');
+      // Add premium animation effect
+      if (modal.classList.contains('ultra-premium-modal-overlay')) {
+        const modalContent = modal.querySelector('.ultra-premium-modal');
         if (modalContent) {
-          modalContent.classList.add('admin3d-animation');
+          modalContent.classList.add('premium-animation');
           
           // Add a particle effect for enhanced visuals
           addModalParticles(modal);
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {HTMLElement} modal - Modal element
    */
   function addModalParticles(modal) {
-    // Only add if we have the particle effect
+    // Only add if we have the premium particles
     if (typeof createParticleEffect === 'undefined') return;
     
     // Remove any existing particle container
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
     particleContainer.style.zIndex = '1';
     
     // Add to modal
-    const modalContent = modal.querySelector('.admin3d-modal');
+    const modalContent = modal.querySelector('.ultra-premium-modal');
     if (modalContent) {
       modalContent.appendChild(particleContainer);
       
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Hide all modal dialogs
    */
   function hideAllModals() {
-    const modals = document.querySelectorAll('.modal-overlay, .admin3d-modal-overlay');
+    const modals = document.querySelectorAll('.modal-overlay, .ultra-premium-modal-overlay');
     
     modals.forEach(modal => {
       modal.classList.remove('modal-visible');

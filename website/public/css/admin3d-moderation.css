@@ -1,27 +1,27 @@
-/* Admin 3D Dashboard - Moderation Page */
+/* Admin 3D Dashboard - Premium Moderation Page */
 
-/* Advanced container styles */
-.admin3d-moderation {
-  --glow: 0 0 20px rgba(114, 137, 218, 0.8);
-  --intense-glow: 0 0 30px rgba(234, 84, 254, 0.8);
-  --primary-purple: #5865f2;
-  --accent-pink: #eb459e;
-  --highlight-gold: #ffd700;
-  --accent-teal: #00ffea;
-  --primary-blue: #00a2ff;
-  --holographic: linear-gradient(135deg, var(--primary-blue), var(--accent-teal), var(--primary-purple), var(--accent-pink), var(--highlight-gold));
-  --gradient: linear-gradient(45deg, var(--primary-purple), var(--accent-pink));
-  --badge-bg: linear-gradient(135deg, #ffd700, #ff9000, #ff6b6b, #c44fff);
-  --info-badge-bg: linear-gradient(135deg, #ffd700, #ffaa00);
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --accent-gradient: linear-gradient(180deg, #b9ffff, #a1ffff, #89f7f7, #6be9e9, #4cd6d6, #36c9c9, #1dbbbb, #00aeae);
+/* Premium container styles */
+.premium-edition {
+  --premium-glow: 0 0 20px rgba(114, 137, 218, 0.8);
+  --ultra-glow: 0 0 30px rgba(234, 84, 254, 0.8);
+  --premium-purple: #5865f2;
+  --premium-pink: #eb459e;
+  --premium-gold: #ffd700;
+  --premium-teal: #00ffea;
+  --premium-blue: #00a2ff;
+  --premium-holographic: linear-gradient(135deg, var(--premium-blue), var(--premium-teal), var(--premium-purple), var(--premium-pink), var(--premium-gold));
+  --premium-gradient: linear-gradient(45deg, var(--premium-purple), var(--premium-pink));
+  --premium-badge-bg: linear-gradient(135deg, #ffd700, #ff9000, #ff6b6b, #c44fff);
+  --price-badge-bg: linear-gradient(135deg, #ffd700, #ffaa00);
+  --luxury-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --diamond-gradient: linear-gradient(180deg, #b9ffff, #a1ffff, #89f7f7, #6be9e9, #4cd6d6, #36c9c9, #1dbbbb, #00aeae);
   
-  /* Add animation to the entire moderation section */
-  animation: admin3d-ambient 15s ease-in-out infinite;
+  /* Add animation to the entire premium edition */
+  animation: premium-ambient 15s ease-in-out infinite;
 }
 
-/* Header styling */
-.admin3d-header {
+/* Premium header styling */
+.premium-header {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -29,8 +29,8 @@
   margin-bottom: 2rem;
 }
 
-.feature-badge {
-  background: var(--badge-bg);
+.premium-badge {
+  background: var(--premium-badge-bg);
   color: white;
   font-size: 0.75rem;
   font-weight: bold;
@@ -94,7 +94,7 @@
   }
 }
 
-@keyframes admin3d-ambient {
+@keyframes premium-ambient {
   0% {
     filter: hue-rotate(0deg);
   }
@@ -118,7 +118,7 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.admin3d-three-container {
+.premium-three-container {
   position: absolute;
   top: 0;
   left: 0;
@@ -161,7 +161,7 @@
 }
 
 .stat-icon {
-  background: var(--gradient);
+  background: var(--premium-gradient);
   border-radius: 50%;
   width: 45px;
   height: 45px;
@@ -195,7 +195,7 @@
 }
 
 /* Enhanced Premium Card Styles */
-.admin3d-moderation .admin3d-card {
+.premium-edition .admin3d-card {
   border: 1px solid rgba(114, 137, 218, 0.3);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -205,7 +205,7 @@
   backdrop-filter: blur(10px);
 }
 
-.admin3d-moderation .admin3d-card::before {
+.premium-edition .admin3d-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -218,15 +218,15 @@
     rgba(255, 215, 0, 0.05) 66%, 
     rgba(88, 101, 242, 0.05) 100%);
   background-size: 400% 400%;
-  animation: admin3d-card-gradient 8s ease infinite;
+  animation: ultra-card-gradient 8s ease infinite;
   z-index: -1;
 }
 
-.admin3d-moderation .admin3d-card::after {
+.premium-edition .admin3d-card::after {
   content: '';
   position: absolute;
   inset: -1px;
-  background: var(--holographic);
+  background: var(--premium-holographic);
   background-size: 300% 300%;
   animation: border-glow 6s linear infinite;
   z-index: -2;
@@ -235,17 +235,17 @@
   border-radius: inherit;
 }
 
-.admin3d-moderation .admin3d-card:hover {
+.premium-edition .admin3d-card:hover {
   transform: translateY(-6px) scale(1.01);
   box-shadow: 0 12px 30px rgba(30, 30, 60, 0.4);
   border-color: transparent;
 }
 
-.admin3d-moderation .admin3d-card:hover::after {
+.premium-edition .admin3d-card:hover::after {
   opacity: 1;
 }
 
-@keyframes admin3d-card-gradient {
+@keyframes ultra-card-gradient {
   0% {
     background-position: 0% 50%;
   }
@@ -267,11 +267,11 @@
 }
 
 /* Premium Title Enhancements */
-.admin3d-moderation .section-title {
+.premium-edition .section-title {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   text-align: center;
-  background: var(--holographic);
+  background: var(--premium-holographic);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -284,24 +284,24 @@
   display: inline-block;
 }
 
-.admin3d-moderation .section-title::before,
-.admin3d-moderation .section-title::after {
+.premium-edition .section-title::before,
+.premium-edition .section-title::after {
   content: '';
   position: absolute;
   width: 40px;
   height: 3px;
-  background: var(--holographic);
+  background: var(--premium-holographic);
   background-size: 200% 200%;
   top: 50%;
   animation: title-gradient 10s ease infinite;
 }
 
-.admin3d-moderation .section-title::before {
+.premium-edition .section-title::before {
   left: -50px;
   transform: translateY(-50%);
 }
 
-.admin3d-moderation .section-title::after {
+.premium-edition .section-title::after {
   right: -50px;
   transform: translateY(-50%);
 }
@@ -318,7 +318,7 @@
   }
 }
 
-.admin3d-moderation .section-subtitle {
+.premium-edition .section-subtitle {
   font-size: 1.5rem;
   color: #ffffff;
   margin: 2.5rem 0 1.5rem;
@@ -329,14 +329,14 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.admin3d-moderation .section-subtitle::after {
+.premium-edition .section-subtitle::after {
   content: '';
   position: absolute;
   bottom: -4px;
   left: 0;
   width: 70px;
   height: 4px;
-  background: var(--holographic);
+  background: var(--premium-holographic);
   background-size: 200% 200%;
   border-radius: 2px;
   animation: title-gradient 8s ease infinite;
@@ -344,19 +344,19 @@
   transition: width 0.3s ease;
 }
 
-.admin3d-moderation .section-subtitle:hover::after {
+.premium-edition .section-subtitle:hover::after {
   width: 100%;
 }
 
 /* Premium action cards */
-.admin3d-moderation .moderation-actions {
+.premium-edition .moderation-actions {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
-.admin3d-moderation .admin3d-action-card {
+.premium-edition .admin3d-action-card {
   background: rgba(24, 26, 34, 0.8);
   border-radius: 0.75rem;
   padding: 1.75rem;
@@ -374,7 +374,7 @@
   perspective: 1000px;
 }
 
-.admin3d-moderation .admin3d-action-card::before {
+.premium-edition .admin3d-action-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -391,13 +391,13 @@
   z-index: -1;
 }
 
-.admin3d-moderation .admin3d-action-card::after {
+.premium-edition .admin3d-action-card::after {
   content: '';
   position: absolute;
   inset: -0.5px;
-  background: var(--holographic);
+  background: var(--premium-holographic);
   background-size: 400% 400%;
-  animation: admin3d-card-gradient 8s ease infinite;
+  animation: ultra-card-gradient 8s ease infinite;
   z-index: -2;
   opacity: 0;
   border-radius: inherit;
@@ -405,21 +405,21 @@
   filter: blur(1px);
 }
 
-.admin3d-moderation .admin3d-action-card:hover {
+.premium-edition .admin3d-action-card:hover {
   transform: translateY(-10px) scale(1.03) rotateX(3deg);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   border-color: transparent;
 }
 
-.admin3d-moderation .admin3d-action-card:hover::before {
+.premium-edition .admin3d-action-card:hover::before {
   opacity: 1;
 }
 
-.admin3d-moderation .admin3d-action-card:hover::after {
+.premium-edition .admin3d-action-card:hover::after {
   opacity: 1;
 }
 
-.admin3d-moderation .action-card-icon {
+.premium-edition .action-card-icon {
   width: 60px;
   height: 60px;
   background: rgba(114, 137, 218, 0.1);
@@ -432,29 +432,29 @@
   border: 1px solid rgba(114, 137, 218, 0.2);
 }
 
-.admin3d-moderation .admin3d-action-card:hover .action-card-icon {
-  background: var(--gradient);
+.premium-edition .admin3d-action-card:hover .action-card-icon {
+  background: var(--premium-gradient);
   transform: scale(1.1);
   box-shadow: 0 0 15px rgba(88, 101, 242, 0.6);
 }
 
-.admin3d-moderation .action-card-icon i {
+.premium-edition .action-card-icon i {
   font-size: 1.5rem;
   color: #7289da;
   transition: all 0.3s ease;
 }
 
-.admin3d-moderation .admin3d-action-card:hover .action-card-icon i {
+.premium-edition .admin3d-action-card:hover .action-card-icon i {
   color: white;
 }
 
-.admin3d-moderation .admin3d-action-card[data-feature="true"] .feature-item-badge {
+.premium-edition .admin3d-action-card[data-premium="true"] .premium-item-badge {
   position: absolute;
   top: 10px;
   right: 10px;
   font-size: 0.6rem;
   font-weight: bold;
-  background: var(--badge-bg);
+  background: var(--premium-badge-bg);
   background-size: 300% 300%;
   color: white;
   padding: 3px 8px;
@@ -468,7 +468,7 @@
 }
 
 /* Add the badge to all premium cards */
-.admin3d-moderation .admin3d-action-card[data-premium="true"]::after {
+.premium-edition .admin3d-action-card[data-premium="true"]::after {
   content: '';
   position: absolute;
   top: 0;
@@ -481,7 +481,7 @@
 }
 
 /* Premium Buttons */
-.admin3d-moderation .admin3d-btn {
+.premium-edition .admin3d-btn {
   padding: 0.85rem 1.75rem;
   border-radius: 0.6rem;
   font-weight: 700;
@@ -496,7 +496,7 @@
   cursor: pointer;
 }
 
-.admin3d-moderation .admin3d-btn::before {
+.premium-edition .admin3d-btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -508,7 +508,7 @@
   transition: opacity 0.3s ease;
 }
 
-.admin3d-moderation .admin3d-btn::after {
+.premium-edition .admin3d-btn::after {
   content: '';
   position: absolute;
   width: 20px;
@@ -525,19 +525,19 @@
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.admin3d-moderation .admin3d-btn:hover::before {
+.premium-edition .admin3d-btn:hover::before {
   opacity: 1;
 }
 
-.admin3d-moderation .admin3d-btn:hover::after {
+.premium-edition .admin3d-btn:hover::after {
   left: 150%;
 }
 
-.admin3d-moderation .admin3d-btn:active {
+.premium-edition .admin3d-btn:active {
   transform: scale(0.97);
 }
 
-.admin3d-moderation .admin3d-btn i {
+.premium-edition .admin3d-btn i {
   margin-right: 8px;
   font-size: 1.1em;
   position: relative;
@@ -545,12 +545,12 @@
   transition: transform 0.3s ease;
 }
 
-.admin3d-moderation .admin3d-btn:hover i {
+.premium-edition .admin3d-btn:hover i {
   transform: translateX(-3px);
 }
 
-.admin3d-moderation .admin3d-btn-primary {
-  background: var(--holographic);
+.premium-edition .admin3d-btn-primary {
+  background: var(--premium-holographic);
   background-size: 200% 200%;
   color: white;
   box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
@@ -570,12 +570,12 @@
   }
 }
 
-.admin3d-moderation .admin3d-btn-primary:hover {
+.premium-edition .admin3d-btn-primary:hover {
   box-shadow: 0 8px 25px rgba(88, 101, 242, 0.6);
   transform: translateY(-3px);
 }
 
-.admin3d-moderation .admin3d-btn-danger {
+.premium-edition .admin3d-btn-danger {
   background: linear-gradient(45deg, #f04747, #ff6b6b, #ff7a7a, #f04747);
   background-size: 300% 300%;
   color: white;
@@ -583,12 +583,12 @@
   animation: btn-gradient 8s ease infinite;
 }
 
-.admin3d-moderation .admin3d-btn-danger:hover {
+.premium-edition .admin3d-btn-danger:hover {
   box-shadow: 0 8px 25px rgba(240, 71, 71, 0.6);
   transform: translateY(-3px);
 }
 
-.admin3d-moderation .admin3d-btn-warning {
+.premium-edition .admin3d-btn-warning {
   background: linear-gradient(45deg, #faa61a, #ffbe76, #ffd783, #faa61a);
   background-size: 300% 300%;
   color: white;
@@ -596,15 +596,15 @@
   animation: btn-gradient 8s ease infinite;
 }
 
-.admin3d-moderation .admin3d-btn-warning:hover {
+.premium-edition .admin3d-btn-warning:hover {
   box-shadow: 0 8px 25px rgba(250, 166, 26, 0.6);
   transform: translateY(-3px);
 }
 
 /* Enhanced Form Inputs */
-.admin3d-moderation .admin3d-form-input,
-.admin3d-moderation .admin3d-form-textarea,
-.admin3d-moderation .admin3d-form-select {
+.premium-edition .admin3d-form-input,
+.premium-edition .admin3d-form-textarea,
+.premium-edition .admin3d-form-select {
   background: rgba(30, 31, 40, 0.7);
   border: 1px solid rgba(114, 137, 218, 0.3);
   border-radius: 0.5rem;
@@ -613,23 +613,23 @@
   transition: all 0.3s ease;
 }
 
-.admin3d-moderation .admin3d-form-input:focus,
-.admin3d-moderation .admin3d-form-textarea:focus,
-.admin3d-moderation .admin3d-form-select:focus {
+.premium-edition .admin3d-form-input:focus,
+.premium-edition .admin3d-form-textarea:focus,
+.premium-edition .admin3d-form-select:focus {
   border-color: #7289da;
   box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.3);
   background: rgba(35, 37, 48, 0.9);
 }
 
 /* Enhanced Ban List */
-.admin3d-moderation .bans-list-container {
+.premium-edition .bans-list-container {
   background: rgba(30, 31, 40, 0.5);
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.admin3d-moderation .bans-list-header {
+.premium-edition .bans-list-header {
   background: rgba(50, 55, 70, 0.8);
   padding: 0.75rem 1rem;
   display: grid;
@@ -638,7 +638,7 @@
   border-bottom: 1px solid rgba(114, 137, 218, 0.3);
 }
 
-.admin3d-moderation .ban-item {
+.premium-edition .ban-item {
   display: grid;
   grid-template-columns: 2fr 3fr 1fr 1fr;
   padding: 0.75rem 1rem;
@@ -646,12 +646,12 @@
   transition: all 0.2s ease;
 }
 
-.admin3d-moderation .ban-item:hover {
+.premium-edition .ban-item:hover {
   background: rgba(50, 53, 68, 0.5);
 }
 
 /* Enhanced Warning System */
-.admin3d-moderation .warnings-list {
+.premium-edition .warnings-list {
   max-height: 300px;
   overflow-y: auto;
   margin: 1rem 0;
@@ -660,7 +660,7 @@
   border-radius: 0.5rem;
 }
 
-.admin3d-moderation .warning-item {
+.premium-edition .warning-item {
   background: rgba(40, 43, 54, 0.6);
   border-radius: 0.5rem;
   padding: 1rem;
@@ -669,25 +669,25 @@
   transition: all 0.2s ease;
 }
 
-.admin3d-moderation .warning-item:hover {
+.premium-edition .warning-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.admin3d-moderation .warning-item.low {
+.premium-edition .warning-item.low {
   border-left-color: #43b581;
 }
 
-.admin3d-moderation .warning-item.medium {
+.premium-edition .warning-item.medium {
   border-left-color: #faa61a;
 }
 
-.admin3d-moderation .warning-item.high {
+.premium-edition .warning-item.high {
   border-left-color: #f04747;
 }
 
 /* Modals */
-.admin3d-moderation .modal-container {
+.premium-edition .modal-container {
   background: rgba(50, 53, 68, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 0.75rem;
@@ -695,41 +695,41 @@
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
 }
 
-.admin3d-moderation .modal-header {
+.premium-edition .modal-header {
   border-bottom: 1px solid rgba(114, 137, 218, 0.2);
   padding: 1.25rem 1.5rem;
 }
 
-.admin3d-moderation .modal-title {
+.premium-edition .modal-title {
   font-size: 1.4rem;
   color: white;
 }
 
-/* Special styling for admin3d moderation */
-body.admin3d-moderation {
+/* Special styling for premium moderation */
+body.premium-moderation {
   --moderation-primary: #5865f2;
   --moderation-accent: #eb459e;
 }
 
-.admin3d-moderation #moderation-three-container {
+.premium-moderation #moderation-three-container {
   position: relative;
   width: 100%;
   height: 300px;
   z-index: 10;
 }
 
-.admin3d-moderation .admin3d-glow-card {
+.premium-moderation .admin3d-glow-card {
   position: relative;
 }
 
-.admin3d-moderation .admin3d-glow-card::before {
+.premium-moderation .admin3d-glow-card::before {
   content: '';
   position: absolute;
   top: -2px;
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: var(--gradient);
+  background: var(--premium-gradient);
   z-index: -1;
   border-radius: calc(0.75rem + 2px);
   opacity: 0.7;
@@ -737,7 +737,7 @@ body.admin3d-moderation {
   transition: all 0.3s ease;
 }
 
-.admin3d-moderation .admin3d-glow-card:hover::before {
+.premium-moderation .admin3d-glow-card:hover::before {
   opacity: 1;
   filter: blur(12px);
 }
