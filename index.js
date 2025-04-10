@@ -1057,6 +1057,7 @@ const apiAuthRoutes = require('./routes/api/auth');
 const apiLeaderboardRoutes = require('./routes/api/leaderboard');
 const leaderboardRoutes = require('./routes/leaderboard');
 const admin3dRoutes = require('./routes/admin3d');
+const apiV2Routes = require('./routes/api/index');
 
 // Admin path now redirects to 3D Admin
 app.get('/admin', (req, res) => {
@@ -1070,6 +1071,7 @@ app.use('/api', apiAuthRoutes); // Auth API routes
 app.use('/api/leaderboard', apiLeaderboardRoutes);
 app.use('/leaderboard', leaderboardRoutes);
 app.use('/admin3d', admin3dRoutes); // Premium 3D Admin Panel
+app.use('/api/v2', apiV2Routes); // New V2 API Routes
 
 // Error handling middleware
 app.use((req, res, next) => {
