@@ -10,6 +10,94 @@ const { isAdmin } = require('../../middlewares/auth');
 router.use(isAdmin);
 
 /**
+ * GET /api/moderation/stats/:serverId
+ * Get moderation statistics for the 3D visualization
+ */
+router.get('/stats/:serverId', async (req, res) => {
+  try {
+    const { serverId } = req.params;
+    const client = req.app.get('client');
+    
+    if (!client) {
+      return res.status(503).json({
+        success: false,
+        message: 'Discord client not available'
+      });
+    }
+    
+    // Fetch the guild
+    const guild = client.guilds.cache.get(serverId);
+    if (!guild) {
+      return res.status(404).json({
+        success: false,
+        message: 'Server not found'
+      });
+    }
+    
+    // Get ban count
+    let banCount = 0;
+    try {
+      const bans = await guild.bans.fetch();
+      banCount = bans.size;
+    } catch (error) {
+      console.error(`Error fetching bans for ${serverId}:`, error);
+      // Continue despite this error - we'll return 0 for the count
+    }
+    
+    // Get warning count from our database
+    let warningCount = 0;
+    try {
+      // Get all warnings that start with this server ID
+      if (client.discordDB) {
+        const warningsCollection = client.discordDB.dataCache['warnings'] || {};
+        
+        // Count warnings by looking for keys that start with the server ID
+        Object.keys(warningsCollection).forEach(key => {
+          if (key.startsWith(`${serverId}-`)) {
+            const userWarnings = warningsCollection[key];
+            if (Array.isArray(userWarnings)) {
+              warningCount += userWarnings.length;
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error(`Error fetching warnings for ${serverId}:`, error);
+    }
+    
+    // Get recent audit logs to estimate kick count (last 30 days)
+    let kickCount = 0;
+    try {
+      const auditLogs = await guild.fetchAuditLogs({ type: 'MEMBER_KICK', limit: 100 });
+      
+      // Only count kicks from the last 30 days
+      const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+      
+      kickCount = auditLogs.entries.filter(entry => {
+        return entry.createdTimestamp > thirtyDaysAgo;
+      }).size;
+    } catch (error) {
+      console.error(`Error fetching audit logs for ${serverId}:`, error);
+    }
+    
+    return res.json({
+      success: true,
+      stats: {
+        bans: banCount,
+        kicks: kickCount,
+        warnings: warningCount
+      }
+    });
+  } catch (error) {
+    console.error('Error in moderation stats endpoint:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+/**
  * GET /api/v2/servers/:serverId/bans
  * Get all bans for a server
  */
