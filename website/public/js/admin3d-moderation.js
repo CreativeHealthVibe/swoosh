@@ -1,5 +1,5 @@
 /**
- * SWOOSH BOT - Ultra Premium Administration Dashboard - £100,000 Edition
+ * SWOOSH BOT - Premium Administration Dashboard
  * Moderation Interface Controller
  * 
  * This script handles the enhanced moderation interface functionality
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     premiumCards.forEach(card => {
       const badgeSpan = document.createElement('span');
       badgeSpan.className = 'premium-item-badge';
-      badgeSpan.textContent = 'ULTRA';
+      badgeSpan.textContent = 'PREMIUM';
       
       card.appendChild(badgeSpan);
     });
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalContent) {
           modalContent.classList.add('premium-animation');
           
-          // Add a particle effect for extra luxury
+          // Add a particle effect for enhanced visuals
           addModalParticles(modal);
         }
       }
@@ -272,11 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   /**
-   * Add luxury particle effects to modals
+   * Add particle effects to modals
    * @param {HTMLElement} modal - Modal element
    */
   function addModalParticles(modal) {
-    // Only add if we have the ultra premium particles
+    // Only add if we have the premium particles
     if (typeof createParticleEffect === 'undefined') return;
     
     // Remove any existing particle container
