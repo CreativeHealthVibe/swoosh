@@ -482,8 +482,12 @@ router.get('/profile', async (req, res) => {
   let userInfo = req.user; // Start with the basic user info from session
   
   try {
+    // Debug what we have in the session
+    console.log('Session user data:', JSON.stringify(req.user, null, 2));
+    
     // Check if we have the user's access token from OAuth
     if (req.user && req.user.accessToken) {
+      console.log('Access token found in session, making Discord API call');
       // Make a call to Discord API to get detailed user info
       const fetch = require('node-fetch');
       
@@ -496,7 +500,7 @@ router.get('/profile', async (req, res) => {
       
       if (userResponse.ok) {
         const userData = await userResponse.json();
-        console.log('Discord user data fetched:', userData.username);
+        console.log('Discord user data fetched successfully:', JSON.stringify(userData, null, 2));
         
         // Enhance user object with more details from the API
         userInfo = {
@@ -533,6 +537,7 @@ router.get('/profile', async (req, res) => {
           
           if (guildsResponse.ok) {
             const userGuilds = await guildsResponse.json();
+            console.log('User guilds fetched:', userGuilds.length);
             // Process user's guilds
             
             // Now get mutual guilds with the bot
@@ -585,7 +590,8 @@ router.get('/profile', async (req, res) => {
           console.error('Error fetching user guilds:', guildsErr);
         }
       } else {
-        console.error('Failed to fetch user data from Discord:', await userResponse.text());
+        const errorText = await userResponse.text();
+        console.error('Discord API error:', userResponse.status, errorText);
       }
     }
   } catch (err) {
