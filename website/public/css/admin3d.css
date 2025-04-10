@@ -17,12 +17,12 @@
   --primary-glow: rgba(137, 54, 255, 0.6);
   
   /* UI Colors */
-  --background: #0a0720;
-  --background-light: #13103a;
-  --background-lighter: #221c54;
+  --background: #000000;
+  --background-light: #090909;
+  --background-lighter: #111111;
   --text: #ffffff;
   --text-muted: #9b9eca;
-  --border: #31295f;
+  --border: #222222;
   
   /* Status Colors */
   --success: #00e676;
@@ -330,9 +330,9 @@ body {
 /* Sidebar Styles */
 .admin3d-sidebar {
   width: var(--sidebar-width);
-  background-color: rgba(10, 7, 32, 0.75);
+  background-color: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(49, 41, 95, 0.5);
+  border-right: 1px solid rgba(34, 34, 34, 0.5);
   height: calc(100vh - var(--header-height) - var(--footer-height));
   position: sticky;
   top: var(--header-height);
@@ -488,16 +488,16 @@ body {
 .admin3d-main {
   flex: 1;
   padding: 2rem;
-  background-color: rgba(10, 7, 32, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   min-height: calc(100vh - var(--header-height) - var(--footer-height));
 }
 
 /* Footer Styles */
 .admin3d-footer {
   height: var(--footer-height);
-  background-color: rgba(10, 7, 32, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(49, 41, 95, 0.5);
+  border-top: 1px solid rgba(34, 34, 34, 0.5);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -677,7 +677,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(10, 7, 32, 0.9);
+  background-color: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(8px);
   z-index: var(--z-overlay);
   display: flex;
