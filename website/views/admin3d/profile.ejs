@@ -19,7 +19,14 @@
       <div class="profile-card-body">
         <div class="profile-avatar-container">
           <div class="profile-avatar-wrapper">
-            <img src="<%= user.avatar %>" alt="<%= user.username %>'s avatar" class="profile-avatar">
+            <% 
+              // Construct the Discord avatar URL
+              let avatarUrl = 'https://cdn.discordapp.com/embed/avatars/0.png'; // Default avatar
+              if (user && user.id && user.avatar) {
+                avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
+              }
+            %>
+            <img src="<%= avatarUrl %>" alt="<%= user.username %>'s avatar" class="profile-avatar">
             <div class="profile-avatar-glow"></div>
           </div>
           <div class="profile-username">
@@ -35,11 +42,16 @@
           <div class="profile-detail-item">
             <div class="detail-label">Account Created</div>
             <div class="detail-value">
-              <%= new Date(parseInt(BigInt(user.id) >> 22n) + 1420070400000).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              }) %>
+              <% 
+                // Calculate Discord account creation date from the ID
+                const creationTimestamp = parseInt(BigInt(user.id) >> 22n) + 1420070400000;
+                const creationDate = new Date(creationTimestamp).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                });
+              %>
+              <%= creationDate %>
             </div>
           </div>
           
@@ -47,6 +59,9 @@
             <div class="detail-label">Access Level</div>
             <div class="detail-value">
               <span class="admin-badge">Administrator</span>
+              <% if (user.is_super_admin) { %>
+                <span class="admin-badge super-admin">Super Admin</span>
+              <% } %>
             </div>
           </div>
           
@@ -537,11 +552,24 @@ document.addEventListener('DOMContentLoaded', function() {
     particleGeometry.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
     particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
     
+    // Create a simple dot texture for particles
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 32, 32);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    
     // Create particle material
     const particleMaterial = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        pixelRatio: { value: window.devicePixelRatio },
+        pixelRatio: { value: window.devicePixelRatio }
       },
       vertexShader: `
         attribute float size;
@@ -820,6 +848,25 @@ document.addEventListener('DOMContentLoaded', function() {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-weight: 500;
+  margin-right: 0.5rem;
+}
+
+.admin-badge.super-admin {
+  background: linear-gradient(45deg, #ff3d71, #ffb300);
+  box-shadow: 0 0 10px rgba(255, 61, 113, 0.5);
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 61, 113, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 61, 113, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 61, 113, 0.5);
+  }
 }
 
 /* Roles Grid Styling */
