@@ -1,6 +1,6 @@
 /**
  * SWOOSH Bot - 3D Admin Statistics
- * Premium Edition - £50,000 Value
+ * Premium Edition
  * 
  * Advanced real-time visualizations for Discord bot metrics
  * with Three.js 3D rendering and WebSocket data streams.
