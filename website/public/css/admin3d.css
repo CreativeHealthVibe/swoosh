@@ -164,6 +164,8 @@ body {
   width: 30px; /* Increased size */
   position: relative;
   top: 0px; /* Center vertically */
+  border: none; /* Remove any border */
+  outline: none; /* Remove outline */
 }
 
 .swoosh-logo-mark img {
@@ -231,6 +233,8 @@ body {
   padding: 0.5rem;
   border-radius: 12px;
   transition: all var(--transition-fast);
+  border: none; /* Ensure no border */
+  outline: none; /* Remove outline */
 }
 
 .admin3d-user:hover {
@@ -1168,12 +1172,16 @@ body {
   .swoosh-logo-mark {
     height: 40px; /* Larger logo for small screens */
     width: 40px; /* Larger logo for small screens */
+    border: none; /* Remove any border */
+    outline: none; /* Remove outline */
   }
   
   .swoosh-logo-mark img {
     height: 40px; /* Larger logo for small screens */
     width: 40px; /* Larger logo for small screens */
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); /* Enhanced glow */
+    border: none; /* Remove any border */
+    outline: none; /* Remove outline */
   }
   
   /* Hide text but keep logo visible */
