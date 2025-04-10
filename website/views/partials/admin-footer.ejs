@@ -1,27 +1,101 @@
-  <!-- Admin Footer -->
-  <footer class="admin-footer">
-    <div class="admin-footer-content">
-      <p>&copy; <%= new Date().getFullYear() %> SWOOSH Bot - All Rights Reserved</p>
-      <p class="version">Version 2.5.0</p>
+    </main>
+  </div>
+  
+  <!-- Footer -->
+  <footer class="admin3d-footer">
+    <div class="admin3d-footer-left">
+      &copy; <%= new Date().getFullYear() %> SWOOSH Bot
+    </div>
+    <div class="admin3d-footer-right">
+      <a href="https://github.com/cjhetzle/discord-utility-bot" target="_blank">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+      <span class="footer-separator">|</span>
+      <a href="/doc" target="_blank">Terms</a>
+      <span class="footer-separator">|</span>
+      <a href="/privacy" target="_blank">Privacy</a>
     </div>
   </footer>
-  
-  <script>
-    // Toggle dropdown menu
-    document.addEventListener('DOMContentLoaded', function() {
-      const userMenu = document.querySelector('.admin-user-menu');
-      if (userMenu) {
-        userMenu.addEventListener('click', function(e) {
-          e.stopPropagation();
-          this.classList.toggle('active');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function() {
-          userMenu.classList.remove('active');
-        });
+</div>
+
+<!-- Notification Area -->
+<div class="notification-area"></div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" style="display: none;">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Processing...</div>
+</div>
+
+<script>
+  // Setup notification system
+  window.adminNotification = function(message, type = 'info') {
+    const notificationArea = document.querySelector('.notification-area');
+    if (!notificationArea) return;
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    // Icon based on type
+    let icon = 'info-circle';
+    switch (type) {
+      case 'success': icon = 'check-circle'; break;
+      case 'error': icon = 'exclamation-circle'; break;
+      case 'warning': icon = 'exclamation-triangle'; break;
+    }
+    
+    // Build notification content
+    notification.innerHTML = `
+      <div class="notification-icon">
+        <i class="fas fa-${icon}"></i>
+      </div>
+      <div class="notification-content">
+        <div class="notification-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+        <div class="notification-message">${message}</div>
+      </div>
+      <button class="notification-close">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    
+    // Add to notification area
+    notificationArea.appendChild(notification);
+    
+    // Add event listener for close button
+    const closeBtn = notification.querySelector('.notification-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        notification.remove();
+      });
+    }
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
       }
+    }, 5000);
+  };
+  
+  // Initialize sidebar toggle
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const bodyEl = document.body;
+    
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function() {
+        bodyEl.classList.toggle('sidebar-collapsed');
+      });
+    }
+    
+    // Initialize close buttons for flash messages
+    document.querySelectorAll('.flash-message .close-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.closest('.flash-message').remove();
+      });
     });
-  </script>
+  });
+</script>
 </body>
 </html>
