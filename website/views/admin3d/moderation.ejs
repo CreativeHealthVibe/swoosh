@@ -6,76 +6,72 @@
 %>
 
 <div class="admin3d-moderation">
-  <!-- Custom header for the admin3d moderation page -->
-  <div class="admin3d-page-header">
-    <div class="admin3d-page-title">
-      <div class="admin3d-page-title-content">
-        <h1>Moderation Command Center</h1>
-        <p>Advanced moderation tools for server management</p>
-      </div>
+  <!-- Main content area that matches the reference image exactly -->
+  <div class="mod-page-header">
+    <div class="mod-page-title">
+      <h1>Moderation Command Center</h1>
+      <p>Advanced moderation tools for server management</p>
     </div>
-    <div class="admin3d-page-controls">
-      <div class="server-controls">
-        <span class="server-label">Server:</span>
-        <div class="server-select-container">
-          <select class="admin3d-form-select" id="serverSelect">
-            <option value="">Select a server</option>
-            <% if (servers && servers.length > 0) { %>
-              <% servers.forEach(server => { %>
-                <option value="<%= server.id %>"><%= server.name %></option>
-              <% }); %>
-            <% } else { %>
-              <option disabled>No servers available</option>
-            <% } %>
-          </select>
-        </div>
+    <div class="mod-server-selector">
+      <span>Server:</span>
+      <div class="server-selector-wrapper">
+        <select id="serverSelect">
+          <option value="">Select a server</option>
+          <% if (servers && servers.length > 0) { %>
+            <% servers.forEach(server => { %>
+              <option value="<%= server.id %>"><%= server.name %></option>
+            <% }); %>
+          <% } else { %>
+            <option disabled>No servers available</option>
+          <% } %>
+        </select>
       </div>
     </div>
   </div>
   
-  <!-- Stats Overview -->
-  <div class="stats-overview">
-    <div class="stats-card">
-      <div class="stats-card-icon">
+  <!-- Stats Cards -->
+  <div class="mod-stats-cards">
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon ban-icon">
         <i class="fas fa-gavel"></i>
       </div>
-      <div class="stats-card-content">
-        <h3 class="stats-card-value" id="totalBans">0</h3>
-        <span class="stats-card-label">Active Bans</span>
+      <div class="mod-stat-content">
+        <h3 id="totalBans">0</h3>
+        <span>Active Bans</span>
       </div>
     </div>
     
-    <div class="stats-card">
-      <div class="stats-card-icon">
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon warning-icon">
         <i class="fas fa-exclamation-triangle"></i>
       </div>
-      <div class="stats-card-content">
-        <h3 class="stats-card-value" id="totalWarnings">0</h3>
-        <span class="stats-card-label">Active Warnings</span>
+      <div class="mod-stat-content">
+        <h3 id="totalWarnings">0</h3>
+        <span>Active Warnings</span>
       </div>
     </div>
     
-    <div class="stats-card">
-      <div class="stats-card-icon">
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon shield-icon">
         <i class="fas fa-shield-alt"></i>
       </div>
-      <div class="stats-card-content">
-        <h3 class="stats-card-value" id="automodActions">0</h3>
-        <span class="stats-card-label">AutoMod Actions</span>
+      <div class="mod-stat-content">
+        <h3 id="automodActions">0</h3>
+        <span>AutoMod Actions</span>
       </div>
     </div>
   </div>
   
   <!-- Tabs Container -->
-  <div class="tabs-container" id="moderation-tabs">
-    <div class="admin3d-tabs">
-      <button class="tab-btn active" data-tab="ban-management">
+  <div class="mod-tabs-container" id="moderation-tabs">
+    <div class="mod-tabs">
+      <button class="mod-tab-btn active" data-tab="ban-management">
         <i class="fas fa-gavel"></i> Ban Management
       </button>
-      <button class="tab-btn" data-tab="warning-system">
+      <button class="mod-tab-btn" data-tab="warning-system">
         <i class="fas fa-exclamation-triangle"></i> Warning System
       </button>
-      <button class="tab-btn" data-tab="auto-moderation">
+      <button class="mod-tab-btn" data-tab="auto-moderation">
         <i class="fas fa-shield-alt"></i> Auto-Moderation
       </button>
     </div>
