@@ -7,26 +7,32 @@
 
 <div class="admin3d-moderation">
   <div class="dashboard-header">
-    <h1 class="section-title">Moderation Command Center</h1>
-  </div>
-  
-  <p class="section-description">
-    Advanced moderation tools for server management
-  </p>
-  
-  <!-- Server Selector -->
-  <div class="admin3d-server-selector">
-    <label>Server:</label>
-    <select class="admin3d-form-select" id="serverSelect">
-      <option value="">Select a server</option>
-      <% if (servers && servers.length > 0) { %>
-        <% servers.forEach(server => { %>
-          <option value="<%= server.id %>"><%= server.name %></option>
-        <% }); %>
-      <% } else { %>
-        <option disabled>No servers available</option>
-      <% } %>
-    </select>
+    <div class="header-title-wrapper">
+      <h1 class="section-title">Moderation Center</h1>
+      <p class="section-description">
+        Advanced moderation tools for server management
+      </p>
+    </div>
+    
+    <!-- Server Selector -->
+    <div class="server-selector-container">
+      <label for="serverSelect">Server:</label>
+      <div class="server-select-wrapper">
+        <select class="admin3d-form-select" id="serverSelect">
+          <option value="">Select a server</option>
+          <% if (servers && servers.length > 0) { %>
+            <% servers.forEach(server => { %>
+              <option value="<%= server.id %>"><%= server.name %></option>
+            <% }); %>
+          <% } else { %>
+            <option disabled>No servers available</option>
+          <% } %>
+        </select>
+        <div class="server-select-arrow">
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </div>
   </div>
   
   <!-- Stats Overview -->
