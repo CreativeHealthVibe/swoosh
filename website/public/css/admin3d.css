@@ -118,8 +118,7 @@ body {
   padding: 0.75rem 1.5rem; /* Add vertical padding */
   background-color: #000000; /* Black background */
   background-image: none; /* Remove gradient */
-  border-bottom: 2px solid rgba(137, 54, 255, 0.6); /* Purple border with less opacity */
-  border-top: 2px solid rgba(137, 54, 255, 0.6); /* Purple border with less opacity */
+  border: none; /* Remove all borders */
   position: relative;
   z-index: var(--z-above);
   width: 100%;
@@ -247,8 +246,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--primary);
-  box-shadow: 0 0 15px var(--primary-glow);
+  border: none; /* Remove border */
+  box-shadow: 0 0 10px rgba(137, 54, 255, 0.4); /* Subtle glow */
 }
 
 .admin3d-user-avatar img {
@@ -273,7 +272,7 @@ body {
   padding: 1.25rem; /* Larger padding */
   width: 220px; /* Slightly wider */
   z-index: var(--z-above);
-  border: 2px solid var(--primary-light); /* Brighter, thicker border */
+  border: none; /* Remove border */
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -1190,8 +1189,8 @@ body {
   .admin3d-user-avatar {
     width: 48px; /* Larger avatar */
     height: 48px; /* Larger avatar */
-    border: 3px solid var(--primary-light); /* Brighter border */
-    box-shadow: 0 0 25px var(--primary-glow); /* Stronger glow */
+    border: none; /* Remove border */
+    box-shadow: 0 0 15px rgba(137, 54, 255, 0.5); /* Subtle glow */
   }
   
   .admin3d-header-right {
