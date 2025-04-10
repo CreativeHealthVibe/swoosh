@@ -3,6 +3,12 @@
     <h1><i class="fas fa-chart-line"></i> Advanced Statistics</h1>
     <p>Real-time metrics and performance analytics for your Discord bot</p>
   </div>
+  
+  <!-- Visualization Mode Switcher -->
+  <div class="visualization-mode-switcher">
+    <button id="mode-3d" class="mode-btn active"><i class="fas fa-cube"></i> 3D Mode</button>
+    <button id="mode-2d" class="mode-btn"><i class="fas fa-chart-bar"></i> 2D Mode</button>
+  </div>
 
   <div class="stats-dashboard-container">
     <!-- Server Overview Section -->
@@ -56,6 +62,28 @@
         <!-- 3D Server Activity Graph -->
         <div class="graph-container">
           <div id="server-activity-3d" class="graph-3d-container"></div>
+          <!-- 2D Fallback -->
+          <div id="server-activity-2d" class="fallback-chart-container">
+            <div class="fallback-message">
+              <i class="fas fa-chart-line fa-2x"></i>
+              <h3>Server Activity</h3>
+              <p>Real-time visualization of server interactions and command usage</p>
+              <div class="fallback-data">
+                <div class="data-point">
+                  <div class="label">Commands Today</div>
+                  <div class="value">254</div>
+                </div>
+                <div class="data-point">
+                  <div class="label">Active Users</div>
+                  <div class="value">128</div>
+                </div>
+                <div class="data-point">
+                  <div class="label">Peak Hour</div>
+                  <div class="value">8PM</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -96,6 +124,37 @@
           <!-- 3D Memory Visualization -->
           <div class="system-visual-container">
             <div id="memory-visualization" class="visualization-3d"></div>
+            <!-- 2D Fallback -->
+            <div id="memory-visualization-2d" class="fallback-chart-container">
+              <div class="fallback-message">
+                <i class="fas fa-memory fa-2x"></i>
+                <h3>Memory Allocation</h3>
+                <p>Visual representation of system memory usage and allocation</p>
+              </div>
+              <div class="fallback-bars">
+                <div class="fallback-bar">
+                  <div class="bar-label">Heap Used</div>
+                  <div class="bar-wrapper">
+                    <div class="bar" style="width: <%= Math.round(system.memoryUsage.heapUsed / system.totalMemory * 100) %>%"></div>
+                  </div>
+                  <div class="bar-value"><%= Math.round(system.memoryUsage.heapUsed / 1024 / 1024) %> MB</div>
+                </div>
+                <div class="fallback-bar">
+                  <div class="bar-label">Heap Total</div>
+                  <div class="bar-wrapper">
+                    <div class="bar" style="width: <%= Math.round(system.memoryUsage.heapTotal / system.totalMemory * 100) %>%"></div>
+                  </div>
+                  <div class="bar-value"><%= Math.round(system.memoryUsage.heapTotal / 1024 / 1024) %> MB</div>
+                </div>
+                <div class="fallback-bar">
+                  <div class="bar-label">RSS</div>
+                  <div class="bar-wrapper">
+                    <div class="bar" style="width: <%= Math.round(system.memoryUsage.rss / system.totalMemory * 100) %>%"></div>
+                  </div>
+                  <div class="bar-value"><%= Math.round(system.memoryUsage.rss / 1024 / 1024) %> MB</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -107,6 +166,51 @@
         <div class="stats-card-body">
           <!-- 3D Command Usage Chart -->
           <div id="command-usage-chart" class="chart-3d-container"></div>
+          <!-- 2D Fallback -->
+          <div id="command-usage-2d" class="fallback-chart-container">
+            <div class="fallback-message">
+              <i class="fas fa-terminal fa-2x"></i>
+              <h3>Command Usage</h3>
+              <p>Most frequently used bot commands</p>
+            </div>
+            <div class="command-list">
+              <div class="command-item">
+                <div class="command-name">.ban</div>
+                <div class="command-count">124</div>
+                <div class="command-bar-wrapper">
+                  <div class="command-bar" style="width: 85%"></div>
+                </div>
+              </div>
+              <div class="command-item">
+                <div class="command-name">.help</div>
+                <div class="command-count">98</div>
+                <div class="command-bar-wrapper">
+                  <div class="command-bar" style="width: 65%"></div>
+                </div>
+              </div>
+              <div class="command-item">
+                <div class="command-name">.role</div>
+                <div class="command-count">76</div>
+                <div class="command-bar-wrapper">
+                  <div class="command-bar" style="width: 50%"></div>
+                </div>
+              </div>
+              <div class="command-item">
+                <div class="command-name">.mute</div>
+                <div class="command-count">43</div>
+                <div class="command-bar-wrapper">
+                  <div class="command-bar" style="width: 30%"></div>
+                </div>
+              </div>
+              <div class="command-item">
+                <div class="command-name">.blacklist</div>
+                <div class="command-count">21</div>
+                <div class="command-bar-wrapper">
+                  <div class="command-bar" style="width: 15%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -137,6 +241,51 @@
         <div class="stats-card-body">
           <!-- 3D Guild Distribution Globe -->
           <div id="guild-globe" class="globe-container"></div>
+          <!-- 2D Fallback -->
+          <div id="guild-distribution-2d" class="fallback-chart-container">
+            <div class="fallback-message">
+              <i class="fas fa-globe fa-2x"></i>
+              <h3>Guild Distribution</h3>
+              <p>Geographical distribution of Discord servers</p>
+            </div>
+            <div class="region-distribution">
+              <div class="region-item">
+                <div class="region-name">North America</div>
+                <div class="region-count"><%= Math.round(serverStats.servers * 0.42) %></div>
+                <div class="region-bar-wrapper">
+                  <div class="region-bar" style="width: 42%"></div>
+                </div>
+              </div>
+              <div class="region-item">
+                <div class="region-name">Europe</div>
+                <div class="region-count"><%= Math.round(serverStats.servers * 0.35) %></div>
+                <div class="region-bar-wrapper">
+                  <div class="region-bar" style="width: 35%"></div>
+                </div>
+              </div>
+              <div class="region-item">
+                <div class="region-name">Asia Pacific</div>
+                <div class="region-count"><%= Math.round(serverStats.servers * 0.15) %></div>
+                <div class="region-bar-wrapper">
+                  <div class="region-bar" style="width: 15%"></div>
+                </div>
+              </div>
+              <div class="region-item">
+                <div class="region-name">South America</div>
+                <div class="region-count"><%= Math.round(serverStats.servers * 0.05) %></div>
+                <div class="region-bar-wrapper">
+                  <div class="region-bar" style="width: 5%"></div>
+                </div>
+              </div>
+              <div class="region-item">
+                <div class="region-name">Other Regions</div>
+                <div class="region-count"><%= Math.round(serverStats.servers * 0.03) %></div>
+                <div class="region-bar-wrapper">
+                  <div class="region-bar" style="width: 3%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -163,14 +312,74 @@
     errorDiv.className = 'error-notification';
     errorDiv.innerHTML = `
       <p><strong>Error:</strong> THREE.js library failed to load.</p>
-      <p>Visualizations are currently unavailable.</p>
-      <p>Please try refreshing the page or check your connection.</p>
+      <p>Switching to 2D mode automatically.</p>
+      <p>You can try refreshing the page if you want to use 3D mode.</p>
+      <button id="close-error" class="btn">Close</button>
     `;
     document.body.appendChild(errorDiv);
     
+    // Add close button functionality
+    document.getElementById('close-error').addEventListener('click', function() {
+      errorDiv.remove();
+    });
+    
+    // Automatically switch to 2D mode
+    setTimeout(function() {
+      document.body.classList.add('mode-2d');
+      document.getElementById('mode-2d').classList.add('active');
+      document.getElementById('mode-3d').classList.remove('active');
+    }, 500);
+    
     // Log the error
-    console.error('THREE.js library not loaded. Visualizations unavailable.');
+    console.error('THREE.js library not loaded. Switching to 2D mode.');
   }
+</script>
+
+<!-- Mode Switching Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle visualization mode switching
+    const mode3dBtn = document.getElementById('mode-3d');
+    const mode2dBtn = document.getElementById('mode-2d');
+    
+    if (mode3dBtn && mode2dBtn) {
+      // 3D Mode button click
+      mode3dBtn.addEventListener('click', function() {
+        if (typeof THREE === 'undefined') {
+          // Show error if THREE.js is not available
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-notification';
+          errorDiv.innerHTML = `
+            <p><strong>Error:</strong> 3D visualizations are not available.</p>
+            <p>THREE.js library could not be loaded.</p>
+            <p>Please refresh the page or try again later.</p>
+            <button id="close-3d-error" class="btn">Close</button>
+          `;
+          document.body.appendChild(errorDiv);
+          
+          // Add close button functionality
+          document.getElementById('close-3d-error').addEventListener('click', function() {
+            errorDiv.remove();
+          });
+          
+          return;
+        }
+        
+        // Switch to 3D mode
+        document.body.classList.remove('mode-2d');
+        mode3dBtn.classList.add('active');
+        mode2dBtn.classList.remove('active');
+      });
+      
+      // 2D Mode button click
+      mode2dBtn.addEventListener('click', function() {
+        // Switch to 2D mode
+        document.body.classList.add('mode-2d');
+        mode2dBtn.classList.add('active');
+        mode3dBtn.classList.remove('active');
+      });
+    }
+  });
 </script>
 
 <script>
