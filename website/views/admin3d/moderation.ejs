@@ -1,580 +1,600 @@
 <%# 
   SWOOSH Bot 3D Admin Dashboard
-  Premium Edition
-  
-  Moderation management page with ban management, warning management, and auto-moderation
+  Premium Edition - Moderation Command Center
 %>
 
-<div class="admin3d-moderation">
-  <div class="dashboard-header">
-    <h1 class="section-title">Moderation Command Center</h1>
-  </div>
-  
-  <p class="section-description">
-    Advanced moderation tools for Discord server administrators. Manage bans, warnings, and auto-moderation settings.
-  </p>
-  
-  <!-- Server Selection -->
-  <div class="server-selection">
-    <div class="admin3d-card">
-      <div class="admin3d-card-header">
-        <div class="admin3d-card-icon">
-          <i class="fas fa-server"></i>
+<div class="mod-container">
+  <!-- 3D Visualization Area -->
+  <div class="mod-3d-container">
+    <div class="mod-3d-stats">
+      <div class="mod-stat-card glow-card">
+        <div class="stat-icon"><i class="fas fa-gavel"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="totalBans">0</div>
+          <div class="stat-label">Active Bans</div>
         </div>
-        <h3 class="admin3d-card-title">Select Server</h3>
+        <div class="stat-chart" id="bansChart"></div>
       </div>
-      <div class="admin3d-card-content">
-        <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="serverSelect">Server</label>
-          <select class="admin3d-form-select" id="serverSelect">
-            <option value="">Select a server</option>
-            <% if (servers && servers.length > 0) { %>
-              <% servers.forEach(server => { %>
-                <option value="<%= server.id %>"><%= server.name %> (<%= server.memberCount %> members)</option>
-              <% }); %>
-            <% } else { %>
-              <option disabled>No servers available</option>
-            <% } %>
-          </select>
+      
+      <div class="mod-stat-card glow-card">
+        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="totalWarnings">0</div>
+          <div class="stat-label">Active Warnings</div>
         </div>
+        <div class="stat-chart" id="warningsChart"></div>
+      </div>
+      
+      <div class="mod-stat-card glow-card">
+        <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="automodActions">0</div>
+          <div class="stat-label">AutoMod Actions</div>
+        </div>
+        <div class="stat-chart" id="automodChart"></div>
       </div>
     </div>
   </div>
   
-  <!-- Tabs Container -->
-  <div class="tabs-container" id="moderation-tabs">
-    <div class="admin3d-tabs">
-      <button class="tab-btn" data-tab="ban-management">
-        <i class="fas fa-gavel"></i> Ban Management
+  <!-- Header with Server Selection -->
+  <div class="mod-header">
+    <div class="mod-title-section">
+      <h1 class="mod-title">Moderation Command Center</h1>
+      <div class="mod-subtitle">Advanced tools for server management and protection</div>
+    </div>
+    
+    <div class="server-selector">
+      <label for="serverSelect">Server:</label>
+      <div class="custom-select">
+        <select id="serverSelect">
+          <option value="">Select a server</option>
+          <% if (servers && servers.length > 0) { %>
+            <% servers.forEach(server => { %>
+              <option value="<%= server.id %>"><%= server.name %> (<%= server.memberCount %>)</option>
+            <% }); %>
+          <% } else { %>
+            <option disabled>No servers available</option>
+          <% } %>
+        </select>
+        <div class="select-arrow"><i class="fas fa-chevron-down"></i></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Control Panel -->
+  <div class="mod-control-panel">
+    <div class="mod-nav-tabs">
+      <button class="mod-tab active" data-tab="ban-management">
+        <i class="fas fa-gavel"></i>
+        <span>Ban Management</span>
       </button>
-      <button class="tab-btn" data-tab="warning-management">
-        <i class="fas fa-exclamation-triangle"></i> Warning Management
+      <button class="mod-tab" data-tab="warning-management">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Warning System</span>
       </button>
-      <button class="tab-btn" data-tab="auto-moderation">
-        <i class="fas fa-shield-alt"></i> Auto-Moderation
+      <button class="mod-tab" data-tab="auto-moderation">
+        <i class="fas fa-shield-alt"></i>
+        <span>Auto-Moderation</span>
       </button>
     </div>
     
-    <!-- Fix for form interaction issues -->
-    <style>
-      /* Fix input interaction issues */
-      .admin3d-form-input,
-      .admin3d-form-textarea,
-      .admin3d-form-select,
-      .admin3d-btn {
-        position: relative;
-        z-index: 100 !important;
-        pointer-events: auto !important;
-      }
-      
-      /* Make sure forms are above the THREE.js canvas */
-      #moderation-tabs .tab-content {
-        position: relative;
-        z-index: 50;
-      }
-      
-      /* Ensure inputs can be interacted with */
-      .admin3d-form-group {
-        position: relative;
-        z-index: 100;
-      }
-      
-      /* Ensure THREE.js doesn't block */
-      #three-container {
-        pointer-events: none !important;
-        z-index: -1 !important;
-      }
-    </style>
-    
-    <!-- Tab Content -->
-    <div class="tab-content-container">
-      <!-- Ban Management Tab -->
-      <div id="ban-management" class="tab-content">
-        <div class="admin3d-card" data-premium="true">
-          <div class="admin3d-card-header">
-            <div>
-              <div class="admin3d-card-icon">
-                <i class="fas fa-gavel"></i>
+    <div class="mod-content">
+      <!-- Ban Management Panel -->
+      <div id="ban-management" class="mod-panel active">
+        <div class="mod-panel-columns">
+          <!-- Ban User Form -->
+          <div class="mod-column">
+            <div class="mod-card">
+              <div class="mod-card-header">
+                <div class="mod-card-icon"><i class="fas fa-user-slash"></i></div>
+                <h3 class="mod-card-title">Ban User</h3>
               </div>
-            </div>
-            <h3 class="admin3d-card-title">Ban Management</h3>
-          </div>
-          <div class="admin3d-card-content">
-            <p class="admin3d-card-description">
-              Ban users from your server with custom durations and reasons. Manage existing bans and review ban history.
-            </p>
-            
-            <!-- Ban User Form -->
-            <form action="/admin3d/moderation/ban-user" method="POST" id="banUserForm" data-ajax="true" data-reset="true">
-              <div class="admin3d-form-group">
-                <label class="admin3d-form-label" for="userId">User ID</label>
-                <input class="admin3d-form-input" type="text" id="userId" name="userId" placeholder="Enter Discord user ID" required>
-              </div>
-              
-              <div class="admin3d-form-group">
-                <label class="admin3d-form-label" for="banReason">Reason</label>
-                <textarea class="admin3d-form-textarea" id="banReason" name="banReason" placeholder="Enter ban reason" required rows="3"></textarea>
-              </div>
-              
-              <div class="admin3d-form-row">
-                <div class="admin3d-form-group">
-                  <label class="admin3d-form-label" for="banDuration">Duration</label>
-                  <select class="admin3d-form-select" id="banDuration" name="banDuration">
-                    <option value="permanent">Permanent</option>
-                    <option value="1d">1 Day</option>
-                    <option value="3d">3 Days</option>
-                    <option value="7d">1 Week</option>
-                    <option value="14d">2 Weeks</option>
-                    <option value="30d">1 Month</option>
-                    <option value="custom">Custom...</option>
-                  </select>
-                </div>
-                
-                <div class="admin3d-form-group" id="customDurationGroup" style="display: none;">
-                  <label class="admin3d-form-label" for="customDuration">Custom Duration</label>
-                  <input class="admin3d-form-input" type="text" id="customDuration" name="customDuration" placeholder="e.g. 5d, 2w, 3m">
-                </div>
-              </div>
-              
-              <div class="admin3d-form-row">
-                <div class="admin3d-form-group">
-                  <label class="admin3d-form-label">Options</label>
-                  <div class="admin3d-form-checkbox-group">
-                    <div class="admin3d-form-checkbox">
+              <div class="mod-card-content">
+                <form id="banUserForm" action="/admin3d/moderation/ban-user" method="POST" data-ajax="true" data-reset="true">
+                  <input type="hidden" name="serverId" id="banServerId">
+                  
+                  <div class="form-group">
+                    <label for="userId">User ID or @Mention</label>
+                    <div class="input-with-icon">
+                      <i class="fas fa-user"></i>
+                      <input type="text" id="userId" name="userId" placeholder="Enter user ID or @mention" required>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="banReason">Reason</label>
+                    <div class="input-with-icon">
+                      <i class="fas fa-comment-dots"></i>
+                      <textarea id="banReason" name="banReason" placeholder="Explain the reason for this ban..." required></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="banDuration">Duration</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-clock"></i>
+                        <select id="banDuration" name="banDuration">
+                          <option value="permanent">Permanent</option>
+                          <option value="1d">1 Day</option>
+                          <option value="3d">3 Days</option>
+                          <option value="7d">1 Week</option>
+                          <option value="14d">2 Weeks</option>
+                          <option value="30d">1 Month</option>
+                          <option value="custom">Custom...</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group" id="customDurationGroup" style="display: none;">
+                      <label for="customDuration">Custom Duration</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                        <input type="text" id="customDuration" name="customDuration" placeholder="e.g. 5d, 2w, 3m">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-options">
+                    <div class="form-check">
                       <input type="checkbox" id="deleteMessages" name="deleteMessages" value="true">
-                      <label for="deleteMessages">Delete Messages</label>
+                      <label for="deleteMessages">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Delete Messages</span>
+                        <small>Remove user's recent messages</small>
+                      </label>
                     </div>
-                    <div class="admin3d-form-checkbox">
+                    
+                    <div class="form-check">
                       <input type="checkbox" id="addToBlacklist" name="addToBlacklist" value="true">
-                      <label for="addToBlacklist">Add to Global Blacklist</label>
+                      <label for="addToBlacklist">
+                        <i class="fas fa-ban"></i>
+                        <span>Add to Global Blacklist</span>
+                        <small>Ban from all servers with bot</small>
+                      </label>
                     </div>
                   </div>
-                </div>
-              </div>
-              
-              <div class="admin3d-form-actions">
-                <button type="submit" class="admin3d-btn admin3d-btn-danger" id="banUserBtn">
-                  <i class="fas fa-gavel"></i> Ban User
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-        
-        <!-- Ban List -->
-        <div class="admin3d-card" style="margin-top: 2rem;">
-          <div class="admin3d-card-header">
-            <h3 class="admin3d-card-title">Current Bans</h3>
-          </div>
-          <div class="admin3d-card-content">
-            <div class="ban-list-filters">
-              <div class="admin3d-form-row">
-                <div class="admin3d-form-group">
-                  <input type="text" class="admin3d-form-input" id="banSearchInput" placeholder="Search by username or reason...">
-                </div>
-                <div class="admin3d-form-group">
-                  <select class="admin3d-form-select" id="banFilterSelect">
-                    <option value="all">All Bans</option>
-                    <option value="permanent">Permanent</option>
-                    <option value="temporary">Temporary</option>
-                    <option value="recent">Recent (Last 7 Days)</option>
-                  </select>
-                </div>
+                  
+                  <button type="submit" class="mod-button danger">
+                    <i class="fas fa-gavel"></i>
+                    <span>Execute Ban</span>
+                  </button>
+                </form>
               </div>
             </div>
-            
-            <div class="ban-list-container">
-              <table class="admin3d-table">
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Reason</th>
-                    <th>Date</th>
-                    <th>Duration</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="banListBody">
-                  <!-- Ban entries will be loaded dynamically -->
-                  <tr class="empty-state">
-                    <td colspan="5">
-                      <div class="empty-state-message">
-                        <i class="fas fa-info-circle"></i>
-                        <p>Select a server to view ban list</p>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              
-              <div class="admin3d-pagination" id="banListPagination">
-                <!-- Pagination will be added dynamically -->
+          </div>
+          
+          <!-- Ban List -->
+          <div class="mod-column">
+            <div class="mod-card">
+              <div class="mod-card-header">
+                <div class="mod-card-icon"><i class="fas fa-list"></i></div>
+                <h3 class="mod-card-title">Current Bans</h3>
+                <div class="mod-card-actions">
+                  <button class="icon-button refresh-btn" id="refreshBans" title="Refresh Ban List">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mod-card-content">
+                <div class="list-filters">
+                  <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="banSearchInput" placeholder="Search bans...">
+                  </div>
+                  <div class="filter-select">
+                    <select id="banFilterSelect">
+                      <option value="all">All Bans</option>
+                      <option value="permanent">Permanent</option>
+                      <option value="temporary">Temporary</option>
+                      <option value="recent">Recent (7 Days)</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="data-list" id="banList">
+                  <div class="empty-state">
+                    <i class="fas fa-ban"></i>
+                    <p>Select a server to view ban list</p>
+                  </div>
+                </div>
+                
+                <div class="pagination" id="banPagination">
+                  <!-- Pagination will be added dynamically -->
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Warning Management Tab -->
-      <div id="warning-management" class="tab-content">
-        <div class="admin3d-card">
-          <div class="admin3d-card-header">
-            <div>
-              <div class="admin3d-card-icon">
-                <i class="fas fa-exclamation-triangle"></i>
+      <!-- Warning Management Panel -->
+      <div id="warning-management" class="mod-panel">
+        <div class="mod-panel-columns">
+          <!-- Issue Warning Form -->
+          <div class="mod-column">
+            <div class="mod-card">
+              <div class="mod-card-header">
+                <div class="mod-card-icon"><i class="fas fa-exclamation-circle"></i></div>
+                <h3 class="mod-card-title">Issue Warning</h3>
+              </div>
+              <div class="mod-card-content">
+                <form id="warnUserForm" action="/admin3d/moderation/warn-user" method="POST" data-ajax="true" data-reset="true">
+                  <input type="hidden" name="serverId" id="warnServerId">
+                  
+                  <div class="form-group">
+                    <label for="warnUserId">User ID or @Mention</label>
+                    <div class="input-with-icon">
+                      <i class="fas fa-user"></i>
+                      <input type="text" id="warnUserId" name="warnUserId" placeholder="Enter user ID or @mention" required>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="warnReason">Reason</label>
+                    <div class="input-with-icon">
+                      <i class="fas fa-comment-dots"></i>
+                      <textarea id="warnReason" name="warnReason" placeholder="Explain the warning reason..." required></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="warningSeverity">Severity</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <select id="warningSeverity" name="warningSeverity">
+                          <option value="low">Low</option>
+                          <option value="medium" selected>Medium</option>
+                          <option value="high">High</option>
+                          <option value="critical">Critical</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="warningDuration">Expiration</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                        <select id="warningDuration" name="warningDuration">
+                          <option value="permanent">Never (Permanent)</option>
+                          <option value="7d">7 Days</option>
+                          <option value="30d" selected>30 Days</option>
+                          <option value="90d">90 Days</option>
+                          <option value="180d">6 Months</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-options">
+                    <div class="form-check">
+                      <input type="checkbox" id="notifyUser" name="notifyUser" value="true" checked>
+                      <label for="notifyUser">
+                        <i class="fas fa-envelope"></i>
+                        <span>Notify User via DM</span>
+                        <small>Send a direct message to the user</small>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <button type="submit" class="mod-button warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Issue Warning</span>
+                  </button>
+                </form>
               </div>
             </div>
-            <h3 class="admin3d-card-title">Warning Management</h3>
           </div>
-          <div class="admin3d-card-content">
-            <p class="admin3d-card-description">
-              Issue warnings to users. Configure automatic actions for repeated warnings, such as temporary mutes or kicks.
-            </p>
-            
-            <!-- Issue Warning Form -->
-            <form action="/admin3d/moderation/warn-user" method="POST" id="warnUserForm" data-ajax="true" data-reset="true">
-              <div class="admin3d-form-group">
-                <label class="admin3d-form-label" for="warnUserId">User ID</label>
-                <input class="admin3d-form-input" type="text" id="warnUserId" name="warnUserId" placeholder="Enter Discord user ID" required>
+          
+          <!-- Warning List -->
+          <div class="mod-column">
+            <div class="mod-card">
+              <div class="mod-card-header">
+                <div class="mod-card-icon"><i class="fas fa-history"></i></div>
+                <h3 class="mod-card-title">Warning History</h3>
+                <div class="mod-card-actions">
+                  <button class="icon-button refresh-btn" id="refreshWarnings" title="Refresh Warning History">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                </div>
               </div>
-              
-              <div class="admin3d-form-group">
-                <label class="admin3d-form-label" for="warnReason">Reason</label>
-                <textarea class="admin3d-form-textarea" id="warnReason" name="warnReason" placeholder="Enter warning reason" required rows="3"></textarea>
-              </div>
-              
-              <div class="admin3d-form-row">
-                <div class="admin3d-form-group">
-                  <label class="admin3d-form-label" for="warningSeverity">Severity</label>
-                  <select class="admin3d-form-select" id="warningSeverity" name="warningSeverity">
-                    <option value="low">Low</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="high">High</option>
-                    <option value="critical">Critical</option>
-                  </select>
+              <div class="mod-card-content">
+                <div class="list-filters">
+                  <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="warningSearchInput" placeholder="Search warnings...">
+                  </div>
+                  <div class="filter-select">
+                    <select id="warningFilterSelect">
+                      <option value="all">All Warnings</option>
+                      <option value="active">Active</option>
+                      <option value="expired">Expired</option>
+                      <option value="high">High Severity</option>
+                    </select>
+                  </div>
                 </div>
                 
-                <div class="admin3d-form-group">
-                  <label class="admin3d-form-label" for="warningDuration">Expiration</label>
-                  <select class="admin3d-form-select" id="warningDuration" name="warningDuration">
-                    <option value="permanent">Never (Permanent)</option>
-                    <option value="7d">7 Days</option>
-                    <option value="30d" selected>30 Days</option>
-                    <option value="90d">90 Days</option>
-                    <option value="180d">6 Months</option>
-                  </select>
+                <div class="data-list" id="warningList">
+                  <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Select a server to view warnings</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div class="admin3d-form-group">
-                <div class="admin3d-form-checkbox">
-                  <input type="checkbox" id="notifyUser" name="notifyUser" value="true" checked>
-                  <label for="notifyUser">Notify User via DM</label>
+                
+                <div class="pagination" id="warningPagination">
+                  <!-- Pagination will be added dynamically -->
                 </div>
-              </div>
-              
-              <div class="admin3d-form-actions">
-                <button type="submit" class="admin3d-btn admin3d-btn-warning" id="warnUserBtn">
-                  <i class="fas fa-exclamation-triangle"></i> Issue Warning
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-        
-        <!-- Warning List -->
-        <div class="admin3d-card" style="margin-top: 2rem;">
-          <div class="admin3d-card-header">
-            <h3 class="admin3d-card-title">Warning History</h3>
-          </div>
-          <div class="admin3d-card-content">
-            <div class="warning-list-filters">
-              <div class="admin3d-form-row">
-                <div class="admin3d-form-group">
-                  <input type="text" class="admin3d-form-input" id="warningSearchInput" placeholder="Search by username or reason...">
-                </div>
-                <div class="admin3d-form-group">
-                  <select class="admin3d-form-select" id="warningFilterSelect">
-                    <option value="all">All Warnings</option>
-                    <option value="active">Active</option>
-                    <option value="expired">Expired</option>
-                    <option value="high">High Severity</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            
-            <div class="warning-list-container">
-              <table class="admin3d-table">
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Reason</th>
-                    <th>Severity</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="warningListBody">
-                  <!-- Warning entries will be loaded dynamically -->
-                  <tr class="empty-state">
-                    <td colspan="6">
-                      <div class="empty-state-message">
-                        <i class="fas fa-info-circle"></i>
-                        <p>Select a server to view warning history</p>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              
-              <div class="admin3d-pagination" id="warningListPagination">
-                <!-- Pagination will be added dynamically -->
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Auto-Moderation Tab -->
-      <div id="auto-moderation" class="tab-content">
-        <div class="admin3d-card">
-          <div class="admin3d-card-header">
-            <div>
-              <div class="admin3d-card-icon">
-                <i class="fas fa-shield-alt"></i>
+      <!-- Auto-Moderation Panel -->
+      <div id="auto-moderation" class="mod-panel">
+        <div class="mod-panel-columns">
+          <!-- Auto-Mod Settings -->
+          <div class="mod-column">
+            <div class="mod-card">
+              <div class="mod-card-header">
+                <div class="mod-card-icon"><i class="fas fa-cogs"></i></div>
+                <h3 class="mod-card-title">Auto-Moderation Configuration</h3>
+              </div>
+              <div class="mod-card-content">
+                <form id="automodSettingsForm" action="/admin3d/moderation/automod-settings" method="POST" data-ajax="true">
+                  <input type="hidden" id="automodServerId" name="serverId" value="">
+                  
+                  <!-- Content Filtering -->
+                  <div class="setting-group">
+                    <div class="setting-header">
+                      <i class="fas fa-filter"></i>
+                      <h4>Content Filtering</h4>
+                    </div>
+                    
+                    <div class="toggle-group">
+                      <div class="toggle-setting">
+                        <label class="switch" for="profanityFilter">
+                          <input type="checkbox" id="profanityFilter" name="profanityFilter" value="true">
+                          <span class="slider round"></span>
+                        </label>
+                        <div class="toggle-info">
+                          <span>Profanity Filter</span>
+                          <small>Filter messages containing profanity</small>
+                        </div>
+                      </div>
+                      
+                      <div class="toggle-setting">
+                        <label class="switch" for="linkFilter">
+                          <input type="checkbox" id="linkFilter" name="linkFilter" value="true">
+                          <span class="slider round"></span>
+                        </label>
+                        <div class="toggle-info">
+                          <span>Link Filter</span>
+                          <small>Filter or verify posted links</small>
+                        </div>
+                      </div>
+                      
+                      <div class="toggle-setting">
+                        <label class="switch" for="inviteBlocker">
+                          <input type="checkbox" id="inviteBlocker" name="inviteBlocker" value="true">
+                          <span class="slider round"></span>
+                        </label>
+                        <div class="toggle-info">
+                          <span>Discord Invite Blocker</span>
+                          <small>Block Discord invite links</small>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="profanityFilterLevel">Profanity Filter Strictness</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-level-up-alt"></i>
+                        <select id="profanityFilterLevel" name="profanityFilterLevel">
+                          <option value="low">Low - Only extreme profanity</option>
+                          <option value="medium" selected>Medium - Balanced filtering</option>
+                          <option value="high">High - Strict filtering</option>
+                          <option value="custom">Custom - Word list</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group" id="customWordListGroup" style="display: none;">
+                      <label for="customWordList">Custom Word List</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-list"></i>
+                        <textarea id="customWordList" name="customWordList" placeholder="Enter words to filter, one per line"></textarea>
+                      </div>
+                      <small class="form-hint">Words will be added to the default list</small>
+                    </div>
+                  </div>
+                  
+                  <!-- Anti-Spam Settings -->
+                  <div class="setting-group">
+                    <div class="setting-header">
+                      <i class="fas fa-shield-alt"></i>
+                      <h4>Anti-Spam Protection</h4>
+                    </div>
+                    
+                    <div class="toggle-group">
+                      <div class="toggle-setting">
+                        <label class="switch" for="antiSpam">
+                          <input type="checkbox" id="antiSpam" name="antiSpam" value="true">
+                          <span class="slider round"></span>
+                        </label>
+                        <div class="toggle-info">
+                          <span>Anti-Spam System</span>
+                          <small>Detect and prevent message spam</small>
+                        </div>
+                      </div>
+                      
+                      <div class="toggle-setting">
+                        <label class="switch" for="antiMention">
+                          <input type="checkbox" id="antiMention" name="antiMention" value="true">
+                          <span class="slider round"></span>
+                        </label>
+                        <div class="toggle-info">
+                          <span>Anti-Mention Spam</span>
+                          <small>Prevent mass mentioning</small>
+                        </div>
+                      </div>
+                      
+                      <div class="toggle-setting">
+                        <label class="switch" for="antiRaid">
+                          <input type="checkbox" id="antiRaid" name="antiRaid" value="true">
+                          <span class="slider round"></span>
+                        </label>
+                        <div class="toggle-info">
+                          <span>Anti-Raid Protection</span>
+                          <small>Detect and prevent server raids</small>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="messageThreshold">Message Threshold</label>
+                        <div class="input-with-suffix">
+                          <input type="number" id="messageThreshold" name="messageThreshold" value="5" min="1" max="20">
+                          <span class="suffix">messages</span>
+                        </div>
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="timeThreshold">Time Window</label>
+                        <div class="input-with-suffix">
+                          <input type="number" id="timeThreshold" name="timeThreshold" value="5" min="1" max="60">
+                          <span class="suffix">seconds</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Action Settings -->
+                  <div class="setting-group">
+                    <div class="setting-header">
+                      <i class="fas fa-bolt"></i>
+                      <h4>Automated Actions</h4>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="violationAction">Content Violation Action</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-hand-point-right"></i>
+                        <select id="violationAction" name="violationAction">
+                          <option value="delete">Delete Message Only</option>
+                          <option value="warn" selected>Delete + Warn User</option>
+                          <option value="mute">Delete + Temporary Mute</option>
+                          <option value="kick">Delete + Kick User</option>
+                          <option value="ban">Delete + Ban User</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="spamAction">Spam Detection Action</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-hand-point-right"></i>
+                        <select id="spamAction" name="spamAction">
+                          <option value="delete">Delete Messages Only</option>
+                          <option value="warn">Delete + Warn User</option>
+                          <option value="mute" selected>Delete + Temporary Mute</option>
+                          <option value="kick">Delete + Kick User</option>
+                          <option value="ban">Delete + Ban User</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="muteDuration">Mute Duration</label>
+                      <div class="input-with-icon">
+                        <i class="fas fa-clock"></i>
+                        <select id="muteDuration" name="muteDuration">
+                          <option value="5m">5 Minutes</option>
+                          <option value="10m">10 Minutes</option>
+                          <option value="30m" selected>30 Minutes</option>
+                          <option value="1h">1 Hour</option>
+                          <option value="6h">6 Hours</option>
+                          <option value="12h">12 Hours</option>
+                          <option value="1d">1 Day</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="toggle-group">
+                      <div class="toggle-setting">
+                        <label class="switch" for="logActions">
+                          <input type="checkbox" id="logActions" name="logActions" value="true" checked>
+                          <span class="slider round"></span>
+                        </label>
+                        <div class="toggle-info">
+                          <span>Log All Actions</span>
+                          <small>Send logs to mod-log channel</small>
+                        </div>
+                      </div>
+                      
+                      <div class="toggle-setting">
+                        <label class="switch" for="notifyUsers">
+                          <input type="checkbox" id="notifyUsers" name="notifyUsers" value="true" checked>
+                          <span class="slider round"></span>
+                        </label>
+                        <div class="toggle-info">
+                          <span>Notify Users</span>
+                          <small>Send DM when action is taken</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-actions">
+                    <button type="submit" class="mod-button primary">
+                      <i class="fas fa-save"></i> Save Settings
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
-            <h3 class="admin3d-card-title">Auto-Moderation Settings</h3>
           </div>
-          <div class="admin3d-card-content">
-            <p class="admin3d-card-description">
-              Configure automatic moderation rules to protect your server from spam, inappropriate content, and more.
-            </p>
-            
-            <form action="/admin3d/moderation/automod-settings" method="POST" id="automodSettingsForm" data-ajax="true">
-              <input type="hidden" id="serverId" name="serverId" value="">
-              
-              <!-- Content Filter Section -->
-              <div class="settings-section">
-                <h4 class="settings-section-title">Content Filtering</h4>
-                
-                <div class="admin3d-form-toggle-group">
-                  <div class="admin3d-form-toggle">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="profanityFilter" name="profanityFilter" value="true">
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                      <span>Profanity Filter</span>
-                      <span class="toggle-description">Filter messages containing profanity or slurs</span>
-                    </div>
-                  </div>
-                  
-                  <div class="admin3d-form-toggle">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="linkFilter" name="linkFilter" value="true">
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                      <span>Link Filter</span>
-                      <span class="toggle-description">Filter or verify links posted in channels</span>
-                    </div>
-                  </div>
-                  
-                  <div class="admin3d-form-toggle">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="inviteBlocker" name="inviteBlocker" value="true">
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                      <span>Discord Invite Blocker</span>
-                      <span class="toggle-description">Prevent users from posting Discord invite links</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="admin3d-form-group" id="profanityLevelGroup">
-                  <label class="admin3d-form-label" for="profanityFilterLevel">Profanity Filter Strictness</label>
-                  <select class="admin3d-form-select" id="profanityFilterLevel" name="profanityFilterLevel">
-                    <option value="low">Low - Filter only extreme profanity</option>
-                    <option value="medium" selected>Medium - Balance between filtering and freedom</option>
-                    <option value="high">High - Strict filtering of all profanity</option>
-                    <option value="custom">Custom - Use custom word list</option>
-                  </select>
-                </div>
-                
-                <div class="admin3d-form-group" id="customWordListGroup" style="display: none;">
-                  <label class="admin3d-form-label" for="customWordList">Custom Word List</label>
-                  <textarea class="admin3d-form-textarea" id="customWordList" name="customWordList" placeholder="Enter words to filter, one per line" rows="4"></textarea>
-                  <span class="admin3d-form-hint">These words will be filtered in addition to the default list</span>
+          
+          <!-- Auto-Mod Logs -->
+          <div class="mod-column">
+            <div class="mod-card">
+              <div class="mod-card-header">
+                <div class="mod-card-icon"><i class="fas fa-clipboard-list"></i></div>
+                <h3 class="mod-card-title">Recent Auto-Mod Actions</h3>
+                <div class="mod-card-actions">
+                  <button class="icon-button refresh-btn" id="refreshAutomod" title="Refresh Auto-Mod Logs">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
                 </div>
               </div>
-              
-              <!-- Anti-Spam Section -->
-              <div class="settings-section">
-                <h4 class="settings-section-title">Anti-Spam Protection</h4>
-                
-                <div class="admin3d-form-toggle-group">
-                  <div class="admin3d-form-toggle">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="antiSpam" name="antiSpam" value="true">
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                      <span>Anti-Spam System</span>
-                      <span class="toggle-description">Detect and prevent message spam</span>
-                    </div>
+              <div class="mod-card-content">
+                <div class="list-filters">
+                  <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="automodSearchInput" placeholder="Search logs...">
                   </div>
-                  
-                  <div class="admin3d-form-toggle">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="antiMention" name="antiMention" value="true">
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                      <span>Anti-Mention Spam</span>
-                      <span class="toggle-description">Prevent mass mentioning of users/roles</span>
-                    </div>
-                  </div>
-                  
-                  <div class="admin3d-form-toggle">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="antiRaid" name="antiRaid" value="true">
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                      <span>Anti-Raid Protection</span>
-                      <span class="toggle-description">Detect and prevent server raids</span>
-                    </div>
+                  <div class="filter-select">
+                    <select id="automodFilterSelect">
+                      <option value="all">All Actions</option>
+                      <option value="message">Message Filter</option>
+                      <option value="spam">Anti-Spam</option>
+                      <option value="raid">Anti-Raid</option>
+                    </select>
                   </div>
                 </div>
                 
-                <div class="admin3d-form-row">
-                  <div class="admin3d-form-group">
-                    <label class="admin3d-form-label" for="messageThreshold">Message Spam Threshold</label>
-                    <div class="admin3d-form-input-with-suffix">
-                      <input type="number" class="admin3d-form-input" id="messageThreshold" name="messageThreshold" value="5" min="1" max="20">
-                      <span class="input-suffix">messages</span>
-                    </div>
-                  </div>
-                  
-                  <div class="admin3d-form-group">
-                    <label class="admin3d-form-label" for="timeThreshold">Time Window</label>
-                    <div class="admin3d-form-input-with-suffix">
-                      <input type="number" class="admin3d-form-input" id="timeThreshold" name="timeThreshold" value="5" min="1" max="60">
-                      <span class="input-suffix">seconds</span>
-                    </div>
+                <div class="data-list" id="automodList">
+                  <div class="empty-state">
+                    <i class="fas fa-shield-alt"></i>
+                    <p>Select a server to view auto-mod logs</p>
                   </div>
                 </div>
-              </div>
-              
-              <!-- Automated Actions Section -->
-              <div class="settings-section">
-                <h4 class="settings-section-title">Automated Actions</h4>
                 
-                <div class="admin3d-form-group">
-                  <label class="admin3d-form-label" for="violationAction">Action on Content Violation</label>
-                  <select class="admin3d-form-select" id="violationAction" name="violationAction">
-                    <option value="delete">Delete Message Only</option>
-                    <option value="warn" selected>Delete + Warn User</option>
-                    <option value="mute">Delete + Temporary Mute</option>
-                    <option value="kick">Delete + Kick User</option>
-                    <option value="ban">Delete + Ban User</option>
-                  </select>
+                <div class="pagination" id="automodPagination">
+                  <!-- Pagination will be added dynamically -->
                 </div>
-                
-                <div class="admin3d-form-group">
-                  <label class="admin3d-form-label" for="spamAction">Action on Spam Detection</label>
-                  <select class="admin3d-form-select" id="spamAction" name="spamAction">
-                    <option value="delete">Delete Messages Only</option>
-                    <option value="warn">Delete + Warn User</option>
-                    <option value="mute" selected>Delete + Temporary Mute</option>
-                    <option value="kick">Delete + Kick User</option>
-                    <option value="ban">Delete + Ban User</option>
-                  </select>
-                </div>
-                
-                <div class="admin3d-form-group">
-                  <label class="admin3d-form-label" for="muteDuration">Temporary Mute Duration</label>
-                  <select class="admin3d-form-select" id="muteDuration" name="muteDuration">
-                    <option value="5m">5 Minutes</option>
-                    <option value="10m">10 Minutes</option>
-                    <option value="30m" selected>30 Minutes</option>
-                    <option value="1h">1 Hour</option>
-                    <option value="6h">6 Hours</option>
-                    <option value="12h">12 Hours</option>
-                    <option value="1d">1 Day</option>
-                  </select>
-                </div>
-                
-                <div class="admin3d-form-toggle-group">
-                  <div class="admin3d-form-toggle">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="logActions" name="logActions" value="true" checked>
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                      <span>Log All Moderation Actions</span>
-                      <span class="toggle-description">Send detailed logs to your server's mod-log channel</span>
-                    </div>
-                  </div>
-                  
-                  <div class="admin3d-form-toggle">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="notifyUsers" name="notifyUsers" value="true" checked>
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                      <span>Notify Users on Action</span>
-                      <span class="toggle-description">Send DM to users when moderation action is taken</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="admin3d-form-actions">
-                <button type="submit" class="admin3d-btn admin3d-btn-primary" id="saveAutomodBtn">
-                  <i class="fas fa-save"></i> Save Settings
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-        
-        <!-- Recent Auto-Mod Actions -->
-        <div class="admin3d-card" style="margin-top: 2rem;">
-          <div class="admin3d-card-header">
-            <h3 class="admin3d-card-title">Recent Auto-Mod Actions</h3>
-          </div>
-          <div class="admin3d-card-content">
-            <div class="automod-log-container">
-              <table class="admin3d-table">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>User</th>
-                    <th>Violation</th>
-                    <th>Action</th>
-                    <th>Details</th>
-                  </tr>
-                </thead>
-                <tbody id="automodLogBody">
-                  <!-- Auto-mod log entries will be loaded dynamically -->
-                  <tr class="empty-state">
-                    <td colspan="5">
-                      <div class="empty-state-message">
-                        <i class="fas fa-info-circle"></i>
-                        <p>Select a server to view auto-moderation logs</p>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              
-              <div class="admin3d-pagination" id="automodLogPagination">
-                <!-- Pagination will be added dynamically -->
               </div>
             </div>
           </div>
@@ -585,347 +605,1643 @@
 </div>
 
 <style>
-  /* Moderation Page Specific Styles */
-  .admin3d-form-row {
+  /* Modern Moderation Interface Styles */
+  :root {
+    --mod-primary: #8936ff;
+    --mod-primary-light: #a165ff;
+    --mod-primary-dark: #7429e3;
+    --mod-secondary: #00c3ff;
+    --mod-danger: #ff3d71;
+    --mod-warning: #ffaa00;
+    --mod-success: #00e676;
+    --mod-info: #0095ff;
+    
+    --mod-background: #101027;
+    --mod-card-bg: rgba(23, 22, 50, 0.85);
+    --mod-card-border: rgba(91, 77, 164, 0.3);
+    --mod-input-bg: rgba(30, 30, 60, 0.6);
+    
+    --mod-text: #ffffff;
+    --mod-text-secondary: rgba(255, 255, 255, 0.7);
+    --mod-text-muted: rgba(255, 255, 255, 0.5);
+    
+    --mod-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    --mod-glow: 0 0 15px rgba(137, 54, 255, 0.5);
+    
+    --mod-radius-sm: 8px;
+    --mod-radius: 12px;
+    --mod-radius-lg: 16px;
+    
+    --mod-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .mod-container {
+    padding: 0;
+    position: relative;
+    min-height: 100%;
+    font-family: 'Inter', sans-serif;
+    color: var(--mod-text);
+  }
+  
+  /* 3D Stats Area */
+  .mod-3d-container {
+    position: relative;
+    height: 200px;
+    width: 100%;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(16, 16, 39, 0.8) 0%, rgba(33, 23, 79, 0.4) 100%);
+    border-radius: var(--mod-radius);
+    box-shadow: var(--mod-shadow);
+  }
+  
+  .mod-3d-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/images/grid-pattern.png');
+    opacity: 0.1;
+    pointer-events: none;
+  }
+  
+  .mod-3d-stats {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 1.5rem;
+    z-index: 10;
+  }
+  
+  .mod-stat-card {
+    background: rgba(37, 35, 79, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--mod-radius);
+    border: 1px solid rgba(91, 77, 164, 0.2);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    width: 30%;
+    max-width: 280px;
+    box-shadow: var(--mod-shadow);
+    transition: var(--mod-transition);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .mod-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), var(--mod-glow);
+    border-color: rgba(137, 54, 255, 0.4);
+  }
+  
+  .glow-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(255, 255, 255, 0.1) 50%, 
+      transparent 100%);
+    transition: all 0.8s ease;
+  }
+  
+  .glow-card:hover::before {
+    left: 100%;
+  }
+  
+  .stat-icon {
+    background: var(--mod-primary);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  }
+  
+  .stat-content {
+    flex: 1;
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(90deg, #ffffff, #e0e0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--mod-text-secondary);
+    font-weight: 500;
+  }
+  
+  .stat-chart {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    opacity: 0.3;
+  }
+  
+  /* Header Area */
+  .mod-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .mod-title-section {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mod-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem;
+    background: linear-gradient(90deg, var(--mod-primary-light), var(--mod-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .mod-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--mod-primary), var(--mod-secondary));
+    border-radius: 3px;
+  }
+  
+  .mod-subtitle {
+    font-size: 1rem;
+    color: var(--mod-text-secondary);
+    font-weight: 400;
+  }
+  
+  .server-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .server-selector label {
+    font-weight: 600;
+    color: var(--mod-text-secondary);
+  }
+  
+  .custom-select {
+    position: relative;
+    min-width: 240px;
+  }
+  
+  .custom-select select {
+    appearance: none;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-right: 2.5rem;
+    background: var(--mod-input-bg);
+    border: 1px solid var(--mod-card-border);
+    border-radius: var(--mod-radius);
+    color: var(--mod-text);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--mod-transition);
+  }
+  
+  .custom-select select:focus {
+    border-color: var(--mod-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.25);
+  }
+  
+  .select-arrow {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--mod-text-muted);
+    font-size: 0.875rem;
+  }
+  
+  /* Main Control Panel */
+  .mod-control-panel {
+    background: var(--mod-card-bg);
+    border-radius: var(--mod-radius-lg);
+    border: 1px solid var(--mod-card-border);
+    overflow: hidden;
+    box-shadow: var(--mod-shadow);
+    position: relative;
+  }
+  
+  .mod-nav-tabs {
+    display: flex;
+    background: rgba(23, 22, 50, 0.95);
+    border-bottom: 1px solid var(--mod-card-border);
+    padding: 0 1rem;
+  }
+  
+  .mod-tab {
+    background: none;
+    border: none;
+    padding: 1.25rem 1.5rem;
+    color: var(--mod-text-secondary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+    transition: var(--mod-transition);
+  }
+  
+  .mod-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    transition: var(--mod-transition);
+  }
+  
+  .mod-tab:hover {
+    color: var(--mod-text);
+  }
+  
+  .mod-tab.active {
+    color: var(--mod-text);
+  }
+  
+  .mod-tab.active::after {
+    background: linear-gradient(90deg, var(--mod-primary), transparent);
+  }
+  
+  .mod-content {
+    padding: 2rem;
+  }
+  
+  .mod-panel {
+    display: none;
+  }
+  
+  .mod-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .mod-panel-columns {
+    display: grid;
+    grid-template-columns: minmax(400px, 1fr) minmax(600px, 2fr);
+    gap: 2rem;
+  }
+  
+  /* Cards */
+  .mod-card {
+    background: var(--mod-card-bg);
+    border-radius: var(--mod-radius);
+    border: 1px solid var(--mod-card-border);
+    overflow: hidden;
+    box-shadow: var(--mod-shadow);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: var(--mod-transition);
+  }
+  
+  .mod-card:hover {
+    border-color: rgba(137, 54, 255, 0.3);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  }
+  
+  .mod-card-header {
+    background: rgba(30, 30, 60, 0.5);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--mod-card-border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .mod-card-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--mod-primary-dark), var(--mod-primary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+  
+  .mod-card-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--mod-text);
+    flex: 1;
+  }
+  
+  .mod-card-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .icon-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--mod-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--mod-transition);
+  }
+  
+  .icon-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--mod-text);
+    transform: rotate(15deg);
+  }
+  
+  .mod-card-content {
+    padding: 1.5rem;
+    flex: 1;
+    overflow: auto;
+  }
+  
+  /* Forms */
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--mod-text-secondary);
+  }
+  
+  .input-with-icon {
+    position: relative;
+  }
+  
+  .input-with-icon i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--mod-text-muted);
+    font-size: 0.9375rem;
+  }
+  
+  .input-with-icon input,
+  .input-with-icon select,
+  .input-with-icon textarea {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    background: var(--mod-input-bg);
+    border: 1px solid var(--mod-card-border);
+    border-radius: var(--mod-radius);
+    color: var(--mod-text);
+    font-size: 0.9375rem;
+    transition: var(--mod-transition);
+  }
+  
+  .input-with-icon textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .input-with-icon input:focus,
+  .input-with-icon select:focus,
+  .input-with-icon textarea:focus {
+    border-color: var(--mod-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.25);
+  }
+  
+  .input-with-suffix {
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-with-suffix input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: var(--mod-input-bg);
+    border: 1px solid var(--mod-card-border);
+    border-radius: var(--mod-radius) 0 0 var(--mod-radius);
+    color: var(--mod-text);
+    font-size: 0.9375rem;
+    transition: var(--mod-transition);
+  }
+  
+  .input-with-suffix input:focus {
+    border-color: var(--mod-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.25);
+  }
+  
+  .input-with-suffix .suffix {
+    background: rgba(30, 30, 60, 0.8);
+    padding: 0 1rem;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--mod-card-border);
+    border-left: none;
+    border-radius: 0 var(--mod-radius) var(--mod-radius) 0;
+    color: var(--mod-text-muted);
+    font-size: 0.875rem;
+  }
+  
+  .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
   
-  .admin3d-form-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .admin3d-tabs {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
-    padding-bottom: 1rem;
-    margin-bottom: 2rem;
-  }
-  
-  .tab-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    position: relative;
-  }
-  
-  .tab-btn:hover {
-    color: var(--text);
-    background-color: var(--background-lighter);
-  }
-  
-  .tab-btn.active {
-    color: var(--text);
-    background-color: var(--background-lighter);
-  }
-  
-  .tab-btn.active::after {
-    content: "";
-    position: absolute;
-    bottom: -1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 30%;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
-    border-radius: 3px;
-  }
-  
-  .tab-content-container {
-    margin-top: 2rem;
-  }
-  
-  .tab-content {
-    display: none;
-  }
-  
-  .tab-content.active {
+  .form-hint {
+    margin-top: 0.5rem;
     display: block;
-    animation: fadeIn 0.5s ease;
+    color: var(--mod-text-muted);
+    font-size: 0.8125rem;
   }
   
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .form-options {
+    margin: 1.5rem 0;
   }
   
-  /* Table Styles */
-  .admin3d-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-  }
-  
-  .admin3d-table th,
-  .admin3d-table td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid rgba(49, 41, 95, 0.3);
-  }
-  
-  .admin3d-table th {
-    font-weight: 600;
-    color: var(--text-muted);
-    background-color: rgba(19, 16, 58, 0.5);
-  }
-  
-  .admin3d-table tbody tr {
-    transition: background-color var(--transition-fast);
-  }
-  
-  .admin3d-table tbody tr:hover {
-    background-color: rgba(49, 41, 95, 0.1);
-  }
-  
-  /* Empty State */
-  .empty-state-message {
+  .form-check {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    color: var(--text-muted);
-  }
-  
-  .empty-state-message i {
-    font-size: 2rem;
+    align-items: flex-start;
     margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-  
-  /* Toggle Switch */
-  .admin3d-form-toggle {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  
-  .toggle-switch {
     position: relative;
-    display: inline-block;
-    width: 52px;
-    height: 26px;
-    margin-right: 1rem;
   }
   
-  .toggle-switch input {
+  .form-check input[type="checkbox"] {
+    position: absolute;
     opacity: 0;
     width: 0;
     height: 0;
   }
   
-  .toggle-slider {
+  .form-check label {
+    padding-left: 2.5rem;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-check label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.125rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid var(--mod-card-border);
+    background: var(--mod-input-bg);
+    border-radius: var(--mod-radius-sm);
+    transition: var(--mod-transition);
+  }
+  
+  .form-check input[type="checkbox"]:checked + label::before {
+    background: var(--mod-primary);
+    border-color: var(--mod-primary);
+  }
+  
+  .form-check input[type="checkbox"]:checked + label::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 0.25rem;
+    top: 0.125rem;
+    color: white;
+    font-size: 0.75rem;
+  }
+  
+  .form-check label span {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--mod-text-secondary);
+  }
+  
+  .form-check label small {
+    font-size: 0.8125rem;
+    color: var(--mod-text-muted);
+    margin-top: 0.25rem;
+  }
+  
+  .form-check label i {
+    position: absolute;
+    left: 0;
+    top: 0.125rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mod-text-muted);
+    font-size: 0.75rem;
+  }
+  
+  .form-check input[type="checkbox"]:checked + label i {
+    display: none;
+  }
+  
+  .form-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  /* Button Styles */
+  .mod-button {
+    padding: 0.75rem 1.5rem;
+    background: var(--mod-primary);
+    color: white;
+    border: none;
+    border-radius: var(--mod-radius);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: var(--mod-transition);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  
+  .mod-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(255, 255, 255, 0.1) 50%, 
+      transparent 100%);
+    z-index: -1;
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+  
+  .mod-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .mod-button:hover::before {
+    transform: translateX(100%);
+  }
+  
+  .mod-button.primary {
+    background: linear-gradient(90deg, var(--mod-primary-dark), var(--mod-primary));
+  }
+  
+  .mod-button.danger {
+    background: linear-gradient(90deg, #ff3d71, #ff5b8d);
+  }
+  
+  .mod-button.warning {
+    background: linear-gradient(90deg, #ffaa00, #ffc100);
+  }
+  
+  /* Toggle Switch */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin-right: 1rem;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
     position: absolute;
     cursor: pointer;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(49, 41, 95, 0.3);
-    transition: .4s;
-    border-radius: 34px;
+    background-color: rgba(30, 30, 60, 0.8);
+    transition: var(--mod-transition);
+    border: 1px solid var(--mod-card-border);
   }
   
-  .toggle-slider:before {
+  .slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
+    height: 16px;
+    width: 16px;
     left: 4px;
-    bottom: 4px;
+    bottom: 3px;
     background-color: white;
-    transition: .4s;
+    transition: var(--mod-transition);
+  }
+  
+  input:checked + .slider {
+    background-color: var(--mod-primary);
+    border-color: var(--mod-primary-dark);
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.25);
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+  
+  .slider.round {
+    border-radius: 24px;
+  }
+  
+  .slider.round:before {
     border-radius: 50%;
   }
   
-  input:checked + .toggle-slider {
-    background-color: var(--primary);
+  .toggle-setting {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
   }
   
-  input:checked + .toggle-slider:before {
-    transform: translateX(26px);
+  .toggle-group {
+    margin-bottom: 1.5rem;
   }
   
-  .toggle-label {
+  .toggle-info {
     display: flex;
     flex-direction: column;
   }
   
-  .toggle-description {
+  .toggle-info span {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--mod-text-secondary);
+  }
+  
+  .toggle-info small {
     font-size: 0.8125rem;
-    color: var(--text-muted);
+    color: var(--mod-text-muted);
   }
   
-  /* Settings Section */
-  .settings-section {
+  /* Setting Groups */
+  .setting-group {
     margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(49, 41, 95, 0.2);
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(91, 77, 164, 0.15);
   }
   
-  .settings-section:last-child {
-    border-bottom: none;
+  .setting-group:last-child {
     margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
   }
   
-  .settings-section-title {
+  .setting-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .setting-header i {
+    color: var(--mod-primary-light);
+    font-size: 1.25rem;
+  }
+  
+  .setting-header h4 {
+    margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
+    color: var(--mod-text);
+  }
+  
+  /* List Styles */
+  .list-filters {
+    display: flex;
+    gap: 1rem;
     margin-bottom: 1.25rem;
-    color: var(--text);
   }
   
-  /* Input with Suffix */
-  .admin3d-form-input-with-suffix {
-    display: flex;
-    align-items: center;
+  .search-box {
+    flex: 1;
+    position: relative;
   }
   
-  .admin3d-form-input-with-suffix .admin3d-form-input {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    margin-bottom: 0;
+  .search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--mod-text-muted);
   }
   
-  .admin3d-form-input-with-suffix .input-suffix {
-    background-color: rgba(49, 41, 95, 0.3);
-    padding: 0 12px;
-    border-top-right-radius: 12px;
-    border-bottom-right-radius: 12px;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    color: var(--text-muted);
+  .search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    background: var(--mod-input-bg);
+    border: 1px solid var(--mod-card-border);
+    border-radius: var(--mod-radius);
+    color: var(--mod-text);
+    font-size: 0.9375rem;
+    transition: var(--mod-transition);
   }
   
-  /* Form Checkbox */
-  .admin3d-form-checkbox-group {
+  .search-box input:focus {
+    border-color: var(--mod-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.25);
+  }
+  
+  .filter-select {
+    width: 180px;
+  }
+  
+  .filter-select select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--mod-input-bg);
+    border: 1px solid var(--mod-card-border);
+    border-radius: var(--mod-radius);
+    color: var(--mod-text);
+    font-size: 0.9375rem;
+    appearance: none;
+    cursor: pointer;
+    transition: var(--mod-transition);
+  }
+  
+  .filter-select select:focus {
+    border-color: var(--mod-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.25);
+  }
+  
+  .data-list {
+    margin-top: 1rem;
+    min-height: 200px;
+  }
+  
+  .empty-state {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: var(--mod-text-muted);
+    text-align: center;
   }
   
-  .admin3d-form-checkbox {
+  .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+  }
+  
+  .empty-state p {
+    font-size: 1rem;
+    margin: 0;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+    gap: 0.5rem;
+  }
+  
+  .pagination-item {
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
-  }
-  
-  .admin3d-form-checkbox input[type="checkbox"] {
-    margin-right: 0.5rem;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 1px solid rgba(49, 41, 95, 0.5);
-    background-color: rgba(19, 16, 58, 0.5);
-    position: relative;
+    justify-content: center;
+    background: var(--mod-input-bg);
+    border: 1px solid var(--mod-card-border);
+    border-radius: var(--mod-radius-sm);
+    color: var(--mod-text-secondary);
+    font-size: 0.875rem;
     cursor: pointer;
+    transition: var(--mod-transition);
   }
   
-  .admin3d-form-checkbox input[type="checkbox"]:checked {
-    background-color: var(--primary);
-    border-color: var(--primary);
+  .pagination-item:hover {
+    background: rgba(91, 77, 164, 0.2);
+    color: var(--mod-text);
   }
   
-  .admin3d-form-checkbox input[type="checkbox"]:checked::after {
-    content: "\f00c";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    position: absolute;
-    font-size: 12px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  .pagination-item.active {
+    background: var(--mod-primary);
+    border-color: var(--mod-primary-dark);
     color: white;
   }
   
-  /* Server Selection */
-  .server-selection {
-    margin-bottom: 2rem;
+  /* Responsive adjustments */
+  @media (max-width: 1200px) {
+    .mod-panel-columns {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    .mod-3d-stats {
+      flex-direction: column;
+      padding: 1rem;
+      gap: 1rem;
+    }
+    
+    .mod-stat-card {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .mod-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .server-selector {
+      width: 100%;
+    }
+    
+    .mod-nav-tabs {
+      overflow-x: auto;
+      padding: 0;
+    }
+    
+    .mod-tab {
+      padding: 1rem;
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+    
+    .mod-content {
+      padding: 1rem;
+    }
+    
+    .form-row {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Tab functionality
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    // Set first tab as active
-    if (tabButtons.length > 0 && tabContents.length > 0) {
-      tabButtons[0].classList.add('active');
-      tabContents[0].classList.add('active');
-    }
-    
-    tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        // Remove active class from all buttons and contents
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-        
-        // Add active class to clicked button and corresponding content
-        button.classList.add('active');
-        const tabId = button.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
-      });
+document.addEventListener('DOMContentLoaded', function() {
+  // Tabs functionality
+  const tabs = document.querySelectorAll('.mod-tab');
+  const panels = document.querySelectorAll('.mod-panel');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Remove active class from all tabs and panels
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      
+      // Add active class to clicked tab and corresponding panel
+      tab.classList.add('active');
+      const target = tab.getAttribute('data-tab');
+      document.getElementById(target).classList.add('active');
     });
-    
-    // Ban duration custom option
-    const banDuration = document.getElementById('banDuration');
-    const customDurationGroup = document.getElementById('customDurationGroup');
-    
-    if (banDuration && customDurationGroup) {
-      banDuration.addEventListener('change', function() {
-        if (this.value === 'custom') {
-          customDurationGroup.style.display = 'block';
-        } else {
-          customDurationGroup.style.display = 'none';
-        }
-      });
-    }
-    
-    // Profanity filter level custom option
-    const profanityFilterLevel = document.getElementById('profanityFilterLevel');
-    const customWordListGroup = document.getElementById('customWordListGroup');
-    
-    if (profanityFilterLevel && customWordListGroup) {
-      profanityFilterLevel.addEventListener('change', function() {
-        if (this.value === 'custom') {
-          customWordListGroup.style.display = 'block';
-        } else {
-          customWordListGroup.style.display = 'none';
-        }
-      });
-    }
-    
-    // Server selection updates hidden server ID field
-    const serverSelect = document.getElementById('serverSelect');
-    const serverIdField = document.getElementById('serverId');
-    
-    if (serverSelect && serverIdField) {
-      serverSelect.addEventListener('change', function() {
-        serverIdField.value = this.value;
-      });
-    }
   });
+  
+  // Server selection
+  const serverSelect = document.getElementById('serverSelect');
+  if (serverSelect) {
+    serverSelect.addEventListener('change', function() {
+      const serverId = this.value;
+      
+      // Update hidden fields in all forms
+      const banServerId = document.getElementById('banServerId');
+      const warnServerId = document.getElementById('warnServerId');
+      const automodServerId = document.getElementById('automodServerId');
+      
+      if (banServerId) banServerId.value = serverId;
+      if (warnServerId) warnServerId.value = serverId;
+      if (automodServerId) automodServerId.value = serverId;
+      
+      if (serverId) {
+        // Load data for the selected server
+        loadServerData(serverId);
+      }
+    });
+  }
+  
+  // Ban duration toggle
+  const banDuration = document.getElementById('banDuration');
+  const customDurationGroup = document.getElementById('customDurationGroup');
+  
+  if (banDuration && customDurationGroup) {
+    banDuration.addEventListener('change', function() {
+      customDurationGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+  }
+  
+  // Profanity filter level toggle
+  const profanityFilterLevel = document.getElementById('profanityFilterLevel');
+  const customWordListGroup = document.getElementById('customWordListGroup');
+  
+  if (profanityFilterLevel && customWordListGroup) {
+    profanityFilterLevel.addEventListener('change', function() {
+      customWordListGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+  }
+  
+  // Refresh buttons
+  const refreshButtons = document.querySelectorAll('.refresh-btn');
+  refreshButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const serverId = serverSelect.value;
+      if (!serverId) return;
+      
+      if (this.id === 'refreshBans') {
+        loadBanList(serverId);
+      } else if (this.id === 'refreshWarnings') {
+        loadWarningList(serverId);
+      } else if (this.id === 'refreshAutomod') {
+        loadAutomodLog(serverId);
+      }
+      
+      // Add rotation animation
+      this.classList.add('rotating');
+      setTimeout(() => {
+        this.classList.remove('rotating');
+      }, 1000);
+    });
+  });
+  
+  /**
+   * Load server data for moderation
+   * @param {string} serverId - Discord server ID
+   */
+  function loadServerData(serverId) {
+    if (!serverId) return;
+    
+    // Update stats
+    fetchServerStats(serverId);
+    
+    // Load ban list
+    loadBanList(serverId);
+    
+    // Load warning list
+    loadWarningList(serverId);
+    
+    // Load automod log
+    loadAutomodLog(serverId);
+    
+    // Load automod settings
+    loadAutomodSettings(serverId);
+  }
+  
+  /**
+   * Fetch server statistics
+   * @param {string} serverId - Discord server ID
+   */
+  function fetchServerStats(serverId) {
+    // Update stat counters with loading animation
+    animateCounter('totalBans', 0);
+    animateCounter('totalWarnings', 0);
+    animateCounter('automodActions', 0);
+    
+    // For demo purposes, we'll just set random values
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      const bans = Math.floor(Math.random() * 20);
+      const warnings = Math.floor(Math.random() * 50);
+      const automod = Math.floor(Math.random() * 100);
+      
+      animateCounter('totalBans', bans);
+      animateCounter('totalWarnings', warnings);
+      animateCounter('automodActions', automod);
+    }, 800);
+  }
+  
+  /**
+   * Animate counter from 0 to target value
+   * @param {string} id - Element ID
+   * @param {number} target - Target value
+   */
+  function animateCounter(id, target) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    
+    let current = 0;
+    const step = Math.max(1, Math.floor(target / 20));
+    
+    const interval = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        current = target;
+        clearInterval(interval);
+      }
+      element.textContent = current;
+    }, 50);
+  }
+  
+  /**
+   * Load ban list for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadBanList(serverId) {
+    const banList = document.getElementById('banList');
+    if (!banList) return;
+    
+    // Show loading state
+    banList.innerHTML = `
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading ban list...</p>
+      </div>
+    `;
+    
+    // For demo purposes, we'll just show some sample data
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      // Sample data - would come from API in real app
+      const bans = [
+        {
+          userId: '123456789012345678',
+          username: 'ExampleUser#1234',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
+          reason: 'Spamming in multiple channels',
+          date: '2025-04-08',
+          remaining: 'Permanent',
+          moderator: 'AdminMod#5678'
+        },
+        {
+          userId: '234567890123456789',
+          username: 'AnotherUser#5678',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
+          reason: 'Posting inappropriate content',
+          date: '2025-04-07',
+          remaining: '3 days',
+          moderator: 'ModUser#1234'
+        },
+        {
+          userId: '345678901234567890',
+          username: 'TestUser#9012',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png',
+          reason: 'Harassment of other members',
+          date: '2025-04-05',
+          remaining: '25 days',
+          moderator: 'AdminMod#5678'
+        }
+      ];
+      
+      if (bans.length === 0) {
+        banList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <p>No bans found for this server</p>
+          </div>
+        `;
+      } else {
+        banList.innerHTML = '';
+        
+        bans.forEach(ban => {
+          const banItem = document.createElement('div');
+          banItem.className = 'list-item ban-item';
+          
+          banItem.innerHTML = `
+            <div class="list-item-avatar">
+              <img src="${ban.avatar}" alt="${ban.username}'s avatar">
+            </div>
+            <div class="list-item-content">
+              <div class="list-item-header">
+                <div class="list-item-name">${ban.username}</div>
+                <div class="list-item-actions">
+                  <button class="item-action-btn" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="item-action-btn unban-btn" title="Unban User">
+                    <i class="fas fa-user-check"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="list-item-details">
+                <div class="list-item-reason">${ban.reason}</div>
+                <div class="list-item-meta">
+                  <span class="list-item-date"><i class="fas fa-calendar"></i> ${ban.date}</span>
+                  <span class="list-item-duration"><i class="fas fa-clock"></i> ${ban.remaining}</span>
+                  <span class="list-item-mod"><i class="fas fa-user-shield"></i> ${ban.moderator}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          banList.appendChild(banItem);
+        });
+        
+        // Add style for list items
+        const style = document.createElement('style');
+        style.textContent = `
+          .list-item {
+            background: rgba(30, 30, 60, 0.4);
+            border-radius: var(--mod-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            transition: var(--mod-transition);
+            border: 1px solid transparent;
+          }
+          
+          .list-item:hover {
+            background: rgba(30, 30, 60, 0.6);
+            border-color: rgba(91, 77, 164, 0.3);
+            transform: translateY(-2px);
+          }
+          
+          .list-item-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--mod-input-bg);
+            border: 2px solid rgba(91, 77, 164, 0.3);
+          }
+          
+          .list-item-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          
+          .list-item-content {
+            flex: 1;
+          }
+          
+          .list-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+          }
+          
+          .list-item-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--mod-text);
+          }
+          
+          .list-item-actions {
+            display: flex;
+            gap: 0.5rem;
+          }
+          
+          .item-action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--mod-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--mod-transition);
+            font-size: 0.75rem;
+          }
+          
+          .item-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--mod-text);
+          }
+          
+          .unban-btn:hover {
+            background: var(--mod-success);
+            color: white;
+          }
+          
+          .list-item-reason {
+            font-size: 0.9375rem;
+            color: var(--mod-text-secondary);
+            margin-bottom: 0.5rem;
+          }
+          
+          .list-item-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+          }
+          
+          .list-item-meta span {
+            font-size: 0.8125rem;
+            color: var(--mod-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+          }
+          
+          .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            color: var(--mod-text-muted);
+          }
+          
+          .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(137, 54, 255, 0.2);
+            border-top-color: var(--mod-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+          }
+          
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          
+          @keyframes rotating {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          
+          .rotating {
+            animation: rotating 1s linear infinite;
+          }
+        `;
+        
+        if (!document.getElementById('list-styles')) {
+          style.id = 'list-styles';
+          document.head.appendChild(style);
+        }
+      }
+    }, 1000);
+  }
+  
+  /**
+   * Load warning list for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadWarningList(serverId) {
+    const warningList = document.getElementById('warningList');
+    if (!warningList) return;
+    
+    // Show loading state
+    warningList.innerHTML = `
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading warning history...</p>
+      </div>
+    `;
+    
+    // For demo purposes, we'll just show some sample data
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      // Sample data - would come from API in real app
+      const warnings = [
+        {
+          userId: '123456789012345678',
+          username: 'ExampleUser#1234',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
+          reason: 'Excessive caps in messages',
+          date: '2025-04-08',
+          severity: 'low',
+          status: 'active',
+          expires: '2025-05-08',
+          moderator: 'AdminMod#5678'
+        },
+        {
+          userId: '234567890123456789',
+          username: 'AnotherUser#5678',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
+          reason: 'Minor spam in #general',
+          date: '2025-04-06',
+          severity: 'medium',
+          status: 'active',
+          expires: '2025-05-06',
+          moderator: 'ModUser#1234'
+        },
+        {
+          userId: '345678901234567890',
+          username: 'TestUser#9012',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png',
+          reason: 'Disrespectful behavior towards moderators',
+          date: '2025-04-02',
+          severity: 'high',
+          status: 'expired',
+          expires: 'Expired',
+          moderator: 'AdminMod#5678'
+        }
+      ];
+      
+      if (warnings.length === 0) {
+        warningList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <p>No warnings found for this server</p>
+          </div>
+        `;
+      } else {
+        warningList.innerHTML = '';
+        
+        warnings.forEach(warning => {
+          const warningItem = document.createElement('div');
+          warningItem.className = `list-item warning-item warning-${warning.severity} ${warning.status === 'expired' ? 'warning-expired' : ''}`;
+          
+          warningItem.innerHTML = `
+            <div class="list-item-avatar">
+              <img src="${warning.avatar}" alt="${warning.username}'s avatar">
+            </div>
+            <div class="list-item-content">
+              <div class="list-item-header">
+                <div class="list-item-name">${warning.username}</div>
+                <div class="list-item-actions">
+                  <button class="item-action-btn" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="item-action-btn remove-btn" title="Remove Warning">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="list-item-details">
+                <div class="list-item-reason">${warning.reason}</div>
+                <div class="list-item-meta">
+                  <span class="list-item-date"><i class="fas fa-calendar"></i> ${warning.date}</span>
+                  <span class="list-item-severity severity-${warning.severity}">
+                    <i class="fas fa-exclamation-triangle"></i> ${warning.severity.charAt(0).toUpperCase() + warning.severity.slice(1)}
+                  </span>
+                  <span class="list-item-expires"><i class="fas fa-hourglass-half"></i> ${warning.expires}</span>
+                  <span class="list-item-mod"><i class="fas fa-user-shield"></i> ${warning.moderator}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          warningList.appendChild(warningItem);
+        });
+        
+        // Add style for warning severity
+        if (!document.getElementById('warning-styles')) {
+          const style = document.createElement('style');
+          style.id = 'warning-styles';
+          style.textContent = `
+            .severity-low {
+              color: var(--mod-info);
+            }
+            
+            .severity-medium {
+              color: var(--mod-warning);
+            }
+            
+            .severity-high {
+              color: var(--mod-danger);
+            }
+            
+            .warning-low {
+              border-left: 3px solid var(--mod-info);
+            }
+            
+            .warning-medium {
+              border-left: 3px solid var(--mod-warning);
+            }
+            
+            .warning-high {
+              border-left: 3px solid var(--mod-danger);
+            }
+            
+            .warning-expired {
+              opacity: 0.7;
+            }
+            
+            .remove-btn:hover {
+              background: var(--mod-danger);
+              color: white;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+      }
+    }, 1000);
+  }
+  
+  /**
+   * Load automod log for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadAutomodLog(serverId) {
+    const automodList = document.getElementById('automodList');
+    if (!automodList) return;
+    
+    // Show loading state
+    automodList.innerHTML = `
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading auto-mod logs...</p>
+      </div>
+    `;
+    
+    // For demo purposes, we'll just show some sample data
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      // Sample data - would come from API in real app
+      const logs = [
+        {
+          time: '2025-04-10 14:32:05',
+          username: 'ExampleUser#1234',
+          userId: '123456789012345678',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
+          violation: 'Profanity Filter',
+          action: 'Message Deleted',
+          details: 'Message contained prohibited words',
+          channel: '#general'
+        },
+        {
+          time: '2025-04-10 13:18:42',
+          username: 'AnotherUser#5678',
+          userId: '234567890123456789',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
+          violation: 'Spam Detection',
+          action: 'User Warned',
+          details: '5 messages in 3 seconds',
+          channel: '#discussion'
+        },
+        {
+          time: '2025-04-09 22:51:17',
+          username: 'TestUser#9012',
+          userId: '345678901234567890',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png',
+          violation: 'Discord Invite',
+          action: 'Message Deleted',
+          details: 'Message contained Discord invite link',
+          channel: '#welcome'
+        }
+      ];
+      
+      if (logs.length === 0) {
+        automodList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <p>No auto-mod logs found for this server</p>
+          </div>
+        `;
+      } else {
+        automodList.innerHTML = '';
+        
+        logs.forEach(log => {
+          const logItem = document.createElement('div');
+          logItem.className = 'list-item log-item';
+          
+          logItem.innerHTML = `
+            <div class="list-item-avatar small">
+              <img src="${log.avatar}" alt="${log.username}'s avatar">
+            </div>
+            <div class="list-item-content">
+              <div class="list-item-header">
+                <div class="list-item-name">${log.username}</div>
+                <div class="list-item-time">${log.time}</div>
+              </div>
+              <div class="list-item-details">
+                <div class="list-item-violation">
+                  <span class="violation-type">${log.violation}</span>
+                  <span class="violation-action">${log.action}</span>
+                </div>
+                <div class="list-item-meta">
+                  <span class="list-item-details"><i class="fas fa-info-circle"></i> ${log.details}</span>
+                  <span class="list-item-channel"><i class="fas fa-hashtag"></i> ${log.channel}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          automodList.appendChild(logItem);
+        });
+        
+        // Add style for log items
+        if (!document.getElementById('log-styles')) {
+          const style = document.createElement('style');
+          style.id = 'log-styles';
+          style.textContent = `
+            .list-item-avatar.small {
+              width: 36px;
+              height: 36px;
+            }
+            
+            .list-item-time {
+              font-size: 0.8125rem;
+              color: var(--mod-text-muted);
+            }
+            
+            .list-item-violation {
+              display: flex;
+              gap: 0.75rem;
+              margin-bottom: 0.5rem;
+            }
+            
+            .violation-type {
+              font-weight: 600;
+              color: var(--mod-primary-light);
+            }
+            
+            .violation-action {
+              color: var(--mod-text-secondary);
+              padding: 0.1rem 0.5rem;
+              background: rgba(30, 30, 60, 0.6);
+              border-radius: var(--mod-radius-sm);
+              font-size: 0.8125rem;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+      }
+    }, 1000);
+  }
+  
+  /**
+   * Load automod settings for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadAutomodSettings(serverId) {
+    if (!document.getElementById('automodSettingsForm')) return;
+    
+    // For demo purposes, we'll just simulate loading settings
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      // Set form values
+      document.getElementById('profanityFilter').checked = true;
+      document.getElementById('profanityFilterLevel').value = 'medium';
+      document.getElementById('linkFilter').checked = true;
+      document.getElementById('inviteBlocker').checked = true;
+      document.getElementById('antiSpam').checked = true;
+      document.getElementById('antiMention').checked = true;
+      document.getElementById('antiRaid').checked = false;
+      document.getElementById('messageThreshold').value = 5;
+      document.getElementById('timeThreshold').value = 5;
+      document.getElementById('violationAction').value = 'warn';
+      document.getElementById('spamAction').value = 'mute';
+      document.getElementById('muteDuration').value = '30m';
+      document.getElementById('logActions').checked = true;
+      document.getElementById('notifyUsers').checked = true;
+      
+      // Update custom word list visibility
+      const customWordListGroup = document.getElementById('customWordListGroup');
+      if (customWordListGroup) {
+        customWordListGroup.style.display = document.getElementById('profanityFilterLevel').value === 'custom' ? 'block' : 'none';
+      }
+    }, 800);
+  }
+});
 </script>
