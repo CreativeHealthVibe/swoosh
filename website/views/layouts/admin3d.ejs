@@ -64,9 +64,45 @@
   <script src="/js/admin3d-scene.js" defer></script>
   <script src="/js/admin3d.js" defer></script>
 </head>
-<body class="admin3d-body">
-  <!-- 3D Canvas Container -->
-  <div id="three-container"></div>
+<body class="admin3d-body <%= title.includes('Message') ? 'no-three-js' : '' %>">
+  <!-- 3D Canvas Container (hidden on Message Management page) -->
+  <div id="three-container" class="<%= title.includes('Message') ? 'three-js-disabled' : '' %>"></div>
+  
+  <!-- Special fix for form inputs on the Messages page -->
+  <% if (title.includes('Message')) { %>
+  <style>
+    /* Completely disable THREE.js on the Messages page */
+    .no-three-js #three-container {
+      display: none !important;
+    }
+    
+    .three-js-disabled {
+      display: none !important;
+    }
+    
+    /* Make form elements work properly */
+    .admin3d-form-input,
+    .admin3d-form-textarea,
+    .admin3d-form-select,
+    .admin3d-btn {
+      position: relative !important;
+      z-index: 1000 !important;
+      pointer-events: auto !important;
+    }
+    
+    /* Ensure forms are on top */
+    .admin3d-form-group {
+      position: relative !important;
+      z-index: 1000 !important;
+    }
+    
+    /* Fix card content to ensure interaction */
+    .admin3d-card-content {
+      position: relative !important;
+      z-index: 500 !important;
+    }
+  </style>
+  <% } %>
   
   <!-- Main Container -->
   <div class="admin3d-container">

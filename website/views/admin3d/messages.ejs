@@ -28,6 +28,37 @@
       </button>
     </div>
     
+    <!-- Fix for form interaction issues -->
+    <style>
+      /* Fix input interaction issues */
+      .admin3d-form-input,
+      .admin3d-form-textarea,
+      .admin3d-form-select,
+      .admin3d-btn {
+        position: relative;
+        z-index: 100 !important;
+        pointer-events: auto !important;
+      }
+      
+      /* Make sure forms are above the THREE.js canvas */
+      #message-tabs .tab-content {
+        position: relative;
+        z-index: 50;
+      }
+      
+      /* Ensure inputs can be interacted with */
+      .admin3d-form-group {
+        position: relative;
+        z-index: 100;
+      }
+      
+      /* Ensure THREE.js doesn't block */
+      #three-container {
+        pointer-events: none !important;
+        z-index: -1 !important;
+      }
+    </style>
+    
     <!-- Tab Content -->
     <div class="tab-content-container">
       <!-- Send News Tab -->
