@@ -351,12 +351,12 @@
   // Function to create a premium error notification
   function showPremiumNotification(type, title, message, autoHide = false) {
     // Remove any existing notifications first
-    const existingNotifications = document.querySelectorAll('.premium-notification');
+    const existingNotifications = document.querySelectorAll('.admin3d-notification');
     existingNotifications.forEach(el => el.remove());
     
     // Create the notification container
     const notifDiv = document.createElement('div');
-    notifDiv.className = `premium-notification ${type}`;
+    notifDiv.className = `admin3d-notification ${type}`;
     
     // Set icon based on type
     let icon = 'info-circle';

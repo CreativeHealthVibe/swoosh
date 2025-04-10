@@ -548,7 +548,7 @@
   }
   
   /* Premium Notification Styling */
-  .premium-notification {
+  .admin3d-notification {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -565,22 +565,22 @@
     z-index: 9999;
   }
   
-  .premium-notification.success {
+  .admin3d-notification.success {
     background: rgba(0, 230, 118, 0.15);
     border-color: rgba(0, 230, 118, 0.3);
   }
   
-  .premium-notification.error {
+  .admin3d-notification.error {
     background: rgba(255, 61, 113, 0.15);
     border-color: rgba(255, 61, 113, 0.3);
   }
   
-  .premium-notification.warning {
+  .admin3d-notification.warning {
     background: rgba(255, 179, 0, 0.15);
     border-color: rgba(255, 179, 0, 0.3);
   }
   
-  .premium-notification.info {
+  .admin3d-notification.info {
     background: rgba(77, 159, 255, 0.15);
     border-color: rgba(77, 159, 255, 0.3);
   }
@@ -596,22 +596,22 @@
     flex-shrink: 0;
   }
   
-  .premium-notification.success .notification-icon {
+  .admin3d-notification.success .notification-icon {
     color: #00e676;
     background: rgba(0, 230, 118, 0.15);
   }
   
-  .premium-notification.error .notification-icon {
+  .admin3d-notification.error .notification-icon {
     color: #ff3d71;
     background: rgba(255, 61, 113, 0.15);
   }
   
-  .premium-notification.warning .notification-icon {
+  .admin3d-notification.warning .notification-icon {
     color: #ffb300;
     background: rgba(255, 179, 0, 0.15);
   }
   
-  .premium-notification.info .notification-icon {
+  .admin3d-notification.info .notification-icon {
     color: #4d9fff;
     background: rgba(77, 159, 255, 0.15);
   }
@@ -679,7 +679,7 @@
       margin-top: 1rem;
     }
     
-    .premium-notification {
+    .admin3d-notification {
       width: 90%;
       max-width: 90%;
       left: 5%;
@@ -915,7 +915,7 @@
     window.showPremiumNotification = function(type, title, message, autoHide = false) {
       // Create the notification container
       const notifDiv = document.createElement('div');
-      notifDiv.className = `premium-notification ${type}`;
+      notifDiv.className = `admin3d-notification ${type}`;
       
       // Set icon based on type
       let icon = 'info-circle';
