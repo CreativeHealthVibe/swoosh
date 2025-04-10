@@ -476,8 +476,8 @@ class DiscordDatabaseManager {
       // Add warning to array
       this.dataCache['warnings'][warningKey].push(warning);
       
-      // Queue write to Discord
-      const result = await this.queueWrite('warnings');
+      // Save to database using setDocument method
+      const result = await this.setDocument('warnings', warningKey, this.dataCache['warnings'][warningKey]);
       
       return { 
         success: result, 
@@ -552,8 +552,8 @@ class DiscordDatabaseManager {
       // Save back to cache
       this.dataCache['configs'][serverId] = config;
       
-      // Queue write to Discord
-      const result = await this.queueWrite('configs');
+      // Save to database using setDocument method
+      const result = await this.setDocument('configs', serverId, config);
       
       return {
         success: result,
