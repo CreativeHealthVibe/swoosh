@@ -646,11 +646,21 @@
   document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded - initializing tabs');
     
-    // Tab switching functionality
+    // Check DOM structure
+    console.log('DOM Structure check:');
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     
     console.log('Found', tabButtons.length, 'tab buttons and', tabContents.length, 'tab contents');
+    
+    // Debug which tabs exist
+    tabButtons.forEach(btn => {
+      console.log('Tab button:', btn.getAttribute('data-tab'));
+    });
+    
+    tabContents.forEach(content => {
+      console.log('Tab content ID:', content.id);
+    });
     
     // Initialize tabs - hide all content first
     tabContents.forEach(content => {
