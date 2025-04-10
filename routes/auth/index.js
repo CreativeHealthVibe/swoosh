@@ -44,9 +44,15 @@ router.get('/discord/callback',
   (req, res) => {
     // Successful authentication
     console.log('OAuth authentication successful, user:', req.user.username);
+    console.log('OAuth data received:', JSON.stringify({
+      id: req.user.id,
+      username: req.user.username,
+      accessToken: req.user.accessToken ? 'Present' : 'Missing',
+      tokenType: typeof req.user.accessToken
+    }));
     
     // Redirect to admin welcome page with time-based greeting
-    const redirectUrl = req.session.returnTo || '/admin/welcome';
+    const redirectUrl = req.session.returnTo || '/admin3d/profile';
     delete req.session.returnTo;
     res.redirect(redirectUrl);
   }
