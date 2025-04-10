@@ -5,7 +5,7 @@
   Moderation Management Page - Enterprise Edition
 %>
 
-<div class="admin3d-moderation premium-edition ultra-premium">
+<div class="admin3d-moderation">
   <!-- Premium 3D Experience -->
   <div class="moderation-3d-container">
     <div id="moderation-three-container" class="three-js-container moderation-scene">
@@ -38,26 +38,26 @@
     </div>
   </div>
 
-  <div class="ultra-premium-header">
+  <div class="admin3d-section-header">
 
-    <h1 class="ultra-premium-title">Advanced Moderation Command Center</h1>
-    <p class="ultra-premium-subtitle">
+    <h1 class="section-title">Advanced Moderation Command Center</h1>
+    <p class="section-description">
       Manage users across your Discord servers with enterprise-grade moderation tools. Visualize server trends, enforce policies, and maintain server security with our professional suite of administrative tools.
     </p>
   </div>
   
   <!-- Server Selection -->
-  <div class="ultra-premium-card">
-    <div class="ultra-premium-card-header">
-      <div class="ultra-premium-card-icon">
+  <div class="admin3d-card">
+    <div class="admin3d-card-header">
+      <div class="admin3d-card-icon">
         <i class="fas fa-server"></i>
       </div>
-      <h3 class="ultra-premium-card-title">Select Server</h3>
+      <h3 class="admin3d-card-title">Select Server</h3>
     </div>
-    <div class="ultra-premium-card-content">
-      <div class="ultra-premium-input-group">
-        <label class="ultra-premium-input-label" for="server-select">Server</label>
-        <select class="ultra-premium-input" id="server-select">
+    <div class="admin3d-card-content">
+      <div class="admin3d-form-group">
+        <label class="admin3d-form-label" for="server-select">Server</label>
+        <select class="admin3d-form-input" id="server-select">
           <option value="">Select a server</option>
           <% if (client && client.guilds) { %>
             <% client.guilds.cache.sort((a, b) => a.name.localeCompare(b.name)).forEach(guild => { %>
@@ -65,7 +65,7 @@
             <% }); %>
           <% } %>
         </select>
-        <i class="fas fa-server ultra-premium-input-icon"></i>
+        <i class="fas fa-server admin3d-form-input-icon"></i>
         <span class="admin3d-form-hint">Select a server to manage moderation tools</span>
       </div>
     </div>
@@ -74,71 +74,71 @@
   <!-- Moderation Section - Only visible after server selection -->
   <div id="moderation-section" class="moderation-section" style="display: none;">
     <!-- Premium Quick Action Cards -->
-    <h2 class="ultra-premium-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Quick Actions</h2>
+    <h2 class="section-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Quick Actions</h2>
     <div class="moderation-actions">
-      <div class="ultra-premium-card" >
-        <div class="ultra-premium-card-header">
-          <div class="ultra-premium-card-icon">
+      <div class="admin3d-card" >
+        <div class="admin3d-card-header">
+          <div class="admin3d-card-icon">
             <i class="fas fa-gavel"></i>
           </div>
-          <h3 class="ultra-premium-card-title">Ban User</h3>
+          <h3 class="admin3d-card-title">Ban User</h3>
         </div>
-        <div class="ultra-premium-card-content">
+        <div class="admin3d-card-content">
           <p>
             Permanently ban a user from the server with customizable message deletion options
           </p>
-          <button class="ultra-premium-button danger" data-action="ban-user">
+          <button class="admin3d-btn admin3d-btn-danger" data-action="ban-user">
             <i class="fas fa-ban"></i> Ban User
           </button>
         </div>
       </div>
       
-      <div class="ultra-premium-card">
-        <div class="ultra-premium-card-header">
-          <div class="ultra-premium-card-icon">
+      <div class="admin3d-card">
+        <div class="admin3d-card-header">
+          <div class="admin3d-card-icon">
             <i class="fas fa-user-slash"></i>
           </div>
-          <h3 class="ultra-premium-card-title">Kick User</h3>
+          <h3 class="admin3d-card-title">Kick User</h3>
         </div>
-        <div class="ultra-premium-card-content">
+        <div class="admin3d-card-content">
           <p>
             Remove a user from the server temporarily with advanced notification options
           </p>
-          <button class="ultra-premium-button warning" data-action="kick-user">
+          <button class="admin3d-btn admin3d-btn-warning" data-action="kick-user">
             <i class="fas fa-sign-out-alt"></i> Kick User
           </button>
         </div>
       </div>
       
-      <div class="ultra-premium-card">
-        <div class="ultra-premium-card-header">
-          <div class="ultra-premium-card-icon">
+      <div class="admin3d-card">
+        <div class="admin3d-card-header">
+          <div class="admin3d-card-icon">
             <i class="fas fa-clock"></i>
           </div>
-          <h3 class="ultra-premium-card-title">Timeout User</h3>
+          <h3 class="admin3d-card-title">Timeout User</h3>
         </div>
-        <div class="ultra-premium-card-content">
+        <div class="admin3d-card-content">
           <p>
             Temporarily mute a user for a set period with precise duration control
           </p>
-          <button class="ultra-premium-button" data-action="timeout-user">
+          <button class="admin3d-btn admin3d-btn-primary" data-action="timeout-user">
             <i class="fas fa-stopwatch"></i> Timeout User
           </button>
         </div>
       </div>
       
-      <div class="ultra-premium-card" >
-        <div class="ultra-premium-card-header">
-          <div class="ultra-premium-card-icon">
+      <div class="admin3d-card" >
+        <div class="admin3d-card-header">
+          <div class="admin3d-card-icon">
             <i class="fas fa-trash-alt"></i>
           </div>
-          <h3 class="ultra-premium-card-title">Purge Messages</h3>
+          <h3 class="admin3d-card-title">Purge Messages</h3>
         </div>
-        <div class="ultra-premium-card-content">
+        <div class="admin3d-card-content">
           <p>
             Delete multiple messages from a channel with pattern matching and retention options
           </p>
-          <button class="ultra-premium-button" data-action="purge-messages">
+          <button class="admin3d-btn admin3d-btn-primary" data-action="purge-messages">
             <i class="fas fa-broom"></i> Purge Messages
           </button>
         </div>
@@ -146,33 +146,33 @@
     </div>
     
     <!-- Ban List with Premium Styling -->
-    <h2 class="ultra-premium-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Ban Management</h2>
-    <div class="ultra-premium-card">
-      <div class="ultra-premium-card-header">
-        <div class="ultra-premium-card-icon">
+    <h2 class="section-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Ban Management</h2>
+    <div class="admin3d-card">
+      <div class="admin3d-card-header">
+        <div class="admin3d-card-icon">
           <i class="fas fa-ban"></i>
         </div>
-        <h3 class="ultra-premium-card-title">Server Ban List</h3>
+        <h3 class="admin3d-card-title">Server Ban List</h3>
       </div>
-      <div class="ultra-premium-card-content">
+      <div class="admin3d-card-content">
         <div class="ban-filters" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
           <div class="filter-group" style="flex-grow: 1;">
-            <div class="ultra-premium-input-group" style="margin-bottom: 0;">
-              <input type="text" class="ultra-premium-input" id="ban-search" placeholder="Search by username or reason...">
-              <i class="fas fa-search ultra-premium-input-icon"></i>
+            <div class="admin3d-form-group" style="margin-bottom: 0;">
+              <input type="text" class="admin3d-form-input" id="ban-search" placeholder="Search by username or reason...">
+              <i class="fas fa-search admin3d-form-input-icon"></i>
             </div>
           </div>
           
           <div class="filter-group">
-            <button class="ultra-premium-button" id="refresh-bans">
+            <button class="admin3d-btn admin3d-btn-primary" id="refresh-bans">
               <i class="fas fa-sync-alt"></i> Refresh
             </button>
           </div>
         </div>
         
-        <div class="ultra-premium-table-container">
-          <table class="ultra-premium-table">
-            <thead class="ultra-premium-table-header">
+        <div class="admin3d-table-container">
+          <table class="admin3d-table">
+            <thead class="admin3d-table-header">
               <tr>
                 <th>User</th>
                 <th>Reason</th>
@@ -195,20 +195,20 @@
     </div>
     
     <!-- Recent Actions with Premium Styling -->
-    <h2 class="ultra-premium-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Activity Monitoring</h2>
-    <div class="ultra-premium-card" >
-      <div class="ultra-premium-card-header">
-        <div class="ultra-premium-card-icon">
+    <h2 class="section-title" style="font-size: 2rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Activity Monitoring</h2>
+    <div class="admin3d-card" >
+      <div class="admin3d-card-header">
+        <div class="admin3d-card-icon">
           <i class="fas fa-history"></i>
         </div>
-        <h3 class="ultra-premium-card-title">Moderation Action Logs</h3>
+        <h3 class="admin3d-card-title">Moderation Action Logs</h3>
       </div>
-      <div class="ultra-premium-card-content">
+      <div class="admin3d-card-content">
         <div class="moderation-log-container">
           <div class="log-controls" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
             <div class="log-filter" style="flex-grow: 1;">
-              <div class="ultra-premium-input-group" style="margin-bottom: 0;">
-                <select class="ultra-premium-input" id="log-type-filter">
+              <div class="admin3d-form-group" style="margin-bottom: 0;">
+                <select class="admin3d-form-input" id="log-type-filter">
                   <option value="all">All Actions</option>
                   <option value="ban">Bans</option>
                   <option value="kick">Kicks</option>
@@ -216,17 +216,17 @@
                   <option value="warn">Warnings</option>
                   <option value="purge">Message Purges</option>
                 </select>
-                <i class="fas fa-filter ultra-premium-input-icon"></i>
+                <i class="fas fa-filter admin3d-form-input-icon"></i>
               </div>
             </div>
-            <button class="ultra-premium-button" id="refresh-logs">
+            <button class="admin3d-btn admin3d-btn-primary" id="refresh-logs">
               <i class="fas fa-sync-alt"></i> Refresh
             </button>
           </div>
           
-          <div class="ultra-premium-table-container">
-            <table class="ultra-premium-table">
-              <thead class="ultra-premium-table-header">
+          <div class="admin3d-table-container">
+            <table class="admin3d-table">
+              <thead class="admin3d-table-header">
                 <tr>
                   <th>Action</th>
                   <th>User</th>
@@ -431,72 +431,72 @@
 </div>
 
 <!-- Ban User Modal - Premium Version -->
-<div class="ultra-premium-modal-overlay" id="ban-user-modal">
-  <div class="ultra-premium-modal">
-    <div class="ultra-premium-modal-header">
-      <h3 class="ultra-premium-modal-title">Ban User</h3>
-      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
+<div class="admin3d-modal-overlay" id="ban-user-modal">
+  <div class="admin3d-modal">
+    <div class="admin3d-modal-header">
+      <h3 class="admin3d-modal-title">Ban User</h3>
+      <button class="admin3d-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="ultra-premium-modal-body">
+    <div class="admin3d-modal-body">
       <form id="ban-user-form">
-        <label class="ultra-premium-modal-label" for="ban-user-id">User ID</label>
-        <input class="ultra-premium-modal-input" type="text" id="ban-user-id" name="userId" placeholder="Discord User ID" required>
+        <label class="admin3d-modal-label" for="ban-user-id">User ID</label>
+        <input class="admin3d-modal-input" type="text" id="ban-user-id" name="userId" placeholder="Discord User ID" required>
         
-        <label class="ultra-premium-modal-label" for="ban-reason">Reason</label>
-        <textarea class="ultra-premium-modal-textarea" id="ban-reason" name="reason" rows="3" placeholder="Reason for ban" required></textarea>
+        <label class="admin3d-modal-label" for="ban-reason">Reason</label>
+        <textarea class="admin3d-modal-textarea" id="ban-reason" name="reason" rows="3" placeholder="Reason for ban" required></textarea>
         
-        <label class="ultra-premium-modal-label" for="ban-delete-days">Delete Messages</label>
-        <select class="ultra-premium-modal-select" id="ban-delete-days" name="deleteDays">
+        <label class="admin3d-modal-label" for="ban-delete-days">Delete Messages</label>
+        <select class="admin3d-modal-select" id="ban-delete-days" name="deleteDays">
           <option value="0">Don't Delete Messages</option>
           <option value="1" selected>Delete Last 24 Hours</option>
           <option value="7">Delete Last 7 Days</option>
         </select>
       </form>
     </div>
-    <div class="ultra-premium-modal-footer">
-      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
-      <button class="ultra-premium-button danger" data-action="ban">Ban User</button>
+    <div class="admin3d-modal-footer">
+      <button class="admin3d-btn admin3d-btn-primary" data-action="cancel">Cancel</button>
+      <button class="admin3d-btn admin3d-btn-danger" data-action="ban">Ban User</button>
     </div>
   </div>
 </div>
 
 <!-- Kick User Modal - Premium Version -->
-<div class="ultra-premium-modal-overlay" id="kick-user-modal">
-  <div class="ultra-premium-modal">
-    <div class="ultra-premium-modal-header">
-      <h3 class="ultra-premium-modal-title">Kick User</h3>
-      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
+<div class="admin3d-modal-overlay" id="kick-user-modal">
+  <div class="admin3d-modal">
+    <div class="admin3d-modal-header">
+      <h3 class="admin3d-modal-title">Kick User</h3>
+      <button class="admin3d-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="ultra-premium-modal-body">
+    <div class="admin3d-modal-body">
       <form id="kick-user-form">
-        <label class="ultra-premium-modal-label" for="kick-user-id">User ID</label>
-        <input class="ultra-premium-modal-input" type="text" id="kick-user-id" name="userId" placeholder="Discord User ID" required>
+        <label class="admin3d-modal-label" for="kick-user-id">User ID</label>
+        <input class="admin3d-modal-input" type="text" id="kick-user-id" name="userId" placeholder="Discord User ID" required>
         
-        <label class="ultra-premium-modal-label" for="kick-reason">Reason</label>
-        <textarea class="ultra-premium-modal-textarea" id="kick-reason" name="reason" rows="3" placeholder="Reason for kick" required></textarea>
+        <label class="admin3d-modal-label" for="kick-reason">Reason</label>
+        <textarea class="admin3d-modal-textarea" id="kick-reason" name="reason" rows="3" placeholder="Reason for kick" required></textarea>
       </form>
     </div>
-    <div class="ultra-premium-modal-footer">
-      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
-      <button class="ultra-premium-button warning" data-action="kick">Kick User</button>
+    <div class="admin3d-modal-footer">
+      <button class="admin3d-btn admin3d-btn-primary" data-action="cancel">Cancel</button>
+      <button class="admin3d-btn admin3d-btn-warning" data-action="kick">Kick User</button>
     </div>
   </div>
 </div>
 
 <!-- Timeout User Modal - Premium Version -->
-<div class="ultra-premium-modal-overlay" id="timeout-user-modal">
-  <div class="ultra-premium-modal">
-    <div class="ultra-premium-modal-header">
-      <h3 class="ultra-premium-modal-title">Timeout User</h3>
-      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
+<div class="admin3d-modal-overlay" id="timeout-user-modal">
+  <div class="admin3d-modal">
+    <div class="admin3d-modal-header">
+      <h3 class="admin3d-modal-title">Timeout User</h3>
+      <button class="admin3d-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="ultra-premium-modal-body">
+    <div class="admin3d-modal-body">
       <form id="timeout-user-form">
-        <label class="ultra-premium-modal-label" for="timeout-user-id">User ID</label>
-        <input class="ultra-premium-modal-input" type="text" id="timeout-user-id" name="userId" placeholder="Discord User ID" required>
+        <label class="admin3d-modal-label" for="timeout-user-id">User ID</label>
+        <input class="admin3d-modal-input" type="text" id="timeout-user-id" name="userId" placeholder="Discord User ID" required>
         
-        <label class="ultra-premium-modal-label" for="timeout-duration">Duration</label>
-        <select class="ultra-premium-modal-select" id="timeout-duration" name="duration">
+        <label class="admin3d-modal-label" for="timeout-duration">Duration</label>
+        <select class="admin3d-modal-select" id="timeout-duration" name="duration">
           <option value="60">1 Minute</option>
           <option value="300">5 Minutes</option>
           <option value="3600">1 Hour</option>
@@ -505,73 +505,73 @@
           <option value="604800">1 Week</option>
         </select>
         
-        <label class="ultra-premium-modal-label" for="timeout-reason">Reason</label>
-        <textarea class="ultra-premium-modal-textarea" id="timeout-reason" name="reason" rows="3" placeholder="Reason for timeout" required></textarea>
+        <label class="admin3d-modal-label" for="timeout-reason">Reason</label>
+        <textarea class="admin3d-modal-textarea" id="timeout-reason" name="reason" rows="3" placeholder="Reason for timeout" required></textarea>
       </form>
     </div>
-    <div class="ultra-premium-modal-footer">
-      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
-      <button class="ultra-premium-button warning" data-action="timeout">Timeout User</button>
+    <div class="admin3d-modal-footer">
+      <button class="admin3d-btn admin3d-btn-primary" data-action="cancel">Cancel</button>
+      <button class="admin3d-btn admin3d-btn-warning" data-action="timeout">Timeout User</button>
     </div>
   </div>
 </div>
 
 <!-- Purge Messages Modal - Premium Version -->
-<div class="ultra-premium-modal-overlay" id="purge-messages-modal">
-  <div class="ultra-premium-modal">
-    <div class="ultra-premium-modal-header">
-      <h3 class="ultra-premium-modal-title">Purge Messages</h3>
-      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
+<div class="admin3d-modal-overlay" id="purge-messages-modal">
+  <div class="admin3d-modal">
+    <div class="admin3d-modal-header">
+      <h3 class="admin3d-modal-title">Purge Messages</h3>
+      <button class="admin3d-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="ultra-premium-modal-body">
+    <div class="admin3d-modal-body">
       <form id="purge-messages-form">
-        <label class="ultra-premium-modal-label" for="purge-channel">Channel</label>
-        <select class="ultra-premium-modal-select" id="purge-channel" name="channelId" required>
+        <label class="admin3d-modal-label" for="purge-channel">Channel</label>
+        <select class="admin3d-modal-select" id="purge-channel" name="channelId" required>
           <option value="">Select a channel</option>
           <!-- Channels will be loaded dynamically -->
         </select>
         
-        <label class="ultra-premium-modal-label" for="purge-amount">Amount</label>
-        <input class="ultra-premium-modal-input" type="number" id="purge-amount" name="amount" min="1" max="100" value="10" required>
-        <span class="ultra-premium-modal-hint">Number of messages to delete (1-100)</span>
+        <label class="admin3d-modal-label" for="purge-amount">Amount</label>
+        <input class="admin3d-modal-input" type="number" id="purge-amount" name="amount" min="1" max="100" value="10" required>
+        <span class="admin3d-modal-hint">Number of messages to delete (1-100)</span>
         
-        <div class="ultra-premium-modal-section">
-          <h4 class="ultra-premium-modal-section-title">Filters</h4>
-          <div class="ultra-premium-modal-checkbox-group">
-            <label class="ultra-premium-modal-checkbox">
+        <div class="admin3d-modal-section">
+          <h4 class="admin3d-modal-section-title">Filters</h4>
+          <div class="admin3d-modal-checkbox-group">
+            <label class="admin3d-modal-checkbox">
               <input type="checkbox" name="onlyUsers" id="purge-only-users">
               <span>Only User Messages (Skip Bot Messages)</span>
             </label>
-            <label class="ultra-premium-modal-checkbox">
+            <label class="admin3d-modal-checkbox">
               <input type="checkbox" name="withImages" id="purge-with-images">
               <span>Only Messages With Images</span>
             </label>
-            <label class="ultra-premium-modal-checkbox">
+            <label class="admin3d-modal-checkbox">
               <input type="checkbox" name="withLinks" id="purge-with-links">
               <span>Only Messages With Links</span>
             </label>
           </div>
         </div>
         
-        <label class="ultra-premium-modal-label" for="purge-reason">Reason</label>
-        <textarea class="ultra-premium-modal-textarea" id="purge-reason" name="reason" rows="3" placeholder="Reason for purging messages" required></textarea>
+        <label class="admin3d-modal-label" for="purge-reason">Reason</label>
+        <textarea class="admin3d-modal-textarea" id="purge-reason" name="reason" rows="3" placeholder="Reason for purging messages" required></textarea>
       </form>
     </div>
-    <div class="ultra-premium-modal-footer">
-      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
-      <button class="ultra-premium-button danger" data-action="purge">Purge Messages</button>
+    <div class="admin3d-modal-footer">
+      <button class="admin3d-btn admin3d-btn-primary" data-action="cancel">Cancel</button>
+      <button class="admin3d-btn admin3d-btn-danger" data-action="purge">Purge Messages</button>
     </div>
   </div>
 </div>
 
 <!-- Ban Info Modal - Premium Version -->
-<div class="ultra-premium-modal-overlay" id="ban-info-modal">
-  <div class="ultra-premium-modal">
-    <div class="ultra-premium-modal-header">
-      <h3 class="ultra-premium-modal-title">Ban Information</h3>
-      <button class="ultra-premium-modal-close" data-action="close"><i class="fas fa-times"></i></button>
+<div class="admin3d-modal-overlay" id="ban-info-modal">
+  <div class="admin3d-modal">
+    <div class="admin3d-modal-header">
+      <h3 class="admin3d-modal-title">Ban Information</h3>
+      <button class="admin3d-modal-close" data-action="close"><i class="fas fa-times"></i></button>
     </div>
-    <div class="ultra-premium-modal-body">
+    <div class="admin3d-modal-body">
       <div class="ultra-premium-ban-info">
         <div class="ban-user-header" style="display: flex; align-items: center; gap: 1rem; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
           <div class="ban-user-avatar" id="ban-info-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: rgba(25, 27, 40, 0.7); display: flex; align-items: center; justify-content: center; border: 2px solid rgba(157, 0, 255, 0.3);">
@@ -601,26 +601,26 @@
         </div>
       </div>
     </div>
-    <div class="ultra-premium-modal-footer">
-      <button class="ultra-premium-button danger" data-action="unban">Unban User</button>
-      <button class="ultra-premium-button" data-action="close">Close</button>
+    <div class="admin3d-modal-footer">
+      <button class="admin3d-btn admin3d-btn-danger" data-action="unban">Unban User</button>
+      <button class="admin3d-btn admin3d-btn-primary" data-action="close">Close</button>
     </div>
   </div>
 </div>
 
 <!-- Confirmation Modal - Premium Version -->
-<div class="ultra-premium-modal-overlay" id="confirm-modal">
-  <div class="ultra-premium-modal">
-    <div class="ultra-premium-modal-header">
-      <h3 class="ultra-premium-modal-title">Confirm Action</h3>
-      <button class="ultra-premium-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
+<div class="admin3d-modal-overlay" id="confirm-modal">
+  <div class="admin3d-modal">
+    <div class="admin3d-modal-header">
+      <h3 class="admin3d-modal-title">Confirm Action</h3>
+      <button class="admin3d-modal-close" data-action="cancel"><i class="fas fa-times"></i></button>
     </div>
-    <div class="ultra-premium-modal-body">
+    <div class="admin3d-modal-body">
       <p id="confirm-message" style="font-size: 1.1rem; line-height: 1.5; color: rgba(255, 255, 255, 0.9);">Are you sure you want to perform this action?</p>
     </div>
-    <div class="ultra-premium-modal-footer">
-      <button class="ultra-premium-button" data-action="cancel">Cancel</button>
-      <button class="ultra-premium-button danger" data-action="confirm">Confirm</button>
+    <div class="admin3d-modal-footer">
+      <button class="admin3d-btn admin3d-btn-primary" data-action="cancel">Cancel</button>
+      <button class="admin3d-btn admin3d-btn-danger" data-action="confirm">Confirm</button>
     </div>
   </div>
 </div>
