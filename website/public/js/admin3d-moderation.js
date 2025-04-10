@@ -12,16 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // DOM Elements
   const serverSelect = document.getElementById('serverSelect');
-  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabButtons = document.querySelectorAll('.mod-nav-btn');
   const tabContents = document.querySelectorAll('.tab-content');
   
   // Ban Management Elements
   const banUserForm = document.getElementById('banUserForm');
   const banDuration = document.getElementById('banDuration');
   const customDurationGroup = document.getElementById('customDurationGroup');
-  const banSearchInput = document.getElementById('banSearchInput');
-  const banFilterSelect = document.getElementById('banFilterSelect');
-  const banListBody = document.getElementById('banListBody');
+  const banRefreshBtn = document.querySelector('.mod-refresh-btn');
+  const banList = document.getElementById('banList');
   
   // Warning Management Elements
   const warnUserForm = document.getElementById('warnUserForm');
