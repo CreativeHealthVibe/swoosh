@@ -1,8 +1,8 @@
 /**
- * SWOOSH ULTRA PREMIUM ADMIN DASHBOARD
- * Particle Effects System - £100,000 Edition
+ * SWOOSH ADMIN DASHBOARD
+ * Particle Effects System
  * 
- * This script provides luxury particle effects for premium experience
+ * This script provides particle effects for premium experience
  * with sophisticated animations and visual enhancements.
  */
 
