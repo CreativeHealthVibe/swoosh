@@ -110,14 +110,15 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 1.5rem;
-  background-color: #07041f; /* Solid dark background matching screenshot */
-  border-bottom: 1px solid rgba(79, 71, 125, 0.9); /* More visible border */
-  border-top: 1px solid rgba(79, 71, 125, 0.9); /* More visible border at top */
+  background-color: #1a124a; /* Lighter background for better visibility */
+  border-bottom: 1px solid rgba(137, 109, 235, 0.9); /* More visible brighter border */
+  border-top: 1px solid rgba(137, 109, 235, 0.9); /* More visible brighter border at top */
   position: relative;
   z-index: var(--z-above);
   width: 100%;
   box-sizing: border-box;
   overflow: visible; /* Allow logo to overflow if needed */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Added shadow for depth */
 }
 
 .admin3d-header::before {
@@ -147,20 +148,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
-  width: 20px;
+  height: 30px; /* Increased size */
+  width: 30px; /* Increased size */
   position: relative;
   top: 0px; /* Center vertically */
 }
 
 .swoosh-logo-mark img {
-  height: 20px;
-  width: 20px;
+  height: 30px; /* Increased size */
+  width: 30px; /* Increased size */
   object-fit: contain;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5)); /* Added glow effect to logo */
 }
 
 .swoosh-text {
-  font-size: 1.1rem;
+  font-size: 1.3rem; /* Increased font size for better visibility */
   font-weight: bold;
   color: #fff;
   display: flex;
@@ -168,13 +170,15 @@ body {
   letter-spacing: 0.5px;
   position: relative;
   top: 0px; /* Center vertically */
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Added glow effect for better visibility */
 }
 
 .bot-text {
   color: var(--primary);
   font-weight: bold;
   display: inline;
-  margin-left: 1px; /* Small gap between SWOOSH and Bot */
+  margin-left: 3px; /* Increased gap between SWOOSH and Bot */
+  text-shadow: 0 0 8px rgba(137, 54, 255, 0.7); /* Added matching glow effect */
 }
 
 /* Additional header properties */
