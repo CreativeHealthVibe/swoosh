@@ -312,15 +312,15 @@
     <div class="loading-text">Processing...</div>
   </div>
   
-  <!-- Ultra Premium Scripts (only on premium pages) -->
+  <!-- 3D Dashboard Scripts (only on certain pages) -->
   <% if (title.includes('Moderation')) { %>
-    <script src="/js/ultra-premium-particles.js" defer></script>
+    <script src="/js/admin3d-particles.js" defer></script>
     <script>
       // Initialize with a welcome notification when page loads
       document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
-          if (typeof UltraPremiumNotification !== 'undefined') {
-            UltraPremiumNotification.info('Welcome to the Ultra Premium Moderation System', {
+          if (typeof Admin3DNotification !== 'undefined') {
+            Admin3DNotification.info('Welcome to the Moderation Dashboard', {
               duration: 6000,
               animation: 'slide-right'
             });

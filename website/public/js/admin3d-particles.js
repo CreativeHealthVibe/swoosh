@@ -2,8 +2,8 @@
  * SWOOSH ADMIN DASHBOARD
  * Particle Effects System
  * 
- * This script provides particle effects for premium experience
- * with sophisticated animations and visual enhancements.
+ * This script provides sophisticated particle effects and animations
+ * for the 3D admin dashboard visual experience.
  */
 
 /** 
@@ -56,7 +56,7 @@ function createParticleEffect(container, options = {}) {
   // Return cleanup function
   return function cleanupParticles() {
     clearInterval(container.particleIntervalId);
-    const particles = container.querySelectorAll('.ultra-premium-particle');
+    const particles = container.querySelectorAll('.admin3d-particle');
     particles.forEach(particle => particle.remove());
   };
 }
@@ -69,7 +69,7 @@ function createParticleEffect(container, options = {}) {
 function createParticle(container, config) {
   // Create particle element
   const particle = document.createElement('div');
-  particle.className = 'ultra-premium-particle';
+  particle.className = 'admin3d-particle';
   
   // Set random properties
   const size = Array.isArray(config.size) 
@@ -181,7 +181,7 @@ function getRandomInRange(min, max) {
 }
 
 /**
- * Ultra Premium Glowing Effect
+ * Admin 3D Glowing Effect
  * @param {HTMLElement} element - Element to apply effect to
  * @param {Object} options - Effect options
  */
@@ -202,7 +202,7 @@ function createGlowingEffect(element, options = {}) {
   
   // Add glow container
   const glowContainer = document.createElement('div');
-  glowContainer.className = 'ultra-premium-glow';
+  glowContainer.className = 'admin3d-glow';
   
   Object.assign(glowContainer.style, {
     position: 'absolute',
@@ -222,7 +222,7 @@ function createGlowingEffect(element, options = {}) {
   // Add pulsing animation if enabled
   if (config.pulse) {
     const keyframes = `
-      @keyframes ultra-premium-pulse-${Date.now()} {
+      @keyframes admin3d-pulse-${Date.now()} {
         0% { opacity: ${config.intensity * 0.7}; }
         50% { opacity: ${config.intensity}; }
         100% { opacity: ${config.intensity * 0.7}; }
@@ -236,7 +236,7 @@ function createGlowingEffect(element, options = {}) {
     
     // Apply animation
     Object.assign(glowContainer.style, {
-      animation: `ultra-premium-pulse-${Date.now()} ${config.duration}ms infinite ease-in-out`
+      animation: `admin3d-pulse-${Date.now()} ${config.duration}ms infinite ease-in-out`
     });
   }
   
