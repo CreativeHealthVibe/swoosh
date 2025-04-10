@@ -548,7 +548,7 @@
   }
   
   /* Premium Notification Styling */
-  .admin3d-notification {
+  .premium-notification {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -565,22 +565,22 @@
     z-index: 9999;
   }
   
-  .admin3d-notification.success {
+  .premium-notification.success {
     background: rgba(0, 230, 118, 0.15);
     border-color: rgba(0, 230, 118, 0.3);
   }
   
-  .admin3d-notification.error {
+  .premium-notification.error {
     background: rgba(255, 61, 113, 0.15);
     border-color: rgba(255, 61, 113, 0.3);
   }
   
-  .admin3d-notification.warning {
+  .premium-notification.warning {
     background: rgba(255, 179, 0, 0.15);
     border-color: rgba(255, 179, 0, 0.3);
   }
   
-  .admin3d-notification.info {
+  .premium-notification.info {
     background: rgba(77, 159, 255, 0.15);
     border-color: rgba(77, 159, 255, 0.3);
   }
@@ -596,22 +596,22 @@
     flex-shrink: 0;
   }
   
-  .admin3d-notification.success .notification-icon {
+  .premium-notification.success .notification-icon {
     color: #00e676;
     background: rgba(0, 230, 118, 0.15);
   }
   
-  .admin3d-notification.error .notification-icon {
+  .premium-notification.error .notification-icon {
     color: #ff3d71;
     background: rgba(255, 61, 113, 0.15);
   }
   
-  .admin3d-notification.warning .notification-icon {
+  .premium-notification.warning .notification-icon {
     color: #ffb300;
     background: rgba(255, 179, 0, 0.15);
   }
   
-  .admin3d-notification.info .notification-icon {
+  .premium-notification.info .notification-icon {
     color: #4d9fff;
     background: rgba(77, 159, 255, 0.15);
   }
@@ -679,7 +679,7 @@
       margin-top: 1rem;
     }
     
-    .admin3d-notification {
+    .premium-notification {
       width: 90%;
       max-width: 90%;
       left: 5%;
@@ -915,7 +915,7 @@
     window.showPremiumNotification = function(type, title, message, autoHide = false) {
       // Create the notification container
       const notifDiv = document.createElement('div');
-      notifDiv.className = `admin3d-notification ${type}`;
+      notifDiv.className = `premium-notification ${type}`;
       
       // Set icon based on type
       let icon = 'info-circle';
