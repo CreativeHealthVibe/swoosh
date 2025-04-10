@@ -1,0 +1,2406 @@
+<%# 
+  SWOOSH Bot 3D Admin Dashboard
+  Premium Edition
+  
+  Moderation Management Page - Enterprise Edition
+%>
+
+<div class="admin3d-moderation">
+  <div class="dashboard-header">
+    <h1 class="section-title">Advanced Moderation Suite</h1>
+    <div class="premium-badge">
+      <i class="fas fa-crown"></i> PREMIUM
+    </div>
+  </div>
+  
+  <p class="section-description">
+    Access enterprise-grade moderation tools to maintain security and enforce standards across your Discord servers.
+  </p>
+
+  <!-- Server Selector -->
+  <div class="server-selector-container">
+    <select id="server-select" class="premium-select">
+      <option value="">Select Discord Server</option>
+      <option value="server1">The Phantom Syndicate</option>
+      <option value="server2">SWOOSH Official</option>
+      <option value="server3">Coding Hub</option>
+    </select>
+    <div class="server-stats">
+      <div class="server-stat">
+        <i class="fas fa-users"></i>
+        <span class="stat-value">248</span>
+        <span class="stat-label">Members</span>
+      </div>
+      <div class="server-stat">
+        <i class="fas fa-shield-alt"></i>
+        <span class="stat-value">45</span>
+        <span class="stat-label">Mod Actions</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Container -->
+  <div class="tabs-container" id="moderation-tabs">
+    <div class="admin3d-tabs">
+      <button class="tab-btn active" data-tab="server-management">
+        <i class="fas fa-server"></i> Server Management
+      </button>
+      <button class="tab-btn" data-tab="ban-management">
+        <i class="fas fa-ban"></i> Ban Management
+      </button>
+      <button class="tab-btn" data-tab="warnings">
+        <i class="fas fa-exclamation-triangle"></i> Warnings
+      </button>
+      <button class="tab-btn" data-tab="automod">
+        <i class="fas fa-shield-alt"></i> Auto-Moderation
+      </button>
+    </div>
+    
+    <!-- Tab Contents -->
+    <div class="tab-content-container">
+      <!-- Server Management Tab -->
+      <div id="server-management" class="tab-content active">
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+          <div class="stats-card">
+            <div class="stats-card-header">
+              <h4>Moderation Overview</h4>
+              <div class="time-selector">
+                <span class="time active">Today</span>
+                <span class="time">Week</span>
+                <span class="time">Month</span>
+              </div>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-icon ban-icon">
+                  <i class="fas fa-ban"></i>
+                </div>
+                <div class="stat-details">
+                  <div class="stat-value" id="total-bans">23</div>
+                  <div class="stat-label">Bans</div>
+                  <div class="stat-trend up">
+                    <i class="fas fa-arrow-up"></i> 12%
+                  </div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon kick-icon">
+                  <i class="fas fa-user-slash"></i>
+                </div>
+                <div class="stat-details">
+                  <div class="stat-value" id="total-kicks">47</div>
+                  <div class="stat-label">Kicks</div>
+                  <div class="stat-trend down">
+                    <i class="fas fa-arrow-down"></i> 5%
+                  </div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon warning-icon">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-details">
+                  <div class="stat-value" id="total-warnings">89</div>
+                  <div class="stat-label">Warnings</div>
+                  <div class="stat-trend up">
+                    <i class="fas fa-arrow-up"></i> 21%
+                  </div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon timeout-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-details">
+                  <div class="stat-value" id="total-timeouts">15</div>
+                  <div class="stat-label">Timeouts</div>
+                  <div class="stat-trend down">
+                    <i class="fas fa-arrow-down"></i> 8%
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent Actions and Config -->
+        <div class="management-grid">
+          <div class="admin3d-card action-log-card">
+            <div class="admin3d-card-header">
+              <h3><i class="fas fa-history"></i> Recent Actions</h3>
+              <div class="card-header-actions">
+                <button class="card-action-btn">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="card-action-btn">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+            </div>
+            <div class="admin3d-card-body">
+              <div class="moderation-log">
+                <div class="moderation-log-item">
+                  <div class="moderation-log-icon">
+                    <i class="fas fa-ban"></i>
+                  </div>
+                  <div class="moderation-log-content">
+                    <div class="moderation-log-title">User Banned</div>
+                    <div class="moderation-log-details">TroubleUser#1234 was banned for violating server rules</div>
+                    <div class="moderation-log-meta">
+                      <span>By: Admin#0001</span>
+                      <span>15 minutes ago</span>
+                    </div>
+                  </div>
+                  <div class="log-actions">
+                    <button class="log-action-btn"><i class="fas fa-undo"></i></button>
+                    <button class="log-action-btn"><i class="fas fa-info-circle"></i></button>
+                  </div>
+                </div>
+                <div class="moderation-log-item">
+                  <div class="moderation-log-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div class="moderation-log-content">
+                    <div class="moderation-log-title">User Warned</div>
+                    <div class="moderation-log-details">NewUser#5678 was warned for spamming in #general</div>
+                    <div class="moderation-log-meta">
+                      <span>By: Moderator#1234</span>
+                      <span>2 hours ago</span>
+                    </div>
+                  </div>
+                  <div class="log-actions">
+                    <button class="log-action-btn"><i class="fas fa-undo"></i></button>
+                    <button class="log-action-btn"><i class="fas fa-info-circle"></i></button>
+                  </div>
+                </div>
+                <div class="moderation-log-item">
+                  <div class="moderation-log-icon">
+                    <i class="fas fa-user-slash"></i>
+                  </div>
+                  <div class="moderation-log-content">
+                    <div class="moderation-log-title">User Kicked</div>
+                    <div class="moderation-log-details">AngryGamer#4321 was kicked for inappropriate language</div>
+                    <div class="moderation-log-meta">
+                      <span>By: Helper#8765</span>
+                      <span>1 day ago</span>
+                    </div>
+                  </div>
+                  <div class="log-actions">
+                    <button class="log-action-btn"><i class="fas fa-undo"></i></button>
+                    <button class="log-action-btn"><i class="fas fa-info-circle"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="view-all-container">
+                <button class="view-all-btn">View All Activity <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="admin3d-card config-card">
+            <div class="admin3d-card-header">
+              <h3><i class="fas fa-sliders-h"></i> Quick Actions</h3>
+            </div>
+            <div class="admin3d-card-body">
+              <div class="quick-actions-grid">
+                <button class="quick-action-btn">
+                  <i class="fas fa-lock"></i>
+                  <span>Lockdown Server</span>
+                </button>
+                <button class="quick-action-btn">
+                  <i class="fas fa-user-shield"></i>
+                  <span>Raid Mode</span>
+                </button>
+                <button class="quick-action-btn">
+                  <i class="fas fa-comment-slash"></i>
+                  <span>Mute Channel</span>
+                </button>
+                <button class="quick-action-btn">
+                  <i class="fas fa-filter"></i>
+                  <span>Slow Mode</span>
+                </button>
+              </div>
+              
+              <div class="admin3d-divider"></div>
+              
+              <div class="config-form">
+                <div class="admin3d-input-group">
+                  <label for="mod-role">Moderator Role</label>
+                  <select id="mod-role" class="admin3d-select">
+                    <option value="">Select Moderator Role</option>
+                    <option value="role1">Admin</option>
+                    <option value="role2">Moderator</option>
+                    <option value="role3">Helper</option>
+                  </select>
+                </div>
+                <div class="admin3d-input-group">
+                  <label for="log-channel">Log Channel</label>
+                  <select id="log-channel" class="admin3d-select">
+                    <option value="">Select Channel</option>
+                    <option value="channel1">#mod-logs</option>
+                    <option value="channel2">#admin-logs</option>
+                    <option value="channel3">#bot-logs</option>
+                  </select>
+                </div>
+                <button class="admin3d-button primary">
+                  <i class="fas fa-save"></i> Save Configuration
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Ban Management Tab -->
+      <div id="ban-management" class="tab-content">
+        <div class="management-grid">
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <h3><i class="fas fa-gavel"></i> Ban User</h3>
+            </div>
+            <div class="admin3d-card-body">
+              <div class="ban-form">
+                <div class="admin3d-form-row">
+                  <div class="admin3d-input-group">
+                    <label for="ban-user-id">User ID or @mention</label>
+                    <div class="premium-input-container">
+                      <input type="text" id="ban-user-id" class="admin3d-input" placeholder="Enter user ID or @mention">
+                      <button class="input-action-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                  </div>
+                  <div class="admin3d-input-group">
+                    <label for="ban-duration">Ban Duration</label>
+                    <select id="ban-duration" class="admin3d-select">
+                      <option value="permanent">Permanent</option>
+                      <option value="1d">1 Day</option>
+                      <option value="7d">7 Days</option>
+                      <option value="30d">30 Days</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="admin3d-input-group">
+                  <label for="ban-reason">Reason</label>
+                  <textarea id="ban-reason" class="admin3d-textarea" placeholder="Enter reason for the ban"></textarea>
+                </div>
+                <div class="ban-options">
+                  <div class="option-checkbox">
+                    <input type="checkbox" id="delete-messages" checked>
+                    <label for="delete-messages">Delete Messages (last 7 days)</label>
+                  </div>
+                  <div class="option-checkbox">
+                    <input type="checkbox" id="notify-user" checked>
+                    <label for="notify-user">Notify User</label>
+                  </div>
+                  <div class="option-checkbox">
+                    <input type="checkbox" id="add-to-blacklist">
+                    <label for="add-to-blacklist">Add to Global Blacklist</label>
+                  </div>
+                </div>
+                <button class="admin3d-button primary ban-button">
+                  <i class="fas fa-gavel"></i> Ban User
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <h3><i class="fas fa-ban"></i> Ban List</h3>
+              <div class="card-header-actions">
+                <div class="search-container">
+                  <input type="text" class="search-input" placeholder="Search banned users">
+                  <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="filter-dropdown">
+                  <button class="filter-btn"><i class="fas fa-filter"></i></button>
+                  <div class="filter-menu">
+                    <div class="filter-option">
+                      <input type="checkbox" id="filter-recent" checked>
+                      <label for="filter-recent">Recent</label>
+                    </div>
+                    <div class="filter-option">
+                      <input type="checkbox" id="filter-permanent" checked>
+                      <label for="filter-permanent">Permanent</label>
+                    </div>
+                    <div class="filter-option">
+                      <input type="checkbox" id="filter-temporary" checked>
+                      <label for="filter-temporary">Temporary</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="admin3d-card-body">
+              <div class="ban-list-container">
+                <table class="admin3d-table ban-table">
+                  <thead>
+                    <tr>
+                      <th><i class="fas fa-user"></i> User</th>
+                      <th><i class="fas fa-comment-alt"></i> Reason</th>
+                      <th><i class="fas fa-user-shield"></i> Banned By</th>
+                      <th><i class="fas fa-calendar-alt"></i> Date</th>
+                      <th><i class="fas fa-cog"></i> Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="user-cell">
+                          <div class="user-avatar"></div>
+                          <span>TroubleUser#1234</span>
+                        </div>
+                      </td>
+                      <td>Violating server rules</td>
+                      <td>Admin#0001</td>
+                      <td>Today</td>
+                      <td>
+                        <div class="action-buttons">
+                          <button class="action-btn" title="Unban"><i class="fas fa-undo"></i></button>
+                          <button class="action-btn" title="View Details"><i class="fas fa-info-circle"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="user-cell">
+                          <div class="user-avatar"></div>
+                          <span>Spammer#5678</span>
+                        </div>
+                      </td>
+                      <td>Mass advertising</td>
+                      <td>Moderator#1234</td>
+                      <td>Yesterday</td>
+                      <td>
+                        <div class="action-buttons">
+                          <button class="action-btn" title="Unban"><i class="fas fa-undo"></i></button>
+                          <button class="action-btn" title="View Details"><i class="fas fa-info-circle"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="user-cell">
+                          <div class="user-avatar"></div>
+                          <span>BadActor#9012</span>
+                        </div>
+                      </td>
+                      <td>Harassment</td>
+                      <td>Admin#0001</td>
+                      <td>3 days ago</td>
+                      <td>
+                        <div class="action-buttons">
+                          <button class="action-btn" title="Unban"><i class="fas fa-undo"></i></button>
+                          <button class="action-btn" title="View Details"><i class="fas fa-info-circle"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="premium-pagination">
+                <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+                <div class="page-indicator">
+                  <span class="current-page">1</span>
+                  <span class="separator">/</span>
+                  <span class="total-pages">5</span>
+                </div>
+                <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Warnings Tab -->
+      <div id="warnings" class="tab-content">
+        <div class="management-grid">
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <h3><i class="fas fa-exclamation-triangle"></i> Issue Warning</h3>
+            </div>
+            <div class="admin3d-card-body">
+              <div class="warning-form">
+                <div class="admin3d-form-row">
+                  <div class="admin3d-input-group">
+                    <label for="warn-user-id">User ID or @mention</label>
+                    <div class="premium-input-container">
+                      <input type="text" id="warn-user-id" class="admin3d-input" placeholder="Enter user ID or @mention">
+                      <button class="input-action-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                  </div>
+                  <div class="admin3d-input-group">
+                    <label for="warn-severity">Severity</label>
+                    <div class="severity-selector">
+                      <label class="severity-option">
+                        <input type="radio" name="severity" value="low" checked>
+                        <span class="severity-btn low">Low</span>
+                      </label>
+                      <label class="severity-option">
+                        <input type="radio" name="severity" value="medium">
+                        <span class="severity-btn medium">Medium</span>
+                      </label>
+                      <label class="severity-option">
+                        <input type="radio" name="severity" value="high">
+                        <span class="severity-btn high">High</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="admin3d-input-group">
+                  <label for="warn-reason">Reason</label>
+                  <textarea id="warn-reason" class="admin3d-textarea" placeholder="Enter reason for the warning"></textarea>
+                </div>
+                <div class="warning-options">
+                  <div class="option-checkbox">
+                    <input type="checkbox" id="notify-warn-user" checked>
+                    <label for="notify-warn-user">Notify User</label>
+                  </div>
+                  <div class="option-checkbox">
+                    <input type="checkbox" id="auto-punish" checked>
+                    <label for="auto-punish">Apply Auto-Punishment Rules</label>
+                  </div>
+                </div>
+                <button class="admin3d-button primary warning-button">
+                  <i class="fas fa-exclamation-triangle"></i> Issue Warning
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <h3><i class="fas fa-list"></i> Warning History</h3>
+              <div class="card-header-actions">
+                <div class="search-container">
+                  <input type="text" class="search-input" placeholder="Search user warnings">
+                  <i class="fas fa-search search-icon"></i>
+                </div>
+              </div>
+            </div>
+            <div class="admin3d-card-body">
+              <div class="warnings-container">
+                <div class="warnings-list">
+                  <div class="warning-item medium">
+                    <div class="warning-header">
+                      <div class="warning-user-info">
+                        <div class="user-avatar small"></div>
+                        <span class="warning-user">NewUser#5678</span>
+                      </div>
+                      <div class="warning-severity-badge medium">Medium</div>
+                    </div>
+                    <div class="warning-reason">Spamming in #general channel</div>
+                    <div class="warning-footer">
+                      <div class="warning-issuer">
+                        <i class="fas fa-gavel"></i>
+                        <span>Moderator#1234</span>
+                      </div>
+                      <div class="warning-time">
+                        <i class="fas fa-clock"></i>
+                        <span>2 hours ago</span>
+                      </div>
+                      <div class="warning-actions">
+                        <button class="warning-action-btn" title="Remove Warning"><i class="fas fa-times"></i></button>
+                        <button class="warning-action-btn" title="Escalate"><i class="fas fa-arrow-up"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="warning-item low">
+                    <div class="warning-header">
+                      <div class="warning-user-info">
+                        <div class="user-avatar small"></div>
+                        <span class="warning-user">Member#4321</span>
+                      </div>
+                      <div class="warning-severity-badge low">Low</div>
+                    </div>
+                    <div class="warning-reason">Minor rule violation</div>
+                    <div class="warning-footer">
+                      <div class="warning-issuer">
+                        <i class="fas fa-gavel"></i>
+                        <span>Helper#8765</span>
+                      </div>
+                      <div class="warning-time">
+                        <i class="fas fa-clock"></i>
+                        <span>Yesterday</span>
+                      </div>
+                      <div class="warning-actions">
+                        <button class="warning-action-btn" title="Remove Warning"><i class="fas fa-times"></i></button>
+                        <button class="warning-action-btn" title="Escalate"><i class="fas fa-arrow-up"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="warning-item high">
+                    <div class="warning-header">
+                      <div class="warning-user-info">
+                        <div class="user-avatar small"></div>
+                        <span class="warning-user">ProblemUser#6789</span>
+                      </div>
+                      <div class="warning-severity-badge high">High</div>
+                    </div>
+                    <div class="warning-reason">Posting inappropriate content</div>
+                    <div class="warning-footer">
+                      <div class="warning-issuer">
+                        <i class="fas fa-gavel"></i>
+                        <span>Admin#0001</span>
+                      </div>
+                      <div class="warning-time">
+                        <i class="fas fa-clock"></i>
+                        <span>3 days ago</span>
+                      </div>
+                      <div class="warning-actions">
+                        <button class="warning-action-btn" title="Remove Warning"><i class="fas fa-times"></i></button>
+                        <button class="warning-action-btn" title="Escalate"><i class="fas fa-arrow-up"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="premium-pagination">
+                <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+                <div class="page-indicator">
+                  <span class="current-page">1</span>
+                  <span class="separator">/</span>
+                  <span class="total-pages">3</span>
+                </div>
+                <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Auto-Moderation Tab -->
+      <div id="automod" class="tab-content">
+        <div class="management-grid">
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <h3><i class="fas fa-shield-alt"></i> Auto-Moderation Settings</h3>
+            </div>
+            <div class="admin3d-card-body">
+              <div class="automod-tabs">
+                <button class="automod-tab active" data-target="content-filter">Content Filtering</button>
+                <button class="automod-tab" data-target="raid-protection">Raid Protection</button>
+                <button class="automod-tab" data-target="auto-responses">Auto-Responses</button>
+              </div>
+              
+              <div class="automod-tab-content active" id="content-filter">
+                <div class="filter-settings">
+                  <div class="filter-group">
+                    <h4>Message Content Filters</h4>
+                    <div class="filter-options">
+                      <div class="filter-option">
+                        <div class="option-toggle">
+                          <input type="checkbox" id="filter-profanity" class="toggle-input" checked>
+                          <label for="filter-profanity" class="toggle-label"></label>
+                        </div>
+                        <div class="option-details">
+                          <label for="filter-profanity" class="option-label">Profanity Filter</label>
+                          <span class="option-description">Block messages containing profanity</span>
+                        </div>
+                      </div>
+                      <div class="filter-option">
+                        <div class="option-toggle">
+                          <input type="checkbox" id="filter-links" class="toggle-input" checked>
+                          <label for="filter-links" class="toggle-label"></label>
+                        </div>
+                        <div class="option-details">
+                          <label for="filter-links" class="option-label">Suspicious Links</label>
+                          <span class="option-description">Block messages containing suspicious URLs</span>
+                        </div>
+                      </div>
+                      <div class="filter-option">
+                        <div class="option-toggle">
+                          <input type="checkbox" id="filter-spam" class="toggle-input" checked>
+                          <label for="filter-spam" class="toggle-label"></label>
+                        </div>
+                        <div class="option-details">
+                          <label for="filter-spam" class="option-label">Anti-Spam</label>
+                          <span class="option-description">Prevent message spam and repetition</span>
+                        </div>
+                      </div>
+                      <div class="filter-option">
+                        <div class="option-toggle">
+                          <input type="checkbox" id="filter-caps" class="toggle-input">
+                          <label for="filter-caps" class="toggle-label"></label>
+                        </div>
+                        <div class="option-details">
+                          <label for="filter-caps" class="option-label">Excessive Caps</label>
+                          <span class="option-description">Filter messages with too many capital letters</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="filter-group">
+                    <h4>Punishment Settings</h4>
+                    <div class="punishment-settings">
+                      <div class="punishment-row">
+                        <span class="violation">First Violation</span>
+                        <select class="admin3d-select">
+                          <option value="warning">Warning</option>
+                          <option value="delete">Delete Message</option>
+                          <option value="timeout">Timeout (5m)</option>
+                        </select>
+                      </div>
+                      <div class="punishment-row">
+                        <span class="violation">Second Violation</span>
+                        <select class="admin3d-select">
+                          <option value="delete">Delete Message</option>
+                          <option value="timeout">Timeout (10m)</option>
+                          <option value="kick">Kick</option>
+                        </select>
+                      </div>
+                      <div class="punishment-row">
+                        <span class="violation">Third Violation</span>
+                        <select class="admin3d-select">
+                          <option value="timeout">Timeout (1h)</option>
+                          <option value="kick">Kick</option>
+                          <option value="ban">Ban (1d)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="automod-tab-content" id="raid-protection">
+                <div class="raid-settings">
+                  <div class="raid-protection-toggle">
+                    <div class="option-toggle large">
+                      <input type="checkbox" id="anti-raid" class="toggle-input">
+                      <label for="anti-raid" class="toggle-label"></label>
+                    </div>
+                    <div class="option-details">
+                      <label for="anti-raid" class="option-label">Anti-Raid Protection</label>
+                      <span class="option-description">Automatically detect and respond to potential raid attempts</span>
+                    </div>
+                  </div>
+                  
+                  <div id="raid-options" class="raid-options">
+                    <div class="raid-settings-group">
+                      <h4>Detection Settings</h4>
+                      <div class="raid-setting">
+                        <label for="raid-join-rate">Join Rate Threshold</label>
+                        <select id="raid-join-rate" class="admin3d-select">
+                          <option value="5">5 joins / 10 seconds</option>
+                          <option value="10">10 joins / 10 seconds</option>
+                          <option value="15">15 joins / 10 seconds</option>
+                          <option value="custom">Custom</option>
+                        </select>
+                      </div>
+                      <div class="raid-setting">
+                        <label for="account-age">Minimum Account Age</label>
+                        <select id="account-age" class="admin3d-select">
+                          <option value="1">1 day</option>
+                          <option value="7">7 days</option>
+                          <option value="30">30 days</option>
+                          <option value="custom">Custom</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="raid-settings-group">
+                      <h4>Response Actions</h4>
+                      <div class="raid-setting">
+                        <label for="raid-action">Action When Raid Detected</label>
+                        <select id="raid-action" class="admin3d-select">
+                          <option value="lockdown">Server Lockdown</option>
+                          <option value="verification">Increase Verification</option>
+                          <option value="alert">Alert Moderators Only</option>
+                        </select>
+                      </div>
+                      <div class="raid-setting">
+                        <label for="raid-duration">Lockdown Duration</label>
+                        <select id="raid-duration" class="admin3d-select">
+                          <option value="30">30 minutes</option>
+                          <option value="60">1 hour</option>
+                          <option value="120">2 hours</option>
+                          <option value="manual">Manual Release</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="automod-tab-content" id="auto-responses">
+                <div class="auto-responses-settings">
+                  <div class="responses-list">
+                    <div class="response-item">
+                      <div class="response-header">
+                        <div class="response-title">Welcome Message</div>
+                        <div class="response-toggle">
+                          <input type="checkbox" id="welcome-toggle" class="toggle-input" checked>
+                          <label for="welcome-toggle" class="toggle-label"></label>
+                        </div>
+                      </div>
+                      <div class="response-details">
+                        <div class="response-trigger">
+                          <span class="trigger-label">Trigger:</span>
+                          <span class="trigger-value">New User Joins</span>
+                        </div>
+                        <div class="response-channel">
+                          <span class="channel-label">Channel:</span>
+                          <span class="channel-value">#welcome</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="response-item">
+                      <div class="response-header">
+                        <div class="response-title">Support Response</div>
+                        <div class="response-toggle">
+                          <input type="checkbox" id="support-toggle" class="toggle-input" checked>
+                          <label for="support-toggle" class="toggle-label"></label>
+                        </div>
+                      </div>
+                      <div class="response-details">
+                        <div class="response-trigger">
+                          <span class="trigger-label">Trigger:</span>
+                          <span class="trigger-value">!help command</span>
+                        </div>
+                        <div class="response-channel">
+                          <span class="channel-label">Channel:</span>
+                          <span class="channel-value">Any</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="response-item">
+                      <div class="response-header">
+                        <div class="response-title">Rule Reminder</div>
+                        <div class="response-toggle">
+                          <input type="checkbox" id="rules-toggle" class="toggle-input">
+                          <label for="rules-toggle" class="toggle-label"></label>
+                        </div>
+                      </div>
+                      <div class="response-details">
+                        <div class="response-trigger">
+                          <span class="trigger-label">Trigger:</span>
+                          <span class="trigger-value">!rules command</span>
+                        </div>
+                        <div class="response-channel">
+                          <span class="channel-label">Channel:</span>
+                          <span class="channel-value">Any</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="admin3d-button secondary add-response-btn">
+                    <i class="fas fa-plus"></i> Add New Auto-Response
+                  </button>
+                </div>
+              </div>
+              
+              <div class="admin3d-divider"></div>
+              
+              <div class="settings-actions">
+                <button class="admin3d-button primary">
+                  <i class="fas fa-save"></i> Save Settings
+                </button>
+                <button class="admin3d-button secondary">
+                  <i class="fas fa-undo"></i> Reset to Default
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Premium Moderation Page Styling */
+.admin3d-moderation {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.premium-badge {
+  background: linear-gradient(135deg, #ffcc00, #ff9900);
+  color: #000;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+}
+
+.section-description {
+  margin-bottom: 2rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 800px;
+}
+
+/* Server Selector */
+.server-selector-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(20, 23, 34, 0.6);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.premium-select {
+  background-color: rgba(30, 32, 44, 0.7);
+  border: 1px solid rgba(83, 89, 144, 0.4);
+  color: var(--text);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 300px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237289da' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+.premium-select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.25);
+}
+
+.server-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.server-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.server-stat i {
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Tab Styling */
+.admin3d-tabs {
+  display: flex;
+  overflow-x: auto;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(49, 41, 95, 0.3);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--text);
+  background-color: var(--background-lighter);
+}
+
+.tab-btn.active {
+  color: var(--text);
+  background-color: var(--background-lighter);
+}
+
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
+  border-radius: 3px;
+}
+
+.tab-content-container {
+  margin-top: 2rem;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+
+/* Stats Overview */
+.stats-overview {
+  margin-bottom: 2rem;
+}
+
+.stats-card {
+  background: rgba(20, 23, 34, 0.6);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.stats-card-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.time-selector {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(30, 32, 44, 0.7);
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.time {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.time:hover {
+  color: var(--text);
+}
+
+.time.active {
+  background: rgba(66, 70, 112, 0.5);
+  color: var(--text);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(30, 32, 44, 0.5);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+  background: rgba(35, 38, 52, 0.7);
+  transform: translateY(-3px);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon i {
+  font-size: 1.5rem;
+}
+
+.ban-icon {
+  background: rgba(240, 71, 71, 0.1);
+  color: #f04747;
+}
+
+.kick-icon {
+  background: rgba(114, 137, 218, 0.1);
+  color: #7289da;
+}
+
+.warning-icon {
+  background: rgba(250, 166, 26, 0.1);
+  color: #faa61a;
+}
+
+.timeout-icon {
+  background: rgba(67, 181, 129, 0.1);
+  color: #43b581;
+}
+
+.stat-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.stat-trend {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-trend.up {
+  color: #43b581;
+}
+
+.stat-trend.down {
+  color: #f04747;
+}
+
+/* Management Grid */
+.management-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin3d-card {
+  background: rgba(20, 23, 34, 0.6);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin3d-card-header {
+  background: rgba(30, 32, 44, 0.7);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(66, 70, 112, 0.3);
+}
+
+.admin3d-card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin3d-card-header h3 i {
+  color: var(--primary);
+}
+
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-action-btn {
+  background: rgba(30, 32, 44, 0.7);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.card-action-btn:hover {
+  background: rgba(66, 70, 112, 0.5);
+  color: var(--text);
+}
+
+.admin3d-card-body {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Recent Actions Card */
+.action-log-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.moderation-log {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-grow: 1;
+}
+
+.moderation-log-item {
+  display: flex;
+  gap: 1rem;
+  background-color: rgba(30, 31, 40, 0.5);
+  border-radius: 12px;
+  padding: 1rem;
+  border-left: 4px solid;
+  transition: all 0.2s ease;
+  align-items: flex-start;
+}
+
+.moderation-log-item:hover {
+  background-color: rgba(35, 36, 48, 0.7);
+  transform: translateY(-2px);
+}
+
+.moderation-log-item:nth-child(1) {
+  border-left-color: #f04747;
+}
+
+.moderation-log-item:nth-child(2) {
+  border-left-color: #faa61a;
+}
+
+.moderation-log-item:nth-child(3) {
+  border-left-color: #7289da;
+}
+
+.moderation-log-icon {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(55, 60, 80, 0.7);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.moderation-log-item:nth-child(1) .moderation-log-icon {
+  color: #f04747;
+}
+
+.moderation-log-item:nth-child(2) .moderation-log-icon {
+  color: #faa61a;
+}
+
+.moderation-log-item:nth-child(3) .moderation-log-icon {
+  color: #7289da;
+}
+
+.moderation-log-icon i {
+  font-size: 1.25rem;
+}
+
+.moderation-log-content {
+  flex-grow: 1;
+}
+
+.moderation-log-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.moderation-log-details {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.moderation-log-meta {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: space-between;
+}
+
+.log-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.log-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(55, 60, 80, 0.7);
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.log-action-btn:hover {
+  background: rgba(66, 70, 112, 0.7);
+  color: var(--text);
+}
+
+.view-all-container {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.view-all-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.view-all-btn:hover {
+  background: rgba(114, 137, 218, 0.1);
+}
+
+/* Config Card */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.quick-action-btn {
+  background: rgba(30, 32, 44, 0.7);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  border-radius: 10px;
+  padding: 1rem;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+  background: rgba(40, 43, 54, 0.8);
+  transform: translateY(-2px);
+}
+
+.quick-action-btn i {
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.admin3d-divider {
+  height: 1px;
+  background: rgba(66, 70, 112, 0.3);
+  margin: 1.5rem 0;
+}
+
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin3d-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin3d-input-group label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.admin3d-select {
+  background-color: rgba(30, 32, 44, 0.7);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  color: var(--text);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237289da' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+.admin3d-select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.25);
+}
+
+.admin3d-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.admin3d-button.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.admin3d-button.primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.admin3d-button.secondary {
+  background: rgba(66, 70, 112, 0.3);
+  color: var(--text);
+}
+
+.admin3d-button.secondary:hover {
+  background: rgba(66, 70, 112, 0.5);
+  transform: translateY(-2px);
+}
+
+.admin3d-button i {
+  font-size: 1rem;
+}
+
+/* Ban Management Tab */
+.admin3d-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.premium-input-container {
+  position: relative;
+  display: flex;
+}
+
+.admin3d-input {
+  background-color: rgba(30, 32, 44, 0.7);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  color: var(--text);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.admin3d-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.25);
+}
+
+.input-action-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.input-action-btn:hover {
+  color: var(--primary);
+}
+
+.admin3d-textarea {
+  background-color: rgba(30, 32, 44, 0.7);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  color: var(--text);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-height: 80px;
+  resize: vertical;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.admin3d-textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.25);
+}
+
+.ban-options, .warning-options {
+  display: flex;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+.option-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.option-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.option-checkbox label {
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  background-color: rgba(30, 32, 44, 0.7);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  color: var(--text);
+  padding: 0.6rem 1rem 0.6rem 2.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  width: 200px;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.25);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.filter-dropdown {
+  position: relative;
+}
+
+.filter-btn {
+  background: rgba(30, 32, 44, 0.7);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background: rgba(40, 43, 54, 0.8);
+  color: var(--text);
+}
+
+.filter-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: rgba(20, 23, 34, 0.95);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem;
+  min-width: 150px;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: none;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+/* Ban Table */
+.ban-list-container {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.admin3d-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.admin3d-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(66, 70, 112, 0.3);
+  font-weight: 600;
+}
+
+.admin3d-table th i {
+  margin-right: 0.5rem;
+  color: var(--primary);
+}
+
+.admin3d-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(66, 70, 112, 0.2);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.admin3d-table tr:hover td {
+  background-color: rgba(40, 43, 54, 0.4);
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(66, 70, 112, 0.5);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237289da' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E");
+  background-position: center;
+  background-size: 60%;
+  background-repeat: no-repeat;
+  flex-shrink: 0;
+}
+
+.user-avatar.small {
+  width: 24px;
+  height: 24px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(30, 32, 44, 0.7);
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(66, 70, 112, 0.7);
+  color: var(--primary);
+}
+
+.premium-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(30, 32, 44, 0.7);
+  border: 1px solid rgba(66, 70, 112, 0.3);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background: rgba(40, 43, 54, 0.8);
+  color: var(--primary);
+}
+
+.page-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.current-page {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Warnings Tab */
+.severity-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.severity-option {
+  flex: 1;
+}
+
+.severity-option input[type="radio"] {
+  display: none;
+}
+
+.severity-btn {
+  display: block;
+  padding: 0.5rem 0;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 2px solid transparent;
+}
+
+.severity-btn.low {
+  background-color: rgba(67, 181, 129, 0.1);
+  color: #43b581;
+}
+
+.severity-btn.medium {
+  background-color: rgba(250, 166, 26, 0.1);
+  color: #faa61a;
+}
+
+.severity-btn.high {
+  background-color: rgba(240, 71, 71, 0.1);
+  color: #f04747;
+}
+
+.severity-option input[type="radio"]:checked + .severity-btn.low {
+  background-color: rgba(67, 181, 129, 0.2);
+  border-color: #43b581;
+}
+
+.severity-option input[type="radio"]:checked + .severity-btn.medium {
+  background-color: rgba(250, 166, 26, 0.2);
+  border-color: #faa61a;
+}
+
+.severity-option input[type="radio"]:checked + .severity-btn.high {
+  background-color: rgba(240, 71, 71, 0.2);
+  border-color: #f04747;
+}
+
+.warnings-container {
+  overflow-y: auto;
+  max-height: 400px;
+  margin-bottom: 1rem;
+}
+
+.warnings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.warning-item {
+  background-color: rgba(30, 31, 40, 0.5);
+  border-radius: 12px;
+  padding: 1rem;
+  border-left: 4px solid;
+  transition: all 0.2s ease;
+}
+
+.warning-item:hover {
+  background-color: rgba(35, 36, 48, 0.7);
+  transform: translateY(-2px);
+}
+
+.warning-item.low {
+  border-left-color: #43b581;
+}
+
+.warning-item.medium {
+  border-left-color: #faa61a;
+}
+
+.warning-item.high {
+  border-left-color: #f04747;
+}
+
+.warning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.warning-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.warning-user {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.warning-severity-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.warning-severity-badge.low {
+  background-color: rgba(67, 181, 129, 0.2);
+  color: #43b581;
+}
+
+.warning-severity-badge.medium {
+  background-color: rgba(250, 166, 26, 0.2);
+  color: #faa61a;
+}
+
+.warning-severity-badge.high {
+  background-color: rgba(240, 71, 71, 0.2);
+  color: #f04747;
+}
+
+.warning-reason {
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.warning-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.warning-issuer, .warning-time {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.warning-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.warning-action-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: rgba(55, 60, 80, 0.7);
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.warning-action-btn:hover {
+  background: rgba(66, 70, 112, 0.7);
+  color: var(--text);
+}
+
+/* Auto-Moderation Tab */
+.automod-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(66, 70, 112, 0.3);
+  padding-bottom: 1rem;
+}
+
+.automod-tab {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.automod-tab:hover {
+  color: var(--text);
+  background-color: rgba(40, 43, 54, 0.4);
+}
+
+.automod-tab.active {
+  color: var(--text);
+  background-color: rgba(40, 43, 54, 0.5);
+  position: relative;
+}
+
+.automod-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+.automod-tab-content {
+  display: none;
+}
+
+.automod-tab-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.filter-group {
+  margin-bottom: 1.5rem;
+}
+
+.filter-group h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.filter-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.filter-option {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: rgba(30, 32, 44, 0.5);
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.option-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.option-toggle.large {
+  width: 48px;
+  height: 24px;
+}
+
+.toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-label {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(55, 60, 80, 0.7);
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.toggle-label:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.option-toggle.large .toggle-label:before {
+  height: 20px;
+  width: 20px;
+}
+
+.toggle-input:checked + .toggle-label {
+  background-color: var(--primary);
+}
+
+.toggle-input:checked + .toggle-label:before {
+  transform: translateX(16px);
+}
+
+.option-toggle.large .toggle-input:checked + .toggle-label:before {
+  transform: translateX(24px);
+}
+
+.option-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.option-label {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.option-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.punishment-settings {
+  background: rgba(30, 32, 44, 0.5);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.punishment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(66, 70, 112, 0.2);
+}
+
+.punishment-row:last-child {
+  border-bottom: none;
+}
+
+.violation {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.raid-protection-toggle {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: rgba(30, 32, 44, 0.5);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.raid-options {
+  margin-top: 1.5rem;
+  display: none;
+}
+
+.raid-settings-group {
+  background: rgba(30, 32, 44, 0.5);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.raid-setting {
+  margin-bottom: 1rem;
+}
+
+.raid-setting:last-child {
+  margin-bottom: 0;
+}
+
+.responses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.response-item {
+  background: rgba(30, 32, 44, 0.5);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.response-title {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.response-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.trigger-label, .channel-label {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.add-response-btn {
+  align-self: flex-start;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Styling */
+@media (max-width: 1200px) {
+  .management-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .server-selector-container {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .premium-select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin3d-form-row,
+  .filter-options,
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .admin3d-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .ban-options, .warning-options {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .admin3d-table th:nth-child(4),
+  .admin3d-table td:nth-child(4) {
+    display: none;
+  }
+}
+</style>
+
+<script>
+// Tab functionality
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded - initializing premium moderation interface');
+  
+  // Tab navigation
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-tab');
+      console.log('Tab clicked:', tabId);
+      
+      // Deactivate all tabs
+      tabBtns.forEach(tabBtn => tabBtn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Activate selected tab
+      btn.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
+  
+  // Auto-mod sub-tabs
+  const automodTabs = document.querySelectorAll('.automod-tab');
+  const automodContents = document.querySelectorAll('.automod-tab-content');
+  
+  automodTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const targetId = tab.getAttribute('data-target');
+      console.log('Automod sub-tab clicked:', targetId);
+      
+      // Deactivate all tabs
+      automodTabs.forEach(t => t.classList.remove('active'));
+      automodContents.forEach(c => c.classList.remove('active'));
+      
+      // Activate selected tab
+      tab.classList.add('active');
+      document.getElementById(targetId).classList.add('active');
+    });
+  });
+  
+  // Anti-raid toggle
+  const antiRaidToggle = document.getElementById('anti-raid');
+  const raidOptions = document.getElementById('raid-options');
+  
+  if (antiRaidToggle && raidOptions) {
+    antiRaidToggle.addEventListener('change', function() {
+      raidOptions.style.display = this.checked ? 'block' : 'none';
+    });
+  }
+  
+  // Filter dropdown toggle
+  const filterBtn = document.querySelector('.filter-btn');
+  const filterMenu = document.querySelector('.filter-menu');
+  
+  if (filterBtn && filterMenu) {
+    filterBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isVisible = filterMenu.style.display === 'block';
+      filterMenu.style.display = isVisible ? 'none' : 'block';
+    });
+    
+    document.addEventListener('click', function() {
+      filterMenu.style.display = 'none';
+    });
+    
+    filterMenu.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  }
+  
+  // Time selector
+  const timeSelectors = document.querySelectorAll('.time');
+  
+  timeSelectors.forEach(selector => {
+    selector.addEventListener('click', function() {
+      timeSelectors.forEach(s => s.classList.remove('active'));
+      this.classList.add('active');
+      loadModerationStats(); // Reload stats for selected time period
+    });
+  });
+  
+  // Server selector
+  const serverSelect = document.getElementById('server-select');
+  if (serverSelect) {
+    serverSelect.addEventListener('change', function() {
+      if (this.value) {
+        loadModerationStats();
+      }
+    });
+  }
+  
+  // Initialize stats with random data
+  loadModerationStats();
+});
+
+// Function to simulate loading moderation statistics
+function loadModerationStats() {
+  // For demonstration purposes, using random numbers
+  // In a real app, this would fetch actual data from the backend
+  const stats = {
+    bans: Math.floor(Math.random() * 50) + 10,
+    kicks: Math.floor(Math.random() * 80) + 20,
+    warnings: Math.floor(Math.random() * 120) + 50,
+    timeouts: Math.floor(Math.random() * 30) + 5
+  };
+  
+  // Update stat values
+  document.getElementById('total-bans').textContent = stats.bans;
+  document.getElementById('total-kicks').textContent = stats.kicks;
+  document.getElementById('total-warnings').textContent = stats.warnings;
+  document.getElementById('total-timeouts').textContent = stats.timeouts;
+  
+  console.log('Moderation stats updated:', stats);
+}
+
+// Function to handle ban user form submission
+document.addEventListener('DOMContentLoaded', function() {
+  const banForm = document.querySelector('.ban-button');
+  if (banForm) {
+    banForm.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const userId = document.getElementById('ban-user-id').value;
+      const reason = document.getElementById('ban-reason').value;
+      
+      if (!userId) {
+        alert('Please enter a user ID or @mention');
+        return;
+      }
+      
+      console.log('Ban user form submitted:', {
+        userId,
+        reason,
+        deleteMsgs: document.getElementById('delete-messages').checked,
+        notifyUser: document.getElementById('notify-user').checked,
+        addToBlacklist: document.getElementById('add-to-blacklist').checked
+      });
+      
+      // This would typically make an API call to ban the user
+      // For demonstration, we'll just show a success message
+      alert(`User ${userId} has been banned.`);
+    });
+  }
+  
+  // Warning form submission
+  const warningForm = document.querySelector('.warning-button');
+  if (warningForm) {
+    warningForm.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const userId = document.getElementById('warn-user-id').value;
+      const reason = document.getElementById('warn-reason').value;
+      const severity = document.querySelector('input[name="severity"]:checked').value;
+      
+      if (!userId) {
+        alert('Please enter a user ID or @mention');
+        return;
+      }
+      
+      console.log('Warning form submitted:', {
+        userId,
+        reason,
+        severity,
+        notifyUser: document.getElementById('notify-warn-user').checked,
+        autoPunish: document.getElementById('auto-punish').checked
+      });
+      
+      // This would typically make an API call to warn the user
+      alert(`User ${userId} has been warned.`);
+    });
+  }
+});
+</script>

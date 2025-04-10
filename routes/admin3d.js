@@ -56,13 +56,13 @@ router.get('/commands', (req, res) => {
 
 /**
  * GET /admin3d/moderation
- * Moderation tools interface
+ * Moderation tools interface - Premium Edition
  */
 router.get('/moderation', (req, res) => {
   const client = req.app.get('client');
   
-  res.render('admin3d/moderation', {
-    title: 'Moderation Tools | SWOOSH Bot',
+  res.render('admin3d/moderation-premium', {
+    title: 'Advanced Moderation Suite | SWOOSH Bot',
     user: req.user,
     client,
     layout: 'layouts/admin3d'
