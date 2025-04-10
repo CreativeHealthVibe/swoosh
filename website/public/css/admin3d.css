@@ -110,7 +110,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 1.5rem;
-  background-color: rgba(10, 7, 32, 0.9);
+  background-color: #07041f; /* Solid dark background matching screenshot */
   border-bottom: 1px solid rgba(49, 41, 95, 0.5);
   position: relative;
   z-index: var(--z-above);
@@ -165,10 +165,8 @@ body {
   color: var(--primary);
   font-weight: bold;
 }
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
-}
+
+/* Additional header properties */
 
 .sidebar-toggle {
   margin-left: 2rem;
