@@ -257,6 +257,59 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show the requested modal
     if (modal) {
       modal.classList.add('modal-visible');
+      
+      // Add premium animation effect
+      if (modal.classList.contains('ultra-premium-modal-overlay')) {
+        const modalContent = modal.querySelector('.ultra-premium-modal');
+        if (modalContent) {
+          modalContent.classList.add('premium-animation');
+          
+          // Add a particle effect for extra luxury
+          addModalParticles(modal);
+        }
+      }
+    }
+  }
+  
+  /**
+   * Add luxury particle effects to modals
+   * @param {HTMLElement} modal - Modal element
+   */
+  function addModalParticles(modal) {
+    // Only add if we have the ultra premium particles
+    if (typeof createParticleEffect === 'undefined') return;
+    
+    // Remove any existing particle container
+    const existingParticles = modal.querySelector('.modal-particles');
+    if (existingParticles) {
+      existingParticles.remove();
+    }
+    
+    // Create particle container
+    const particleContainer = document.createElement('div');
+    particleContainer.className = 'modal-particles';
+    particleContainer.style.position = 'absolute';
+    particleContainer.style.top = '0';
+    particleContainer.style.left = '0';
+    particleContainer.style.width = '100%';
+    particleContainer.style.height = '100%';
+    particleContainer.style.pointerEvents = 'none';
+    particleContainer.style.zIndex = '1';
+    
+    // Add to modal
+    const modalContent = modal.querySelector('.ultra-premium-modal');
+    if (modalContent) {
+      modalContent.appendChild(particleContainer);
+      
+      // Create particles
+      createParticleEffect(particleContainer, {
+        count: 10,
+        size: [3, 6],
+        speed: [0.3, 0.7],
+        colors: ['rgba(157, 0, 255, 0.7)', 'rgba(0, 204, 255, 0.7)'],
+        opacity: [0.2, 0.5],
+        lifetime: [2000, 5000]
+      });
     }
   }
   
@@ -264,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Hide all modal dialogs
    */
   function hideAllModals() {
-    const modals = document.querySelectorAll('.modal-overlay');
+    const modals = document.querySelectorAll('.modal-overlay, .ultra-premium-modal-overlay');
     
     modals.forEach(modal => {
       modal.classList.remove('modal-visible');
