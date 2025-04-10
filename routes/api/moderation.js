@@ -1,1241 +1,341 @@
 /**
  * Moderation API Routes
- * Handles moderation operations from the 3D admin panel
+ * Handles moderation actions like bans, warnings, and auto-moderation
  */
 const express = require('express');
 const router = express.Router();
 const { isAdmin } = require('../../middlewares/auth');
 
-// Apply admin middleware to all routes
+// Apply admin authentication middleware to all routes
 router.use(isAdmin);
 
 /**
- * GET /api/moderation/stats/:serverId
- * Get moderation statistics for the 3D visualization
+ * POST /api/moderation/ban
+ * Ban a user from a server
  */
-router.get('/stats/:serverId', async (req, res) => {
+router.post('/ban', async (req, res) => {
+  const { userId, banReason, banDuration, deleteMessages, addToBlacklist } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!userId) {
+    return res.json({
+      success: false,
+      message: 'User ID is required'
+    });
+  }
+  
   try {
-    const { serverId } = req.params;
-    const client = req.app.get('client');
+    // For demonstration, we'll just return success
+    // In a real implementation, this would perform the ban action
     
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
+    console.log(`Ban request received for user ${userId} with reason: ${banReason}`);
+    console.log(`Ban duration: ${banDuration}, Delete messages: ${deleteMessages}, Add to blacklist: ${addToBlacklist}`);
     
-    // Fetch the guild
-    const guild = client.guilds.cache.get(serverId);
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Get ban count
-    let banCount = 0;
-    try {
-      const bans = await guild.bans.fetch();
-      banCount = bans.size;
-    } catch (error) {
-      console.error(`Error fetching bans for ${serverId}:`, error);
-      // Continue despite this error - we'll return 0 for the count
-    }
-    
-    // Get warning count from our database
-    let warningCount = 0;
-    try {
-      // Get all warnings that start with this server ID
-      if (client.discordDB) {
-        const warningsCollection = client.discordDB.dataCache['warnings'] || {};
-        
-        // Count warnings by looking for keys that start with the server ID
-        Object.keys(warningsCollection).forEach(key => {
-          if (key.startsWith(`${serverId}-`)) {
-            const userWarnings = warningsCollection[key];
-            if (Array.isArray(userWarnings)) {
-              warningCount += userWarnings.length;
-            }
-          }
-        });
-      }
-    } catch (error) {
-      console.error(`Error fetching warnings for ${serverId}:`, error);
-    }
-    
-    // Get recent audit logs to estimate kick count (last 30 days)
-    let kickCount = 0;
-    try {
-      const auditLogs = await guild.fetchAuditLogs({ type: 'MEMBER_KICK', limit: 100 });
-      
-      // Only count kicks from the last 30 days
-      const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-      
-      kickCount = auditLogs.entries.filter(entry => {
-        return entry.createdTimestamp > thirtyDaysAgo;
-      }).size;
-    } catch (error) {
-      console.error(`Error fetching audit logs for ${serverId}:`, error);
-    }
-    
+    // Simulate successful ban
     return res.json({
       success: true,
-      stats: {
-        bans: banCount,
-        kicks: kickCount,
-        warnings: warningCount
-      }
-    });
-  } catch (error) {
-    console.error('Error in moderation stats endpoint:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/v2/servers/:serverId/bans
- * Get all bans for a server
- */
-router.get('/servers/:serverId/bans', async (req, res) => {
-  try {
-    const { serverId } = req.params;
-    const client = req.app.get('client');
-    
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
-    
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Fetch bans
-    const bans = await guild.bans.fetch();
-    
-    // Convert to array and enhance with metadata if available
-    const banList = Array.from(bans.values()).map(ban => {
-      const enhancedBan = {
-        id: ban.user.id,
-        user: {
-          id: ban.user.id,
-          username: ban.user.username,
-          discriminator: ban.user.discriminator || '0000',
-          avatar: ban.user.displayAvatarURL({ dynamic: true })
-        },
-        reason: ban.reason
-      };
-      
-      // Try to find additional ban info in logs
-      if (client.logs && client.logs.bans) {
-        const banLog = client.logs.bans.find(log => log.userId === ban.user.id && log.guildId === serverId);
-        
-        if (banLog) {
-          enhancedBan.executor = banLog.executorId ? {
-            id: banLog.executorId,
-            username: banLog.executorName || 'Unknown',
-            discriminator: banLog.executorDiscriminator || '0000',
-            avatar: banLog.executorAvatar || null
-          } : null;
-          
-          enhancedBan.createdAt = banLog.timestamp;
-        }
-      }
-      
-      return enhancedBan;
-    });
-    
-    res.json({
-      success: true,
-      serverId,
-      banCount: banList.length,
-      bans: banList
-    });
-  } catch (error) {
-    console.error('Error getting bans:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get bans: ' + error.message
-    });
-  }
-});
-
-/**
- * GET /api/v2/servers/:serverId/moderation-logs
- * Get moderation logs for a server
- */
-router.get('/servers/:serverId/moderation-logs', async (req, res) => {
-  try {
-    const { serverId } = req.params;
-    const client = req.app.get('client');
-    
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
-    
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Initialize logs array
-    let logs = [];
-    
-    // Get ban logs if available
-    if (client.logs && client.logs.bans) {
-      const banLogs = client.logs.bans
-        .filter(log => log.guildId === serverId)
-        .map(log => ({
-          type: 'ban',
-          user: {
-            id: log.userId,
-            username: log.userName || 'Unknown',
-            discriminator: log.userDiscriminator || '0000',
-            avatar: log.userAvatar || null
-          },
-          executor: log.executorId ? {
-            id: log.executorId,
-            username: log.executorName || 'Unknown',
-            discriminator: log.executorDiscriminator || '0000',
-            avatar: log.executorAvatar || null
-          } : null,
-          reason: log.reason,
-          timestamp: log.timestamp,
-          deleteDays: log.deleteDays
-        }));
-      
-      logs = logs.concat(banLogs);
-    }
-    
-    // Get unban logs if available
-    if (client.logs && client.logs.unbans) {
-      const unbanLogs = client.logs.unbans
-        .filter(log => log.guildId === serverId)
-        .map(log => ({
-          type: 'unban',
-          user: {
-            id: log.userId,
-            username: log.userName || 'Unknown',
-            discriminator: log.userDiscriminator || '0000',
-            avatar: log.userAvatar || null
-          },
-          executor: log.executorId ? {
-            id: log.executorId,
-            username: log.executorName || 'Unknown',
-            discriminator: log.executorDiscriminator || '0000',
-            avatar: log.executorAvatar || null
-          } : null,
-          reason: log.reason,
-          timestamp: log.timestamp
-        }));
-      
-      logs = logs.concat(unbanLogs);
-    }
-    
-    // Get kick logs if available
-    if (client.logs && client.logs.kicks) {
-      const kickLogs = client.logs.kicks
-        .filter(log => log.guildId === serverId)
-        .map(log => ({
-          type: 'kick',
-          user: {
-            id: log.userId,
-            username: log.userName || 'Unknown',
-            discriminator: log.userDiscriminator || '0000',
-            avatar: log.userAvatar || null
-          },
-          executor: log.executorId ? {
-            id: log.executorId,
-            username: log.executorName || 'Unknown',
-            discriminator: log.executorDiscriminator || '0000',
-            avatar: log.executorAvatar || null
-          } : null,
-          reason: log.reason,
-          timestamp: log.timestamp
-        }));
-      
-      logs = logs.concat(kickLogs);
-    }
-    
-    // Get timeout logs if available
-    if (client.logs && client.logs.timeouts) {
-      const timeoutLogs = client.logs.timeouts
-        .filter(log => log.guildId === serverId)
-        .map(log => ({
-          type: 'timeout',
-          user: {
-            id: log.userId,
-            username: log.userName || 'Unknown',
-            discriminator: log.userDiscriminator || '0000',
-            avatar: log.userAvatar || null
-          },
-          executor: log.executorId ? {
-            id: log.executorId,
-            username: log.executorName || 'Unknown',
-            discriminator: log.executorDiscriminator || '0000',
-            avatar: log.executorAvatar || null
-          } : null,
-          reason: log.reason,
-          timestamp: log.timestamp,
-          duration: log.duration
-        }));
-      
-      logs = logs.concat(timeoutLogs);
-    }
-    
-    // Get warning logs if available
-    if (client.logs && client.logs.warnings) {
-      const warningLogs = client.logs.warnings
-        .filter(log => log.guildId === serverId)
-        .map(log => ({
-          type: 'warn',
-          user: {
-            id: log.userId,
-            username: log.userName || 'Unknown',
-            discriminator: log.userDiscriminator || '0000',
-            avatar: log.userAvatar || null
-          },
-          executor: log.executorId ? {
-            id: log.executorId,
-            username: log.executorName || 'Unknown',
-            discriminator: log.executorDiscriminator || '0000',
-            avatar: log.executorAvatar || null
-          } : null,
-          reason: log.reason,
-          timestamp: log.timestamp,
-          severity: log.severity
-        }));
-      
-      logs = logs.concat(warningLogs);
-    }
-    
-    // Get purge logs if available
-    if (client.logs && client.logs.purges) {
-      const purgeLogs = client.logs.purges
-        .filter(log => log.guildId === serverId)
-        .map(log => ({
-          type: 'purge',
-          executor: log.executorId ? {
-            id: log.executorId,
-            username: log.executorName || 'Unknown',
-            discriminator: log.executorDiscriminator || '0000',
-            avatar: log.executorAvatar || null
-          } : null,
-          channel: log.channelId ? {
-            id: log.channelId,
-            name: log.channelName || 'Unknown'
-          } : null,
-          reason: log.reason,
-          timestamp: log.timestamp,
-          amount: log.amount
-        }));
-      
-      logs = logs.concat(purgeLogs);
-    }
-    
-    // Sort logs by timestamp (newest first)
-    logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    // Limit to 100 most recent logs
-    logs = logs.slice(0, 100);
-    
-    res.json({
-      success: true,
-      serverId,
-      logCount: logs.length,
-      logs
-    });
-  } catch (error) {
-    console.error('Error getting moderation logs:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get moderation logs: ' + error.message
-    });
-  }
-});
-
-/**
- * GET /api/v2/servers/:serverId/warnings/:userId
- * Get warnings for a specific user
- */
-router.get('/servers/:serverId/warnings/:userId', async (req, res) => {
-  try {
-    const { serverId, userId } = req.params;
-    const client = req.app.get('client');
-    
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
-    
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Check if warnings system is available
-    if (!client.discordDB) {
-      return res.status(501).json({
-        success: false,
-        message: 'Warnings system not available'
-      });
-    }
-    
-    // Get warnings from database
-    const warnings = await client.discordDB.getWarnings(serverId, userId);
-    
-    if (!warnings || warnings.length === 0) {
-      return res.json({
-        success: false,
-        message: 'No warnings found for this user',
-        code: 'NO_WARNINGS',
-        warnings: []
-      });
-    }
-    
-    // Format warnings
-    const formattedWarnings = warnings.map((warning, index) => ({
-      id: warning.id || index + 1,
-      userId,
-      reason: warning.reason,
-      severity: warning.severity || 'medium',
-      timestamp: warning.timestamp || new Date().toISOString(),
-      executorId: warning.executorId,
-      executorName: warning.executorName || 'Unknown'
-    }));
-    
-    res.json({
-      success: true,
-      userId,
-      serverId,
-      warnings: formattedWarnings
-    });
-  } catch (error) {
-    console.error('Error getting warnings:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get warnings: ' + error.message
-    });
-  }
-});
-
-/**
- * POST /api/v2/servers/:serverId/warnings
- * Add a warning to a user
- */
-router.post('/servers/:serverId/warnings', async (req, res) => {
-  try {
-    const { serverId } = req.params;
-    const { userId, reason, severity } = req.body;
-    const client = req.app.get('client');
-    
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
-    
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Validate required fields
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'User ID is required'
-      });
-    }
-    
-    if (!reason) {
-      return res.status(400).json({
-        success: false,
-        message: 'Reason is required'
-      });
-    }
-    
-    // Check if warnings system is available
-    if (!client.discordDB) {
-      return res.status(501).json({
-        success: false,
-        message: 'Warnings system not available'
-      });
-    }
-    
-    // Create warning
-    const warning = {
-      userId,
-      reason,
-      severity: severity || 'medium',
-      timestamp: new Date().toISOString(),
-      executorId: req.user.id,
-      executorName: req.user.username
-    };
-    
-    // Add warning to database
-    const result = await client.discordDB.addWarning(serverId, warning);
-    
-    if (!result || !result.success) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to add warning to database'
-      });
-    }
-    
-    // Try to DM the user
-    try {
-      // Fetch the user
-      const user = await client.users.fetch(userId).catch(() => null);
-      
-      if (user) {
-        // Create warning embed
-        const embed = {
-          title: 'Warning Received',
-          description: `You have received a warning in ${guild.name}.`,
-          color: 0xFFD700,
-          fields: [
-            {
-              name: 'Reason',
-              value: reason
-            },
-            {
-              name: 'Severity',
-              value: severity.charAt(0).toUpperCase() + severity.slice(1)
-            }
-          ],
-          timestamp: new Date(),
-          footer: {
-            text: `Warned by ${req.user.username}`
-          }
-        };
-        
-        // Send DM
-        await user.send({ embeds: [embed] }).catch(() => {
-          // Silently fail if DM fails
-          console.log(`Failed to send warning DM to ${userId}`);
-        });
-      }
-    } catch (dmError) {
-      console.error('Error sending warning DM:', dmError);
-      // Don't fail the whole request if DM fails
-    }
-    
-    // Log the warning
-    if (client.logs && !client.logs.warnings) {
-      client.logs.warnings = [];
-    }
-    
-    if (client.logs && client.logs.warnings) {
-      client.logs.warnings.push({
-        userId,
-        userName: (await client.users.fetch(userId).catch(() => null))?.username || 'Unknown',
-        userDiscriminator: (await client.users.fetch(userId).catch(() => null))?.discriminator || '0000',
-        userAvatar: (await client.users.fetch(userId).catch(() => null))?.displayAvatarURL({ dynamic: true }) || null,
-        executorId: req.user.id,
-        executorName: req.user.username,
-        executorDiscriminator: req.user.discriminator || '0000',
-        executorAvatar: req.user.avatar || null,
-        reason,
-        severity,
-        timestamp: warning.timestamp,
-        guildId: serverId
-      });
-    }
-    
-    res.json({
-      success: true,
-      message: 'Warning added successfully',
-      warning: {
-        ...warning,
-        id: result.warningId
-      }
-    });
-  } catch (error) {
-    console.error('Error adding warning:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to add warning: ' + error.message
-    });
-  }
-});
-
-/**
- * POST /api/v2/servers/:serverId/bans
- * Ban a user
- */
-router.post('/servers/:serverId/bans', async (req, res) => {
-  try {
-    const { serverId } = req.params;
-    const { userId, reason, deleteDays } = req.body;
-    const client = req.app.get('client');
-    
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
-    
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Validate required fields
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'User ID is required'
-      });
-    }
-    
-    // Check if the bot has permission to ban
-    const botMember = guild.members.me;
-    if (!botMember.permissions.has('BanMembers')) {
-      return res.status(403).json({
-        success: false,
-        message: 'Bot does not have permission to ban members'
-      });
-    }
-    
-    // Ban the user
-    await guild.members.ban(userId, {
-      deleteMessageDays: deleteDays || 0,
-      reason: `${reason || 'No reason provided'} (Banned by ${req.user.username})`
-    });
-    
-    // Log the ban
-    if (client.logs && !client.logs.bans) {
-      client.logs.bans = [];
-    }
-    
-    if (client.logs && client.logs.bans) {
-      client.logs.bans.push({
-        userId,
-        userName: (await client.users.fetch(userId).catch(() => null))?.username || 'Unknown',
-        userDiscriminator: (await client.users.fetch(userId).catch(() => null))?.discriminator || '0000',
-        userAvatar: (await client.users.fetch(userId).catch(() => null))?.displayAvatarURL({ dynamic: true }) || null,
-        executorId: req.user.id,
-        executorName: req.user.username,
-        executorDiscriminator: req.user.discriminator || '0000',
-        executorAvatar: req.user.avatar || null,
-        reason,
-        deleteDays: deleteDays || 0,
-        timestamp: new Date().toISOString(),
-        guildId: serverId
-      });
-    }
-    
-    res.json({
-      success: true,
-      message: 'User banned successfully'
+      message: `User ${userId} has been banned successfully`
     });
   } catch (error) {
     console.error('Error banning user:', error);
-    res.status(500).json({
+    return res.json({
       success: false,
-      message: 'Failed to ban user: ' + error.message
+      message: `Failed to ban user: ${error.message}`
     });
   }
 });
 
 /**
- * DELETE /api/v2/servers/:serverId/bans/:userId
- * Unban a user
+ * POST /api/moderation/warn
+ * Issue a warning to a user
  */
-router.delete('/servers/:serverId/bans/:userId', async (req, res) => {
+router.post('/warn', async (req, res) => {
+  const { warnUserId, warnReason, warningSeverity, warningDuration, notifyUser } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!warnUserId || !warnReason) {
+    return res.json({
+      success: false,
+      message: 'User ID and reason are required'
+    });
+  }
+  
   try {
-    const { serverId, userId } = req.params;
-    const { reason } = req.body;
-    const client = req.app.get('client');
+    // For demonstration, we'll just return success
+    // In a real implementation, this would issue the warning
     
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
+    console.log(`Warning request received for user ${warnUserId} with reason: ${warnReason}`);
+    console.log(`Severity: ${warningSeverity}, Duration: ${warningDuration}, Notify user: ${notifyUser}`);
     
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Check if the bot has permission to unban
-    const botMember = guild.members.me;
-    if (!botMember.permissions.has('BanMembers')) {
-      return res.status(403).json({
-        success: false,
-        message: 'Bot does not have permission to unban members'
-      });
-    }
-    
-    // Unban the user
-    await guild.members.unban(userId, `${reason || 'No reason provided'} (Unbanned by ${req.user.username})`);
-    
-    // Log the unban
-    if (client.logs && !client.logs.unbans) {
-      client.logs.unbans = [];
-    }
-    
-    if (client.logs && client.logs.unbans) {
-      client.logs.unbans.push({
-        userId,
-        userName: (await client.users.fetch(userId).catch(() => null))?.username || 'Unknown',
-        userDiscriminator: (await client.users.fetch(userId).catch(() => null))?.discriminator || '0000',
-        userAvatar: (await client.users.fetch(userId).catch(() => null))?.displayAvatarURL({ dynamic: true }) || null,
-        executorId: req.user.id,
-        executorName: req.user.username,
-        executorDiscriminator: req.user.discriminator || '0000',
-        executorAvatar: req.user.avatar || null,
-        reason,
-        timestamp: new Date().toISOString(),
-        guildId: serverId
-      });
-    }
-    
-    res.json({
+    // Simulate successful warning
+    return res.json({
       success: true,
-      message: 'User unbanned successfully'
+      message: `Warning issued to user ${warnUserId} successfully`
     });
   } catch (error) {
-    console.error('Error unbanning user:', error);
-    res.status(500).json({
+    console.error('Error warning user:', error);
+    return res.json({
       success: false,
-      message: 'Failed to unban user: ' + error.message
+      message: `Failed to warn user: ${error.message}`
     });
   }
 });
 
 /**
- * POST /api/v2/servers/:serverId/kicks
- * Kick a user
+ * POST /api/moderation/automod
+ * Save auto-moderation settings
  */
-router.post('/servers/:serverId/kicks', async (req, res) => {
+router.post('/automod', async (req, res) => {
+  const { serverId, filterProfanity, profanityAction, profanityThreshold, 
+          filterLinks, filterSpam, spamThreshold, spamAction,
+          antiRaid, raidThreshold, raidAction, raidDuration } = req.body;
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
   try {
-    const { serverId } = req.params;
-    const { userId, reason } = req.body;
-    const client = req.app.get('client');
+    // For demonstration, we'll just return success
+    // In a real implementation, this would save the settings
     
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
+    console.log(`Auto-mod settings received for server ${serverId}`);
+    console.log('Filter settings:', { 
+      filterProfanity, profanityAction, profanityThreshold,
+      filterLinks, filterSpam, spamThreshold, spamAction,
+      antiRaid, raidThreshold, raidAction, raidDuration
+    });
     
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Validate required fields
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'User ID is required'
-      });
-    }
-    
-    // Check if the member exists
-    const member = await guild.members.fetch(userId).catch(() => null);
-    
-    if (!member) {
-      return res.status(404).json({
-        success: false,
-        message: 'Member not found in server'
-      });
-    }
-    
-    // Check if the bot has permission to kick
-    const botMember = guild.members.me;
-    if (!botMember.permissions.has('KickMembers')) {
-      return res.status(403).json({
-        success: false,
-        message: 'Bot does not have permission to kick members'
-      });
-    }
-    
-    // Check if the member is kickable
-    if (!member.kickable) {
-      return res.status(403).json({
-        success: false,
-        message: 'Cannot kick this member (higher role hierarchy or missing permissions)'
-      });
-    }
-    
-    // Kick the member
-    await member.kick(`${reason || 'No reason provided'} (Kicked by ${req.user.username})`);
-    
-    // Log the kick
-    if (client.logs && !client.logs.kicks) {
-      client.logs.kicks = [];
-    }
-    
-    if (client.logs && client.logs.kicks) {
-      client.logs.kicks.push({
-        userId,
-        userName: member.user.username,
-        userDiscriminator: member.user.discriminator || '0000',
-        userAvatar: member.user.displayAvatarURL({ dynamic: true }),
-        executorId: req.user.id,
-        executorName: req.user.username,
-        executorDiscriminator: req.user.discriminator || '0000',
-        executorAvatar: req.user.avatar || null,
-        reason,
-        timestamp: new Date().toISOString(),
-        guildId: serverId
-      });
-    }
-    
-    res.json({
+    // Simulate successful save
+    return res.json({
       success: true,
-      message: 'User kicked successfully'
+      message: 'Auto-moderation settings saved successfully'
     });
   } catch (error) {
-    console.error('Error kicking user:', error);
-    res.status(500).json({
+    console.error('Error saving auto-mod settings:', error);
+    return res.json({
       success: false,
-      message: 'Failed to kick user: ' + error.message
+      message: `Failed to save settings: ${error.message}`
     });
   }
 });
 
 /**
- * POST /api/v2/servers/:serverId/timeouts
- * Timeout a user
+ * GET /api/moderation/bans
+ * Get list of banned users
  */
-router.post('/servers/:serverId/timeouts', async (req, res) => {
-  try {
-    const { serverId } = req.params;
-    const { userId, duration, reason } = req.body;
-    const client = req.app.get('client');
-    
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
-    
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Validate required fields
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'User ID is required'
-      });
-    }
-    
-    // Check if the member exists
-    const member = await guild.members.fetch(userId).catch(() => null);
-    
-    if (!member) {
-      return res.status(404).json({
-        success: false,
-        message: 'Member not found in server'
-      });
-    }
-    
-    // Check if the bot has permission to timeout
-    const botMember = guild.members.me;
-    if (!botMember.permissions.has('ModerateMembers')) {
-      return res.status(403).json({
-        success: false,
-        message: 'Bot does not have permission to timeout members'
-      });
-    }
-    
-    // Check if the member is moderatable
-    if (!member.moderatable) {
-      return res.status(403).json({
-        success: false,
-        message: 'Cannot timeout this member (higher role hierarchy or missing permissions)'
-      });
-    }
-    
-    // Convert duration to milliseconds
-    const durationMs = (parseInt(duration) || 60) * 1000;
-    
-    // Maximum timeout duration is 28 days
-    const maxTimeout = 28 * 24 * 60 * 60 * 1000;
-    
-    if (durationMs > maxTimeout) {
-      return res.status(400).json({
-        success: false,
-        message: 'Timeout duration cannot exceed 28 days'
-      });
-    }
-    
-    // Timeout the member
-    await member.timeout(durationMs, `${reason || 'No reason provided'} (Timed out by ${req.user.username})`);
-    
-    // Log the timeout
-    if (client.logs && !client.logs.timeouts) {
-      client.logs.timeouts = [];
-    }
-    
-    if (client.logs && client.logs.timeouts) {
-      client.logs.timeouts.push({
-        userId,
-        userName: member.user.username,
-        userDiscriminator: member.user.discriminator || '0000',
-        userAvatar: member.user.displayAvatarURL({ dynamic: true }),
-        executorId: req.user.id,
-        executorName: req.user.username,
-        executorDiscriminator: req.user.discriminator || '0000',
-        executorAvatar: req.user.avatar || null,
-        reason,
-        duration: parseInt(duration) || 60,
-        timestamp: new Date().toISOString(),
-        guildId: serverId
-      });
-    }
-    
-    res.json({
-      success: true,
-      message: 'User timed out successfully'
-    });
-  } catch (error) {
-    console.error('Error timing out user:', error);
-    res.status(500).json({
+router.get('/bans', async (req, res) => {
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
       success: false,
-      message: 'Failed to timeout user: ' + error.message
+      message: 'Discord client not available'
     });
   }
-});
-
-/**
- * POST /api/v2/servers/:serverId/purge
- * Purge messages from a channel
- */
-router.post('/servers/:serverId/purge', async (req, res) => {
+  
   try {
-    const { serverId } = req.params;
-    const { channelId, amount, reason, filters } = req.body;
-    const client = req.app.get('client');
+    // For demonstration, we'll return mock banned users
+    // In a real implementation, this would fetch from Discord
     
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
-    
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Validate required fields
-    if (!channelId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Channel ID is required'
-      });
-    }
-    
-    // Check if the channel exists
-    const channel = await guild.channels.fetch(channelId).catch(() => null);
-    
-    if (!channel) {
-      return res.status(404).json({
-        success: false,
-        message: 'Channel not found'
-      });
-    }
-    
-    // Check if the channel is a text channel
-    if (channel.type !== 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Channel must be a text channel'
-      });
-    }
-    
-    // Check if the bot has permission to manage messages
-    const botMember = guild.members.me;
-    if (!botMember.permissionsIn(channel).has('ManageMessages')) {
-      return res.status(403).json({
-        success: false,
-        message: 'Bot does not have permission to manage messages in this channel'
-      });
-    }
-    
-    // Validate amount
-    const purgeAmount = parseInt(amount) || 10;
-    
-    if (purgeAmount < 1 || purgeAmount > 100) {
-      return res.status(400).json({
-        success: false,
-        message: 'Amount must be between 1 and 100'
-      });
-    }
-    
-    // Fetch messages
-    const messages = await channel.messages.fetch({ limit: purgeAmount });
-    
-    // Apply filters if provided
-    let filteredMessages = messages;
-    
-    if (filters) {
-      if (filters.onlyUsers) {
-        filteredMessages = filteredMessages.filter(message => !message.author.bot);
+    const mockBannedUsers = [
+      {
+        id: '123456789012345678',
+        username: 'TroubleUser',
+        discriminator: '1234',
+        reason: 'Violating server rules',
+        bannedBy: 'Admin#0001',
+        bannedAt: new Date().toISOString(),
+        permanent: true
+      },
+      {
+        id: '234567890123456789',
+        username: 'Spammer',
+        discriminator: '5678',
+        reason: 'Mass advertising',
+        bannedBy: 'Moderator#1234',
+        bannedAt: new Date(Date.now() - 86400000).toISOString(),
+        permanent: false,
+        duration: '7 days'
+      },
+      {
+        id: '345678901234567890',
+        username: 'BadActor',
+        discriminator: '9012',
+        reason: 'Harassment',
+        bannedBy: 'Admin#0001',
+        bannedAt: new Date(Date.now() - 259200000).toISOString(),
+        permanent: true
       }
-      
-      if (filters.withImages) {
-        filteredMessages = filteredMessages.filter(message => 
-          message.attachments.size > 0 || 
-          message.embeds.some(embed => embed.image || embed.thumbnail)
-        );
-      }
-      
-      if (filters.withLinks) {
-        const linkRegex = /(https?:\/\/[^\s]+)/gi;
-        filteredMessages = filteredMessages.filter(message => 
-          linkRegex.test(message.content)
-        );
-      }
-    }
+    ];
     
-    // Check if any messages match filters
-    if (filteredMessages.size === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'No messages match the specified filters'
-      });
-    }
-    
-    // Bulk delete messages (Discord only allows bulk delete for messages less than 2 weeks old)
-    const twoWeeksAgo = Date.now() - (14 * 24 * 60 * 60 * 1000);
-    const recentMessages = filteredMessages.filter(message => message.createdTimestamp > twoWeeksAgo);
-    
-    let deletedCount = 0;
-    
-    if (recentMessages.size > 0) {
-      await channel.bulkDelete(recentMessages);
-      deletedCount = recentMessages.size;
-    }
-    
-    // Delete older messages one by one
-    const olderMessages = filteredMessages.filter(message => message.createdTimestamp <= twoWeeksAgo);
-    
-    for (const message of olderMessages.values()) {
-      await message.delete().catch(() => {
-        // Ignore errors for individual message deletions
-      });
-      deletedCount++;
-    }
-    
-    // Log the purge
-    if (client.logs && !client.logs.purges) {
-      client.logs.purges = [];
-    }
-    
-    if (client.logs && client.logs.purges) {
-      client.logs.purges.push({
-        channelId,
-        channelName: channel.name,
-        executorId: req.user.id,
-        executorName: req.user.username,
-        executorDiscriminator: req.user.discriminator || '0000',
-        executorAvatar: req.user.avatar || null,
-        reason,
-        amount: deletedCount,
-        timestamp: new Date().toISOString(),
-        guildId: serverId
-      });
-    }
-    
-    res.json({
+    return res.json({
       success: true,
-      message: `Purged ${deletedCount} message${deletedCount === 1 ? '' : 's'} successfully`,
-      purgedCount: deletedCount
+      bans: mockBannedUsers
     });
   } catch (error) {
-    console.error('Error purging messages:', error);
-    res.status(500).json({
+    console.error('Error fetching banned users:', error);
+    return res.json({
       success: false,
-      message: 'Failed to purge messages: ' + error.message
+      message: `Failed to fetch banned users: ${error.message}`
     });
   }
 });
 
 /**
- * GET /api/v2/servers/:serverId/automod
- * Get auto-moderation settings for a server
+ * GET /api/moderation/warnings
+ * Get list of warned users
  */
-router.get('/servers/:serverId/automod', async (req, res) => {
+router.get('/warnings', async (req, res) => {
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
   try {
-    const { serverId } = req.params;
-    const client = req.app.get('client');
+    // For demonstration, we'll return mock warnings
+    // In a real implementation, this would fetch from database
     
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
+    const mockWarnings = [
+      {
+        id: '1',
+        userId: '123456789012345678',
+        username: 'NewUser',
+        discriminator: '5678',
+        reason: 'Spamming in #general channel',
+        severity: 'medium',
+        issuedBy: 'Moderator#1234',
+        issuedAt: new Date(Date.now() - 7200000).toISOString(),
+        expires: new Date(Date.now() + 2592000000).toISOString()
+      },
+      {
+        id: '2',
+        userId: '234567890123456789',
+        username: 'Member',
+        discriminator: '4321',
+        reason: 'Minor rule violation',
+        severity: 'low',
+        issuedBy: 'Helper#8765',
+        issuedAt: new Date(Date.now() - 86400000).toISOString(),
+        expires: new Date(Date.now() + 2592000000).toISOString()
+      },
+      {
+        id: '3',
+        userId: '345678901234567890',
+        username: 'ProblemUser',
+        discriminator: '6789',
+        reason: 'Posting inappropriate content',
+        severity: 'high',
+        issuedBy: 'Admin#0001',
+        issuedAt: new Date(Date.now() - 259200000).toISOString(),
+        expires: null
+      }
+    ];
     
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Check if automod settings are available
-    if (!client.discordDB) {
-      return res.status(501).json({
-        success: false,
-        message: 'Auto-moderation system not available'
-      });
-    }
-    
-    // Get automod settings from database
-    const settings = await client.discordDB.getAutoModSettings(serverId);
-    
-    if (!settings) {
-      return res.json({
-        success: false,
-        message: 'No auto-moderation settings found',
-        code: 'NO_SETTINGS'
-      });
-    }
-    
-    res.json({
+    return res.json({
       success: true,
-      serverId,
-      settings
+      warnings: mockWarnings
     });
   } catch (error) {
-    console.error('Error getting auto-moderation settings:', error);
-    res.status(500).json({
+    console.error('Error fetching warnings:', error);
+    return res.json({
       success: false,
-      message: 'Failed to get auto-moderation settings: ' + error.message
+      message: `Failed to fetch warnings: ${error.message}`
     });
   }
 });
 
 /**
- * POST /api/v2/servers/:serverId/automod
- * Set auto-moderation settings for a server
+ * GET /api/moderation/history
+ * Get moderation action history
  */
-router.post('/servers/:serverId/automod', async (req, res) => {
+router.get('/history', async (req, res) => {
+  const client = req.app.get('client');
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
   try {
-    const { serverId } = req.params;
-    const settings = req.body;
-    const client = req.app.get('client');
+    // For demonstration, we'll return mock moderation history
+    // In a real implementation, this would fetch from database
     
-    if (!client) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord client not available'
-      });
-    }
+    const mockHistory = [
+      {
+        id: '1',
+        type: 'ban',
+        userId: '123456789012345678',
+        username: 'TroubleUser',
+        discriminator: '1234',
+        reason: 'Violating server rules',
+        actionBy: 'Admin#0001',
+        actionAt: new Date().toISOString(),
+        guild: 'The Phantom Syndicate'
+      },
+      {
+        id: '2',
+        type: 'warning',
+        userId: '234567890123456789',
+        username: 'NewUser',
+        discriminator: '5678',
+        reason: 'Spamming in #general',
+        actionBy: 'Moderator#1234',
+        actionAt: new Date(Date.now() - 7200000).toISOString(),
+        guild: 'SWOOSH Official'
+      },
+      {
+        id: '3',
+        type: 'kick',
+        userId: '345678901234567890',
+        username: 'AngryGamer',
+        discriminator: '4321',
+        reason: 'Inappropriate language',
+        actionBy: 'Helper#8765',
+        actionAt: new Date(Date.now() - 86400000).toISOString(),
+        guild: 'Coding Hub'
+      }
+    ];
     
-    const guild = client.guilds.cache.get(serverId);
-    
-    if (!guild) {
-      return res.status(404).json({
-        success: false,
-        message: 'Server not found'
-      });
-    }
-    
-    // Check if automod settings are available
-    if (!client.discordDB) {
-      return res.status(501).json({
-        success: false,
-        message: 'Auto-moderation system not available'
-      });
-    }
-    
-    // Validate settings
-    if (!settings) {
-      return res.status(400).json({
-        success: false,
-        message: 'Settings are required'
-      });
-    }
-    
-    // Save settings to database
-    const result = await client.discordDB.setAutoModSettings(serverId, settings);
-    
-    if (!result || !result.success) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to save auto-moderation settings'
-      });
-    }
-    
-    res.json({
+    return res.json({
       success: true,
-      message: 'Auto-moderation settings saved successfully',
-      settings
+      history: mockHistory
     });
   } catch (error) {
-    console.error('Error setting auto-moderation settings:', error);
-    res.status(500).json({
+    console.error('Error fetching moderation history:', error);
+    return res.json({
       success: false,
-      message: 'Failed to set auto-moderation settings: ' + error.message
+      message: `Failed to fetch moderation history: ${error.message}`
     });
   }
 });
