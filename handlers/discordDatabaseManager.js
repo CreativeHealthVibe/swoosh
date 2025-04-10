@@ -419,6 +419,151 @@ class DiscordDatabaseManager {
       return result;
     }, {});
   }
+  
+  /**
+   * Get warnings for a user in a server
+   * @param {string} serverId - The server ID
+   * @param {string} userId - The user ID
+   * @returns {Promise<Array>} - Array of warnings
+   */
+  async getWarnings(serverId, userId) {
+    try {
+      // Create a composite key using server and user IDs
+      const warningKey = `${serverId}-${userId}`;
+      
+      // Check if warnings collection exists
+      if (!this.dataCache['warnings']) {
+        this.dataCache['warnings'] = {};
+        return [];
+      }
+      
+      // Get warnings for this user/server
+      const warnings = this.dataCache['warnings'][warningKey] || [];
+      
+      // If it's an array, return it; otherwise return an empty array
+      return Array.isArray(warnings) ? warnings : [];
+    } catch (error) {
+      console.error('Error getting warnings:', error);
+      return [];
+    }
+  }
+  
+  /**
+   * Add a warning for a user
+   * @param {string} serverId - The server ID
+   * @param {Object} warning - The warning object
+   * @returns {Promise<Object>} - Result of the operation
+   */
+  async addWarning(serverId, warning) {
+    try {
+      if (!warning || !warning.userId) {
+        return { success: false, message: 'Invalid warning data' };
+      }
+      
+      // Create a composite key using server and user IDs
+      const warningKey = `${serverId}-${warning.userId}`;
+      
+      // Ensure warnings collection exists
+      if (!this.dataCache['warnings']) {
+        this.dataCache['warnings'] = {};
+      }
+      
+      // Ensure array for this user exists
+      if (!this.dataCache['warnings'][warningKey]) {
+        this.dataCache['warnings'][warningKey] = [];
+      }
+      
+      // Add warning to array
+      this.dataCache['warnings'][warningKey].push(warning);
+      
+      // Queue write to Discord
+      const result = await this.queueWrite('warnings');
+      
+      return { 
+        success: result, 
+        message: result ? 'Warning added successfully' : 'Failed to add warning'
+      };
+    } catch (error) {
+      console.error('Error adding warning:', error);
+      return { success: false, message: 'Error adding warning: ' + error.message };
+    }
+  }
+  
+  /**
+   * Get auto-moderation settings for a server
+   * @param {string} serverId - The server ID
+   * @returns {Promise<Object>} - Auto-moderation settings
+   */
+  async getAutoModSettings(serverId) {
+    try {
+      // Check if configs collection exists
+      if (!this.dataCache['configs']) {
+        this.dataCache['configs'] = {};
+        return null;
+      }
+      
+      // Get config for this server
+      const config = this.dataCache['configs'][serverId] || {};
+      
+      // Return the automod section if it exists
+      return config.automod || {
+        enabled: false,
+        filters: {
+          spam: false,
+          invites: false,
+          links: false,
+          capitals: false,
+          profanity: false
+        },
+        actions: {
+          warn: true,
+          delete: true,
+          timeout: false,
+          timeoutDuration: 5
+        },
+        exemptRoles: [],
+        exemptChannels: []
+      };
+    } catch (error) {
+      console.error('Error getting automod settings:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * Save auto-moderation settings for a server
+   * @param {string} serverId - The server ID
+   * @param {Object} settings - The automod settings
+   * @returns {Promise<Object>} - Result of the operation
+   */
+  async saveAutoModSettings(serverId, settings) {
+    try {
+      // Ensure configs collection exists
+      if (!this.dataCache['configs']) {
+        this.dataCache['configs'] = {};
+      }
+      
+      // Get existing config for this server or create new
+      const config = this.dataCache['configs'][serverId] || {};
+      
+      // Update automod section
+      config.automod = settings;
+      
+      // Save back to cache
+      this.dataCache['configs'][serverId] = config;
+      
+      // Queue write to Discord
+      const result = await this.queueWrite('configs');
+      
+      return {
+        success: result,
+        message: result ? 'Automod settings saved' : 'Failed to save automod settings'
+      };
+    } catch (error) {
+      console.error('Error saving automod settings:', error);
+      return { success: false, message: 'Error saving automod settings: ' + error.message };
+    }
+  }
 }
 
 module.exports = DiscordDatabaseManager;
