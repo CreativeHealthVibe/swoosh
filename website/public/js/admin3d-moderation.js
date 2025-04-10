@@ -11,25 +11,458 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('premium-edition');
   
   // DOM Elements
-  const serverSelect = document.getElementById('server-select');
-  const moderationSection = document.getElementById('moderation-section');
+  const serverSelect = document.getElementById('serverSelect');
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
   
-  // Modal Elements
-  const banUserModal = document.getElementById('ban-user-modal');
-  const kickUserModal = document.getElementById('kick-user-modal');
-  const timeoutUserModal = document.getElementById('timeout-user-modal');
-  const purgeMessagesModal = document.getElementById('purge-messages-modal');
+  // Ban Management Elements
+  const banUserForm = document.getElementById('banUserForm');
+  const banDuration = document.getElementById('banDuration');
+  const customDurationGroup = document.getElementById('customDurationGroup');
+  const banSearchInput = document.getElementById('banSearchInput');
+  const banFilterSelect = document.getElementById('banFilterSelect');
+  const banListBody = document.getElementById('banListBody');
   
-  // Button Elements
-  const actionButtons = document.querySelectorAll('[data-action]');
-  const modalCancelButtons = document.querySelectorAll('[data-action="cancel"]');
-  const refreshBansButton = document.getElementById('refresh-bans');
-  const refreshLogsButton = document.getElementById('refresh-logs');
-  const checkWarningsButton = document.getElementById('check-warnings');
-  const addWarningForm = document.getElementById('add-warning-form');
-  const automodForm = document.getElementById('automod-form');
-  const antiRaidCheckbox = document.getElementById('anti-raid');
-  const raidOptions = document.getElementById('raid-options');
+  // Warning Management Elements
+  const warnUserForm = document.getElementById('warnUserForm');
+  const warningSearchInput = document.getElementById('warningSearchInput');
+  const warningFilterSelect = document.getElementById('warningFilterSelect');
+  const warningListBody = document.getElementById('warningListBody');
+  
+  // Auto-Moderation Elements
+  const automodSettingsForm = document.getElementById('automodSettingsForm');
+  const profanityFilter = document.getElementById('profanityFilter');
+  const profanityFilterLevel = document.getElementById('profanityFilterLevel');
+  const customWordListGroup = document.getElementById('customWordListGroup');
+  const antiSpam = document.getElementById('antiSpam');
+  const antiRaid = document.getElementById('antiRaid');
+  const automodLogBody = document.getElementById('automodLogBody');
+  
+  // Initialize tabs functionality
+  if (tabButtons && tabContents) {
+    // Set first tab as active if not already done
+    if (!document.querySelector('.tab-btn.active') && tabButtons.length > 0) {
+      tabButtons[0].classList.add('active');
+    }
+    
+    if (!document.querySelector('.tab-content.active') && tabContents.length > 0) {
+      tabContents[0].classList.add('active');
+    }
+    
+    // Add click event listeners to tab buttons
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all buttons and contents
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding content
+        button.classList.add('active');
+        const tabId = button.getAttribute('data-tab');
+        document.getElementById(tabId)?.classList.add('active');
+      });
+    });
+  }
+  
+  // Initialize custom duration toggle for ban form
+  if (banDuration && customDurationGroup) {
+    banDuration.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customDurationGroup.style.display = 'block';
+      } else {
+        customDurationGroup.style.display = 'none';
+      }
+    });
+  }
+  
+  // Initialize custom word list toggle for profanity filter
+  if (profanityFilterLevel && customWordListGroup) {
+    profanityFilterLevel.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customWordListGroup.style.display = 'block';
+      } else {
+        customWordListGroup.style.display = 'none';
+      }
+    });
+  }
+  
+  // Update server ID in automod form when server is selected
+  if (serverSelect && document.getElementById('serverId')) {
+    serverSelect.addEventListener('change', function() {
+      document.getElementById('serverId').value = this.value;
+      
+      if (this.value) {
+        loadServerData(this.value);
+      }
+    });
+  }
+  
+  /**
+   * Load server data for moderation
+   * @param {string} serverId - Discord server ID
+   */
+  function loadServerData(serverId) {
+    if (!serverId) return;
+    
+    // Update empty state messages
+    updateEmptyState(`Loading data for server ${serverId}...`);
+    
+    // Load ban list
+    loadBanList(serverId);
+    
+    // Load warning list
+    loadWarningList(serverId);
+    
+    // Load automod log
+    loadAutomodLog(serverId);
+    
+    // Load automod settings
+    loadAutomodSettings(serverId);
+  }
+  
+  /**
+   * Update empty state messages in tables
+   * @param {string} message - Message to display
+   */
+  function updateEmptyState(message) {
+    const emptyStates = document.querySelectorAll('.empty-state-message p');
+    emptyStates.forEach(elem => {
+      elem.textContent = message;
+    });
+  }
+  
+  /**
+   * Load ban list for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadBanList(serverId) {
+    if (!banListBody) return;
+    
+    // Show loading state
+    banListBody.innerHTML = `
+      <tr class="loading-state">
+        <td colspan="5">
+          <div class="loading-state-message">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Loading ban list...</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    
+    // For demo purposes, we'll just show some sample data
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      const sampleBans = [
+        {
+          userId: '123456789012345678',
+          username: 'User1#1234',
+          reason: 'Spamming in multiple channels',
+          date: '2025-04-08',
+          duration: 'Permanent',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png'
+        },
+        {
+          userId: '234567890123456789',
+          username: 'User2#5678',
+          reason: 'Posting inappropriate content',
+          date: '2025-04-07',
+          duration: '7 days',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
+        },
+        {
+          userId: '345678901234567890',
+          username: 'User3#9012',
+          reason: 'Harassment of other members',
+          date: '2025-04-05',
+          duration: '30 days',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png'
+        }
+      ];
+      
+      if (sampleBans.length === 0) {
+        banListBody.innerHTML = `
+          <tr class="empty-state">
+            <td colspan="5">
+              <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No bans found for this server</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      } else {
+        banListBody.innerHTML = '';
+        
+        sampleBans.forEach(ban => {
+          banListBody.innerHTML += `
+            <tr>
+              <td>
+                <div class="user-info">
+                  <div class="user-avatar">
+                    <img src="${ban.avatar}" alt="${ban.username}'s avatar">
+                  </div>
+                  <div class="user-details">
+                    <div class="user-name">${ban.username}</div>
+                    <div class="user-id">${ban.userId}</div>
+                  </div>
+                </div>
+              </td>
+              <td>${ban.reason}</td>
+              <td>${ban.date}</td>
+              <td>${ban.duration}</td>
+              <td>
+                <div class="table-actions">
+                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-secondary" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-primary" title="Unban User">
+                    <i class="fas fa-user-check"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      }
+    }, 1000);
+  }
+  
+  /**
+   * Load warning list for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadWarningList(serverId) {
+    if (!warningListBody) return;
+    
+    // Show loading state
+    warningListBody.innerHTML = `
+      <tr class="loading-state">
+        <td colspan="6">
+          <div class="loading-state-message">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Loading warning history...</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    
+    // For demo purposes, we'll just show some sample data
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      const sampleWarnings = [
+        {
+          userId: '123456789012345678',
+          username: 'User1#1234',
+          reason: 'Excessive caps in messages',
+          severity: 'Low',
+          date: '2025-04-08',
+          status: 'Active',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png'
+        },
+        {
+          userId: '234567890123456789',
+          username: 'User2#5678',
+          reason: 'Minor spam in #general',
+          severity: 'Medium',
+          date: '2025-04-06',
+          status: 'Active',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
+        },
+        {
+          userId: '345678901234567890',
+          username: 'User3#9012',
+          reason: 'Disrespectful behavior towards moderators',
+          severity: 'High',
+          date: '2025-04-02',
+          status: 'Expired',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png'
+        }
+      ];
+      
+      if (sampleWarnings.length === 0) {
+        warningListBody.innerHTML = `
+          <tr class="empty-state">
+            <td colspan="6">
+              <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No warnings found for this server</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      } else {
+        warningListBody.innerHTML = '';
+        
+        sampleWarnings.forEach(warning => {
+          let severityClass = '';
+          switch (warning.severity) {
+            case 'Low': severityClass = 'severity-low'; break;
+            case 'Medium': severityClass = 'severity-medium'; break;
+            case 'High': severityClass = 'severity-high'; break;
+            case 'Critical': severityClass = 'severity-critical'; break;
+          }
+          
+          let statusClass = warning.status === 'Active' ? 'status-active' : 'status-expired';
+          
+          warningListBody.innerHTML += `
+            <tr>
+              <td>
+                <div class="user-info">
+                  <div class="user-avatar">
+                    <img src="${warning.avatar}" alt="${warning.username}'s avatar">
+                  </div>
+                  <div class="user-details">
+                    <div class="user-name">${warning.username}</div>
+                    <div class="user-id">${warning.userId}</div>
+                  </div>
+                </div>
+              </td>
+              <td>${warning.reason}</td>
+              <td><span class="severity-badge ${severityClass}">${warning.severity}</span></td>
+              <td>${warning.date}</td>
+              <td><span class="status-badge ${statusClass}">${warning.status}</span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-secondary" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-danger" title="Remove Warning">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      }
+    }, 1000);
+  }
+  
+  /**
+   * Load automod log for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadAutomodLog(serverId) {
+    if (!automodLogBody) return;
+    
+    // Show loading state
+    automodLogBody.innerHTML = `
+      <tr class="loading-state">
+        <td colspan="5">
+          <div class="loading-state-message">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Loading auto-moderation logs...</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    
+    // For demo purposes, we'll just show some sample data
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      const sampleLogs = [
+        {
+          time: '2025-04-10 14:32:05',
+          username: 'User1#1234',
+          userId: '123456789012345678',
+          violation: 'Profanity Filter',
+          action: 'Message Deleted',
+          details: 'Message contained prohibited words',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png'
+        },
+        {
+          time: '2025-04-10 13:18:42',
+          username: 'User2#5678',
+          userId: '234567890123456789',
+          violation: 'Spam Detection',
+          action: 'User Warned',
+          details: '5 messages in 3 seconds',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
+        },
+        {
+          time: '2025-04-09 22:51:17',
+          username: 'User3#9012',
+          userId: '345678901234567890',
+          violation: 'Discord Invite',
+          action: 'Message Deleted',
+          details: 'Message contained Discord invite link',
+          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png'
+        }
+      ];
+      
+      if (sampleLogs.length === 0) {
+        automodLogBody.innerHTML = `
+          <tr class="empty-state">
+            <td colspan="5">
+              <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No auto-moderation logs found</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      } else {
+        automodLogBody.innerHTML = '';
+        
+        sampleLogs.forEach(log => {
+          automodLogBody.innerHTML += `
+            <tr>
+              <td>${log.time}</td>
+              <td>
+                <div class="user-info">
+                  <div class="user-avatar small">
+                    <img src="${log.avatar}" alt="${log.username}'s avatar">
+                  </div>
+                  <div class="user-details">
+                    <div class="user-name">${log.username}</div>
+                  </div>
+                </div>
+              </td>
+              <td>${log.violation}</td>
+              <td>${log.action}</td>
+              <td>${log.details}</td>
+            </tr>
+          `;
+        });
+      }
+    }, 1000);
+  }
+  
+  /**
+   * Load automod settings for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadAutomodSettings(serverId) {
+    if (!automodSettingsForm) return;
+    
+    // For demo purposes, we'll just simulate loading settings
+    // In a real application, you would fetch this from an API
+    setTimeout(() => {
+      // Set default values for the form (this would come from the API)
+      document.getElementById('profanityFilter').checked = true;
+      document.getElementById('profanityFilterLevel').value = 'medium';
+      document.getElementById('linkFilter').checked = true;
+      document.getElementById('inviteBlocker').checked = true;
+      document.getElementById('antiSpam').checked = true;
+      document.getElementById('antiMention').checked = true;
+      document.getElementById('antiRaid').checked = false;
+      document.getElementById('messageThreshold').value = 5;
+      document.getElementById('timeThreshold').value = 5;
+      document.getElementById('violationAction').value = 'warn';
+      document.getElementById('spamAction').value = 'mute';
+      document.getElementById('muteDuration').value = '30m';
+      document.getElementById('logActions').checked = true;
+      document.getElementById('notifyUsers').checked = true;
+      
+      // Update UI based on settings
+      if (document.getElementById('profanityFilterLevel').value === 'custom') {
+        document.getElementById('customWordListGroup').style.display = 'block';
+      } else {
+        document.getElementById('customWordListGroup').style.display = 'none';
+      }
+    }, 800);
+  }
   
   // Initialize server selector
   if (serverSelect) {
