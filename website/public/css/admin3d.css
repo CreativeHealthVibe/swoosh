@@ -105,11 +105,12 @@ body {
 
 /* Header Styles */
 .admin3d-header {
-  height: var(--header-height);
+  min-height: var(--header-height); /* Use min-height instead of fixed height */
+  height: auto; /* Allow automatic height adjustment */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1.5rem;
+  padding: 0.75rem 1.5rem; /* Add vertical padding */
   background-color: #2a1987; /* More vibrant, lighter background for better visibility */
   background-image: linear-gradient(to right, #2a1987, #3a259a); /* Gradient for added visibility */
   border-bottom: 2px solid rgba(137, 109, 235, 0.9); /* Thicker, more visible border */
@@ -118,7 +119,7 @@ body {
   z-index: var(--z-above);
   width: 100%;
   box-sizing: border-box;
-  overflow: visible; /* Allow logo to overflow if needed */
+  overflow: visible; /* Allow content to be visible */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Stronger shadow for better contrast */
 }
 
@@ -1054,6 +1055,10 @@ body {
 }
 
 @media (max-width: 768px) {
+  :root {
+    --header-height: 90px; /* Increase header height for mobile */
+  }
+  
   .admin3d-sidebar {
     position: fixed;
     left: 0;
@@ -1074,12 +1079,20 @@ body {
   }
   
   .admin3d-header {
-    padding: 0 1rem;
-    height: 80px; /* Increased height for better tap targets */
+    padding: 0.75rem 1rem; /* Added vertical padding */
+    min-height: var(--header-height); /* Match the new header height */
+    flex-wrap: nowrap; /* Prevent header items from wrapping */
+    height: auto; /* Allow header to expand if needed */
+    display: flex; /* Ensure flex display */
   }
   
   .admin3d-header-left {
     gap: 0.75rem; /* Reduced gap for better spacing */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+  
+  .admin3d-header-right {
+    flex-shrink: 0; /* Prevent shrinking */
   }
   
   .sidebar-toggle {
@@ -1093,6 +1106,11 @@ body {
   .admin3d-user-avatar {
     border-width: 3px; /* Thicker border */
     box-shadow: 0 0 20px var(--primary-glow); /* Enhanced glow */
+  }
+  
+  /* Ensure content adjusts to new header height */
+  .admin3d-content-wrapper {
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
   }
   
   .admin3d-footer {
@@ -1109,6 +1127,19 @@ body {
 }
 
 @media (max-width: 576px) {
+  :root {
+    --header-height: 100px; /* Even larger header height for very small screens */
+  }
+  
+  /* Make header more spacious with better visible elements */
+  .admin3d-header {
+    padding: 0.75rem;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    background-image: linear-gradient(to right, #2a1987, #462cb0); /* Even brighter gradient */
+  }
+  
   /* Better logo visibility for very small screens */
   .admin3d-logo {
     display: flex;
@@ -1117,14 +1148,14 @@ body {
   }
   
   .swoosh-logo-mark {
-    height: 36px; /* Larger logo for small screens */
-    width: 36px; /* Larger logo for small screens */
+    height: 40px; /* Larger logo for small screens */
+    width: 40px; /* Larger logo for small screens */
   }
   
   .swoosh-logo-mark img {
-    height: 36px; /* Larger logo for small screens */
-    width: 36px; /* Larger logo for small screens */
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)); /* Enhanced glow */
+    height: 40px; /* Larger logo for small screens */
+    width: 40px; /* Larger logo for small screens */
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); /* Enhanced glow */
   }
   
   /* Hide text but keep logo visible */
@@ -1138,25 +1169,31 @@ body {
   
   /* Enhance user avatar for better visibility */
   .admin3d-user-avatar {
-    width: 45px; /* Larger avatar */
-    height: 45px; /* Larger avatar */
+    width: 48px; /* Larger avatar */
+    height: 48px; /* Larger avatar */
     border: 3px solid var(--primary-light); /* Brighter border */
     box-shadow: 0 0 25px var(--primary-glow); /* Stronger glow */
   }
   
   .admin3d-header-right {
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
   
   .notification-area {
     width: calc(100% - 40px);
   }
   
-  /* Add a bright pulse to draw attention to menu toggle */
+  /* Enhance sidebar toggle for better visibility */
   .sidebar-toggle {
+    width: 48px; /* Larger button */
+    height: 48px; /* Larger button */
+    margin-left: 0.5rem; /* Reduced margin */
+    background-color: rgba(62, 45, 145, 0.7); /* More visible background */
     animation: pulseBorder 2s infinite alternate;
+    font-size: 1.3rem; /* Larger icon */
   }
   
+  /* Add a bright glow around the toggle button */
   @keyframes pulseBorder {
     0% {
       box-shadow: 0 0 5px rgba(137, 54, 255, 0.5);
@@ -1164,6 +1201,22 @@ body {
     100% {
       box-shadow: 0 0 15px rgba(137, 54, 255, 0.8);
     }
+  }
+  
+  /* Ensure proper spacing for dropdown menu */
+  .admin3d-user-dropdown {
+    right: -10px; /* Adjust position for small screens */
+    top: calc(100% + 15px); /* Move down slightly */
+  }
+  
+  /* Adjust sidebar position for new header height */
+  .admin3d-sidebar {
+    top: var(--header-height);
+  }
+  
+  /* Adjust content wrapper for new header height */
+  .admin3d-content-wrapper {
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
   }
 }
 
