@@ -1,12 +1,23 @@
-/* Admin 3D Dashboard - Premium Moderation Page */
+/* Admin 3D Dashboard - Ultra Premium Moderation Page - £100,000 */
 
 /* Premium container styles */
 .premium-edition {
-  --premium-glow: 0 0 15px rgba(114, 137, 218, 0.7);
+  --premium-glow: 0 0 20px rgba(114, 137, 218, 0.8);
+  --ultra-glow: 0 0 30px rgba(234, 84, 254, 0.8);
   --premium-purple: #5865f2;
   --premium-pink: #eb459e;
+  --premium-gold: #ffd700;
+  --premium-teal: #00ffea;
+  --premium-blue: #00a2ff;
+  --premium-holographic: linear-gradient(135deg, var(--premium-blue), var(--premium-teal), var(--premium-purple), var(--premium-pink), var(--premium-gold));
   --premium-gradient: linear-gradient(45deg, var(--premium-purple), var(--premium-pink));
-  --premium-badge-bg: linear-gradient(135deg, #ff6b6b, #c44fff);
+  --premium-badge-bg: linear-gradient(135deg, #ffd700, #ff9000, #ff6b6b, #c44fff);
+  --price-badge-bg: linear-gradient(135deg, #ffd700, #ffaa00);
+  --luxury-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --diamond-gradient: linear-gradient(180deg, #b9ffff, #a1ffff, #89f7f7, #6be9e9, #4cd6d6, #36c9c9, #1dbbbb, #00aeae);
+  
+  /* Add animation to the entire premium edition */
+  animation: premium-ambient 15s ease-in-out infinite;
 }
 
 /* Premium header styling */
@@ -28,9 +39,71 @@
   position: absolute;
   top: -0.75rem;
   right: 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   text-transform: uppercase;
   letter-spacing: 1px;
+  animation: badge-glow 3s ease-in-out infinite;
+  background-size: 400% 400%;
+}
+
+.price-badge {
+  background: var(--price-badge-bg);
+  color: #1a1a1a;
+  font-size: 1.25rem;
+  font-weight: 800;
+  padding: 0.5rem 1.25rem;
+  border-radius: 1rem;
+  position: absolute;
+  top: -1rem;
+  left: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
+  animation: price-shine 5s ease-in-out infinite;
+}
+
+@keyframes badge-glow {
+  0% {
+    background-position: 0% 50%;
+    box-shadow: 0 0 10px rgba(203, 62, 255, 0.5);
+  }
+  50% {
+    background-position: 100% 50%;
+    box-shadow: 0 0 20px rgba(203, 62, 255, 0.8);
+  }
+  100% {
+    background-position: 0% 50%;
+    box-shadow: 0 0 10px rgba(203, 62, 255, 0.5);
+  }
+}
+
+@keyframes price-shine {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+    transform: translateY(-3px);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    transform: translateY(0);
+  }
+}
+
+@keyframes premium-ambient {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(15deg);
+  }
+  100% {
+    filter: hue-rotate(0deg);
+  }
 }
 
 /* 3D Moderation Scene Container */
@@ -121,51 +194,158 @@
   color: #b9bbbe;
 }
 
-/* Enhanced Card Styles */
+/* Enhanced £100K Ultra-Premium Card Styles */
 .premium-edition .admin3d-card {
   border: 1px solid rgba(114, 137, 218, 0.3);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
+  position: relative;
+  background: rgba(30, 31, 42, 0.85);
+  backdrop-filter: blur(10px);
+}
+
+.premium-edition .admin3d-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, 
+    rgba(88, 101, 242, 0.05) 0%, 
+    rgba(235, 69, 158, 0.05) 33%,
+    rgba(255, 215, 0, 0.05) 66%, 
+    rgba(88, 101, 242, 0.05) 100%);
+  background-size: 400% 400%;
+  animation: ultra-card-gradient 8s ease infinite;
+  z-index: -1;
+}
+
+.premium-edition .admin3d-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: var(--premium-holographic);
+  background-size: 300% 300%;
+  animation: border-glow 6s linear infinite;
+  z-index: -2;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  border-radius: inherit;
 }
 
 .premium-edition .admin3d-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  border-color: rgba(114, 137, 218, 0.5);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 12px 30px rgba(30, 30, 60, 0.4);
+  border-color: transparent;
 }
 
-/* Section title enhancements */
+.premium-edition .admin3d-card:hover::after {
+  opacity: 1;
+}
+
+@keyframes ultra-card-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes border-glow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 300% 300%;
+  }
+}
+
+/* Ultra-Premium £100k Title Enhancements */
 .premium-edition .section-title {
-  font-size: 2.25rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
   text-align: center;
-  background: var(--premium-gradient);
+  background: var(--premium-holographic);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 10px rgba(88, 101, 242, 0.4);
+  text-shadow: 0 2px 10px rgba(88, 101, 242, 0.5);
+  animation: title-gradient 10s ease infinite;
+  position: relative;
+  display: inline-block;
+}
+
+.premium-edition .section-title::before,
+.premium-edition .section-title::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 3px;
+  background: var(--premium-holographic);
+  background-size: 200% 200%;
+  top: 50%;
+  animation: title-gradient 10s ease infinite;
+}
+
+.premium-edition .section-title::before {
+  left: -50px;
+  transform: translateY(-50%);
+}
+
+.premium-edition .section-title::after {
+  right: -50px;
+  transform: translateY(-50%);
+}
+
+@keyframes title-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .premium-edition .section-subtitle {
   font-size: 1.5rem;
   color: #ffffff;
-  margin: 2rem 0 1rem;
+  margin: 2.5rem 0 1.5rem;
   position: relative;
   display: inline-block;
+  padding-bottom: 0.5rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .premium-edition .section-subtitle::after {
   content: '';
   position: absolute;
-  bottom: -8px;
+  bottom: -4px;
   left: 0;
-  width: 50px;
-  height: 3px;
-  background: var(--premium-gradient);
-  border-radius: 3px;
+  width: 70px;
+  height: 4px;
+  background: var(--premium-holographic);
+  background-size: 200% 200%;
+  border-radius: 2px;
+  animation: title-gradient 8s ease infinite;
+  box-shadow: 0 2px 8px rgba(88, 101, 242, 0.4);
+  transition: width 0.3s ease;
+}
+
+.premium-edition .section-subtitle:hover::after {
+  width: 100%;
 }
 
 /* Premium action cards */
@@ -177,18 +357,21 @@
 }
 
 .premium-edition .admin3d-action-card {
-  background: rgba(54, 57, 63, 0.9);
+  background: rgba(24, 26, 34, 0.8);
   border-radius: 0.75rem;
-  padding: 1.5rem;
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(114, 137, 218, 0.2);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(114, 137, 218, 0.15);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
 .premium-edition .admin3d-action-card::before {
@@ -197,15 +380,43 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 3px;
-  background: var(--premium-gradient);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
+  height: 100%;
+  background: radial-gradient(
+    circle at center,
+    rgba(114, 137, 218, 0.08) 0%,
+    rgba(114, 137, 218, 0) 70%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: -1;
+}
+
+.premium-edition .admin3d-action-card::after {
+  content: '';
+  position: absolute;
+  inset: -0.5px;
+  background: var(--premium-holographic);
+  background-size: 400% 400%;
+  animation: ultra-card-gradient 8s ease infinite;
+  z-index: -2;
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity 0.5s ease;
+  filter: blur(1px);
+}
+
+.premium-edition .admin3d-action-card:hover {
+  transform: translateY(-10px) scale(1.03) rotateX(3deg);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border-color: transparent;
 }
 
 .premium-edition .admin3d-action-card:hover::before {
-  transform: scaleX(1);
+  opacity: 1;
+}
+
+.premium-edition .admin3d-action-card:hover::after {
+  opacity: 1;
 }
 
 .premium-edition .action-card-icon {
@@ -237,72 +448,157 @@
   color: white;
 }
 
-.premium-edition .admin3d-action-card[data-premium="true"]::after {
-  content: 'PREMIUM';
+.premium-edition .admin3d-action-card[data-premium="true"] .premium-item-badge {
   position: absolute;
   top: 10px;
   right: 10px;
   font-size: 0.6rem;
   font-weight: bold;
   background: var(--premium-badge-bg);
+  background-size: 300% 300%;
   color: white;
-  padding: 2px 6px;
-  border-radius: 3px;
-  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.7px;
+  animation: badge-glow 4s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: rotate(3deg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 10;
 }
 
-/* Enhanced Buttons */
+/* Add the badge to all premium cards */
+.premium-edition .admin3d-action-card[data-premium="true"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0) 70%);
+  border-top-right-radius: inherit;
+  z-index: 1;
+}
+
+/* Ultra-Premium £100k Buttons */
 .premium-edition .admin3d-btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  padding: 0.85rem 1.75rem;
+  border-radius: 0.6rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: none;
   position: relative;
   overflow: hidden;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+.premium-edition .admin3d-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .premium-edition .admin3d-btn::after {
   content: '';
   position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
+  width: 20px;
+  height: 200%;
+  top: -50%;
   left: -100%;
-  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.1), rgba(255,255,255,0));
-  transition: all 0.5s ease;
+  background: linear-gradient(
+    90deg, 
+    rgba(255,255,255,0), 
+    rgba(255,255,255,0.3), 
+    rgba(255,255,255,0)
+  );
+  transform: rotate(25deg);
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.premium-edition .admin3d-btn:hover::before {
+  opacity: 1;
 }
 
 .premium-edition .admin3d-btn:hover::after {
-  left: 100%;
+  left: 150%;
+}
+
+.premium-edition .admin3d-btn:active {
+  transform: scale(0.97);
+}
+
+.premium-edition .admin3d-btn i {
+  margin-right: 8px;
+  font-size: 1.1em;
+  position: relative;
+  top: 1px;
+  transition: transform 0.3s ease;
+}
+
+.premium-edition .admin3d-btn:hover i {
+  transform: translateX(-3px);
 }
 
 .premium-edition .admin3d-btn-primary {
-  background: var(--premium-gradient);
+  background: var(--premium-holographic);
+  background-size: 200% 200%;
   color: white;
-  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+  animation: btn-gradient 8s ease infinite;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes btn-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .premium-edition .admin3d-btn-primary:hover {
-  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(88, 101, 242, 0.6);
+  transform: translateY(-3px);
 }
 
 .premium-edition .admin3d-btn-danger {
-  background: linear-gradient(45deg, #f04747, #ff7675);
+  background: linear-gradient(45deg, #f04747, #ff6b6b, #ff7a7a, #f04747);
+  background-size: 300% 300%;
   color: white;
-  box-shadow: 0 4px 15px rgba(240, 71, 71, 0.4);
+  box-shadow: 0 6px 20px rgba(240, 71, 71, 0.4);
+  animation: btn-gradient 8s ease infinite;
 }
 
 .premium-edition .admin3d-btn-danger:hover {
-  box-shadow: 0 6px 20px rgba(240, 71, 71, 0.6);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(240, 71, 71, 0.6);
+  transform: translateY(-3px);
 }
 
 .premium-edition .admin3d-btn-warning {
-  background: linear-gradient(45deg, #faa61a, #ffbe76);
+  background: linear-gradient(45deg, #faa61a, #ffbe76, #ffd783, #faa61a);
+  background-size: 300% 300%;
   color: white;
-  box-shadow: 0 4px 15px rgba(250, 166, 26, 0.4);
+  box-shadow: 0 6px 20px rgba(250, 166, 26, 0.4);
+  animation: btn-gradient 8s ease infinite;
+}
+
+.premium-edition .admin3d-btn-warning:hover {
+  box-shadow: 0 8px 25px rgba(250, 166, 26, 0.6);
+  transform: translateY(-3px);
 }
 
 /* Enhanced Form Inputs */
