@@ -38,6 +38,7 @@ const ticketManager = require('./handlers/ticketManager');
 const bountyManager = require('./handlers/bountyManager');
 const blacklistManager = require('./handlers/blacklistManager');
 const DiscordDatabaseManager = require('./handlers/discordDatabaseManager');
+const StatsWebSocketServer = require('./modules/stats-websocket');
 const logging = require('./modules/logging');
 const config = require('./config');
 const adminUtils = require('./utils/admin');
@@ -1354,6 +1355,9 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Express server running on 0.0.0.0:${PORT}`);
   console.log(`🔗 Website URL: ${process.env.WEBSITE_URL}`);
   console.log(`📊 Real-time server health monitoring enabled`);
+  
+  // Initialize the advanced stats WebSocket server for premium 3D admin panel
+  const statsWs = new StatsWebSocketServer(server, client);
 });
 
 // Start bot
