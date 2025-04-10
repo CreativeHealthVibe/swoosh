@@ -1,0 +1,204 @@
+<%- include('../partials/admin-header-fixed', { title: 'Statistics Dashboard' }) %>
+
+<div class="admin3d-page-container">
+  <div class="admin3d-page-header">
+    <h1><i class="fas fa-chart-line"></i> Advanced Statistics</h1>
+    <p>Real-time metrics and performance analytics for your Discord bot</p>
+  </div>
+
+  <div class="stats-dashboard-container">
+    <!-- Server Overview Section -->
+    <div class="stats-card server-overview">
+      <div class="stats-card-header">
+        <h2>Server Overview</h2>
+        <div class="stats-controls">
+          <button id="refresh-stats-btn" class="btn btn-sm btn-primary">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button>
+          <div class="time-selector">
+            <button data-time="hour" class="time-btn active">1h</button>
+            <button data-time="day" class="time-btn">24h</button>
+            <button data-time="week" class="time-btn">7d</button>
+            <button data-time="month" class="time-btn">30d</button>
+          </div>
+        </div>
+      </div>
+      <div class="stats-card-body">
+        <div class="quick-stats">
+          <div class="stat-item">
+            <div class="stat-icon"><i class="fas fa-server"></i></div>
+            <div class="stat-content">
+              <h3><%= serverStats.servers %></h3>
+              <p>Servers</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-content">
+              <h3><%= serverStats.users.toLocaleString() %></h3>
+              <p>Users</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon"><i class="fas fa-hashtag"></i></div>
+            <div class="stat-content">
+              <h3><%= serverStats.channels.toLocaleString() %></h3>
+              <p>Channels</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-content">
+              <h3><%= uptime.days %>d <%= uptime.hours %>h <%= uptime.minutes %>m</h3>
+              <p>Uptime</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 3D Server Activity Graph -->
+        <div class="graph-container">
+          <div id="server-activity-3d" class="graph-3d-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Performance Section -->
+    <div class="stats-row">
+      <div class="stats-card system-performance">
+        <div class="stats-card-header">
+          <h2>System Performance</h2>
+        </div>
+        <div class="stats-card-body">
+          <div class="performance-metrics">
+            <div class="performance-item">
+              <div class="metric-label">CPU Usage</div>
+              <div class="metric-value" id="cpu-usage">0%</div>
+              <div class="metric-progress">
+                <div class="progress-bar" id="cpu-progress"></div>
+              </div>
+              <div class="metric-details">
+                <span>Cores: <%= system.cpuCount %></span>
+                <span>Arch: <%= system.arch %></span>
+              </div>
+            </div>
+            
+            <div class="performance-item">
+              <div class="metric-label">Memory Usage</div>
+              <div class="metric-value" id="memory-usage">0%</div>
+              <div class="metric-progress">
+                <div class="progress-bar" id="memory-progress"></div>
+              </div>
+              <div class="metric-details">
+                <span id="memory-used">0 MB</span> / 
+                <span id="memory-total"><%= Math.round(system.totalMemory / 1024 / 1024) %> MB</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 3D Memory Visualization -->
+          <div class="system-visual-container">
+            <div id="memory-visualization" class="visualization-3d"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-card command-usage">
+        <div class="stats-card-header">
+          <h2>Command Usage</h2>
+        </div>
+        <div class="stats-card-body">
+          <!-- 3D Command Usage Chart -->
+          <div id="command-usage-chart" class="chart-3d-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bot Activity Section -->
+    <div class="stats-row">
+      <div class="stats-card activity-log">
+        <div class="stats-card-header">
+          <h2>Recent Activity</h2>
+        </div>
+        <div class="stats-card-body">
+          <div class="activity-timeline">
+            <div class="timeline-loading">
+              <div class="loading-spinner"></div>
+              <p>Loading activity data...</p>
+            </div>
+            <ul id="activity-log-list" class="activity-list">
+              <!-- Activity items will be populated via JavaScript -->
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-card guild-distribution">
+        <div class="stats-card-header">
+          <h2>Guild Distribution</h2>
+        </div>
+        <div class="stats-card-body">
+          <!-- 3D Guild Distribution Globe -->
+          <div id="guild-globe" class="globe-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WebSocket Status Indicator -->
+<div class="websocket-status">
+  <div class="status-indicator" id="ws-status-indicator"></div>
+  <span id="ws-status-text">Connecting to real-time data...</span>
+</div>
+
+<!-- Three.js Script for 3D Visualizations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+<script src="/js/admin3d-stats.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize with system data from server
+    const systemData = {
+      cpuCount: <%= system.cpuCount %>,
+      totalMemory: <%= system.totalMemory %>,
+      freeMemory: <%= system.freeMemory %>,
+      memoryUsage: {
+        rss: <%= system.memoryUsage.rss %>,
+        heapTotal: <%= system.memoryUsage.heapTotal %>,
+        heapUsed: <%= system.memoryUsage.heapUsed %>,
+        external: <%= system.memoryUsage.external %>,
+      },
+      uptime: {
+        days: <%= uptime.days %>,
+        hours: <%= uptime.hours %>,
+        minutes: <%= uptime.minutes %>,
+        seconds: <%= uptime.seconds %>,
+        totalSeconds: <%= uptime.totalSeconds %>
+      },
+      serverStats: {
+        servers: <%= serverStats.servers %>,
+        users: <%= serverStats.users %>,
+        channels: <%= serverStats.channels %>
+      }
+    };
+    
+    // Initialize the stats dashboard with initial data
+    initStatsVisualizations(systemData);
+    
+    // Setup refresh button
+    document.getElementById('refresh-stats-btn').addEventListener('click', function() {
+      refreshStats();
+    });
+    
+    // Setup time period selectors
+    document.querySelectorAll('.time-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        updateTimeRange(this.dataset.time);
+      });
+    });
+  });
+</script>
+
+<%- include('../partials/admin-footer') %>

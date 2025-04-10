@@ -6,6 +6,9 @@
  * and real-time data visualization capabilities.
  */
 
+/* Import specialized admin components */
+@import url('admin3d-stats.css');
+
 :root {
   /* Core Colors */
   --primary: #8936ff;
