@@ -150,8 +150,28 @@
 </div>
 
 <!-- Three.js Script for 3D Visualizations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
 <script src="/js/admin3d-stats.js"></script>
+
+<!-- Error handling for THREE.js -->
+<script>
+  // Check if THREE is available
+  if (typeof THREE === 'undefined') {
+    // Create and display error notification
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-notification';
+    errorDiv.innerHTML = `
+      <p><strong>Error:</strong> THREE.js library failed to load.</p>
+      <p>Visualizations are currently unavailable.</p>
+      <p>Please try refreshing the page or check your connection.</p>
+    `;
+    document.body.appendChild(errorDiv);
+    
+    // Log the error
+    console.error('THREE.js library not loaded. Visualizations unavailable.');
+  }
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
