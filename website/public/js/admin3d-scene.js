@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('three-container');
   if (!container) return;
   
+  // Don't initialize THREE.js on the messages page
+  if (container.classList.contains('three-js-disabled')) {
+    console.log('THREE.js disabled on this page for form compatibility');
+    return;
+  }
+  
+  // Don't initialize if body has the no-three-js class
+  if (document.body.classList.contains('no-three-js')) {
+    console.log('THREE.js disabled on this page via body class');
+    return;
+  }
+  
   // Scene variables
   let scene, camera, renderer;
   let particleSystem, commandBoxes = [];
