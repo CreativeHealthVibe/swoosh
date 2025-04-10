@@ -46,7 +46,7 @@
               Send a news update to your server's configured news channel. Use <code>/setnews</code> command in Discord to set a news channel first.
             </p>
             
-            <form action="/admin3d/messages/send-news" method="POST" data-ajax="true" data-reset="true">
+            <form action="/admin3d/messages/send-news" method="POST" id="newsSendForm" data-ajax="true" data-reset="true">
               <div class="admin3d-form-group">
                 <label class="admin3d-form-label" for="newsTitle">Title</label>
                 <input class="admin3d-form-input" type="text" id="newsTitle" name="newsTitle" placeholder="Enter news title" required>
@@ -644,28 +644,64 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded - initializing tabs');
+    
     // Tab switching functionality
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     
+    console.log('Found', tabButtons.length, 'tab buttons and', tabContents.length, 'tab contents');
+    
+    // Initialize tabs - hide all content first
+    tabContents.forEach(content => {
+      content.style.display = 'none';
+    });
+    
     // Set default active tab
     if (tabButtons.length > 0) {
+      // Remove any existing active classes (in case of browser caching)
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Activate the first tab
       tabButtons[0].classList.add('active');
       const activeTabId = tabButtons[0].getAttribute('data-tab');
-      document.getElementById(activeTabId).classList.add('active');
+      const activeTab = document.getElementById(activeTabId);
+      
+      if (activeTab) {
+        activeTab.classList.add('active');
+        activeTab.style.display = 'block';
+        console.log('Activated tab:', activeTabId);
+      } else {
+        console.error('Could not find tab with id:', activeTabId);
+      }
     }
     
     // Tab click event
     tabButtons.forEach(button => {
-      button.addEventListener('click', function() {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        console.log('Tab clicked:', this.getAttribute('data-tab'));
+        
         // Remove active class from all tabs
         tabButtons.forEach(btn => btn.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
+        tabContents.forEach(content => {
+          content.classList.remove('active');
+          content.style.display = 'none';
+        });
         
         // Add active class to clicked tab
         this.classList.add('active');
         const tabId = this.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
+        const targetTab = document.getElementById(tabId);
+        
+        if (targetTab) {
+          targetTab.classList.add('active');
+          targetTab.style.display = 'block';
+        } else {
+          console.error('Could not find tab with id:', tabId);
+        }
       });
     });
     
@@ -751,6 +787,10 @@
           data[key] = value;
         });
         
+        // Debug log
+        console.log('Sending data to endpoint:', this.action);
+        console.log('Form data:', data);
+        
         // AJAX request
         fetch(this.action, {
           method: 'POST',
@@ -758,7 +798,8 @@
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
+          credentials: 'same-origin'
         })
         .then(response => response.json())
         .then(data => {
