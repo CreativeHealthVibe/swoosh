@@ -1,145 +1,181 @@
-<%# SWOOSH Bot Premium Admin3D - Moderation Panel %>
+<%# 
+  SWOOSH Bot 3D Admin Dashboard
+  Premium Edition
+  
+  Moderation management page with ban, warning, and automod tools
+%>
 
-<div class="moderation-dashboard">
-  <!-- Page Header -->
+<div class="admin3d-moderation">
   <div class="dashboard-header">
-    <div class="header-title-section">
-      <h1 class="section-title">Moderation Command Center</h1>
-      <p class="section-description">Advanced moderation tools for server management</p>
-    </div>
-    
-    <div class="header-selector">
-      <label for="serverSelect">Server:</label>
-      <select id="serverSelect" class="admin3d-form-select">
-        <option value="">Select a server</option>
-        <% if (servers && servers.length > 0) { %>
-          <% servers.forEach(server => { %>
-            <option value="<%= server.id %>"><%= server.name %></option>
-          <% }); %>
-        <% } else { %>
-          <option disabled>No servers available</option>
-        <% } %>
-      </select>
-    </div>
+    <h1 class="section-title">Moderation Command Center</h1>
   </div>
-
-  <!-- Statistics Cards -->
+  
+  <p class="section-description">
+    Advanced moderation tools for server management
+  </p>
+  
+  <!-- Server Selector -->
+  <div class="admin3d-server-selector">
+    <label>Server:</label>
+    <select class="admin3d-form-select" id="serverSelect">
+      <option value="">Select a server</option>
+      <% if (servers && servers.length > 0) { %>
+        <% servers.forEach(server => { %>
+          <option value="<%= server.id %>"><%= server.name %></option>
+        <% }); %>
+      <% } else { %>
+        <option disabled>No servers available</option>
+      <% } %>
+    </select>
+  </div>
+  
+  <!-- Stats Overview -->
   <div class="stats-overview">
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fas fa-gavel"></i></div>
-      <div class="stat-info">
-        <div class="stat-value" id="totalBans">0</div>
-        <div class="stat-label">Active Bans</div>
+    <div class="stats-card">
+      <div class="stats-card-icon">
+        <i class="fas fa-gavel"></i>
+      </div>
+      <div class="stats-card-content">
+        <h3 class="stats-card-value" id="totalBans">0</h3>
+        <span class="stats-card-label">Active Bans</span>
       </div>
     </div>
     
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-      <div class="stat-info">
-        <div class="stat-value" id="totalWarnings">0</div>
-        <div class="stat-label">Active Warnings</div>
+    <div class="stats-card">
+      <div class="stats-card-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <div class="stats-card-content">
+        <h3 class="stats-card-value" id="totalWarnings">0</h3>
+        <span class="stats-card-label">Active Warnings</span>
       </div>
     </div>
     
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
-      <div class="stat-info">
-        <div class="stat-value" id="automodActions">0</div>
-        <div class="stat-label">AutoMod Actions</div>
+    <div class="stats-card">
+      <div class="stats-card-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <div class="stats-card-content">
+        <h3 class="stats-card-value" id="automodActions">0</h3>
+        <span class="stats-card-label">AutoMod Actions</span>
       </div>
     </div>
   </div>
-
-  <!-- Moderation Tabs -->
-  <div class="moderation-tabs">
-    <div class="tab-navigation">
-      <button class="tab-button active" data-tab="ban-management">
-        <i class="fas fa-gavel"></i>
-        <span>Ban Management</span>
+  
+  <!-- Tabs Container -->
+  <div class="tabs-container" id="moderation-tabs">
+    <div class="admin3d-tabs">
+      <button class="tab-btn active" data-tab="ban-management">
+        <i class="fas fa-gavel"></i> Ban Management
       </button>
-      <button class="tab-button" data-tab="warning-management">
-        <i class="fas fa-exclamation-triangle"></i>
-        <span>Warning System</span>
+      <button class="tab-btn" data-tab="warning-system">
+        <i class="fas fa-exclamation-triangle"></i> Warning System
       </button>
-      <button class="tab-button" data-tab="auto-moderation">
-        <i class="fas fa-shield-alt"></i>
-        <span>Auto-Moderation</span>
+      <button class="tab-btn" data-tab="auto-moderation">
+        <i class="fas fa-shield-alt"></i> Auto-Moderation
       </button>
     </div>
     
-    <div class="tab-content-area">
+    <!-- Fix for form interaction issues -->
+    <style>
+      /* Fix input interaction issues */
+      .admin3d-form-input,
+      .admin3d-form-textarea,
+      .admin3d-form-select,
+      .admin3d-btn {
+        position: relative;
+        z-index: 100 !important;
+        pointer-events: auto !important;
+      }
+      
+      /* Make sure forms are above the THREE.js canvas */
+      #moderation-tabs .tab-content {
+        position: relative;
+        z-index: 50;
+      }
+      
+      /* Ensure inputs can be interacted with */
+      .admin3d-form-group {
+        position: relative;
+        z-index: 100;
+      }
+      
+      /* Ensure THREE.js doesn't block */
+      #three-container {
+        pointer-events: none !important;
+        z-index: -1 !important;
+      }
+    </style>
+    
+    <!-- Tab Content -->
+    <div class="tab-content-container">
       <!-- Ban Management Tab -->
       <div id="ban-management" class="tab-content active">
-        <div class="panel-grid">
-          <!-- Ban Form -->
-          <div class="mod-panel">
-            <div class="panel-header">
-              <div class="panel-icon"><i class="fas fa-user-slash"></i></div>
-              <h3 class="panel-title">Ban User</h3>
+        <div class="admin3d-grid">
+          <!-- Ban User Form -->
+          <div class="admin3d-card" data-premium="true">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-user-slash"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Ban User</h3>
             </div>
-            
-            <div class="panel-body">
-              <form id="banUserForm" action="/admin3d/moderation/ban-user" method="POST">
+            <div class="admin3d-card-content">
+              <p class="admin3d-card-description">
+                Ban a user from your server with customizable options.
+              </p>
+              
+              <form action="/admin3d/moderation/ban-user" method="POST" id="banUserForm" data-ajax="true" data-reset="true">
                 <input type="hidden" id="banServerId" name="serverId" value="">
                 
-                <div class="form-group">
-                  <label for="userId">User ID or @Mention</label>
-                  <div class="input-with-icon">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="userId" name="userId" placeholder="Enter user ID or @mention" required>
-                  </div>
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="userId">User ID or @Mention</label>
+                  <input class="admin3d-form-input" type="text" id="userId" name="userId" placeholder="Enter user ID or @mention" required>
                 </div>
                 
-                <div class="form-group">
-                  <label for="banReason">Reason</label>
-                  <div class="input-with-icon">
-                    <i class="fas fa-comment-dots"></i>
-                    <textarea id="banReason" name="banReason" placeholder="Explain the reason for this ban..." required></textarea>
-                  </div>
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="banReason">Reason</label>
+                  <textarea class="admin3d-form-textarea" id="banReason" name="banReason" placeholder="Explain the reason for this ban..." required rows="3"></textarea>
+                  <span class="admin3d-form-hint">This will be recorded in server audit logs</span>
                 </div>
                 
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="banDuration">Duration</label>
-                    <div class="input-with-icon">
-                      <i class="fas fa-clock"></i>
-                      <select id="banDuration" name="banDuration">
-                        <option value="permanent">Permanent</option>
-                        <option value="1d">1 Day</option>
-                        <option value="3d">3 Days</option>
-                        <option value="7d">1 Week</option>
-                        <option value="14d">2 Weeks</option>
-                        <option value="30d">1 Month</option>
-                        <option value="custom">Custom</option>
-                      </select>
-                    </div>
+                <div class="admin3d-form-row">
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="banDuration">Duration</label>
+                    <select class="admin3d-form-select" id="banDuration" name="banDuration">
+                      <option value="permanent">Permanent</option>
+                      <option value="1d">1 Day</option>
+                      <option value="3d">3 Days</option>
+                      <option value="7d">1 Week</option>
+                      <option value="14d">2 Weeks</option>
+                      <option value="30d">1 Month</option>
+                      <option value="custom">Custom</option>
+                    </select>
                   </div>
                   
-                  <div class="form-group" id="customDurationGroup" style="display:none">
-                    <label for="customDuration">Custom Duration</label>
-                    <div class="input-with-icon">
-                      <i class="fas fa-calendar-alt"></i>
-                      <input type="text" id="customDuration" name="customDuration" placeholder="e.g. 5d, 2w, 3m">
-                    </div>
+                  <div class="admin3d-form-group" id="customDurationGroup" style="display:none">
+                    <label class="admin3d-form-label" for="customDuration">Custom Duration</label>
+                    <input class="admin3d-form-input" type="text" id="customDuration" name="customDuration" placeholder="e.g. 5d, 2w, 3m">
                   </div>
                 </div>
                 
-                <div class="form-options">
-                  <div class="form-check">
+                <div class="admin3d-form-options">
+                  <div class="admin3d-form-check">
                     <input type="checkbox" id="deleteMessages" name="deleteMessages" value="true">
                     <label for="deleteMessages">Delete recent messages</label>
                   </div>
                   
-                  <div class="form-check">
+                  <div class="admin3d-form-check">
                     <input type="checkbox" id="addToBlacklist" name="addToBlacklist" value="true">
                     <label for="addToBlacklist">Add to global blacklist</label>
                   </div>
                 </div>
                 
-                <div class="form-actions">
-                  <button type="submit" class="mod-button danger">
-                    <i class="fas fa-gavel"></i>
-                    <span>Ban User</span>
+                <div class="admin3d-form-actions">
+                  <button type="submit" class="admin3d-btn admin3d-btn-danger" id="banUserBtn">
+                    <i class="fas fa-gavel"></i> Ban User
                   </button>
                 </div>
               </form>
@@ -147,25 +183,28 @@
           </div>
           
           <!-- Ban List -->
-          <div class="mod-panel">
-            <div class="panel-header">
-              <div class="panel-icon"><i class="fas fa-list"></i></div>
-              <h3 class="panel-title">Current Bans</h3>
-              <div class="panel-actions">
-                <button class="refresh-button" id="refreshBans" title="Refresh Ban List">
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-list"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Current Bans</h3>
+              <div class="admin3d-card-actions">
+                <button class="admin3d-btn admin3d-btn-icon" id="refreshBans" title="Refresh ban list">
                   <i class="fas fa-sync-alt"></i>
                 </button>
               </div>
             </div>
-            
-            <div class="panel-body">
-              <div class="list-filters">
-                <div class="search-box">
+            <div class="admin3d-card-content">
+              <div class="admin3d-search-filters">
+                <div class="admin3d-search-box">
                   <i class="fas fa-search"></i>
-                  <input type="text" id="banSearchInput" placeholder="Search bans...">
+                  <input type="text" class="admin3d-form-input" id="banSearchInput" placeholder="Search bans...">
                 </div>
-                <div class="filter-dropdown">
-                  <select id="banFilterSelect">
+                <div class="admin3d-filter-select">
+                  <select class="admin3d-form-select" id="banFilterSelect">
                     <option value="all">All Bans</option>
                     <option value="permanent">Permanent</option>
                     <option value="temporary">Temporary</option>
@@ -174,8 +213,8 @@
                 </div>
               </div>
               
-              <div class="data-list" id="banList">
-                <div class="empty-state">
+              <div class="ban-list" id="banList">
+                <div class="admin3d-empty-state">
                   <i class="fas fa-ban"></i>
                   <p>Select a server to view ban list</p>
                 </div>
@@ -185,76 +224,70 @@
         </div>
       </div>
       
-      <!-- Warning Management Tab -->
-      <div id="warning-management" class="tab-content">
-        <div class="panel-grid">
-          <!-- Warning Form -->
-          <div class="mod-panel">
-            <div class="panel-header">
-              <div class="panel-icon"><i class="fas fa-exclamation-circle"></i></div>
-              <h3 class="panel-title">Issue Warning</h3>
+      <!-- Warning System Tab -->
+      <div id="warning-system" class="tab-content">
+        <div class="admin3d-grid">
+          <!-- Issue Warning Form -->
+          <div class="admin3d-card" data-premium="true">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-exclamation-circle"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Issue Warning</h3>
             </div>
-            
-            <div class="panel-body">
-              <form id="warnUserForm" action="/admin3d/moderation/warn-user" method="POST">
+            <div class="admin3d-card-content">
+              <p class="admin3d-card-description">
+                Issue a warning to a user with customizable severity levels.
+              </p>
+              
+              <form action="/admin3d/moderation/warn-user" method="POST" id="warnUserForm" data-ajax="true" data-reset="true">
                 <input type="hidden" id="warnServerId" name="serverId" value="">
                 
-                <div class="form-group">
-                  <label for="warnUserId">User ID or @Mention</label>
-                  <div class="input-with-icon">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="warnUserId" name="warnUserId" placeholder="Enter user ID or @mention" required>
-                  </div>
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="warnUserId">User ID or @Mention</label>
+                  <input class="admin3d-form-input" type="text" id="warnUserId" name="warnUserId" placeholder="Enter user ID or @mention" required>
                 </div>
                 
-                <div class="form-group">
-                  <label for="warnReason">Reason</label>
-                  <div class="input-with-icon">
-                    <i class="fas fa-comment-dots"></i>
-                    <textarea id="warnReason" name="warnReason" placeholder="Explain the warning reason..." required></textarea>
-                  </div>
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="warnReason">Reason</label>
+                  <textarea class="admin3d-form-textarea" id="warnReason" name="warnReason" placeholder="Explain the warning reason..." required rows="3"></textarea>
                 </div>
                 
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="warningSeverity">Severity</label>
-                    <div class="input-with-icon">
-                      <i class="fas fa-exclamation-triangle"></i>
-                      <select id="warningSeverity" name="warningSeverity">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                        <option value="critical">Critical</option>
-                      </select>
-                    </div>
+                <div class="admin3d-form-row">
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="warningSeverity">Severity</label>
+                    <select class="admin3d-form-select" id="warningSeverity" name="warningSeverity">
+                      <option value="low">Low</option>
+                      <option value="medium" selected>Medium</option>
+                      <option value="high">High</option>
+                      <option value="critical">Critical</option>
+                    </select>
                   </div>
                   
-                  <div class="form-group">
-                    <label for="warningDuration">Expiration</label>
-                    <div class="input-with-icon">
-                      <i class="fas fa-hourglass-half"></i>
-                      <select id="warningDuration" name="warningDuration">
-                        <option value="permanent">Never</option>
-                        <option value="7d">7 Days</option>
-                        <option value="30d" selected>30 Days</option>
-                        <option value="90d">90 Days</option>
-                        <option value="180d">6 Months</option>
-                      </select>
-                    </div>
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="warningDuration">Expiration</label>
+                    <select class="admin3d-form-select" id="warningDuration" name="warningDuration">
+                      <option value="permanent">Never</option>
+                      <option value="7d">7 Days</option>
+                      <option value="30d" selected>30 Days</option>
+                      <option value="90d">90 Days</option>
+                      <option value="180d">6 Months</option>
+                    </select>
                   </div>
                 </div>
                 
-                <div class="form-options">
-                  <div class="form-check">
+                <div class="admin3d-form-options">
+                  <div class="admin3d-form-check">
                     <input type="checkbox" id="notifyUser" name="notifyUser" value="true" checked>
                     <label for="notifyUser">Notify user via DM</label>
                   </div>
                 </div>
                 
-                <div class="form-actions">
-                  <button type="submit" class="mod-button warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Issue Warning</span>
+                <div class="admin3d-form-actions">
+                  <button type="submit" class="admin3d-btn admin3d-btn-warning" id="warnUserBtn">
+                    <i class="fas fa-exclamation-triangle"></i> Issue Warning
                   </button>
                 </div>
               </form>
@@ -262,25 +295,28 @@
           </div>
           
           <!-- Warning List -->
-          <div class="mod-panel">
-            <div class="panel-header">
-              <div class="panel-icon"><i class="fas fa-history"></i></div>
-              <h3 class="panel-title">Warning History</h3>
-              <div class="panel-actions">
-                <button class="refresh-button" id="refreshWarnings" title="Refresh Warning List">
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-history"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Warning History</h3>
+              <div class="admin3d-card-actions">
+                <button class="admin3d-btn admin3d-btn-icon" id="refreshWarnings" title="Refresh warning list">
                   <i class="fas fa-sync-alt"></i>
                 </button>
               </div>
             </div>
-            
-            <div class="panel-body">
-              <div class="list-filters">
-                <div class="search-box">
+            <div class="admin3d-card-content">
+              <div class="admin3d-search-filters">
+                <div class="admin3d-search-box">
                   <i class="fas fa-search"></i>
-                  <input type="text" id="warningSearchInput" placeholder="Search warnings...">
+                  <input type="text" class="admin3d-form-input" id="warningSearchInput" placeholder="Search warnings...">
                 </div>
-                <div class="filter-dropdown">
-                  <select id="warningFilterSelect">
+                <div class="admin3d-filter-select">
+                  <select class="admin3d-form-select" id="warningFilterSelect">
                     <option value="all">All Warnings</option>
                     <option value="active">Active</option>
                     <option value="expired">Expired</option>
@@ -289,8 +325,8 @@
                 </div>
               </div>
               
-              <div class="data-list" id="warningList">
-                <div class="empty-state">
+              <div class="warning-list" id="warningList">
+                <div class="admin3d-empty-state">
                   <i class="fas fa-exclamation-triangle"></i>
                   <p>Select a server to view warnings</p>
                 </div>
@@ -302,110 +338,112 @@
       
       <!-- Auto-Moderation Tab -->
       <div id="auto-moderation" class="tab-content">
-        <div class="panel-grid">
+        <div class="admin3d-grid">
           <!-- Auto-Mod Settings -->
-          <div class="mod-panel">
-            <div class="panel-header">
-              <div class="panel-icon"><i class="fas fa-cogs"></i></div>
-              <h3 class="panel-title">Auto-Moderation Settings</h3>
+          <div class="admin3d-card" data-premium="true">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-cogs"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Auto-Moderation Settings</h3>
             </div>
-            
-            <div class="panel-body">
-              <form id="automodSettingsForm" action="/admin3d/moderation/automod-settings" method="POST">
+            <div class="admin3d-card-content">
+              <p class="admin3d-card-description">
+                Configure advanced auto-moderation features for your server.
+              </p>
+              
+              <form action="/admin3d/moderation/automod-settings" method="POST" id="automodSettingsForm" data-ajax="true">
                 <input type="hidden" id="automodServerId" name="serverId" value="">
                 
                 <!-- Content Filtering -->
                 <div class="settings-section">
-                  <h4 class="section-title">
-                    <i class="fas fa-filter"></i>
-                    <span>Content Filtering</span>
+                  <h4 class="settings-section-title">
+                    <i class="fas fa-filter"></i> Content Filtering
                   </h4>
                   
-                  <div class="toggle-group">
-                    <div class="toggle-item">
-                      <label class="toggle-switch" for="profanityFilter">
+                  <div class="admin3d-toggle-group">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="profanityFilter">
                         <input type="checkbox" id="profanityFilter" name="profanityFilter" value="true">
-                        <span class="toggle-slider"></span>
+                        <span class="admin3d-toggle-slider"></span>
                       </label>
-                      <div class="toggle-label">
+                      <div class="admin3d-toggle-label">
                         <span>Profanity Filter</span>
                         <small>Filter messages containing profanity</small>
                       </div>
                     </div>
                     
-                    <div class="toggle-item">
-                      <label class="toggle-switch" for="linkFilter">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="linkFilter">
                         <input type="checkbox" id="linkFilter" name="linkFilter" value="true">
-                        <span class="toggle-slider"></span>
+                        <span class="admin3d-toggle-slider"></span>
                       </label>
-                      <div class="toggle-label">
+                      <div class="admin3d-toggle-label">
                         <span>Link Filter</span>
                         <small>Filter or verify posted links</small>
                       </div>
                     </div>
                     
-                    <div class="toggle-item">
-                      <label class="toggle-switch" for="inviteBlocker">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="inviteBlocker">
                         <input type="checkbox" id="inviteBlocker" name="inviteBlocker" value="true">
-                        <span class="toggle-slider"></span>
+                        <span class="admin3d-toggle-slider"></span>
                       </label>
-                      <div class="toggle-label">
+                      <div class="admin3d-toggle-label">
                         <span>Discord Invite Blocker</span>
                         <small>Block Discord invite links</small>
                       </div>
                     </div>
                   </div>
                   
-                  <div class="form-group">
-                    <label for="profanityFilterLevel">Profanity Filter Strictness</label>
-                    <div class="input-with-icon">
-                      <i class="fas fa-level-up-alt"></i>
-                      <select id="profanityFilterLevel" name="profanityFilterLevel">
-                        <option value="low">Low - Only extreme profanity</option>
-                        <option value="medium" selected>Medium - Balanced filtering</option>
-                        <option value="high">High - Strict filtering</option>
-                        <option value="custom">Custom - Word list</option>
-                      </select>
-                    </div>
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="profanityFilterLevel">Profanity Filter Strictness</label>
+                    <select class="admin3d-form-select" id="profanityFilterLevel" name="profanityFilterLevel">
+                      <option value="low">Low - Only extreme profanity</option>
+                      <option value="medium" selected>Medium - Balanced filtering</option>
+                      <option value="high">High - Strict filtering</option>
+                      <option value="custom">Custom - Word list</option>
+                    </select>
                   </div>
                 </div>
                 
                 <!-- Anti-Spam Protection -->
                 <div class="settings-section">
-                  <h4 class="section-title">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Anti-Spam Protection</span>
+                  <h4 class="settings-section-title">
+                    <i class="fas fa-shield-alt"></i> Anti-Spam Protection
                   </h4>
                   
-                  <div class="toggle-group">
-                    <div class="toggle-item">
-                      <label class="toggle-switch" for="antiSpam">
+                  <div class="admin3d-toggle-group">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="antiSpam">
                         <input type="checkbox" id="antiSpam" name="antiSpam" value="true">
-                        <span class="toggle-slider"></span>
+                        <span class="admin3d-toggle-slider"></span>
                       </label>
-                      <div class="toggle-label">
+                      <div class="admin3d-toggle-label">
                         <span>Anti-Spam System</span>
                         <small>Detect and prevent message spam</small>
                       </div>
                     </div>
                     
-                    <div class="toggle-item">
-                      <label class="toggle-switch" for="antiMention">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="antiMention">
                         <input type="checkbox" id="antiMention" name="antiMention" value="true">
-                        <span class="toggle-slider"></span>
+                        <span class="admin3d-toggle-slider"></span>
                       </label>
-                      <div class="toggle-label">
+                      <div class="admin3d-toggle-label">
                         <span>Anti-Mention Spam</span>
                         <small>Prevent mass mentioning</small>
                       </div>
                     </div>
                     
-                    <div class="toggle-item">
-                      <label class="toggle-switch" for="antiRaid">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="antiRaid">
                         <input type="checkbox" id="antiRaid" name="antiRaid" value="true">
-                        <span class="toggle-slider"></span>
+                        <span class="admin3d-toggle-slider"></span>
                       </label>
-                      <div class="toggle-label">
+                      <div class="admin3d-toggle-label">
                         <span>Anti-Raid Protection</span>
                         <small>Detect and prevent server raids</small>
                       </div>
@@ -415,46 +453,38 @@
                 
                 <!-- Automated Actions -->
                 <div class="settings-section">
-                  <h4 class="section-title">
-                    <i class="fas fa-bolt"></i>
-                    <span>Automated Actions</span>
+                  <h4 class="settings-section-title">
+                    <i class="fas fa-bolt"></i> Automated Actions
                   </h4>
                   
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="violationAction">Content Violation Action</label>
-                      <div class="input-with-icon">
-                        <i class="fas fa-hand-point-right"></i>
-                        <select id="violationAction" name="violationAction">
-                          <option value="delete">Delete Message Only</option>
-                          <option value="warn" selected>Delete + Warn User</option>
-                          <option value="mute">Delete + Temporary Mute</option>
-                          <option value="kick">Delete + Kick User</option>
-                          <option value="ban">Delete + Ban User</option>
-                        </select>
-                      </div>
+                  <div class="admin3d-form-row">
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="violationAction">Content Violation Action</label>
+                      <select class="admin3d-form-select" id="violationAction" name="violationAction">
+                        <option value="delete">Delete Message Only</option>
+                        <option value="warn" selected>Delete + Warn User</option>
+                        <option value="mute">Delete + Temporary Mute</option>
+                        <option value="kick">Delete + Kick User</option>
+                        <option value="ban">Delete + Ban User</option>
+                      </select>
                     </div>
                     
-                    <div class="form-group">
-                      <label for="spamAction">Spam Detection Action</label>
-                      <div class="input-with-icon">
-                        <i class="fas fa-hand-point-right"></i>
-                        <select id="spamAction" name="spamAction">
-                          <option value="delete">Delete Messages Only</option>
-                          <option value="warn">Delete + Warn User</option>
-                          <option value="mute" selected>Delete + Temporary Mute</option>
-                          <option value="kick">Delete + Kick User</option>
-                          <option value="ban">Delete + Ban User</option>
-                        </select>
-                      </div>
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="spamAction">Spam Detection Action</label>
+                      <select class="admin3d-form-select" id="spamAction" name="spamAction">
+                        <option value="delete">Delete Messages Only</option>
+                        <option value="warn">Delete + Warn User</option>
+                        <option value="mute" selected>Delete + Temporary Mute</option>
+                        <option value="kick">Delete + Kick User</option>
+                        <option value="ban">Delete + Ban User</option>
+                      </select>
                     </div>
                   </div>
                 </div>
                 
-                <div class="form-actions">
-                  <button type="submit" class="mod-button primary">
-                    <i class="fas fa-save"></i>
-                    <span>Save Settings</span>
+                <div class="admin3d-form-actions">
+                  <button type="submit" class="admin3d-btn admin3d-btn-primary" id="saveAutomodBtn">
+                    <i class="fas fa-save"></i> Save Settings
                   </button>
                 </div>
               </form>
@@ -462,25 +492,28 @@
           </div>
           
           <!-- Auto-Mod Logs -->
-          <div class="mod-panel">
-            <div class="panel-header">
-              <div class="panel-icon"><i class="fas fa-clipboard-list"></i></div>
-              <h3 class="panel-title">Recent Auto-Mod Actions</h3>
-              <div class="panel-actions">
-                <button class="refresh-button" id="refreshAutomod" title="Refresh Auto-Mod Logs">
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-clipboard-list"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Recent Auto-Mod Actions</h3>
+              <div class="admin3d-card-actions">
+                <button class="admin3d-btn admin3d-btn-icon" id="refreshAutomod" title="Refresh automod logs">
                   <i class="fas fa-sync-alt"></i>
                 </button>
               </div>
             </div>
-            
-            <div class="panel-body">
-              <div class="list-filters">
-                <div class="search-box">
+            <div class="admin3d-card-content">
+              <div class="admin3d-search-filters">
+                <div class="admin3d-search-box">
                   <i class="fas fa-search"></i>
-                  <input type="text" id="automodSearchInput" placeholder="Search logs...">
+                  <input type="text" class="admin3d-form-input" id="automodSearchInput" placeholder="Search logs...">
                 </div>
-                <div class="filter-dropdown">
-                  <select id="automodFilterSelect">
+                <div class="admin3d-filter-select">
+                  <select class="admin3d-form-select" id="automodFilterSelect">
                     <option value="all">All Actions</option>
                     <option value="message">Message Filter</option>
                     <option value="spam">Anti-Spam</option>
@@ -489,10 +522,10 @@
                 </div>
               </div>
               
-              <div class="data-list" id="automodList">
-                <div class="empty-state">
+              <div class="automod-list" id="automodList">
+                <div class="admin3d-empty-state">
                   <i class="fas fa-shield-alt"></i>
-                  <p>Select a server to view auto-mod logs</p>
+                  <p>Select a server to view automod logs</p>
                 </div>
               </div>
             </div>
@@ -503,705 +536,10 @@
   </div>
 </div>
 
-<style>
-  /* Moderation Dashboard Styles */
-  :root {
-    --primary: #8936ff;
-    --primary-light: #a165ff;
-    --primary-dark: #7429e3;
-    --secondary: #00c3ff;
-    --danger: #ff3d71;
-    --warning: #ffaa00;
-    --success: #00e676;
-    
-    --background: #13103a;
-    --card-bg: rgba(23, 22, 50, 0.85);
-    --card-border: rgba(91, 77, 164, 0.3);
-    --input-bg: rgba(19, 18, 45, 0.6);
-    
-    --text: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.7);
-    --text-muted: rgba(255, 255, 255, 0.5);
-    
-    --radius-sm: 8px;
-    --radius: 12px;
-    --radius-lg: 16px;
-    
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    --glow: 0 0 20px rgba(137, 54, 255, 0.25);
-    
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-  
-  .moderation-dashboard {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 10px 20px 30px;
-    color: var(--text);
-    position: relative;
-    box-sizing: border-box;
-  }
-  
-  /* Header Styles */
-  .dashboard-header {
-    margin-bottom: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .header-title-section {
-    flex: 1;
-  }
-  
-  .section-title {
-    font-size: 28px;
-    font-weight: 800;
-    margin: 0 0 8px;
-    background: linear-gradient(90deg, #ffffff, var(--primary-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.02em;
-  }
-  
-  .section-description {
-    font-size: 15px;
-    color: var(--text-secondary);
-    margin: 0;
-  }
-  
-  .header-selector {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .header-selector label {
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
-  
-  .header-selector select {
-    min-width: 200px;
-    background-color: var(--input-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius);
-    color: var(--text);
-    padding: 8px 12px;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: calc(100% - 12px) center;
-    padding-right: 32px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Stats Cards */
-  .stats-overview {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 24px;
-  }
-  
-  .stat-card {
-    background: linear-gradient(135deg, rgba(23, 22, 50, 0.9), rgba(30, 29, 70, 0.8));
-    border-radius: var(--radius);
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    position: relative;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(91, 77, 164, 0.2);
-    overflow: hidden;
-    height: 80px;
-    transition: var(--transition);
-  }
-  
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, transparent, rgba(137, 54, 255, 0.03), transparent);
-    transform: translateX(-100%);
-    transition: transform 1s ease;
-  }
-  
-  .stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow), var(--glow);
-    border-color: rgba(137, 54, 255, 0.3);
-  }
-  
-  .stat-card:hover::before {
-    transform: translateX(100%);
-  }
-  
-  .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    flex-shrink: 0;
-  }
-  
-  .stat-info {
-    flex: 1;
-  }
-  
-  .stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    background: linear-gradient(90deg, #ffffff, #e0e0ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .stat-label {
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-  
-  /* Moderation Tabs */
-  .moderation-tabs {
-    background: rgba(23, 22, 50, 0.7);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--card-border);
-  }
-  
-  .tab-navigation {
-    display: flex;
-    background: rgba(19, 18, 45, 0.8);
-    padding: 0 20px;
-    border-bottom: 1px solid rgba(91, 77, 164, 0.2);
-  }
-  
-  .tab-button {
-    padding: 16px 20px;
-    color: var(--text-secondary);
-    background: none;
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    position: relative;
-    transition: var(--transition);
-  }
-  
-  .tab-button i {
-    font-size: 16px;
-  }
-  
-  .tab-button::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: transparent;
-    transition: var(--transition);
-  }
-  
-  .tab-button:hover {
-    color: var(--text);
-  }
-  
-  .tab-button.active {
-    color: var(--text);
-  }
-  
-  .tab-button.active::after {
-    background: linear-gradient(90deg, var(--primary), transparent);
-  }
-  
-  .tab-content-area {
-    padding: 20px;
-  }
-  
-  .tab-content {
-    display: none;
-  }
-  
-  .tab-content.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  /* Panel Grid */
-  .panel-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  
-  /* Panel Styles */
-  .mod-panel {
-    background: rgba(23, 22, 50, 0.7);
-    border-radius: var(--radius);
-    border: 1px solid var(--card-border);
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    transition: var(--transition);
-  }
-  
-  .mod-panel:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border-color: rgba(91, 77, 164, 0.4);
-  }
-  
-  .panel-header {
-    background: rgba(19, 18, 45, 0.8);
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--card-border);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  
-  .panel-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    color: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
-  
-  .panel-title {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    flex: 1;
-  }
-  
-  .panel-actions {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .refresh-button {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    font-size: 12px;
-  }
-  
-  .refresh-button:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--text);
-    transform: rotate(15deg);
-  }
-  
-  .panel-body {
-    padding: 20px;
-    flex: 1;
-    overflow: auto;
-  }
-  
-  /* Form Styles */
-  .form-group {
-    margin-bottom: 16px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-  
-  .input-with-icon {
-    position: relative;
-  }
-  
-  .input-with-icon i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 14px;
-  }
-  
-  .input-with-icon input,
-  .input-with-icon select,
-  .input-with-icon textarea {
-    width: 100%;
-    padding: 10px 12px 10px 36px;
-    background: var(--input-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-size: 14px;
-    transition: var(--transition);
-    box-sizing: border-box;
-  }
-  
-  .input-with-icon textarea {
-    min-height: 80px;
-    resize: vertical;
-    padding-top: 12px;
-  }
-  
-  .input-with-icon input:focus,
-  .input-with-icon select:focus,
-  .input-with-icon textarea:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.15);
-  }
-  
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  
-  .form-options {
-    margin: 20px 0;
-  }
-  
-  .form-check {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .form-check input[type="checkbox"] {
-    margin-right: 10px;
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-  }
-  
-  .form-check label {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 0;
-  }
-  
-  .form-actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  /* Button Styles */
-  .mod-button {
-    padding: 10px 20px;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: var(--transition);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
-  
-  .mod-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-  
-  .mod-button.primary {
-    background: linear-gradient(90deg, var(--primary-dark), var(--primary));
-  }
-  
-  .mod-button.danger {
-    background: linear-gradient(90deg, #e43569, var(--danger));
-  }
-  
-  .mod-button.warning {
-    background: linear-gradient(90deg, #e59400, var(--warning));
-  }
-  
-  /* Toggle Switch */
-  .toggle-group {
-    margin-bottom: 20px;
-  }
-  
-  .toggle-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  
-  .toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 22px;
-    margin-right: 12px;
-  }
-  
-  .toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(30, 30, 60, 0.6);
-    transition: var(--transition);
-    border-radius: 22px;
-    border: 1px solid var(--card-border);
-  }
-  
-  .toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 3px;
-    bottom: 2px;
-    background-color: white;
-    transition: var(--transition);
-    border-radius: 50%;
-  }
-  
-  input:checked + .toggle-slider {
-    background-color: var(--primary);
-    border-color: var(--primary-dark);
-  }
-  
-  input:focus + .toggle-slider {
-    box-shadow: 0 0 1px var(--primary);
-  }
-  
-  input:checked + .toggle-slider:before {
-    transform: translateX(20px);
-  }
-  
-  .toggle-label {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .toggle-label span {
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-  
-  .toggle-label small {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-  
-  /* Settings Section */
-  .settings-section {
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid rgba(91, 77, 164, 0.15);
-  }
-  
-  .settings-section:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-  
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 0 16px;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  
-  .section-title i {
-    color: var(--primary-light);
-  }
-  
-  /* List and Search */
-  .list-filters {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  
-  .search-box {
-    flex: 1;
-    position: relative;
-  }
-  
-  .search-box i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 14px;
-  }
-  
-  .search-box input {
-    width: 100%;
-    padding: 8px 12px 8px 36px;
-    background: var(--input-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-size: 14px;
-    transition: var(--transition);
-  }
-  
-  .search-box input:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.15);
-  }
-  
-  .filter-dropdown select {
-    padding: 8px 28px 8px 12px;
-    background-color: var(--input-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-size: 14px;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: calc(100% - 10px) center;
-    min-width: 120px;
-    transition: var(--transition);
-  }
-  
-  .filter-dropdown select:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(137, 54, 255, 0.15);
-  }
-  
-  /* Data List */
-  .data-list {
-    min-height: 200px;
-  }
-  
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--text-muted);
-  }
-  
-  .empty-state i {
-    font-size: 32px;
-    margin-bottom: 16px;
-    opacity: 0.3;
-  }
-  
-  .empty-state p {
-    margin: 0;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 1200px) {
-    .panel-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .stats-overview {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .dashboard-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-    }
-    
-    .header-selector {
-      width: 100%;
-    }
-    
-    .stats-overview {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-    
-    .form-row {
-      grid-template-columns: 1fr;
-    }
-    
-    .tab-button {
-      padding: 12px;
-      font-size: 13px;
-    }
-    
-    .tab-button span {
-      display: none;
-    }
-    
-    .tab-button i {
-      font-size: 18px;
-    }
-  }
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Tab functionality
-  const tabButtons = document.querySelectorAll('.tab-button');
+  const tabButtons = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
   
   tabButtons.forEach(button => {
@@ -1288,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!banList) return;
     
     // Show loading state
-    banList.innerHTML = '<div class="loading-state"><div class="loader"></div><p>Loading bans...</p></div>';
+    banList.innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading bans...</p></div>';
     
     // Simulate API delay
     setTimeout(() => {
@@ -1300,31 +638,31 @@ document.addEventListener('DOMContentLoaded', function() {
       ];
       
       if (bans.length === 0) {
-        banList.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No bans found for this server</p></div>';
+        banList.innerHTML = '<div class="admin3d-empty-state"><i class="fas fa-check-circle"></i><p>No bans found for this server</p></div>';
       } else {
         banList.innerHTML = '';
         
         // Create ban items
         bans.forEach(ban => {
           const banItem = document.createElement('div');
-          banItem.className = 'list-item';
+          banItem.className = 'admin3d-list-item';
           banItem.innerHTML = `
-            <div class="list-item-header">
-              <div class="list-item-title">${ban.username}</div>
-              <div class="list-item-date">${ban.date}</div>
+            <div class="admin3d-list-item-header">
+              <div class="admin3d-list-item-title">${ban.username}</div>
+              <div class="admin3d-list-item-date">${ban.date}</div>
             </div>
-            <div class="list-item-body">
-              <div class="list-item-reason">${ban.reason}</div>
-              <div class="list-item-meta">
-                <span class="badge">${ban.duration}</span>
-                <span class="list-item-id">ID: ${ban.userId}</span>
+            <div class="admin3d-list-item-body">
+              <div class="admin3d-list-item-reason">${ban.reason}</div>
+              <div class="admin3d-list-item-meta">
+                <span class="admin3d-badge">${ban.duration}</span>
+                <span class="admin3d-list-item-id">ID: ${ban.userId}</span>
               </div>
             </div>
-            <div class="list-item-actions">
-              <button class="item-action-btn" title="View Details">
+            <div class="admin3d-list-item-actions">
+              <button class="admin3d-btn admin3d-btn-icon" title="View Details">
                 <i class="fas fa-eye"></i>
               </button>
-              <button class="item-action-btn unban-btn" title="Unban User">
+              <button class="admin3d-btn admin3d-btn-icon unban-btn" title="Unban User">
                 <i class="fas fa-user-check"></i>
               </button>
             </div>
@@ -1332,138 +670,6 @@ document.addEventListener('DOMContentLoaded', function() {
           
           banList.appendChild(banItem);
         });
-        
-        // Add styles for list items if not already present
-        if (!document.getElementById('list-item-styles')) {
-          const style = document.createElement('style');
-          style.id = 'list-item-styles';
-          style.textContent = `
-            .list-item {
-              background: rgba(30, 30, 60, 0.3);
-              border-radius: var(--radius-sm);
-              padding: 14px;
-              margin-bottom: 12px;
-              border: 1px solid rgba(91, 77, 164, 0.15);
-              transition: var(--transition);
-              position: relative;
-            }
-            
-            .list-item:hover {
-              background: rgba(30, 30, 60, 0.5);
-              border-color: rgba(91, 77, 164, 0.3);
-              transform: translateY(-2px);
-              box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            }
-            
-            .list-item-header {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 8px;
-            }
-            
-            .list-item-title {
-              font-weight: 600;
-              font-size: 15px;
-              color: var(--text);
-            }
-            
-            .list-item-date {
-              font-size: 13px;
-              color: var(--text-muted);
-            }
-            
-            .list-item-body {
-              margin-bottom: 10px;
-            }
-            
-            .list-item-reason {
-              font-size: 14px;
-              color: var(--text-secondary);
-              margin-bottom: 8px;
-            }
-            
-            .list-item-meta {
-              display: flex;
-              align-items: center;
-              gap: 10px;
-            }
-            
-            .list-item-id {
-              font-size: 12px;
-              color: var(--text-muted);
-            }
-            
-            .badge {
-              background: rgba(91, 77, 164, 0.25);
-              border-radius: 12px;
-              padding: 3px 8px;
-              font-size: 12px;
-              color: var(--text-secondary);
-            }
-            
-            .list-item-actions {
-              position: absolute;
-              top: 14px;
-              right: 14px;
-              display: none;
-              gap: 6px;
-            }
-            
-            .list-item:hover .list-item-actions {
-              display: flex;
-            }
-            
-            .item-action-btn {
-              width: 26px;
-              height: 26px;
-              border-radius: 50%;
-              background: rgba(255, 255, 255, 0.1);
-              border: none;
-              color: var(--text-secondary);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              cursor: pointer;
-              transition: var(--transition);
-              font-size: 12px;
-            }
-            
-            .item-action-btn:hover {
-              background: rgba(255, 255, 255, 0.2);
-              color: var(--text);
-            }
-            
-            .unban-btn:hover {
-              background: var(--success);
-              color: white;
-            }
-            
-            .loading-state {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
-              padding: 40px 20px;
-              color: var(--text-muted);
-            }
-            
-            .loader {
-              border: 3px solid rgba(137, 54, 255, 0.1);
-              border-top: 3px solid var(--primary);
-              border-radius: 50%;
-              width: 24px;
-              height: 24px;
-              animation: spin 1s linear infinite;
-              margin-bottom: 12px;
-            }
-            
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `;
-          document.head.appendChild(style);
-        }
       }
     }, 800);
   }
@@ -1473,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const warningList = document.getElementById('warningList');
     if (!warningList) return;
     
-    warningList.innerHTML = '<div class="loading-state"><div class="loader"></div><p>Loading warnings...</p></div>';
+    warningList.innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading warnings...</p></div>';
     
     setTimeout(() => {
       // Simulate warning data
@@ -1484,30 +690,30 @@ document.addEventListener('DOMContentLoaded', function() {
       ];
       
       if (warnings.length === 0) {
-        warningList.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No warnings found for this server</p></div>';
+        warningList.innerHTML = '<div class="admin3d-empty-state"><i class="fas fa-check-circle"></i><p>No warnings found for this server</p></div>';
       } else {
         warningList.innerHTML = '';
         
         warnings.forEach(warning => {
           const warningItem = document.createElement('div');
-          warningItem.className = 'list-item';
+          warningItem.className = 'admin3d-list-item';
           warningItem.innerHTML = `
-            <div class="list-item-header">
-              <div class="list-item-title">${warning.username}</div>
-              <div class="list-item-date">${warning.date}</div>
+            <div class="admin3d-list-item-header">
+              <div class="admin3d-list-item-title">${warning.username}</div>
+              <div class="admin3d-list-item-date">${warning.date}</div>
             </div>
-            <div class="list-item-body">
-              <div class="list-item-reason">${warning.reason}</div>
-              <div class="list-item-meta">
-                <span class="badge severity-${warning.severity.toLowerCase()}">${warning.severity}</span>
-                <span class="list-item-id">ID: ${warning.userId}</span>
+            <div class="admin3d-list-item-body">
+              <div class="admin3d-list-item-reason">${warning.reason}</div>
+              <div class="admin3d-list-item-meta">
+                <span class="admin3d-badge severity-${warning.severity.toLowerCase()}">${warning.severity}</span>
+                <span class="admin3d-list-item-id">ID: ${warning.userId}</span>
               </div>
             </div>
-            <div class="list-item-actions">
-              <button class="item-action-btn" title="View Details">
+            <div class="admin3d-list-item-actions">
+              <button class="admin3d-btn admin3d-btn-icon" title="View Details">
                 <i class="fas fa-eye"></i>
               </button>
-              <button class="item-action-btn delete-btn" title="Remove Warning">
+              <button class="admin3d-btn admin3d-btn-icon delete-btn" title="Remove Warning">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </div>
@@ -1515,34 +721,6 @@ document.addEventListener('DOMContentLoaded', function() {
           
           warningList.appendChild(warningItem);
         });
-        
-        // Add styles for severity badges if not already present
-        if (!document.getElementById('severity-styles')) {
-          const style = document.createElement('style');
-          style.id = 'severity-styles';
-          style.textContent = `
-            .severity-low {
-              background: rgba(0, 195, 255, 0.15);
-              color: #00c3ff;
-            }
-            
-            .severity-medium {
-              background: rgba(255, 170, 0, 0.15);
-              color: #ffaa00;
-            }
-            
-            .severity-high {
-              background: rgba(255, 61, 113, 0.15);
-              color: #ff3d71;
-            }
-            
-            .delete-btn:hover {
-              background: var(--danger);
-              color: white;
-            }
-          `;
-          document.head.appendChild(style);
-        }
       }
     }, 800);
   }
@@ -1552,7 +730,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const automodList = document.getElementById('automodList');
     if (!automodList) return;
     
-    automodList.innerHTML = '<div class="loading-state"><div class="loader"></div><p>Loading automod logs...</p></div>';
+    automodList.innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading automod logs...</p></div>';
     
     setTimeout(() => {
       // Simulate automod data
@@ -1563,56 +741,29 @@ document.addEventListener('DOMContentLoaded', function() {
       ];
       
       if (logs.length === 0) {
-        automodList.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>No automod logs found for this server</p></div>';
+        automodList.innerHTML = '<div class="admin3d-empty-state"><i class="fas fa-check-circle"></i><p>No automod logs found for this server</p></div>';
       } else {
         automodList.innerHTML = '';
         
         logs.forEach(log => {
           const logItem = document.createElement('div');
-          logItem.className = 'list-item';
+          logItem.className = 'admin3d-list-item';
           logItem.innerHTML = `
-            <div class="list-item-header">
-              <div class="list-item-title">${log.username}</div>
-              <div class="list-item-date">${log.time}</div>
+            <div class="admin3d-list-item-header">
+              <div class="admin3d-list-item-title">${log.username}</div>
+              <div class="admin3d-list-item-date">${log.time}</div>
             </div>
-            <div class="list-item-body">
-              <div class="list-item-reason">${log.details}</div>
-              <div class="list-item-meta">
-                <span class="badge violation-${log.violation.toLowerCase()}">${log.violation}</span>
-                <span class="badge action-badge">${log.action}</span>
+            <div class="admin3d-list-item-body">
+              <div class="admin3d-list-item-reason">${log.details}</div>
+              <div class="admin3d-list-item-meta">
+                <span class="admin3d-badge violation-${log.violation.toLowerCase()}">${log.violation}</span>
+                <span class="admin3d-badge">${log.action}</span>
               </div>
             </div>
           `;
           
           automodList.appendChild(logItem);
         });
-        
-        // Add styles for violation badges if not already present
-        if (!document.getElementById('violation-styles')) {
-          const style = document.createElement('style');
-          style.id = 'violation-styles';
-          style.textContent = `
-            .violation-profanity {
-              background: rgba(255, 61, 113, 0.15);
-              color: #ff3d71;
-            }
-            
-            .violation-spam {
-              background: rgba(255, 170, 0, 0.15);
-              color: #ffaa00;
-            }
-            
-            .violation-discord {
-              background: rgba(137, 54, 255, 0.15);
-              color: #8936ff;
-            }
-            
-            .action-badge {
-              background: rgba(23, 22, 50, 0.6);
-            }
-          `;
-          document.head.appendChild(style);
-        }
       }
     }, 800);
   }
