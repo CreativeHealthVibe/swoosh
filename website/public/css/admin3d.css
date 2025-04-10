@@ -112,10 +112,12 @@ body {
   padding: 0 1.5rem;
   background-color: #07041f; /* Solid dark background matching screenshot */
   border-bottom: 1px solid rgba(49, 41, 95, 0.5);
+  border-top: 1px solid rgba(49, 41, 95, 0.5); /* Add top border to match screenshot */
   position: relative;
   z-index: var(--z-above);
   width: 100%;
   box-sizing: border-box;
+  overflow: visible; /* Allow logo to overflow if needed */
 }
 
 .admin3d-header::before {
@@ -145,13 +147,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 30px;
-  width: 30px;
+  height: 22px;
+  width: 22px;
+  margin-top: -6px; /* Move up slightly to match screenshot */
 }
 
 .swoosh-logo-mark img {
-  height: 30px;
-  width: 30px;
+  height: 22px;
+  width: 22px;
   object-fit: contain;
 }
 
@@ -159,11 +162,16 @@ body {
   font-size: 1.25rem;
   font-weight: bold;
   color: #fff;
+  display: flex;
+  align-items: center;
+  margin-top: -6px; /* Move up to match screenshot */
+  letter-spacing: 0.5px;
 }
 
 .bot-text {
   color: var(--primary);
   font-weight: bold;
+  display: inline;
 }
 
 /* Additional header properties */
