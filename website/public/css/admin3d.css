@@ -104,6 +104,11 @@ body {
 }
 
 /* Header Styles */
+/* ! IMPORTANT: Reset any center alignment from parent elements ! */
+.admin3d-container, body, html {
+  text-align: left;
+}
+
 .admin3d-header {
   min-height: var(--header-height); /* Use min-height instead of fixed height */
   height: auto; /* Allow automatic height adjustment */
@@ -121,6 +126,7 @@ body {
   box-sizing: border-box;
   overflow: visible; /* Allow content to be visible */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Stronger shadow for better contrast */
+  text-align: left !important; /* Force left alignment */
 }
 
 .admin3d-header::before {
@@ -135,8 +141,12 @@ body {
 }
 
 .admin3d-header-left {
-  display: flex;
-  align-items: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .admin3d-logo {
@@ -1090,8 +1100,13 @@ body {
   .admin3d-header-left {
     gap: 0.75rem; /* Reduced gap for better spacing */
     flex-shrink: 0; /* Prevent shrinking */
-    justify-content: flex-start; /* Ensure left alignment */
-    align-items: center;
+    justify-content: flex-start !important; /* Ensure left alignment */
+    align-items: center !important;
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important; /* Prevent flexbox growing/shrinking issues */
+    width: auto !important; /* Let content determine width */
   }
   
   .admin3d-header-right {
