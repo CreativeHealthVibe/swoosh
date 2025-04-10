@@ -8,7 +8,7 @@
 <div class="admin3d-moderation">
   <!-- Big, visible header -->
   <div class="moderation-header">
-    <h1 class="moderation-title">Moderation Center</h1>
+    <h1 class="moderation-title">Moderation Command Center</h1>
     <p class="moderation-subtitle">Advanced tools for server management</p>
   </div>
   
@@ -60,6 +60,17 @@
         <span>AutoMod Actions</span>
       </div>
     </div>
+    
+    <!-- New Stats Card: Member Count -->
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon member-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="mod-stat-content">
+        <h3 id="memberCount">0</h3>
+        <span>Total Members</span>
+      </div>
+    </div>
   </div>
   
   <!-- Tab nav buttons - Exact match to reference -->
@@ -73,7 +84,14 @@
     <button class="mod-nav-btn" data-tab="auto-moderation">
       <i class="fas fa-shield-alt"></i> Auto-Moderation
     </button>
+    <!-- New Tab Button: Advanced Filters -->
+    <button class="mod-nav-btn" data-tab="advanced-filters">
+      <i class="fas fa-filter"></i> Advanced Filters
+    </button>
   </div>
+  
+  <!-- 3D Visualization Container -->
+  <div id="moderation-three-container" class="moderation-three-container"></div>
   
   <!-- Content Container -->
   <div class="mod-content-container" id="moderation-tabs">
@@ -151,7 +169,34 @@
                       <option value="7d">1 Week</option>
                       <option value="14d">2 Weeks</option>
                       <option value="30d">1 Month</option>
+                      <option value="custom">Custom...</option>
                     </select>
+                  </div>
+                </div>
+                
+                <!-- Custom Duration Input (hidden by default) -->
+                <div id="customDurationGroup" class="form-field" style="display: none;">
+                  <label for="customDuration">Custom Duration</label>
+                  <div class="custom-duration-inputs">
+                    <input type="number" id="customDuration" name="customDuration" min="1" value="1">
+                    <select id="customDurationUnit" name="customDurationUnit">
+                      <option value="h">Hours</option>
+                      <option value="d" selected>Days</option>
+                      <option value="w">Weeks</option>
+                      <option value="m">Months</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="form-options">
+                  <div class="form-check">
+                    <input type="checkbox" id="deleteMessages" name="deleteMessages" value="true">
+                    <label for="deleteMessages">Delete recent messages</label>
+                  </div>
+                  
+                  <div class="form-check">
+                    <input type="checkbox" id="addToBlacklist" name="addToBlacklist" value="true">
+                    <label for="addToBlacklist">Add to blacklist</label>
                   </div>
                 </div>
                 
@@ -171,15 +216,42 @@
                 <i class="fas fa-list"></i>
               </div>
               <h3>Current Bans</h3>
-              <div class="mod-refresh-btn">
+              <div class="mod-refresh-btn" id="refreshBans">
                 <i class="fas fa-sync-alt"></i>
               </div>
             </div>
             <div class="mod-section-content">
-              <div class="ban-list" id="banList">
-                <div class="empty-state">
-                  <p>Select a server to view ban list</p>
+              <!-- Ban List Search -->
+              <div class="admin3d-search-filters">
+                <div class="admin3d-search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" id="banSearchInput" placeholder="Search bans...">
                 </div>
+              </div>
+              
+              <!-- Ban List Table -->
+              <div class="admin3d-table-wrapper">
+                <table class="admin3d-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Reason</th>
+                      <th>Date</th>
+                      <th>Duration</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="banListBody">
+                    <tr class="empty-state">
+                      <td colspan="5">
+                        <div class="empty-state-message">
+                          <i class="fas fa-info-circle"></i>
+                          <p>Select a server to view ban list</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -287,11 +359,30 @@
                 </div>
               </div>
               
-              <div class="warning-list" id="warningList">
-                <div class="admin3d-empty-state">
-                  <i class="fas fa-exclamation-triangle"></i>
-                  <p>Select a server to view warnings</p>
-                </div>
+              <!-- Warning List Table -->
+              <div class="admin3d-table-wrapper">
+                <table class="admin3d-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Reason</th>
+                      <th>Severity</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="warningListBody">
+                    <tr class="empty-state">
+                      <td colspan="6">
+                        <div class="empty-state-message">
+                          <i class="fas fa-info-circle"></i>
+                          <p>Select a server to view warnings</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -369,6 +460,16 @@
                       <option value="custom">Custom - Word list</option>
                     </select>
                   </div>
+                  
+                  <!-- Custom Word List (hidden by default) -->
+                  <div id="customWordListGroup" class="admin3d-form-group" style="display: none;">
+                    <label class="admin3d-form-label" for="customWordList">Custom Word List</label>
+                    <textarea class="admin3d-form-textarea" id="customWordList" name="customWordList" placeholder="Enter words to filter, one per line..." rows="4"></textarea>
+                    <div class="admin3d-form-note">
+                      <i class="fas fa-info-circle"></i>
+                      <span>These words will be filtered in addition to the default list</span>
+                    </div>
+                  </div>
                 </div>
                 
                 <!-- Anti-Spam Protection -->
@@ -384,7 +485,7 @@
                         <span class="admin3d-toggle-slider"></span>
                       </label>
                       <div class="admin3d-toggle-label">
-                        <span>Anti-Spam System</span>
+                        <span>Message Spam Protection</span>
                         <small>Detect and prevent message spam</small>
                       </div>
                     </div>
@@ -395,8 +496,8 @@
                         <span class="admin3d-toggle-slider"></span>
                       </label>
                       <div class="admin3d-toggle-label">
-                        <span>Anti-Mention Spam</span>
-                        <small>Prevent mass mentioning</small>
+                        <span>Mention Spam Protection</span>
+                        <small>Prevent mass mention spam</small>
                       </div>
                     </div>
                     
@@ -411,12 +512,30 @@
                       </div>
                     </div>
                   </div>
+                  
+                  <div class="admin3d-form-row">
+                    <div class="admin3d-form-group half-width">
+                      <label class="admin3d-form-label" for="messageThreshold">Message Threshold</label>
+                      <input type="number" class="admin3d-form-input" id="messageThreshold" name="messageThreshold" min="2" max="20" value="5">
+                      <div class="admin3d-form-note">
+                        <span>Number of messages</span>
+                      </div>
+                    </div>
+                    
+                    <div class="admin3d-form-group half-width">
+                      <label class="admin3d-form-label" for="timeThreshold">Time Window</label>
+                      <input type="number" class="admin3d-form-input" id="timeThreshold" name="timeThreshold" min="1" max="30" value="5">
+                      <div class="admin3d-form-note">
+                        <span>Seconds</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
-                <!-- Automated Actions -->
+                <!-- Violation Actions -->
                 <div class="settings-section">
                   <h4 class="settings-section-title">
-                    <i class="fas fa-bolt"></i> Automated Actions
+                    <i class="fas fa-gavel"></i> Automated Actions
                   </h4>
                   
                   <div class="admin3d-form-row">
@@ -424,22 +543,62 @@
                       <label class="admin3d-form-label" for="violationAction">Content Violation Action</label>
                       <select class="admin3d-form-select" id="violationAction" name="violationAction">
                         <option value="delete">Delete Message Only</option>
-                        <option value="warn" selected>Delete + Warn User</option>
-                        <option value="mute">Delete + Temporary Mute</option>
-                        <option value="kick">Delete + Kick User</option>
-                        <option value="ban">Delete + Ban User</option>
+                        <option value="warn" selected>Warn User</option>
+                        <option value="mute">Timeout User</option>
+                        <option value="kick">Kick User</option>
+                        <option value="ban">Ban User</option>
                       </select>
                     </div>
                     
                     <div class="admin3d-form-group">
-                      <label class="admin3d-form-label" for="spamAction">Spam Detection Action</label>
+                      <label class="admin3d-form-label" for="spamAction">Spam Violation Action</label>
                       <select class="admin3d-form-select" id="spamAction" name="spamAction">
                         <option value="delete">Delete Messages Only</option>
-                        <option value="warn">Delete + Warn User</option>
-                        <option value="mute" selected>Delete + Temporary Mute</option>
-                        <option value="kick">Delete + Kick User</option>
-                        <option value="ban">Delete + Ban User</option>
+                        <option value="warn">Warn User</option>
+                        <option value="mute" selected>Timeout User</option>
+                        <option value="kick">Kick User</option>
+                        <option value="ban">Ban User</option>
                       </select>
+                    </div>
+                  </div>
+                  
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="muteDuration">Timeout Duration</label>
+                    <select class="admin3d-form-select" id="muteDuration" name="muteDuration">
+                      <option value="5m">5 Minutes</option>
+                      <option value="10m">10 Minutes</option>
+                      <option value="30m" selected>30 Minutes</option>
+                      <option value="1h">1 Hour</option>
+                      <option value="2h">2 Hours</option>
+                      <option value="6h">6 Hours</option>
+                      <option value="12h">12 Hours</option>
+                      <option value="1d">1 Day</option>
+                      <option value="3d">3 Days</option>
+                      <option value="7d">7 Days</option>
+                    </select>
+                  </div>
+                  
+                  <div class="admin3d-toggle-group">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="logActions">
+                        <input type="checkbox" id="logActions" name="logActions" value="true" checked>
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Log All Actions</span>
+                        <small>Record all moderation actions to the log channel</small>
+                      </div>
+                    </div>
+                    
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="notifyUsers">
+                        <input type="checkbox" id="notifyUsers" name="notifyUsers" value="true" checked>
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Notify Users</span>
+                        <small>Send DM to users who receive automated warnings</small>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -453,7 +612,7 @@
             </div>
           </div>
           
-          <!-- Auto-Mod Logs -->
+          <!-- Auto-Mod Log -->
           <div class="admin3d-card">
             <div class="admin3d-card-header">
               <div>
@@ -461,9 +620,9 @@
                   <i class="fas fa-clipboard-list"></i>
                 </div>
               </div>
-              <h3 class="admin3d-card-title">Recent Auto-Mod Actions</h3>
+              <h3 class="admin3d-card-title">Auto-Moderation Log</h3>
               <div class="admin3d-card-actions">
-                <button class="admin3d-btn admin3d-btn-icon" id="refreshAutomod" title="Refresh automod logs">
+                <button class="admin3d-btn admin3d-btn-icon" id="refreshAutomod" title="Refresh automod log">
                   <i class="fas fa-sync-alt"></i>
                 </button>
               </div>
@@ -476,18 +635,178 @@
                 </div>
                 <div class="admin3d-filter-select">
                   <select class="admin3d-form-select" id="automodFilterSelect">
-                    <option value="all">All Actions</option>
-                    <option value="message">Message Filter</option>
-                    <option value="spam">Anti-Spam</option>
-                    <option value="raid">Anti-Raid</option>
+                    <option value="all">All Violations</option>
+                    <option value="profanity">Profanity</option>
+                    <option value="spam">Message Spam</option>
+                    <option value="mention">Mention Spam</option>
+                    <option value="invite">Discord Invites</option>
+                    <option value="link">Malicious Links</option>
                   </select>
                 </div>
               </div>
               
-              <div class="automod-list" id="automodList">
-                <div class="admin3d-empty-state">
-                  <i class="fas fa-shield-alt"></i>
-                  <p>Select a server to view automod logs</p>
+              <!-- Auto-Mod Log Table -->
+              <div class="admin3d-table-wrapper">
+                <table class="admin3d-table">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>User</th>
+                      <th>Violation</th>
+                      <th>Action</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="automodLogBody">
+                    <tr class="empty-state">
+                      <td colspan="5">
+                        <div class="empty-state-message">
+                          <i class="fas fa-info-circle"></i>
+                          <p>Select a server to view auto-moderation logs</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Advanced Filters Tab - NEW FEATURE -->
+      <div id="advanced-filters" class="tab-content">
+        <div class="admin3d-grid">
+          <!-- Message Filter Builder -->
+          <div class="admin3d-card" data-premium="true">
+            <div class="admin3d-card-header premium-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-code"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Message Filter Builder</h3>
+              <div class="premium-icon">
+                <i class="fas fa-crown"></i>
+              </div>
+            </div>
+            <div class="admin3d-card-content">
+              <p class="admin3d-card-description">
+                Create advanced message filters with complex conditional logic.
+              </p>
+              
+              <form action="/admin3d/moderation/save-filter" method="POST" id="messageFilterForm" data-ajax="true">
+                <input type="hidden" id="filterServerId" name="serverId" value="">
+                
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="filterName">Filter Name</label>
+                  <input class="admin3d-form-input" type="text" id="filterName" name="filterName" placeholder="Enter a name for this filter..." required>
+                </div>
+                
+                <div class="filter-builder">
+                  <div class="filter-builder-header">
+                    <h4>Filter Conditions</h4>
+                    <button type="button" class="admin3d-btn admin3d-btn-sm" id="addConditionBtn">
+                      <i class="fas fa-plus"></i> Add Condition
+                    </button>
+                  </div>
+                  
+                  <div class="filter-conditions" id="filterConditions">
+                    <div class="filter-condition">
+                      <div class="condition-part">
+                        <select class="admin3d-form-select" name="conditionType[]">
+                          <option value="contains">Contains Text</option>
+                          <option value="starts_with">Starts With</option>
+                          <option value="ends_with">Ends With</option>
+                          <option value="regex">Matches Regex</option>
+                          <option value="length_gt">Length Greater Than</option>
+                          <option value="length_lt">Length Less Than</option>
+                          <option value="has_attachment">Has Attachment</option>
+                          <option value="has_link">Has Link</option>
+                          <option value="has_mention">Has Mention</option>
+                          <option value="has_emoji">Has Emoji</option>
+                        </select>
+                      </div>
+                      <div class="condition-part">
+                        <input class="admin3d-form-input" type="text" name="conditionValue[]" placeholder="Value...">
+                      </div>
+                      <div class="condition-part condition-actions">
+                        <button type="button" class="admin3d-btn admin3d-btn-icon admin3d-btn-sm remove-condition">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="filter-builder-logic">
+                    <h4>Condition Logic</h4>
+                    <div class="admin3d-form-group">
+                      <select class="admin3d-form-select" id="conditionLogic" name="conditionLogic">
+                        <option value="all">Match ALL conditions (AND)</option>
+                        <option value="any">Match ANY condition (OR)</option>
+                        <option value="custom">Custom Logic</option>
+                      </select>
+                    </div>
+                    <div id="customLogicGroup" class="admin3d-form-group" style="display: none;">
+                      <input class="admin3d-form-input" type="text" id="customLogic" name="customLogic" placeholder="Example: (1 AND 2) OR 3">
+                      <div class="admin3d-form-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Use condition numbers starting from 1, with AND, OR, NOT operators</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="filter-actions">
+                  <h4>Actions to Take</h4>
+                  <div class="admin3d-form-group">
+                    <select class="admin3d-form-select" id="filterAction" name="filterAction">
+                      <option value="delete">Delete Message</option>
+                      <option value="warn">Warn User</option>
+                      <option value="timeout">Timeout User</option>
+                      <option value="notify">Notify Moderators</option>
+                      <option value="log">Log Only</option>
+                    </select>
+                  </div>
+                  
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="actionMessage">Message to User</label>
+                    <textarea class="admin3d-form-textarea" id="actionMessage" name="actionMessage" 
+                              placeholder="Message to send to user when filter is triggered..." rows="2"></textarea>
+                  </div>
+                </div>
+                
+                <div class="admin3d-form-actions">
+                  <button type="submit" class="admin3d-btn admin3d-btn-success" id="saveFilterBtn">
+                    <i class="fas fa-save"></i> Save Filter
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Active Filters -->
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-list"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Active Filters</h3>
+              <div class="admin3d-card-actions">
+                <button class="admin3d-btn admin3d-btn-icon" id="refreshFilters" title="Refresh filter list">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </div>
+            <div class="admin3d-card-content">
+              <div class="active-filters-list" id="activeFiltersList">
+                <div class="empty-state">
+                  <div class="empty-state-message">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Select a server to view active filters</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -496,241 +815,308 @@
       </div>
     </div>
   </div>
+  
+  <!-- Notification Area -->
+  <div class="notification-area"></div>
 </div>
 
+<!-- Hidden Templates -->
+<template id="filterConditionTemplate">
+  <div class="filter-condition">
+    <div class="condition-part">
+      <select class="admin3d-form-select" name="conditionType[]">
+        <option value="contains">Contains Text</option>
+        <option value="starts_with">Starts With</option>
+        <option value="ends_with">Ends With</option>
+        <option value="regex">Matches Regex</option>
+        <option value="length_gt">Length Greater Than</option>
+        <option value="length_lt">Length Less Than</option>
+        <option value="has_attachment">Has Attachment</option>
+        <option value="has_link">Has Link</option>
+        <option value="has_mention">Has Mention</option>
+        <option value="has_emoji">Has Emoji</option>
+      </select>
+    </div>
+    <div class="condition-part">
+      <input class="admin3d-form-input" type="text" name="conditionValue[]" placeholder="Value...">
+    </div>
+    <div class="condition-part condition-actions">
+      <button type="button" class="admin3d-btn admin3d-btn-icon admin3d-btn-sm remove-condition">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
+  </div>
+</template>
+
+<template id="activeFilterTemplate">
+  <div class="admin3d-list-item">
+    <div class="admin3d-list-item-header">
+      <div class="admin3d-list-item-title">{{filterName}}</div>
+      <div class="admin3d-list-item-actions">
+        <button class="admin3d-btn admin3d-btn-icon admin3d-btn-sm edit-filter" data-id="{{filterId}}">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="admin3d-btn admin3d-btn-icon admin3d-btn-sm admin3d-btn-danger delete-filter" data-id="{{filterId}}">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    </div>
+    <div class="admin3d-list-item-body">
+      <div class="admin3d-list-item-conditions">
+        <div class="admin3d-badge">{{conditionCount}} conditions</div>
+        <div class="admin3d-badge">{{conditionLogic}}</div>
+      </div>
+      <div class="admin3d-list-item-action">
+        <div class="admin3d-badge admin3d-badge-action">{{action}}</div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Tab functionality
-  const tabButtons = document.querySelectorAll('.tab-btn');
+document.addEventListener('DOMContentLoaded', () => {
+  // DOM Elements
+  const serverSelect = document.getElementById('serverSelect');
+  const tabButtons = document.querySelectorAll('.mod-nav-btn');
   const tabContents = document.querySelectorAll('.tab-content');
+  const banForm = document.getElementById('banUserForm');
+  const banList = document.getElementById('banList');
+  const warningList = document.getElementById('warningList');
+  const automodList = document.getElementById('automodList');
   
+  // Initialize tabs
   tabButtons.forEach(button => {
     button.addEventListener('click', () => {
       // Remove active class from all buttons and contents
-      tabButtons.forEach(b => b.classList.remove('active'));
-      tabContents.forEach(c => c.classList.remove('active'));
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
       
       // Add active class to clicked button and corresponding content
       button.classList.add('active');
       const tabId = button.getAttribute('data-tab');
-      document.getElementById(tabId).classList.add('active');
+      document.getElementById(tabId)?.classList.add('active');
     });
   });
   
-  // Server selection functionality
-  const serverSelect = document.getElementById('serverSelect');
+  // Initialize server selector
   if (serverSelect) {
     serverSelect.addEventListener('change', function() {
-      const serverId = this.value;
+      const selectedId = this.value;
+      if (!selectedId) return;
       
-      // Update hidden server ID fields in all forms
-      document.getElementById('banServerId').value = serverId;
-      document.getElementById('warnServerId').value = serverId;
-      document.getElementById('automodServerId').value = serverId;
+      // Update hidden fields
+      document.querySelectorAll('[name="serverId"]').forEach(field => {
+        field.value = selectedId;
+      });
       
-      if (serverId) {
-        // Simulate loading data
-        loadServerData(serverId);
-      }
+      // Load server data
+      document.getElementById('totalBans').textContent = '...';
+      document.getElementById('totalWarnings').textContent = '...';
+      document.getElementById('automodActions').textContent = '...';
+      document.getElementById('memberCount').textContent = '...';
+      
+      // Call API for data
+      loadServerData(selectedId);
     });
   }
   
-  // Custom duration toggle
+  // Ban Form Duration Selection
   const banDuration = document.getElementById('banDuration');
   const customDurationGroup = document.getElementById('customDurationGroup');
   
   if (banDuration && customDurationGroup) {
     banDuration.addEventListener('change', function() {
-      customDurationGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+      if (this.value === 'custom') {
+        customDurationGroup.style.display = 'block';
+      } else {
+        customDurationGroup.style.display = 'none';
+      }
     });
   }
   
-  // Loading functionality
-  function loadServerData(serverId) {
-    // Update stats with animated counters
-    animateCounter('totalBans', Math.floor(Math.random() * 15));
-    animateCounter('totalWarnings', Math.floor(Math.random() * 30));
-    animateCounter('automodActions', Math.floor(Math.random() * 100));
+  // Custom Word List Toggle
+  const profanityFilterLevel = document.getElementById('profanityFilterLevel');
+  const customWordListGroup = document.getElementById('customWordListGroup');
+  
+  if (profanityFilterLevel && customWordListGroup) {
+    profanityFilterLevel.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customWordListGroup.style.display = 'block';
+      } else {
+        customWordListGroup.style.display = 'none';
+      }
+    });
+  }
+  
+  // Custom Logic Toggle
+  const conditionLogic = document.getElementById('conditionLogic');
+  const customLogicGroup = document.getElementById('customLogicGroup');
+  
+  if (conditionLogic && customLogicGroup) {
+    conditionLogic.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customLogicGroup.style.display = 'block';
+      } else {
+        customLogicGroup.style.display = 'none';
+      }
+    });
+  }
+  
+  // Advanced Filter Condition Builder
+  const addConditionBtn = document.getElementById('addConditionBtn');
+  const filterConditions = document.getElementById('filterConditions');
+  const filterConditionTemplate = document.getElementById('filterConditionTemplate');
+  
+  if (addConditionBtn && filterConditions && filterConditionTemplate) {
+    addConditionBtn.addEventListener('click', function() {
+      const newCondition = document.importNode(filterConditionTemplate.content, true);
+      filterConditions.appendChild(newCondition);
+      
+      // Add event listener to the new remove button
+      const removeButtons = filterConditions.querySelectorAll('.remove-condition');
+      const lastRemoveButton = removeButtons[removeButtons.length - 1];
+      lastRemoveButton.addEventListener('click', function() {
+        this.closest('.filter-condition').remove();
+      });
+    });
     
-    // Load lists (simulation)
+    // Add event listeners to initial remove button
+    document.querySelectorAll('.remove-condition').forEach(button => {
+      button.addEventListener('click', function() {
+        this.closest('.filter-condition').remove();
+      });
+    });
+  }
+  
+  /**
+   * Load server data for moderation
+   * @param {string} serverId - Discord server ID
+   */
+  function loadServerData(serverId) {
+    if (!serverId) return;
+    
+    // Update empty state messages
+    updateEmptyState(`Loading data for server ${serverId}...`);
+    
+    // Load ban list
     loadBanList(serverId);
+    
+    // Load warning list
     loadWarningList(serverId);
+    
+    // Load automod log
     loadAutomodActions(serverId);
     
-    // Load settings
+    // Load automod settings
     loadAutomodSettings(serverId);
+    
+    // Load active filters
+    loadActiveFilters(serverId);
+    
+    // Update server stats
+    loadServerStats(serverId);
   }
   
-  // Animation for counters
-  function animateCounter(id, target) {
-    const element = document.getElementById(id);
-    if (!element) return;
-    
-    let current = 0;
-    const duration = 1000; // ms
-    const frameRate = 30; // fps
-    const totalFrames = duration / (1000 / frameRate);
-    const increment = target / totalFrames;
-    
-    const interval = setInterval(() => {
-      current += increment;
-      if (current >= target) {
-        current = target;
-        clearInterval(interval);
+  /**
+   * Update empty state messages in tables
+   * @param {string} message - Message to display
+   */
+  function updateEmptyState(message) {
+    const emptyStates = document.querySelectorAll('.empty-state-message p');
+    emptyStates.forEach(elem => {
+      elem.textContent = message;
+    });
+  }
+  
+  /**
+   * Load server statistics
+   * @param {string} serverId - Discord server ID
+   */
+  function loadServerStats(serverId) {
+    // This would normally fetch from an API
+    // For demo purposes, we'll use sample data
+    setTimeout(() => {
+      document.getElementById('totalBans').textContent = Math.floor(Math.random() * 10);
+      document.getElementById('totalWarnings').textContent = Math.floor(Math.random() * 20);
+      document.getElementById('automodActions').textContent = Math.floor(Math.random() * 50);
+      
+      // Find server in the dropdown to get member count
+      const serverOption = Array.from(serverSelect.options).find(option => option.value === serverId);
+      if (serverOption) {
+        const serverName = serverOption.text;
+        const memberCount = serverName.match(/\((\d+)\)$/);
+        document.getElementById('memberCount').textContent = memberCount ? memberCount[1] : Math.floor(Math.random() * 500);
+      } else {
+        document.getElementById('memberCount').textContent = Math.floor(Math.random() * 500);
       }
-      element.textContent = Math.floor(current);
-    }, 1000 / frameRate);
+    }, 800);
   }
   
-  // Load ban list
+  /**
+   * Load ban list for a server
+   * @param {string} serverId - Discord server ID
+   */
   function loadBanList(serverId) {
-    const banList = document.getElementById('banList');
-    if (!banList) return;
+    if (!document.getElementById('banListBody')) return;
     
     // Show loading state
-    banList.innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading bans...</p></div>';
+    document.getElementById('banListBody').innerHTML = `
+      <tr class="loading-state">
+        <td colspan="5">
+          <div class="empty-state-message">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Loading ban list...</p>
+          </div>
+        </td>
+      </tr>
+    `;
     
-    // Simulate API delay
+    // This would normally fetch from an API
+    // For demo purposes, we'll show some sample data
     setTimeout(() => {
-      // Mock data
-      const bans = [
-        { userId: '123456789', username: 'User#1234', reason: 'Spamming in channels', date: '2025-04-08', duration: 'Permanent' },
-        { userId: '987654321', username: 'Member#5678', reason: 'Inappropriate content', date: '2025-04-07', duration: '14 days' },
-        { userId: '567891234', username: 'Person#9012', reason: 'Harassment', date: '2025-04-05', duration: '30 days' }
-      ];
-      
-      if (bans.length === 0) {
-        banList.innerHTML = '<div class="admin3d-empty-state"><i class="fas fa-check-circle"></i><p>No bans found for this server</p></div>';
-      } else {
-        banList.innerHTML = '';
-        
-        // Create ban items
-        bans.forEach(ban => {
-          const banItem = document.createElement('div');
-          banItem.className = 'admin3d-list-item';
-          banItem.innerHTML = `
-            <div class="admin3d-list-item-header">
-              <div class="admin3d-list-item-title">${ban.username}</div>
-              <div class="admin3d-list-item-date">${ban.date}</div>
-            </div>
-            <div class="admin3d-list-item-body">
-              <div class="admin3d-list-item-reason">${ban.reason}</div>
-              <div class="admin3d-list-item-meta">
-                <span class="admin3d-badge">${ban.duration}</span>
-                <span class="admin3d-list-item-id">ID: ${ban.userId}</span>
-              </div>
-            </div>
-            <div class="admin3d-list-item-actions">
-              <button class="admin3d-btn admin3d-btn-icon" title="View Details">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="admin3d-btn admin3d-btn-icon unban-btn" title="Unban User">
-                <i class="fas fa-user-check"></i>
-              </button>
-            </div>
-          `;
-          
-          banList.appendChild(banItem);
-        });
-      }
+      // Sample data would be replaced with actual API data
+      document.getElementById('banListBody').innerHTML = '';
     }, 800);
   }
   
-  // Load warning list (similar to ban list)
+  /**
+   * Load warning list for a server
+   * @param {string} serverId - Discord server ID
+   */
   function loadWarningList(serverId) {
-    const warningList = document.getElementById('warningList');
-    if (!warningList) return;
+    if (!document.getElementById('warningListBody')) return;
     
-    warningList.innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading warnings...</p></div>';
+    document.getElementById('warningListBody').innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading warnings...</p></div>';
     
+    // This would normally fetch from an API
+    // For demo purposes, we'll show some sample data
     setTimeout(() => {
-      // Simulate warning data
-      const warnings = [
-        { userId: '123456789', username: 'User#1234', reason: 'Excessive caps', date: '2025-04-08', severity: 'Low' },
-        { userId: '987654321', username: 'Member#5678', reason: 'Minor spam in #general', date: '2025-04-06', severity: 'Medium' },
-        { userId: '567891234', username: 'Person#9012', reason: 'Disrespectful behavior', date: '2025-04-02', severity: 'High' }
-      ];
-      
-      if (warnings.length === 0) {
-        warningList.innerHTML = '<div class="admin3d-empty-state"><i class="fas fa-check-circle"></i><p>No warnings found for this server</p></div>';
-      } else {
-        warningList.innerHTML = '';
-        
-        warnings.forEach(warning => {
-          const warningItem = document.createElement('div');
-          warningItem.className = 'admin3d-list-item';
-          warningItem.innerHTML = `
-            <div class="admin3d-list-item-header">
-              <div class="admin3d-list-item-title">${warning.username}</div>
-              <div class="admin3d-list-item-date">${warning.date}</div>
-            </div>
-            <div class="admin3d-list-item-body">
-              <div class="admin3d-list-item-reason">${warning.reason}</div>
-              <div class="admin3d-list-item-meta">
-                <span class="admin3d-badge severity-${warning.severity.toLowerCase()}">${warning.severity}</span>
-                <span class="admin3d-list-item-id">ID: ${warning.userId}</span>
-              </div>
-            </div>
-            <div class="admin3d-list-item-actions">
-              <button class="admin3d-btn admin3d-btn-icon" title="View Details">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="admin3d-btn admin3d-btn-icon delete-btn" title="Remove Warning">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          `;
-          
-          warningList.appendChild(warningItem);
-        });
-      }
+      // Sample data would be replaced with actual API data
+      document.getElementById('warningListBody').innerHTML = '';
     }, 800);
   }
   
-  // Load automod actions
+  /**
+   * Load automod actions for a server
+   * @param {string} serverId - Discord server ID
+   */
   function loadAutomodActions(serverId) {
-    const automodList = document.getElementById('automodList');
-    if (!automodList) return;
+    if (!document.getElementById('automodLogBody')) return;
     
-    automodList.innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading automod logs...</p></div>';
+    document.getElementById('automodLogBody').innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading automod logs...</p></div>';
     
+    // This would normally fetch from an API
+    // For demo purposes, we'll show some sample data
     setTimeout(() => {
-      // Simulate automod data
-      const logs = [
-        { time: '14:32:05', username: 'User#1234', action: 'Message Deleted', violation: 'Profanity', details: 'Message contained prohibited words' },
-        { time: '13:18:42', username: 'Member#5678', action: 'User Warned', violation: 'Spam', details: '5 messages in 3 seconds' },
-        { time: '12:51:17', username: 'Person#9012', action: 'Message Deleted', violation: 'Discord Invite', details: 'Message contained invite link' }
-      ];
-      
-      if (logs.length === 0) {
-        automodList.innerHTML = '<div class="admin3d-empty-state"><i class="fas fa-check-circle"></i><p>No automod logs found for this server</p></div>';
-      } else {
-        automodList.innerHTML = '';
-        
-        logs.forEach(log => {
-          const logItem = document.createElement('div');
-          logItem.className = 'admin3d-list-item';
-          logItem.innerHTML = `
-            <div class="admin3d-list-item-header">
-              <div class="admin3d-list-item-title">${log.username}</div>
-              <div class="admin3d-list-item-date">${log.time}</div>
-            </div>
-            <div class="admin3d-list-item-body">
-              <div class="admin3d-list-item-reason">${log.details}</div>
-              <div class="admin3d-list-item-meta">
-                <span class="admin3d-badge violation-${log.violation.toLowerCase()}">${log.violation}</span>
-                <span class="admin3d-badge">${log.action}</span>
-              </div>
-            </div>
-          `;
-          
-          automodList.appendChild(logItem);
-        });
-      }
+      // Sample data would be replaced with actual API data
+      document.getElementById('automodLogBody').innerHTML = '';
     }, 800);
   }
   
-  // Load automod settings
+  /**
+   * Load automod settings for a server
+   * @param {string} serverId - Discord server ID
+   */
   function loadAutomodSettings(serverId) {
     // This would normally fetch settings from an API
     // For demo purposes, we'll just set some defaults
@@ -740,6 +1126,36 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('antiSpam').checked = true;
     document.getElementById('antiMention').checked = true;
     document.getElementById('antiRaid').checked = false;
+  }
+  
+  /**
+   * Load active filters for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadActiveFilters(serverId) {
+    const activeFiltersList = document.getElementById('activeFiltersList');
+    if (!activeFiltersList) return;
+    
+    activeFiltersList.innerHTML = `
+      <div class="admin3d-loading">
+        <div class="admin3d-spinner"></div>
+        <p>Loading active filters...</p>
+      </div>
+    `;
+    
+    // This would normally fetch from an API
+    // For demo purposes, we'll show empty state
+    setTimeout(() => {
+      activeFiltersList.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-message">
+            <i class="fas fa-filter"></i>
+            <p>No custom filters created yet</p>
+          </div>
+          <p class="empty-state-description">Use the filter builder to create custom message filters</p>
+        </div>
+      `;
+    }, 800);
   }
   
   // Add refresh button functionality
@@ -756,6 +1172,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('refreshAutomod')?.addEventListener('click', function() {
     const serverId = serverSelect.value;
     if (serverId) loadAutomodActions(serverId);
+  });
+  
+  document.getElementById('refreshFilters')?.addEventListener('click', function() {
+    const serverId = serverSelect.value;
+    if (serverId) loadActiveFilters(serverId);
   });
 });
 </script>
