@@ -86,10 +86,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // Update server ID in automod form when server is selected
-  if (serverSelect && document.getElementById('serverId')) {
+  // Update server ID in forms when server is selected
+  if (serverSelect) {
     serverSelect.addEventListener('change', function() {
-      document.getElementById('serverId').value = this.value;
+      // Set server ID in all form hidden fields
+      if (document.getElementById('serverId')) {
+        document.getElementById('serverId').value = this.value;
+      }
+      
+      if (document.getElementById('banServerId')) {
+        document.getElementById('banServerId').value = this.value;
+      }
+      
+      if (document.getElementById('warnServerId')) {
+        document.getElementById('warnServerId').value = this.value;
+      }
       
       if (this.value) {
         loadServerData(this.value);
@@ -105,6 +116,192 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Manually refreshing ban list...');
         loadBanList(serverId);
       }
+    });
+  }
+  
+  // Ban User Form Submission
+  if (banUserForm) {
+    banUserForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const serverId = document.getElementById('banServerId').value;
+      if (!serverId) {
+        alert('Please select a server first');
+        return;
+      }
+      
+      const userId = document.getElementById('userId').value.trim();
+      const banReason = document.getElementById('banReason').value.trim();
+      const banDuration = document.getElementById('banDuration').value;
+      const deleteMessages = document.getElementById('deleteMessages').checked;
+      const addToBlacklist = document.getElementById('addToBlacklist').checked;
+      
+      // Get custom duration if applicable
+      let finalDuration = banDuration;
+      if (banDuration === 'custom') {
+        const customDuration = document.getElementById('customDuration').value;
+        const customDurationUnit = document.getElementById('customDurationUnit').value;
+        finalDuration = `${customDuration}${customDurationUnit}`;
+      }
+      
+      // Create form data
+      const formData = {
+        serverId,
+        userId,
+        banReason,
+        banDuration: finalDuration,
+        deleteMessages,
+        addToBlacklist
+      };
+      
+      // Show loading state
+      const submitBtn = document.getElementById('banUserBtn');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+      
+      // Submit the ban request
+      fetch('/api/moderation/ban', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(formData)
+      })
+        .then(response => {
+          // Check for 401 Unauthorized or 403 Forbidden responses
+          if (response.status === 401 || response.status === 403) {
+            return response.json().then(errorData => {
+              console.error('Authentication error:', errorData);
+              // Check if we need to redirect to login
+              if (errorData.redirectTo) {
+                window.location.href = errorData.redirectTo;
+                return Promise.reject(new Error('Authentication required. Redirecting to login...'));
+              } else {
+                throw new Error(errorData.message || 'Authentication failed');
+              }
+            });
+          }
+          
+          if (!response.ok) {
+            throw new Error('Failed to submit ban request');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (!data.success) {
+            throw new Error(data.message || 'Failed to ban user');
+          }
+          
+          // Show success message
+          alert(data.message || 'User has been banned successfully');
+          
+          // Reset form
+          banUserForm.reset();
+          
+          // Refresh ban list
+          loadBanList(serverId);
+        })
+        .catch(error => {
+          console.error('Error banning user:', error);
+          alert(`Error: ${error.message}`);
+        })
+        .finally(() => {
+          // Reset button state
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        });
+    });
+  }
+  
+  // Warning User Form Submission
+  if (warnUserForm) {
+    warnUserForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const serverId = document.getElementById('warnServerId').value;
+      if (!serverId) {
+        alert('Please select a server first');
+        return;
+      }
+      
+      const warnUserId = document.getElementById('warnUserId').value.trim();
+      const warnReason = document.getElementById('warnReason').value.trim();
+      const warningSeverity = document.getElementById('warningSeverity').value;
+      const warningDuration = document.getElementById('warningDuration').value;
+      const notifyUser = document.getElementById('notifyUser').checked;
+      
+      // Create form data
+      const formData = {
+        serverId,
+        warnUserId,
+        warnReason,
+        warningSeverity,
+        warningDuration,
+        notifyUser
+      };
+      
+      // Show loading state
+      const submitBtn = document.getElementById('warnUserBtn');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+      
+      // Submit the warning request
+      fetch('/api/moderation/warn', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(formData)
+      })
+        .then(response => {
+          // Check for 401 Unauthorized or 403 Forbidden responses
+          if (response.status === 401 || response.status === 403) {
+            return response.json().then(errorData => {
+              console.error('Authentication error:', errorData);
+              // Check if we need to redirect to login
+              if (errorData.redirectTo) {
+                window.location.href = errorData.redirectTo;
+                return Promise.reject(new Error('Authentication required. Redirecting to login...'));
+              } else {
+                throw new Error(errorData.message || 'Authentication failed');
+              }
+            });
+          }
+          
+          if (!response.ok) {
+            throw new Error('Failed to submit warning');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (!data.success) {
+            throw new Error(data.message || 'Failed to warn user');
+          }
+          
+          // Show success message
+          alert(data.message || 'Warning has been issued successfully');
+          
+          // Reset form
+          warnUserForm.reset();
+          
+          // Refresh warning list
+          loadWarningList(serverId);
+        })
+        .catch(error => {
+          console.error('Error warning user:', error);
+          alert(`Error: ${error.message}`);
+        })
+        .finally(() => {
+          // Reset button state
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        });
     });
   }
   

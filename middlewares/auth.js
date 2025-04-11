@@ -30,12 +30,13 @@ const isAdmin = (req, res, next) => {
     // User is not authenticated
     req.session.returnTo = req.originalUrl;
     
-    // Check if this is an AJAX/API request - more comprehensive check
+    // Enhanced API request detection
     const isApiRequest = req.xhr || 
                         req.originalUrl.includes('/api/') || 
-                        req.get('Accept') === 'application/json';
+                        req.get('Accept') === 'application/json' ||
+                        req.get('X-Requested-With') === 'XMLHttpRequest';
     
-    console.log(`Request auth check: isXHR=${req.xhr}, path=${req.originalUrl}, isApiRequest=${isApiRequest}`);
+    console.log(`Request auth check: isXHR=${req.xhr}, path=${req.originalUrl}, Accept=${req.get('Accept')}, X-Requested-With=${req.get('X-Requested-With')}, isApiRequest=${isApiRequest}`);
     
     if (isApiRequest) {
       // For API requests, return a JSON response
@@ -59,9 +60,10 @@ const isAdmin = (req, res, next) => {
     // Check if this is an AJAX/API request
     const isApiRequest = req.xhr || 
                         req.originalUrl.includes('/api/') || 
-                        req.get('Accept') === 'application/json';
+                        req.get('Accept') === 'application/json' ||
+                        req.get('X-Requested-With') === 'XMLHttpRequest';
     
-    console.log(`User object check: isXHR=${req.xhr}, path=${req.originalUrl}, isApiRequest=${isApiRequest}`);
+    console.log(`User object check: isXHR=${req.xhr}, path=${req.originalUrl}, Accept=${req.get('Accept')}, X-Requested-With=${req.get('X-Requested-With')}, isApiRequest=${isApiRequest}`);
     
     if (isApiRequest) {
       // For API requests, return a JSON response
@@ -91,9 +93,10 @@ const isAdmin = (req, res, next) => {
   // Check if this is an AJAX/API request
   const isApiRequest = req.xhr || 
                       req.originalUrl.includes('/api/') || 
-                      req.get('Accept') === 'application/json';
+                      req.get('Accept') === 'application/json' ||
+                      req.get('X-Requested-With') === 'XMLHttpRequest';
   
-  console.log(`Admin check: isXHR=${req.xhr}, path=${req.originalUrl}, isApiRequest=${isApiRequest}`);
+  console.log(`Admin check: isXHR=${req.xhr}, path=${req.originalUrl}, Accept=${req.get('Accept')}, X-Requested-With=${req.get('X-Requested-With')}, isApiRequest=${isApiRequest}`);
   
   if (isApiRequest) {
     // For API requests, return a JSON response
