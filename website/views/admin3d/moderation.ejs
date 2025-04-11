@@ -12,12 +12,12 @@
     <h1 class="moderation-title">Moderation Command Center</h1>
     <p class="moderation-subtitle">Advanced tools for server management</p>
     
-    <!-- Direct ban access button -->
+    <!-- Direct ban access button - Redirects to emergency system -->
     <div class="direct-access-button">
-      <a href="/admin3d/direct-bans" class="admin3d-btn admin3d-btn-accent">
+      <button id="useDirectBanSystem" class="admin3d-btn admin3d-btn-accent">
         <i class="fas fa-shield-alt"></i> Direct Ban Management
-      </a>
-      <span class="tooltip">Having issues with the ban list below? Use our direct access system instead.</span>
+      </button>
+      <span class="tooltip">Access the more reliable ban management system</span>
     </div>
   </div>
   
@@ -1055,6 +1055,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const banList = document.getElementById('banList');
   const warningList = document.getElementById('warningList');
   const automodList = document.getElementById('automodList');
+  const directBanButton = document.getElementById('useDirectBanSystem');
   
   // Initialize tabs
   tabButtons.forEach(button => {
