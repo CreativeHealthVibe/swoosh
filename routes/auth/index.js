@@ -84,8 +84,8 @@ router.post('/login', (req, res, next) => {
       
       console.log('Local authentication successful, user:', user.username);
       
-      // Redirect to admin welcome page or original destination
-      const redirectUrl = req.session.returnTo || '/admin/welcome';
+      // Redirect to admin3d dashboard or original destination
+      const redirectUrl = req.session.returnTo || '/admin3d';
       delete req.session.returnTo;
       res.redirect(redirectUrl);
     });
