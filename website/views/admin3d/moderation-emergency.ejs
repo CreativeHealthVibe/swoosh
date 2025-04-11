@@ -1,0 +1,134 @@
+<%# 
+  SWOOSH Bot 3D Admin Dashboard - Emergency Moderation Tools
+  Premium Edition
+  
+  Emergency tools that bypass the standard API for accessing moderation functions
+%>
+
+<div class="admin3d-emergency-moderation">
+  <div class="emergency-header">
+    <h1 class="emergency-title">Emergency Moderation Tools</h1>
+    <p class="emergency-subtitle">Direct access to moderation functions (bypasses API for increased reliability)</p>
+  </div>
+  
+  <div class="emergency-card">
+    <div class="card-header">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h2>Direct Ban List Access</h2>
+    </div>
+    <div class="card-body">
+      <p>This tool provides direct access to view and manage your server ban lists using a different method than the standard API. Use this as a fallback if you're experiencing issues with the standard moderation page.</p>
+      <div class="card-actions">
+        <a href="/admin3d/direct-bans" class="admin3d-btn admin3d-btn-primary">
+          <i class="fas fa-gavel"></i> Access Ban Management
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="emergency-notes">
+    <h3>Important Notes</h3>
+    <ul>
+      <li>This section contains emergency fallback tools that use alternative methods to access Discord data.</li>
+      <li>These tools may take longer to load and have a simpler interface than the standard dashboard.</li>
+      <li>Changes made here will be reflected in Discord and in the standard dashboard.</li>
+      <li>If you're having persistent issues with the standard dashboard, please report them to support.</li>
+    </ul>
+  </div>
+  
+  <div class="emergency-return">
+    <a href="/admin3d/moderation" class="admin3d-btn admin3d-btn-secondary">
+      <i class="fas fa-arrow-left"></i> Return to Standard Moderation Dashboard
+    </a>
+  </div>
+</div>
+
+<style>
+  .admin3d-emergency-moderation {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .emergency-header {
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: rgba(255, 50, 50, 0.1);
+    border-left: 4px solid #ff5050;
+    border-radius: 4px;
+  }
+  
+  .emergency-title {
+    color: #ff5050;
+    margin-bottom: 5px;
+  }
+  
+  .emergency-subtitle {
+    margin-top: 0;
+    color: #ddd;
+  }
+  
+  .emergency-card {
+    margin-bottom: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #333;
+  }
+  
+  .card-header i {
+    font-size: 24px;
+    margin-right: 15px;
+    color: #ff5050;
+  }
+  
+  .card-header h2 {
+    margin: 0;
+    color: #fff;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  .card-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .emergency-notes {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+  
+  .emergency-notes h3 {
+    margin-top: 0;
+    color: #ff9900;
+    font-size: 18px;
+  }
+  
+  .emergency-notes ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  
+  .emergency-notes li {
+    margin-bottom: 8px;
+    color: #ccc;
+  }
+  
+  .emergency-return {
+    margin-top: 30px;
+    text-align: center;
+  }
+</style>

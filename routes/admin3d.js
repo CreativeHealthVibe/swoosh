@@ -8,6 +8,9 @@ const { isAdmin } = require('../middlewares/auth');
 const config = require('../config');
 const path = require('path');
 
+// Import direct ban routes
+const directBanRoutes = require('./admin3d/direct-ban-routes');
+
 // Apply admin authentication middleware to all routes
 router.use(isAdmin);
 
@@ -870,6 +873,19 @@ router.get('/profile', async (req, res) => {
     client,
     userRoles,
     mutualGuilds,
+    layout: 'layouts/admin3d'
+  });
+});
+
+// Register direct ban routes
+router.use('/', directBanRoutes);
+
+// Add a link in the moderation page to the direct ban access
+router.get('/moderation-emergency', (req, res) => {
+  res.render('admin3d/moderation-emergency', {
+    title: 'Emergency Moderation Tools | SWOOSH Bot',
+    user: req.user,
+    client: req.app.get('client'),
     layout: 'layouts/admin3d'
   });
 });
