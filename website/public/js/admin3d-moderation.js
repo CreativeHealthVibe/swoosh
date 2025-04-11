@@ -20,6 +20,14 @@ function initializeModeration3D() {
     const container = document.getElementById('moderation-three-container');
     if (!container) return;
     
+    // Check if THREE.js is available
+    if (typeof THREE === 'undefined' || window.threeJSLoaded === false) {
+      console.warn('THREE.js not available, visualization will be disabled');
+      // Add a fallback background gradient instead
+      container.style.background = 'linear-gradient(135deg, rgba(114, 137, 218, 0.1) 0%, rgba(0, 0, 0, 0) 100%)';
+      return;
+    }
+    
     // Set up Three.js scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x1a1a1a);
@@ -90,6 +98,11 @@ function initializeModeration3D() {
     
   } catch (error) {
     console.error('Error initializing 3D visualization:', error);
+    // If there's an error, add a fallback background
+    const container = document.getElementById('moderation-three-container');
+    if (container) {
+      container.style.background = 'linear-gradient(135deg, rgba(114, 137, 218, 0.1) 0%, rgba(0, 0, 0, 0) 100%)';
+    }
   }
 }
 

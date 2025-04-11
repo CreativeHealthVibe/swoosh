@@ -99,6 +99,46 @@
   <!-- 3D Visualization Container -->
   <div id="moderation-three-container" class="moderation-three-container"></div>
   
+  <!-- THREE.js library loading with fallbacks -->
+  <script>
+    // THREE.js loader with multiple CDN fallbacks
+    function loadThreeJS() {
+      const sources = [
+        'https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/three.js/151/three.min.js',
+        'https://unpkg.com/three@0.151.0/build/three.min.js'
+      ];
+      
+      function tryLoad(index) {
+        if (index >= sources.length) {
+          console.warn('THREE.js not loaded! Falling back to 2D mode.');
+          // Tell the visualization to use 2D mode
+          window.threeJSLoaded = false;
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = sources[index];
+        script.onload = function() {
+          console.log(`THREE.js loaded successfully from ${sources[index]}`);
+          window.threeJSLoaded = true;
+        };
+        script.onerror = function() {
+          console.warn(`Failed to load THREE.js from ${sources[index]}`);
+          document.body.removeChild(script);
+          tryLoad(index + 1);
+        };
+        document.body.appendChild(script);
+      }
+      
+      // Start trying to load THREE.js
+      tryLoad(0);
+    }
+    
+    // Load THREE.js when the page loads
+    document.addEventListener('DOMContentLoaded', loadThreeJS);
+  </script>
+  
   <!-- Content Container -->
   <div class="mod-content-container" id="moderation-tabs">
     <!-- Tab Content -->
