@@ -1918,12 +1918,11 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {string} serverId - Server ID
    */
   function loadAutomodSettings(serverId) {
-    // Make API request
-    fetch(`/api/moderation/automod?serverId=${serverId}`, {
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
+    if (!serverId) return;
+    
+    // Use the centralized fetchAPI for consistency with other endpoints
+    fetchAPI(`/api/moderation/automod/${serverId}`, {
+      credentials: 'include'
     })
       .then(response => {
         // Check for 401 Unauthorized or 403 Forbidden responses
@@ -1948,33 +1947,75 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         if (data.success && data.settings) {
           const settings = data.settings;
+          console.log('Applied automod settings to form:', settings);
           
-          // Set form values
-          document.getElementById('filter-profanity').checked = settings.filterProfanity;
-          document.getElementById('filter-spam').checked = settings.filterSpam;
-          document.getElementById('filter-invites').checked = settings.filterInvites;
-          document.getElementById('anti-raid').checked = settings.antiRaid;
-          
-          // Set raid options
-          if (settings.antiRaid) {
-            document.getElementById('raid-options').style.display = 'block';
-            document.getElementById('raid-threshold').value = settings.raidThreshold;
-            
-            const raidActionRadios = document.getElementsByName('raidAction');
-            for (const radio of raidActionRadios) {
-              radio.checked = radio.value === settings.raidAction;
-            }
-          } else {
-            document.getElementById('raid-options').style.display = 'none';
+          // Set form values matching the actual HTML element IDs
+          if (document.getElementById('profanityFilter')) {
+            document.getElementById('profanityFilter').checked = settings.filterProfanity === true;
           }
           
-          // Set warning threshold
-          document.getElementById('warning-threshold').value = settings.warningThreshold;
+          if (document.getElementById('linkFilter')) {
+            document.getElementById('linkFilter').checked = settings.filterLinks === true;
+          }
           
-          // Set warning action
-          const warningActionRadios = document.getElementsByName('warningAction');
-          for (const radio of warningActionRadios) {
-            radio.checked = radio.value === settings.warningAction;
+          if (document.getElementById('inviteBlocker')) {
+            document.getElementById('inviteBlocker').checked = settings.filterInvites === true;
+          }
+          
+          if (document.getElementById('antiSpam')) {
+            document.getElementById('antiSpam').checked = settings.filterSpam === true;
+          }
+          
+          if (document.getElementById('antiRaid')) {
+            document.getElementById('antiRaid').checked = settings.antiRaid === true;
+          }
+          
+          // Set profanity filter level if it exists
+          if (document.getElementById('profanityFilterLevel')) {
+            document.getElementById('profanityFilterLevel').value = settings.profanityThreshold || 'medium';
+          }
+          
+          // Set raid options
+          const raidOptions = document.getElementById('raidOptions');
+          if (settings.antiRaid && raidOptions) {
+            raidOptions.style.display = 'block';
+            
+            if (document.getElementById('raidThreshold')) {
+              document.getElementById('raidThreshold').value = settings.raidThreshold || 10;
+            }
+            
+            const raidActionRadios = document.getElementsByName('raidAction');
+            if (raidActionRadios && raidActionRadios.length > 0) {
+              for (const radio of raidActionRadios) {
+                radio.checked = radio.value === (settings.raidAction || 'lockdown');
+              }
+            }
+          } else if (raidOptions) {
+            raidOptions.style.display = 'none';
+          }
+          
+          // Set spam threshold
+          if (document.getElementById('messageThreshold')) {
+            document.getElementById('messageThreshold').value = settings.spamThreshold || 5;
+          }
+          
+          // Set spam action
+          if (document.getElementById('spamAction')) {
+            document.getElementById('spamAction').value = settings.spamAction || 'mute';
+          }
+          
+          // Set logging options
+          if (document.getElementById('logActions')) {
+            document.getElementById('logActions').checked = settings.logActions !== false;
+          }
+          
+          if (document.getElementById('notifyUsers')) {
+            document.getElementById('notifyUsers').checked = settings.notifyUsers !== false;
+          }
+          
+          // Update server ID for the form
+          if (document.getElementById('automodServerId')) {
+            document.getElementById('automodServerId').value = serverId;
           }
         }
       })
