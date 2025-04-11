@@ -310,6 +310,104 @@ router.post('/warn', async (req, res) => {
  * POST /api/moderation/automod
  * Save auto-moderation settings
  */
+/**
+ * GET /api/moderation/automod/:serverId
+ * Get auto-moderation settings for a specific server
+ */
+router.get('/automod/:serverId', async (req, res) => {
+  // First, check if user is authenticated and admin
+  if (!req.isAuthenticated() || (!req.user.isAdmin && !req.user.is_admin)) {
+    console.error('Attempt to access automod settings without authentication or admin privileges');
+    return res.status(403).json({
+      success: false,
+      message: 'Authentication failed. Admin privileges required.'
+    });
+  }
+
+  const client = req.app.get('client');
+  const { serverId } = req.params;
+  
+  console.log(`Automod settings GET request received for server ${serverId} by user ${req.user.username || req.user.displayName}`);
+  
+  if (!client) {
+    return res.status(503).json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  try {
+    // Check for server ID
+    if (!serverId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Server ID is required'
+      });
+    }
+
+    // Get the guild from the client
+    const guild = client.guilds.cache.get(serverId);
+    
+    if (!guild) {
+      return res.status(404).json({
+        success: false, 
+        message: 'Guild not found or bot does not have access'
+      });
+    }
+    
+    // Get automod settings from client database
+    // If database has no settings, return defaults
+    let automodSettings = {};
+    
+    if (client.discordDB && client.discordDB.initialized) {
+      // Look for settings in database
+      const settings = client.discordDB.findDocuments('configs', (doc) => {
+        return doc.guildId === serverId && doc.type === 'automod';
+      });
+      
+      if (settings && settings.length > 0) {
+        automodSettings = settings[0];
+      }
+    }
+    
+    // If no settings found, use defaults
+    const defaultSettings = {
+      filterProfanity: true,
+      profanityAction: 'delete',
+      profanityThreshold: 'medium',
+      filterLinks: true,
+      filterSpam: true,
+      spamThreshold: 5,
+      spamAction: 'mute',
+      antiRaid: false,
+      raidThreshold: 10,
+      raidAction: 'lockdown',
+      raidDuration: '30m',
+      logActions: true,
+      notifyUsers: true
+    };
+    
+    // Merge defaults with found settings
+    const finalSettings = { ...defaultSettings, ...automodSettings };
+    
+    return res.json({
+      success: true,
+      settings: finalSettings
+    });
+    
+  } catch (error) {
+    console.error(`Error fetching automod settings: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: `Error fetching automod settings: ${error.message}`
+    });
+  }
+});
+
+/**
+ * POST /api/moderation/automod
+ * Save auto-moderation settings
+ */
 router.post('/automod', async (req, res) => {
   // First, check if user is authenticated and admin
   if (!req.isAuthenticated() || (!req.user.isAdmin && !req.user.is_admin)) {
@@ -325,25 +423,32 @@ router.post('/automod', async (req, res) => {
           antiRaid, raidThreshold, raidAction, raidDuration } = req.body;
   const client = req.app.get('client');
   
-  console.log(`Automod settings request received for server ${serverId} by user ${req.user.username || req.user.displayName}`);
+  console.log(`Automod settings POST request received for server ${serverId} by user ${req.user.username || req.user.displayName}`);
   
   if (!client) {
-    return res.json({
+    return res.status(503).json({
       success: false,
       message: 'Discord client not available'
     });
   }
   
   if (!serverId) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: 'Server ID is required'
     });
   }
   
   try {
-    // For demonstration, we'll just return success
-    // In a real implementation, this would save the settings
+    // Get the guild from the client to validate
+    const guild = client.guilds.cache.get(serverId);
+    
+    if (!guild) {
+      return res.status(404).json({
+        success: false, 
+        message: 'Guild not found or bot does not have access'
+      });
+    }
     
     console.log(`Auto-mod settings received for server ${serverId}`);
     console.log('Filter settings:', { 
@@ -352,14 +457,61 @@ router.post('/automod', async (req, res) => {
       antiRaid, raidThreshold, raidAction, raidDuration
     });
     
-    // Simulate successful save
-    return res.json({
-      success: true,
-      message: 'Auto-moderation settings saved successfully'
-    });
+    // Save settings to database if available
+    if (client.discordDB && client.discordDB.initialized) {
+      // Prepare settings object
+      const settings = {
+        guildId: serverId,
+        type: 'automod',
+        filterProfanity: filterProfanity === true || filterProfanity === 'true',
+        profanityAction: profanityAction || 'delete',
+        profanityThreshold: profanityThreshold || 'medium',
+        filterLinks: filterLinks === true || filterLinks === 'true',
+        filterSpam: filterSpam === true || filterSpam === 'true',
+        spamThreshold: parseInt(spamThreshold) || 5,
+        spamAction: spamAction || 'mute',
+        antiRaid: antiRaid === true || antiRaid === 'true',
+        raidThreshold: parseInt(raidThreshold) || 10,
+        raidAction: raidAction || 'lockdown',
+        raidDuration: raidDuration || '30m',
+        updatedAt: new Date().toISOString(),
+        updatedBy: req.user.id || req.user.userId || 'admin'
+      };
+      
+      // Find existing settings
+      const existingSettings = client.discordDB.findDocuments('configs', (doc) => {
+        return doc.guildId === serverId && doc.type === 'automod';
+      });
+      
+      if (existingSettings && existingSettings.length > 0) {
+        // Update existing
+        client.discordDB.updateDocument('configs', existingSettings[0].id, settings);
+        console.log(`Updated existing automod settings for ${serverId}`);
+      } else {
+        // Create new
+        settings.id = `automod-${serverId}-${Date.now()}`;
+        settings.createdAt = new Date().toISOString();
+        client.discordDB.insertDocument('configs', settings);
+        console.log(`Created new automod settings for ${serverId}`);
+      }
+      
+      // Successfully saved to database
+      return res.json({
+        success: true,
+        message: 'Auto-moderation settings saved successfully to database'
+      });
+    } else {
+      // Database not available, but we'll still return success
+      // In a production environment, you might want to handle this differently
+      console.log('Auto-mod settings could not be saved: Database not available');
+      return res.json({
+        success: true,
+        message: 'Auto-moderation settings processed (but database unavailable for persistence)'
+      });
+    }
   } catch (error) {
     console.error('Error saving auto-mod settings:', error);
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: `Failed to save settings: ${error.message}`
     });
