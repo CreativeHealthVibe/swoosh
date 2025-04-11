@@ -1677,3 +1677,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<!-- Direct ban button functionality script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Get the direct ban button
+  const directBanButton = document.getElementById('useDirectBanSystem');
+  const serverSelect = document.getElementById('serverSelect');
+  
+  if (directBanButton) {
+    directBanButton.addEventListener('click', function() {
+      const selectedServerId = serverSelect ? serverSelect.value : '';
+      if (selectedServerId) {
+        // Redirect to direct ban page with server pre-selected
+        window.location.href = `/admin3d/direct-bans?server=${selectedServerId}`;
+      } else {
+        // Just go to the direct ban page
+        window.location.href = '/admin3d/direct-bans';
+      }
+    });
+  }
+});
+</script>
