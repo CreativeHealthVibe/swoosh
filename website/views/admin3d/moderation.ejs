@@ -442,10 +442,308 @@
       
       <!-- Auto-Moderation Tab -->
       <div id="auto-moderation" class="tab-content">
-        <div class="automod-placeholder">
-          <i class="fas fa-shield-alt"></i>
-          <h3>Auto-Moderation</h3>
-          <p>This section will be implemented in the next update.</p>
+        <div class="mod-automod-section">
+          <!-- Auto-Moderation Header -->
+          <div class="mod-section-header-wrapper">
+            <h2 class="mod-main-title">Auto-Moderation System</h2>
+            <p class="mod-main-desc">Configure automatic moderation rules for your Discord server. Set up content filtering, spam protection, and automated actions.</p>
+          </div>
+          
+          <div class="mod-automod-container">
+            <!-- Auto-Mod Settings -->
+            <div class="mod-automod-settings">
+              <div class="mod-section-header">
+                <div class="mod-section-icon shield-icon">
+                  <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Auto-Mod Configuration</h3>
+                <div class="mod-premium-badge">
+                  <span>PREMIUM</span>
+                </div>
+              </div>
+              <div class="mod-section-content">
+                <form id="automodSettingsForm" action="/admin3d/moderation/automod-settings" method="POST">
+                  <input type="hidden" id="automodServerId" name="serverId">
+                  
+                  <div class="automod-setting-group">
+                    <h4>General Settings</h4>
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="enableAutomod" name="enableAutomod" class="toggle-input">
+                      <label for="enableAutomod" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Enable Auto-Moderation</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="logActions" name="logActions" class="toggle-input">
+                      <label for="logActions" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Log All Auto-Mod Actions</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="logChannel">Log Channel</label>
+                      <select id="logChannel" name="logChannel">
+                        <option value="">Select a channel</option>
+                        <!-- Channels will be populated by JavaScript -->
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div class="automod-setting-group">
+                    <h4>Content Filtering</h4>
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="filterProfanity" name="filterProfanity" class="toggle-input">
+                      <label for="filterProfanity" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Filter Profanity</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="filterLinks" name="filterLinks" class="toggle-input">
+                      <label for="filterLinks" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Filter Links</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="filterInvites" name="filterInvites" class="toggle-input">
+                      <label for="filterInvites" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Filter Discord Invites</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="filterMassMentions" name="filterMassMentions" class="toggle-input">
+                      <label for="filterMassMentions" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Filter Mass Mentions</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="mentionThreshold">Mention Threshold</label>
+                      <input type="number" id="mentionThreshold" name="mentionThreshold" min="3" max="20" value="5">
+                      <div class="field-hint">Number of mentions that triggers moderation</div>
+                    </div>
+                  </div>
+                  
+                  <div class="automod-setting-group">
+                    <h4>Spam Protection</h4>
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="antiSpam" name="antiSpam" class="toggle-input">
+                      <label for="antiSpam" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Enable Anti-Spam</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="spamThreshold">Message Threshold</label>
+                      <input type="number" id="spamThreshold" name="spamThreshold" min="3" max="15" value="5">
+                      <div class="field-hint">Number of messages in time window</div>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="spamTimeWindow">Time Window (seconds)</label>
+                      <input type="number" id="spamTimeWindow" name="spamTimeWindow" min="3" max="30" value="5">
+                      <div class="field-hint">Time window for spam detection</div>
+                    </div>
+                    
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="antiCaps" name="antiCaps" class="toggle-input">
+                      <label for="antiCaps" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Filter Excessive Caps</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="capsThreshold">Caps Threshold (%)</label>
+                      <input type="number" id="capsThreshold" name="capsThreshold" min="50" max="100" value="70">
+                      <div class="field-hint">Percentage of caps that triggers moderation</div>
+                    </div>
+                  </div>
+                  
+                  <div class="automod-setting-group">
+                    <h4>Automated Actions</h4>
+                    <div class="form-field">
+                      <label for="defaultAction">Default Action</label>
+                      <select id="defaultAction" name="defaultAction">
+                        <option value="delete">Delete Message</option>
+                        <option value="warn">Warn User</option>
+                        <option value="mute">Timeout User</option>
+                        <option value="kick">Kick User</option>
+                        <option value="ban">Ban User</option>
+                      </select>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="muteTime">Default Timeout Duration</label>
+                      <div class="duration-inputs">
+                        <input type="number" id="muteTime" name="muteTime" min="1" max="1440" value="10">
+                        <select id="muteTimeUnit" name="muteTimeUnit">
+                          <option value="m">Minutes</option>
+                          <option value="h">Hours</option>
+                          <option value="d">Days</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="form-check automod-toggle">
+                      <input type="checkbox" id="escalateRepeated" name="escalateRepeated" class="toggle-input">
+                      <label for="escalateRepeated" class="toggle-label">
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Escalate Repeated Offenses</span>
+                      </label>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="maxViolations">Violations Before Ban</label>
+                      <input type="number" id="maxViolations" name="maxViolations" min="3" max="20" value="5">
+                      <div class="field-hint">Number of violations before a permanent ban</div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-actions">
+                    <button type="submit" class="mod-btn primary-btn">
+                      <i class="fas fa-save"></i>
+                      <span>Save Settings</span>
+                    </button>
+                    <button type="button" id="resetAutomodSettings" class="mod-btn secondary-btn">
+                      <i class="fas fa-undo"></i>
+                      <span>Reset to Default</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            
+            <!-- Custom Filters -->
+            <div class="mod-automod-custom">
+              <div class="mod-section-header">
+                <div class="mod-section-icon filter-icon">
+                  <i class="fas fa-filter"></i>
+                </div>
+                <h3>Custom Content Filters</h3>
+                <div id="refreshFilters" class="mod-refresh-btn" title="Refresh filters list">
+                  <i class="fas fa-sync-alt"></i>
+                </div>
+              </div>
+              <div class="mod-section-content">
+                <!-- Custom Filter Form -->
+                <div class="custom-filter-form">
+                  <h4>Add Custom Filter</h4>
+                  <form id="customFilterForm" action="/admin3d/moderation/save-filter" method="POST">
+                    <input type="hidden" id="filterServerId" name="serverId">
+                    
+                    <div class="form-field">
+                      <label for="filterType">Filter Type</label>
+                      <select id="filterType" name="filterType">
+                        <option value="word">Word/Phrase</option>
+                        <option value="regex">Regex Pattern</option>
+                        <option value="domain">Domain</option>
+                      </select>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="filterContent">Content to Filter</label>
+                      <input type="text" id="filterContent" name="filterContent" placeholder="Enter word, pattern, or domain to filter" required>
+                    </div>
+                    
+                    <div class="form-field">
+                      <label for="filterAction">Action</label>
+                      <select id="filterAction" name="filterAction">
+                        <option value="delete">Delete Message</option>
+                        <option value="warn">Warn User</option>
+                        <option value="mute">Timeout User</option>
+                        <option value="kick">Kick User</option>
+                        <option value="ban">Ban User</option>
+                      </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                      <button type="submit" class="mod-btn primary-btn">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Filter</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                
+                <!-- Filters List -->
+                <div class="custom-filters-list">
+                  <h4>Active Custom Filters</h4>
+                  <div class="filters-table-wrapper">
+                    <table class="admin3d-table">
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Content</th>
+                          <th>Action</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="filtersListBody">
+                        <tr class="empty-state">
+                          <td colspan="4">
+                            <div class="empty-state-message">
+                              <i class="fas fa-info-circle"></i>
+                              <p>Please select a server to view filters</p>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Auto-Mod Log -->
+          <div class="mod-automod-log-container">
+            <div class="mod-automod-log">
+              <div class="mod-section-header">
+                <div class="mod-section-icon log-icon">
+                  <i class="fas fa-list-alt"></i>
+                </div>
+                <h3>Recent Auto-Mod Actions</h3>
+                <div id="refreshAutomodLogs" class="mod-refresh-btn" title="Refresh logs">
+                  <i class="fas fa-sync-alt"></i>
+                </div>
+              </div>
+              <div class="mod-section-content">
+                <div class="automod-logs-wrapper">
+                  <table class="admin3d-table">
+                    <thead>
+                      <tr>
+                        <th>User</th>
+                        <th>Violation</th>
+                        <th>Action Taken</th>
+                        <th>Date & Time</th>
+                      </tr>
+                    </thead>
+                    <tbody id="automodLogsBody">
+                      <tr class="empty-state">
+                        <td colspan="4">
+                          <div class="empty-state-message">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Please select a server to view auto-mod logs</p>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -863,10 +1161,16 @@
     border: 1px solid rgba(255, 70, 70, 0.1);
   }
   
-  .list-icon {
+  .list-icon, .log-icon {
     background: linear-gradient(135deg, rgba(100, 170, 255, 0.2), rgba(100, 170, 255, 0.1));
     color: #64aaff;
     border: 1px solid rgba(100, 170, 255, 0.1);
+  }
+  
+  .filter-icon {
+    background: linear-gradient(135deg, rgba(152, 128, 255, 0.2), rgba(152, 128, 255, 0.1));
+    color: #9880ff;
+    border: 1px solid rgba(152, 128, 255, 0.1);
   }
   
   .mod-section-header h3 {
@@ -1650,6 +1954,177 @@
     margin-right: 8px;
   }
   
+  /* Auto-Moderation Styles */
+  .mod-automod-section {
+    margin-bottom: 30px;
+  }
+  
+  .mod-automod-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
+  }
+  
+  .mod-automod-settings, .mod-automod-custom, .mod-automod-log {
+    background: linear-gradient(to bottom, #2A2A2A, #2D2D2D);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.3s ease;
+  }
+  
+  .automod-setting-group {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(20, 20, 20, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(100, 170, 255, 0.1);
+  }
+  
+  .automod-setting-group h4 {
+    margin: 0 0 15px 0;
+    color: #64aaff;
+    font-size: 16px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(100, 170, 255, 0.1);
+    padding-bottom: 8px;
+  }
+  
+  .automod-toggle {
+    display: flex;
+    align-items: center;
+  }
+  
+  .toggle-input {
+    display: none;
+  }
+  
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .toggle-switch {
+    position: relative;
+    width: 46px;
+    height: 24px;
+    background-color: rgba(20, 20, 20, 0.6);
+    border-radius: 12px;
+    margin-right: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .toggle-switch::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: #aaa;
+    border-radius: 50%;
+    top: 2px;
+    left: 3px;
+    transition: all 0.3s ease;
+  }
+  
+  .toggle-input:checked + .toggle-label .toggle-switch {
+    background-color: rgba(100, 170, 255, 0.3);
+  }
+  
+  .toggle-input:checked + .toggle-label .toggle-switch::before {
+    transform: translateX(21px);
+    background-color: #64aaff;
+  }
+  
+  .toggle-text {
+    color: #ddd;
+    font-size: 14px;
+  }
+  
+  .field-hint {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 5px;
+    font-style: italic;
+  }
+  
+  .duration-inputs {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .duration-inputs input {
+    flex: 1;
+  }
+  
+  .duration-inputs select {
+    width: 100px;
+  }
+  
+  .custom-filter-form {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(20, 20, 20, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(152, 128, 255, 0.1);
+  }
+  
+  .custom-filter-form h4 {
+    margin: 0 0 15px 0;
+    color: #9880ff;
+    font-size: 16px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(152, 128, 255, 0.1);
+    padding-bottom: 8px;
+  }
+  
+  .filters-table-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .primary-btn {
+    background: linear-gradient(to bottom, #7289DA, #6579c0);
+    color: #fff;
+    border: 1px solid rgba(114, 137, 218, 0.2);
+  }
+  
+  .primary-btn:hover {
+    background: linear-gradient(to bottom, #6579c0, #5a6eb2);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .primary-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .secondary-btn {
+    background: linear-gradient(to bottom, #424242, #383838);
+    color: #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .secondary-btn:hover {
+    background: linear-gradient(to bottom, #383838, #303030);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .secondary-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .automod-logs-wrapper {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
   /* Responsive styles */
   @media (max-width: 1200px) {
     .mod-stats-cards {
@@ -1658,7 +2133,7 @@
   }
   
   @media (max-width: 900px) {
-    .mod-ban-section {
+    .mod-ban-section, .mod-warning-container, .mod-automod-container {
       grid-template-columns: 1fr;
     }
     
@@ -1670,6 +2145,10 @@
       flex: 1;
       text-align: center;
       justify-content: center;
+    }
+    
+    .warning-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
   
@@ -1810,6 +2289,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeUserWarningModal = document.querySelector('.mod-modal-close');
   const clearUserWarningsBtn = document.getElementById('clearUserWarnings');
   
+  // Initialize automod system
+  const automodSettingsForm = document.getElementById('automodSettingsForm');
+  const resetAutomodSettings = document.getElementById('resetAutomodSettings');
+  const customFilterForm = document.getElementById('customFilterForm');
+  const refreshFilters = document.getElementById('refreshFilters');
+  const refreshAutomodLogs = document.getElementById('refreshAutomodLogs');
+  
   // Warning form submission
   if (warnUserForm) {
     warnUserForm.addEventListener('submit', function(e) {
@@ -1863,9 +2349,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadWarningList(serverId) {
     if (!document.getElementById('warningListBody')) return;
     
-    // Update hidden fields for warning form
+    // Update hidden fields for all forms
     if (document.getElementById('warnServerId')) {
       document.getElementById('warnServerId').value = serverId;
+    }
+    if (document.getElementById('automodServerId')) {
+      document.getElementById('automodServerId').value = serverId;
+    }
+    if (document.getElementById('filterServerId')) {
+      document.getElementById('filterServerId').value = serverId;
     }
     
     // Show loading state
@@ -2247,6 +2739,429 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(error => {
       console.error('Error clearing warnings:', error);
       alert(`Error clearing warnings: ${error.message}`);
+    });
+  }
+  
+  // Automod event handlers
+  if (automodSettingsForm) {
+    automodSettingsForm.addEventListener('submit', function(e) {
+      const serverId = document.getElementById('automodServerId').value;
+      if (!serverId) {
+        e.preventDefault();
+        alert('Please select a server first');
+        return false;
+      }
+    });
+  }
+  
+  if (resetAutomodSettings) {
+    resetAutomodSettings.addEventListener('click', function() {
+      if (confirm('Are you sure you want to reset auto-moderation settings to default?')) {
+        // Reset all form fields to default values
+        document.getElementById('enableAutomod').checked = false;
+        document.getElementById('logActions').checked = true;
+        document.getElementById('filterProfanity').checked = false;
+        document.getElementById('filterLinks').checked = false;
+        document.getElementById('filterInvites').checked = false;
+        document.getElementById('filterMassMentions').checked = false;
+        document.getElementById('mentionThreshold').value = '5';
+        document.getElementById('antiSpam').checked = false;
+        document.getElementById('spamThreshold').value = '5';
+        document.getElementById('spamTimeWindow').value = '5';
+        document.getElementById('antiCaps').checked = false;
+        document.getElementById('capsThreshold').value = '70';
+        document.getElementById('defaultAction').value = 'delete';
+        document.getElementById('muteTime').value = '10';
+        document.getElementById('muteTimeUnit').value = 'm';
+        document.getElementById('escalateRepeated').checked = false;
+        document.getElementById('maxViolations').value = '5';
+      }
+    });
+  }
+  
+  if (customFilterForm) {
+    customFilterForm.addEventListener('submit', function(e) {
+      const serverId = document.getElementById('filterServerId').value;
+      if (!serverId) {
+        e.preventDefault();
+        alert('Please select a server first');
+        return false;
+      }
+    });
+  }
+  
+  if (refreshFilters) {
+    refreshFilters.addEventListener('click', function() {
+      const serverId = serverSelect.value;
+      if (serverId) loadFiltersList(serverId);
+    });
+  }
+  
+  if (refreshAutomodLogs) {
+    refreshAutomodLogs.addEventListener('click', function() {
+      const serverId = serverSelect.value;
+      if (serverId) loadAutomodLogs(serverId);
+    });
+  }
+  
+  /**
+   * Load auto-moderation settings for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadAutomodSettings(serverId) {
+    if (!document.getElementById('enableAutomod')) return;
+    
+    // Fetch automod settings
+    fetch(`/admin3d/moderation/automod-settings/${serverId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load auto-moderation settings');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Automod settings loaded:', data);
+      
+      if (data.settings) {
+        // Update form with loaded settings
+        const settings = data.settings;
+        document.getElementById('enableAutomod').checked = settings.enabled || false;
+        document.getElementById('logActions').checked = settings.logActions || false;
+        
+        // Populate log channels dropdown
+        if (data.channels && data.channels.length > 0) {
+          const logChannelSelect = document.getElementById('logChannel');
+          logChannelSelect.innerHTML = '<option value="">Select a channel</option>';
+          
+          data.channels.forEach(channel => {
+            const option = document.createElement('option');
+            option.value = channel.id;
+            option.textContent = '#' + channel.name;
+            
+            if (settings.logChannel === channel.id) {
+              option.selected = true;
+            }
+            
+            logChannelSelect.appendChild(option);
+          });
+        }
+        
+        // Content filtering
+        document.getElementById('filterProfanity').checked = settings.filters?.profanity || false;
+        document.getElementById('filterLinks').checked = settings.filters?.links || false;
+        document.getElementById('filterInvites').checked = settings.filters?.invites || false;
+        document.getElementById('filterMassMentions').checked = settings.filters?.massMentions || false;
+        
+        if (settings.mentionThreshold) {
+          document.getElementById('mentionThreshold').value = settings.mentionThreshold;
+        }
+        
+        // Spam protection
+        document.getElementById('antiSpam').checked = settings.antiSpam?.enabled || false;
+        
+        if (settings.antiSpam?.messageThreshold) {
+          document.getElementById('spamThreshold').value = settings.antiSpam.messageThreshold;
+        }
+        
+        if (settings.antiSpam?.timeWindow) {
+          document.getElementById('spamTimeWindow').value = settings.antiSpam.timeWindow;
+        }
+        
+        document.getElementById('antiCaps').checked = settings.filters?.caps || false;
+        
+        if (settings.capsThreshold) {
+          document.getElementById('capsThreshold').value = settings.capsThreshold;
+        }
+        
+        // Actions
+        if (settings.defaultAction) {
+          document.getElementById('defaultAction').value = settings.defaultAction;
+        }
+        
+        if (settings.muteTime) {
+          // Parse mute time format (e.g. "10m", "1h", "1d")
+          const match = settings.muteTime.match(/^(\d+)([mhd])$/);
+          if (match) {
+            document.getElementById('muteTime').value = match[1];
+            document.getElementById('muteTimeUnit').value = match[2];
+          }
+        }
+        
+        document.getElementById('escalateRepeated').checked = settings.escalateRepeated || false;
+        
+        if (settings.maxViolations) {
+          document.getElementById('maxViolations').value = settings.maxViolations;
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error loading automod settings:', error);
+      // No need to show error state, just use defaults
+    });
+  }
+  
+  /**
+   * Load custom filters for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadFiltersList(serverId) {
+    if (!document.getElementById('filtersListBody')) return;
+    
+    // Show loading state
+    document.getElementById('filtersListBody').innerHTML = `
+      <tr class="loading-state">
+        <td colspan="4">
+          <div class="empty-state-message">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Loading filters...</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    
+    // Fetch filters from the API
+    fetch(`/admin3d/moderation/filters/${serverId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load filters');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Filters loaded:', data);
+      
+      // Show empty state if no filters
+      if (!data.filters || data.filters.length === 0) {
+        document.getElementById('filtersListBody').innerHTML = `
+          <tr class="empty-state">
+            <td colspan="4">
+              <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No custom filters found for this server</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Generate filters list HTML
+      const filtersListHTML = data.filters.map(filter => {
+        // Format the filter type for display
+        const filterType = {
+          'word': 'Word/Phrase',
+          'regex': 'Regex Pattern',
+          'domain': 'Domain'
+        }[filter.type] || filter.type;
+        
+        // Format the action for display
+        const actionText = {
+          'delete': 'Delete Message',
+          'warn': 'Warn User',
+          'mute': 'Timeout User',
+          'kick': 'Kick User',
+          'ban': 'Ban User'
+        }[filter.action] || filter.action;
+        
+        return `
+          <tr>
+            <td>${filterType}</td>
+            <td>${filter.content}</td>
+            <td>${actionText}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn filter-edit-btn" data-filter-id="${filter.id}" title="Edit Filter">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn filter-remove-btn" data-filter-id="${filter.id}" title="Delete Filter">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('filtersListBody').innerHTML = filtersListHTML;
+      
+      // Add event listeners to action buttons
+      document.querySelectorAll('.filter-edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const filterId = this.getAttribute('data-filter-id');
+          // For simplicity, we'll just alert for now
+          alert('Edit filter functionality will be implemented in the next update.');
+        });
+      });
+      
+      document.querySelectorAll('.filter-remove-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const filterId = this.getAttribute('data-filter-id');
+          if (confirm('Are you sure you want to delete this filter? This action cannot be undone.')) {
+            removeFilter(serverId, filterId);
+          }
+        });
+      });
+    })
+    .catch(error => {
+      console.error('Error loading filters:', error);
+      document.getElementById('filtersListBody').innerHTML = `
+        <tr class="error-state">
+          <td colspan="4">
+            <div class="error-state-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>Failed to load filters: ${error.message}</p>
+              <button class="retry-button" onclick="loadFiltersList('${serverId}')">
+                <i class="fas fa-sync-alt"></i> Retry
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+  }
+  
+  /**
+   * Remove a custom filter
+   * @param {string} serverId - Discord server ID
+   * @param {string} filterId - Filter ID
+   */
+  function removeFilter(serverId, filterId) {
+    fetch('/admin3d/moderation/remove-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        serverId,
+        filterId
+      }),
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Reload filters list to reflect changes
+        loadFiltersList(serverId);
+      } else {
+        alert(`Failed to remove filter: ${data.message}`);
+      }
+    })
+    .catch(error => {
+      console.error('Error removing filter:', error);
+      alert(`Error removing filter: ${error.message}`);
+    });
+  }
+  
+  /**
+   * Load auto-moderation logs for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadAutomodLogs(serverId) {
+    if (!document.getElementById('automodLogsBody')) return;
+    
+    // Show loading state
+    document.getElementById('automodLogsBody').innerHTML = `
+      <tr class="loading-state">
+        <td colspan="4">
+          <div class="empty-state-message">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Loading auto-mod logs...</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    
+    // Fetch logs from the API
+    fetch(`/admin3d/moderation/automod-logs/${serverId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load auto-mod logs');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Automod logs loaded:', data);
+      
+      // Show empty state if no logs
+      if (!data.logs || data.logs.length === 0) {
+        document.getElementById('automodLogsBody').innerHTML = `
+          <tr class="empty-state">
+            <td colspan="4">
+              <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No auto-mod logs found for this server</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Generate logs list HTML
+      const logsListHTML = data.logs.map(log => {
+        // Format the date
+        const logDate = new Date(log.timestamp);
+        const formattedDate = logDate.toLocaleDateString() + ' ' + logDate.toLocaleTimeString();
+        
+        return `
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">
+                  <img src="${log.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${log.username}'s avatar">
+                </div>
+                <div class="user-details">
+                  <div class="username">${log.username || 'Unknown User'}</div>
+                  <div class="user-id">${log.userId}</div>
+                </div>
+              </div>
+            </td>
+            <td>${log.violation}</td>
+            <td>${log.action}</td>
+            <td>${formattedDate}</td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('automodLogsBody').innerHTML = logsListHTML;
+    })
+    .catch(error => {
+      console.error('Error loading automod logs:', error);
+      document.getElementById('automodLogsBody').innerHTML = `
+        <tr class="error-state">
+          <td colspan="4">
+            <div class="error-state-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>Failed to load auto-mod logs: ${error.message}</p>
+              <button class="retry-button" onclick="loadAutomodLogs('${serverId}')">
+                <i class="fas fa-sync-alt"></i> Retry
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
     });
   }
 
