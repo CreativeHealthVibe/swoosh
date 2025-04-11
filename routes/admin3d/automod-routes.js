@@ -270,6 +270,49 @@ router.post('/remove-filter', async (req, res) => {
 });
 
 /**
+ * Delete a custom filter from a server (DELETE method)
+ */
+router.delete('/delete-filter/:serverId/:filterId', async (req, res) => {
+  try {
+    const { serverId, filterId } = req.params;
+    
+    if (!serverId || !filterId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Server ID and filter ID are required'
+      });
+    }
+    
+    // Check if user has access to this server
+    const userGuilds = req.session.guilds || [];
+    const hasAccess = userGuilds.some(guild => guild.id === serverId);
+    
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to access this server'
+      });
+    }
+    
+    // Remove filter
+    await autoMod.removeFilter(serverId, filterId);
+    
+    res.json({
+      success: true,
+      message: 'Filter removed successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error removing custom filter:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove custom filter',
+      error: error.message
+    });
+  }
+});
+
+/**
  * Get auto-moderation logs for a server
  */
 router.get('/logs/:serverId', async (req, res) => {
@@ -301,6 +344,42 @@ router.get('/logs/:serverId', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to get auto-moderation logs',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get available log channels for a server
+ */
+router.get('/log-channels/:serverId', async (req, res) => {
+  try {
+    const { serverId } = req.params;
+    
+    // Check if user has access to this server
+    const userGuilds = req.session.guilds || [];
+    const hasAccess = userGuilds.some(guild => guild.id === serverId);
+    
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to access this server'
+      });
+    }
+    
+    // Get channels
+    const channels = await autoMod.getServerLogChannels(serverId);
+    
+    res.json({
+      success: true,
+      channels
+    });
+    
+  } catch (error) {
+    console.error('Error getting log channels:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get log channels',
       error: error.message
     });
   }
