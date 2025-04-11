@@ -878,19 +878,156 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js"></script>
 
 <script>
+// Add notification function if not already available
+if (typeof showNotification !== 'function') {
+  window.showNotification = function(type, message, duration = 5000) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `admin3d-notification ${type}`;
+    
+    // Add icon based on type
+    let icon = 'info-circle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'error') icon = 'exclamation-circle';
+    if (type === 'warning') icon = 'exclamation-triangle';
+    
+    notification.innerHTML = `
+      <div class="notification-icon">
+        <i class="fas fa-${icon}"></i>
+      </div>
+      <div class="notification-content">
+        <div class="notification-message">${message}</div>
+      </div>
+      <div class="notification-close" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </div>
+    `;
+    
+    // Create notifications container if it doesn't exist
+    let notificationsContainer = document.querySelector('.admin3d-notifications');
+    if (!notificationsContainer) {
+      notificationsContainer = document.createElement('div');
+      notificationsContainer.className = 'admin3d-notifications';
+      document.body.appendChild(notificationsContainer);
+      
+      // Add styles if not already present
+      if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+          .admin3d-notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+          }
+          .admin3d-notification {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slide-in 0.3s ease-out forwards;
+            background: #2d3748;
+            border-left: 4px solid #4a5568;
+            color: white;
+          }
+          .admin3d-notification.success {
+            border-left-color: #48bb78;
+          }
+          .admin3d-notification.error {
+            border-left-color: #f56565;
+          }
+          .admin3d-notification.warning {
+            border-left-color: #ed8936;
+          }
+          .admin3d-notification.info {
+            border-left-color: #4299e1;
+          }
+          .notification-icon {
+            margin-right: 12px;
+            font-size: 18px;
+          }
+          .admin3d-notification.success .notification-icon {
+            color: #48bb78;
+          }
+          .admin3d-notification.error .notification-icon {
+            color: #f56565;
+          }
+          .admin3d-notification.warning .notification-icon {
+            color: #ed8936;
+          }
+          .admin3d-notification.info .notification-icon {
+            color: #4299e1;
+          }
+          .notification-content {
+            flex: 1;
+          }
+          .notification-close {
+            margin-left: 12px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+          }
+          .notification-close:hover {
+            opacity: 1;
+          }
+          @keyframes slide-in {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+          @keyframes slide-out {
+            from {
+              transform: translateX(0);
+              opacity: 1;
+            }
+            to {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+    
+    // Add to DOM
+    notificationsContainer.appendChild(notification);
+    
+    // Auto-remove after duration
+    if (duration > 0) {
+      setTimeout(() => {
+        notification.style.animation = 'slide-out 0.3s ease-in forwards';
+        setTimeout(() => notification.remove(), 300);
+      }, duration);
+    }
+    
+    return notification;
+  };
+}
+
 // Verify THREE.js loaded successfully and show warning if not
 if (typeof THREE === 'undefined') {
   console.error('THREE.js failed to load! Premium 3D features will not be available.');
   // Add visual notification for user
   setTimeout(() => {
-    if (typeof showNotification === 'function') {
-      showNotification('error', 'Premium 3D visualization failed to load. Please refresh the page or try a different browser for the full experience.');
-    } else {
-      alert('Premium 3D visualization failed to load. Please refresh the page or try a different browser for the full experience.');
-    }
+    showNotification('error', 'Premium 3D visualization failed to load. Please refresh the page or try a different browser for the full experience.');
   }, 1000);
 } else {
   console.log('THREE.js loaded successfully. Premium 3D features are available.');
+  setTimeout(() => {
+    showNotification('success', 'Premium 3D visualization loaded successfully!');
+  }, 1000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1090,12 +1227,115 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // This would normally fetch from an API
-    // For demo purposes, we'll show some sample data
-    setTimeout(() => {
-      // Sample data would be replaced with actual API data
-      document.getElementById('banListBody').innerHTML = '';
-    }, 800);
+    // Fetch ban data from API
+    fetch(`/api/moderation/bans/${serverId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load ban list');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Ban data loaded:', data);
+      
+      // Update ban count
+      if (document.getElementById('totalBans')) {
+        document.getElementById('totalBans').textContent = data.total || 0;
+      }
+      
+      // Show empty state if no bans
+      if (!data.bans || data.bans.length === 0) {
+        document.getElementById('banListBody').innerHTML = `
+          <tr class="empty-state">
+            <td colspan="5">
+              <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No bans found for this server</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Generate ban list HTML
+      const banListHTML = data.bans.map(ban => {
+        // Format the date
+        const banDate = new Date(ban.bannedAt || ban.date || Date.now());
+        const formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
+        
+        // Determine duration text
+        let durationText = ban.permanent ? 'Permanent' : (ban.duration || 'Permanent');
+        
+        return `
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">
+                  <img src="${ban.avatarURL || ban.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag || 'User'}'s avatar">
+                </div>
+                <div class="user-details">
+                  <div class="username">${ban.username || ban.tag || 'Unknown User'}</div>
+                  <div class="user-id">${ban.userId || ban.id || ''}</div>
+                </div>
+              </div>
+            </td>
+            <td>${ban.reason || 'No reason provided'}</td>
+            <td>${formattedDate}</td>
+            <td>${durationText}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn btn-unban" data-user-id="${ban.userId || ban.id || ''}" title="Unban User">
+                  <i class="fas fa-user-check"></i>
+                </button>
+                <button class="action-btn btn-info" data-user-id="${ban.userId || ban.id || ''}" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('banListBody').innerHTML = banListHTML;
+      
+      // Add event listeners to action buttons
+      document.querySelectorAll('.btn-unban').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.getAttribute('data-user-id');
+          if (confirm(`Are you sure you want to unban user ${userId}?`)) {
+            unbanUser(serverId, userId);
+          }
+        });
+      });
+      
+      document.querySelectorAll('.btn-info').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.getAttribute('data-user-id');
+          showBanDetails(serverId, userId);
+        });
+      });
+    })
+    .catch(error => {
+      console.error('Error loading ban list:', error);
+      document.getElementById('banListBody').innerHTML = `
+        <tr class="error-state">
+          <td colspan="5">
+            <div class="error-state-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Failed to load ban list: ${error.message}</p>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
   }
   
   /**
@@ -1197,5 +1437,224 @@ document.addEventListener('DOMContentLoaded', () => {
     const serverId = serverSelect.value;
     if (serverId) loadActiveFilters(serverId);
   });
+  
+  /**
+   * Unban a user from the server
+   * @param {string} serverId - Discord server ID
+   * @param {string} userId - User ID to unban
+   */
+  function unbanUser(serverId, userId) {
+    if (!serverId || !userId) return;
+    
+    // Show loading state
+    const button = document.querySelector(`.btn-unban[data-user-id="${userId}"]`);
+    if (button) {
+      const originalHTML = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+      button.disabled = true;
+    }
+    
+    // Send unban request to API
+    fetch('/api/moderation/unban', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ serverId, userId }),
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to unban user');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Unban response:', data);
+      if (data.success) {
+        // Show success message
+        if (typeof showNotification === 'function') {
+          showNotification('success', `User ${userId} has been unbanned`);
+        } else {
+          alert(`User ${userId} has been unbanned`);
+        }
+        
+        // Refresh ban list
+        loadBanList(serverId);
+      } else {
+        throw new Error(data.message || 'Failed to unban user');
+      }
+    })
+    .catch(error => {
+      console.error('Error unbanning user:', error);
+      // Show error message
+      if (typeof showNotification === 'function') {
+        showNotification('error', `Failed to unban user: ${error.message}`);
+      } else {
+        alert(`Failed to unban user: ${error.message}`);
+      }
+      
+      // Reset button
+      if (button) {
+        button.innerHTML = '<i class="fas fa-user-check"></i>';
+        button.disabled = false;
+      }
+    });
+  }
+  
+  /**
+   * Show ban details in a modal
+   * @param {string} serverId - Discord server ID
+   * @param {string} userId - User ID to show details for
+   */
+  function showBanDetails(serverId, userId) {
+    // Fetch ban details from API
+    fetch(`/api/moderation/ban-details/${serverId}/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load ban details');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Ban details:', data);
+      
+      // Show ban details modal
+      // This would normally use a modal component
+      let modalHTML = `
+        <div class="admin3d-modal-header">
+          <h3 class="admin3d-modal-title">Ban Details</h3>
+          <button class="admin3d-modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="admin3d-modal-body">
+          <div class="admin3d-ban-info">
+      `;
+      
+      // Add ban details
+      if (data.ban) {
+        const ban = data.ban;
+        const banDate = new Date(ban.bannedAt || ban.date || Date.now());
+        const formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
+        
+        modalHTML += `
+          <div class="admin3d-user-header">
+            <div class="user-avatar">
+              <img src="${ban.avatarURL || ban.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag || 'User'}'s avatar">
+            </div>
+            <div class="user-details">
+              <div class="username">${ban.username || ban.tag || 'Unknown User'}</div>
+              <div class="user-id">${ban.userId || ban.id || ''}</div>
+            </div>
+          </div>
+          
+          <div class="admin3d-ban-row">
+            <div class="admin3d-ban-label">Reason</div>
+            <div class="admin3d-ban-value">${ban.reason || 'No reason provided'}</div>
+          </div>
+          
+          <div class="admin3d-ban-row">
+            <div class="admin3d-ban-label">Date</div>
+            <div class="admin3d-ban-value">${formattedDate}</div>
+          </div>
+          
+          <div class="admin3d-ban-row">
+            <div class="admin3d-ban-label">Duration</div>
+            <div class="admin3d-ban-value">${ban.permanent ? 'Permanent' : (ban.duration || 'Permanent')}</div>
+          </div>
+          
+          <div class="admin3d-ban-row">
+            <div class="admin3d-ban-label">Moderator</div>
+            <div class="admin3d-ban-value">${ban.moderator || ban.executor || 'Unknown'}</div>
+          </div>
+        `;
+        
+        // Add history if available
+        if (ban.history && ban.history.length > 0) {
+          modalHTML += `
+            <div class="admin3d-ban-row">
+              <div class="admin3d-ban-label">History</div>
+              <div class="admin3d-ban-value">
+                <ul class="admin3d-history-list">
+          `;
+          
+          ban.history.forEach(item => {
+            const itemDate = new Date(item.date || item.timestamp || Date.now());
+            const formattedItemDate = itemDate.toLocaleDateString() + ' ' + itemDate.toLocaleTimeString();
+            
+            modalHTML += `
+              <li class="admin3d-history-item">
+                <span class="history-action">${item.action || item.type || 'Action'}</span>
+                <span class="history-date">${formattedItemDate}</span>
+                <span class="history-reason">${item.reason || ''}</span>
+              </li>
+            `;
+          });
+          
+          modalHTML += `
+                </ul>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        modalHTML += `
+          <div class="admin3d-empty-state">
+            <i class="fas fa-info-circle"></i>
+            <p>No detailed information available for this ban</p>
+          </div>
+        `;
+      }
+      
+      modalHTML += `
+          </div>
+        </div>
+        <div class="admin3d-modal-footer">
+          <button class="admin3d-btn" onclick="closeModal()">Close</button>
+          <button class="admin3d-btn admin3d-btn-danger" onclick="unbanUser('${serverId}', '${userId}')">Unban User</button>
+        </div>
+      `;
+      
+      // Show modal
+      if (typeof showModal === 'function') {
+        showModal(modalHTML);
+      } else {
+        const modalContainer = document.createElement('div');
+        modalContainer.className = 'admin3d-modal-container';
+        modalContainer.innerHTML = `
+          <div class="admin3d-modal-overlay" onclick="closeModal()"></div>
+          <div class="admin3d-modal">
+            ${modalHTML}
+          </div>
+        `;
+        document.body.appendChild(modalContainer);
+        
+        // Add close modal function to window
+        window.closeModal = function() {
+          const modal = document.querySelector('.admin3d-modal-container');
+          if (modal) {
+            modal.remove();
+          }
+        };
+      }
+    })
+    .catch(error => {
+      console.error('Error loading ban details:', error);
+      // Show error message
+      if (typeof showNotification === 'function') {
+        showNotification('error', `Failed to load ban details: ${error.message}`);
+      } else {
+        alert(`Failed to load ban details: ${error.message}`);
+      }
+    });
+  }
 });
 </script>
