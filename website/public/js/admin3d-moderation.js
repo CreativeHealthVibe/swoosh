@@ -1097,20 +1097,11 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function refreshBansList() {
     const serverId = serverSelect?.value;
-    const bansList = document.getElementById('bans-list');
     
-    if (!serverId || !bansList) return;
+    if (!serverId) return;
     
-    // Show loading state
-    bansList.innerHTML = `
-      <div class="bans-loading">
-        <div class="spinner"></div>
-        <p>Loading bans...</p>
-      </div>
-    `;
-    
-    // Make API request
-    fetch(`/api/moderation/bans?serverId=${serverId}`)
+    // Call the loadBanList function with the server ID
+    loadBanList(serverId);
       .then(response => response.json())
       .then(data => {
         if (data.success && data.bans) {
@@ -1541,7 +1532,11 @@ document.addEventListener('DOMContentLoaded', () => {
    * Load server data when a server is selected
    * @param {string} serverId - Selected server ID
    */
-  function loadServerData(serverId) {
+  /**
+   * Refresh all server data
+   * @param {string} serverId - Discord server ID
+   */
+  function refreshServerData(serverId) {
     // Refresh ban list
     refreshBansList();
     
