@@ -382,19 +382,29 @@ router.get('/automod/:serverId', async (req, res) => {
       });
     }
     
-    // Get automod settings from client database
+    // Get automod settings from client database (with fallback)
     // If database has no settings, return defaults
     let automodSettings = {};
     
-    if (client.discordDB && client.discordDB.initialized) {
-      // Look for settings in database
-      const settings = client.discordDB.findDocuments('configs', (doc) => {
-        return doc.guildId === serverId && doc.type === 'automod';
-      });
-      
-      if (settings && settings.length > 0) {
-        automodSettings = settings[0];
+    try {
+      if (client.discordDB && client.discordDB.initialized) {
+        // Look for settings in database
+        const settings = client.discordDB.findDocuments('configs', (doc) => {
+          return doc.guildId === serverId && doc.type === 'automod';
+        }) || [];
+        
+        if (settings && settings.length > 0) {
+          automodSettings = settings[0];
+          console.log(`Found automod settings for server ${serverId}`);
+        } else {
+          console.log(`No automod settings found for server ${serverId}, using defaults`);
+        }
+      } else {
+        console.log('Discord database not initialized for automod settings, using defaults');
       }
+    } catch (dbError) {
+      console.error(`Error retrieving automod settings from database for server ${serverId}:`, dbError);
+      // Continue with empty automodSettings to use defaults
     }
     
     // If no settings found, use defaults
@@ -785,18 +795,28 @@ router.get('/warnings/:serverId', async (req, res) => {
   }
   
   try {
-    // Check if Discord database is initialized
+    // Check if Discord database is initialized (with fallback)
     if (!client.discordDB || !client.discordDB.initialized) {
-      return res.status(503).json({
-        success: false,
-        message: 'Discord database not initialized'
+      console.warn('Discord database not initialized for warnings endpoint');
+      // Return empty array instead of error to allow UI to still function
+      return res.json({
+        success: true,
+        warnings: [],
+        total: 0,
+        message: 'Discord database not available, returning empty warnings list'
       });
     }
     
-    // Get warnings from Discord database for the server
-    const warnings = client.discordDB.findDocuments('warnings', (doc) => {
-      return doc.guildId === serverId;
-    });
+    // Get warnings from Discord database for the server (with error handling)
+    let warnings = [];
+    try {
+      warnings = client.discordDB.findDocuments('warnings', (doc) => {
+        return doc.guildId === serverId;
+      }) || [];
+    } catch (findError) {
+      console.error(`Error finding warnings for server ${serverId}:`, findError);
+      // Continue with empty warnings array rather than failing
+    }
     
     // If no warnings are found, return an empty array
     if (!warnings || warnings.length === 0) {
