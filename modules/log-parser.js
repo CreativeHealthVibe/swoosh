@@ -147,76 +147,94 @@ function filterByDateRange(entries, startDate, endDate) {
 function extractBanEvents(entries) {
   console.log(`Extracting ban events from ${entries?.length || 0} log entries`);
   
+  // Safety check for valid input
   if (!entries || !Array.isArray(entries) || entries.length === 0) {
     console.log('No log entries to process');
     return [];
   }
   
-  return entries.filter(entry => {
-    // Check if the entry is valid and has an eventType
-    if (!entry || !entry.eventType) {
-      console.log('Invalid log entry found:', entry);
-      return false;
-    }
-    
-    // Check if it's a ban-related event
-    return entry.eventType.includes('Ban') || 
-           entry.eventType.includes('Banned') || 
-           entry.eventType.includes('Unban') || 
-           entry.eventType.includes('Unbanned');
-  }).map(entry => {
-    // Skip if user data is missing
-    if (!entry.user) {
-      console.log('Entry missing user data:', entry);
-      return null;
-    }
-    
-    // Ensure we have a user ID
-    if (!entry.user.id && entry.user.raw) {
-      // Try to extract ID from raw string if available
-      const idMatch = entry.user.raw.match(/\((\d+)\)/);
-      if (idMatch && idMatch[1]) {
-        entry.user.id = idMatch[1];
+  try {
+    // Filter for ban-related events
+    const filteredEntries = entries.filter(entry => {
+      // Check if the entry is valid and has an eventType
+      if (!entry || !entry.eventType) {
+        console.log('Invalid log entry found:', entry);
+        return false;
       }
-    }
+      
+      // Check if it's a ban-related event
+      return entry.eventType.includes('Ban') || 
+             entry.eventType.includes('Banned') || 
+             entry.eventType.includes('Unban') || 
+             entry.eventType.includes('Unbanned');
+    });
     
-    // Skip if we still don't have a user ID
-    if (!entry.user.id) {
-      console.log('Could not determine user ID:', entry);
-      return null;
-    }
+    console.log(`Found ${filteredEntries.length} ban-related events in logs`);
     
-    // Create executor if missing
-    if (!entry.executor) {
-      entry.executor = { id: 'unknown', username: 'Unknown', name: 'Unknown' };
-    }
+    // Map entries to event objects
+    const mappedEvents = filteredEntries.map(entry => {
+      try {
+        // Skip if user data is missing
+        if (!entry.user) {
+          console.log('Entry missing user data:', entry);
+          return null;
+        }
+        
+        // Ensure we have a user ID
+        if (!entry.user.id && entry.user.raw) {
+          // Try to extract ID from raw string if available
+          const idMatch = entry.user.raw.match(/\((\d+)\)/);
+          if (idMatch && idMatch[1]) {
+            entry.user.id = idMatch[1];
+          }
+        }
+        
+        // Skip if we still don't have a user ID
+        if (!entry.user.id) {
+          console.log('Could not determine user ID:', entry);
+          return null;
+        }
+        
+        // Create executor if missing
+        if (!entry.executor) {
+          entry.executor = { id: 'unknown', username: 'Unknown', name: 'Unknown' };
+        }
+        
+        // Determine event type
+        const isBan = entry.eventType.includes('Ban') || entry.eventType.includes('Banned');
+        const isUnban = entry.eventType.includes('Unban') || entry.eventType.includes('Unbanned');
+        let eventType = 'unknown';
+        
+        if (isBan && !isUnban) {
+          eventType = 'ban';
+        } else if (isUnban) {
+          eventType = 'unban';
+        }
+        
+        // Create the event object
+        return {
+          timestamp: entry.timestamp,
+          date: entry.date || new Date(),
+          eventType: eventType,
+          userId: entry.user.id,
+          userName: entry.user.username || entry.user.name || 'Unknown User',
+          executorId: entry.executor.id || 'unknown',
+          executorName: entry.executor.username || entry.executor.name || 'Unknown',
+          details: entry.details || {},
+          reason: (entry.details && entry.details.reason) ? entry.details.reason : 'No reason provided'
+        };
+      } catch (entryError) {
+        console.error('Error processing entry:', entryError);
+        return null;
+      }
+    });
     
-    // Determine event type
-    const isBan = entry.eventType.includes('Ban') || entry.eventType.includes('Banned');
-    const isUnban = entry.eventType.includes('Unban') || entry.eventType.includes('Unbanned');
-    let eventType = 'unknown';
-    
-    if (isBan && !isUnban) {
-      eventType = 'ban';
-    } else if (isUnban) {
-      eventType = 'unban';
-    }
-    
-    // Create the event object
-    const event = {
-      timestamp: entry.timestamp,
-      date: entry.date || new Date(),
-      eventType: eventType,
-      userId: entry.user.id,
-      userName: entry.user.username || entry.user.name || 'Unknown User',
-      executorId: entry.executor.id || 'unknown',
-      executorName: entry.executor.username || entry.executor.name || 'Unknown',
-      details: entry.details || {},
-      reason: (entry.details && entry.details.reason) ? entry.details.reason : 'No reason provided'
-    };
-    
-    return event;
-  }).filter(event => event !== null); // Remove any null events from missing data
+    // Filter out null values and return
+    return mappedEvents.filter(event => event !== null);
+  } catch (error) {
+    console.error('Error in extractBanEvents:', error);
+    return []; // Return empty array to prevent downstream errors
+  }
 }
 
 /**
