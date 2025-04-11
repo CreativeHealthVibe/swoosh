@@ -512,12 +512,6 @@ app.use(session({
   }
 }));
 
-// Debug session middleware
-app.use((req, res, next) => {
-  console.log(`Session debug: isAuthenticated=${req.isAuthenticated()}, sessionID=${req.sessionID}, hasUser=${!!req.user}`);
-  next();
-});
-
 // Set up flash messages
 app.use(flash());
 
@@ -529,6 +523,37 @@ app.use(passport.session());
 // Configure authentication strategies
 require('./utils/passport/discord')();
 require('./utils/passport/local')();
+
+// Basic passport test - ensure these functions exist
+passport.serializeUser((user, done) => {
+  console.log('Serializing user:', user);
+  done(null, user);
+});
+
+passport.deserializeUser((obj, done) => {
+  console.log('Deserializing user:', obj);
+  done(null, obj);
+});
+
+// Debug session middleware
+app.use((req, res, next) => {
+  try {
+    const isAuthFunc = typeof req.isAuthenticated === 'function';
+    const isAuth = isAuthFunc ? req.isAuthenticated() : false;
+    console.log(`Session debug: isAuthFunction=${isAuthFunc}, isAuthenticated=${isAuth}, sessionID=${req.sessionID}, hasUser=${!!req.user}`);
+    
+    // Ensure function exists - this shouldn't be needed, but just in case
+    if (!isAuthFunc) {
+      req.isAuthenticated = function() { return !!req.user; };
+      console.log('Added isAuthenticated function to request');
+    }
+    
+    next();
+  } catch (error) {
+    console.error('Session debug middleware error:', error);
+    next();
+  }
+});
 
 // Make client object available to routes
 app.set('client', client);

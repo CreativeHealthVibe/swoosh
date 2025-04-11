@@ -643,35 +643,58 @@ router.get('/bans/:serverId', async (req, res) => {
       });
     }
     
-    // Get ban logs to enhance the ban data
-    const banLogs = banLogger.getBanLogs(serverId);
-    const banEvents = logParser.extractBanEvents(banLogs);
+    // Get ban logs to enhance the ban data with additional information
+    let allBanEvents = [];
     
-    // Also get logs from the main bot log which might contain more ban events
-    const botLogPath = path.join(banLogger.logsDir, 'bot-log.txt');
-    let allBanEvents = [...banEvents]; // Start with guild-specific logs
-    
-    // Add any additional ban events from the main log
-    if (fs.existsSync(botLogPath)) {
-      try {
-        const botLogs = logParser.parseLogFile(botLogPath);
-        const mainBanEvents = logParser.extractBanEvents(botLogs);
-        // Only add events that aren't already included
-        mainBanEvents.forEach(event => {
-          if (!allBanEvents.some(existing => existing.userId === event.userId)) {
-            allBanEvents.push(event);
-          }
-        });
-      } catch (error) {
-        console.warn('Could not process bot-log.txt:', error.message);
+    try {
+      // Get guild-specific ban logs, with proper error handling
+      const banLogs = banLogger.getBanLogs(serverId);
+      console.log(`Retrieved ${banLogs?.length || 0} ban logs for server ${serverId}`);
+      
+      if (banLogs && Array.isArray(banLogs) && banLogs.length > 0) {
+        const banEvents = logParser.extractBanEvents(banLogs);
+        allBanEvents = [...banEvents];
+        console.log(`Extracted ${banEvents?.length || 0} ban events from server logs`);
+      } else {
+        console.log('No specific ban logs found for this server');
       }
+      
+      // Also get logs from the main bot log which might contain more ban events
+      const botLogPath = path.join(banLogger.logsDir, 'bot-log.txt');
+      
+      // Add any additional ban events from the main log
+      if (fs.existsSync(botLogPath)) {
+        try {
+          const botLogs = logParser.parseLogFile(botLogPath);
+          const mainBanEvents = logParser.extractBanEvents(botLogs);
+          console.log(`Found ${mainBanEvents?.length || 0} ban events in main bot log`);
+          
+          // Only add events that aren't already included
+          if (mainBanEvents && Array.isArray(mainBanEvents)) {
+            mainBanEvents.forEach(event => {
+              if (event && event.userId && 
+                  !allBanEvents.some(existing => existing && existing.userId === event.userId)) {
+                allBanEvents.push(event);
+              }
+            });
+          }
+        } catch (mainLogError) {
+          console.warn('Could not process bot-log.txt:', mainLogError.message);
+        }
+      } else {
+        console.log('Main bot log file not found');
+      }
+    } catch (logError) {
+      console.error('Error processing ban logs:', logError);
+      // Continue without ban logs - we'll still have the basic ban data from Discord API
     }
     
     // Map bans to a more detailed format
     const bannedUsers = [];
     bans.forEach(ban => {
-      // Find matching log entry for this ban
-      const logEntry = allBanEvents.find(event => event.userId === ban.user.id);
+      // Find matching log entry for this ban, with null checks
+      const logEntry = allBanEvents && Array.isArray(allBanEvents) ? 
+        allBanEvents.find(event => event && event.userId === ban.user.id) : null;
       
       const banInfo = {
         id: ban.user.id,

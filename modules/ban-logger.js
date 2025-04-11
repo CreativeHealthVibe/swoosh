@@ -29,33 +29,71 @@ class BanLogger {
 
   /**
    * Log a ban event
-   * @param {Object} ban - Ban information
-   * @param {Object} ban.user - The banned user
-   * @param {string} ban.user.id - User ID
-   * @param {string} ban.user.tag - User tag (username#discriminator)
-   * @param {string} ban.reason - Reason for ban
-   * @param {Object} executor - The user who performed the ban
-   * @param {string} executor.id - Executor ID
-   * @param {string} executor.tag - Executor tag
-   * @param {string} guildId - Guild ID where ban occurred
+   * This function handles both direct calls from Discord events and API calls.
+   * 
+   * @param {Object} banData - Ban information (supports multiple formats)
+   * @param {Object} [banData.user] - The banned user (from Discord events)
+   * @param {string} [banData.user.id] - User ID
+   * @param {string} [banData.user.tag] - User tag (username#discriminator)
+   * @param {string} [banData.reason] - Reason for ban
+   * @param {string} [banData.userId] - User ID (alternative format from API)
+   * @param {string} [banData.serverId] - Guild ID (from API calls)
+   * @param {Object} [banData.executor] - Executor info (alternative format from API)
+   * @param {Object} [executor] - The user who performed the ban (from Discord events)
+   * @param {string} [executor.id] - Executor ID
+   * @param {string} [executor.tag] - Executor tag
+   * @param {string} [guildId] - Guild ID where ban occurred (from Discord events)
    */
-  logBan(ban, executor, guildId) {
-    const timestamp = new Date().toISOString();
-    const userStr = ban.user ? `${ban.user.tag} (${ban.user.id})` : 'Unknown User';
-    const executorStr = executor ? `${executor.tag} (${executor.id})` : 'System';
-    const details = JSON.stringify({
-      reason: ban.reason || 'No reason provided'
-    });
-    
-    const logEntry = `[${timestamp}] User Banned | User: ${userStr} | Executor: ${executorStr} | Details: ${details}\n`;
-    
-    // Log to server-specific ban log
-    this.appendToLog(`ban-log-${guildId}.txt`, logEntry);
-    
-    // Also log to main bot log
-    this.appendToLog('bot-log.txt', logEntry);
-    
-    console.log(`✅ Logged ban event for ${userStr}`);
+  logBan(banData, executor, guildId) {
+    try {
+      const timestamp = new Date().toISOString();
+      
+      // Handle various parameter formats
+      // First, determine the actual user data
+      let userStr = 'Unknown User';
+      if (banData.user && banData.user.id) {
+        // Discord event format
+        userStr = `${banData.user.tag || 'unknown'} (${banData.user.id})`;
+      } else if (banData.userId) {
+        // API call format
+        userStr = `${banData.username || 'unknown'} (${banData.userId})`;
+      }
+      
+      // Next, determine the executor data
+      let executorStr = 'System';
+      if (executor && executor.id) {
+        // Discord event format
+        executorStr = `${executor.tag || 'unknown'} (${executor.id})`;
+      } else if (banData.executor) {
+        // API call format
+        executorStr = `${banData.executor.name || 'unknown'} (${banData.executor.id || 'SYSTEM'})`;
+      }
+      
+      // Determine ban reason
+      const reason = banData.reason || 'No reason provided';
+      
+      // Prepare additional details
+      const details = JSON.stringify({
+        reason: reason,
+        duration: banData.duration || null
+      });
+      
+      // Create log entry
+      const logEntry = `[${timestamp}] User Banned | User: ${userStr} | Executor: ${executorStr} | Details: ${details}\n`;
+      
+      // Determine server ID
+      const serverIdToUse = guildId || banData.serverId || banData.guildId || 'unknown';
+      
+      // Log to server-specific ban log
+      this.appendToLog(`ban-log-${serverIdToUse}.txt`, logEntry);
+      
+      // Also log to main bot log
+      this.appendToLog('bot-log.txt', logEntry);
+      
+      console.log(`✅ Logged ban event for ${userStr}`);
+    } catch (error) {
+      console.error('Error logging ban event:', error);
+    }
   }
 
   /**
@@ -164,14 +202,28 @@ class BanLogger {
       const logParser = require('./log-parser');
       const filePath = path.join(this.logsDir, `ban-log-${guildId}.txt`);
       
+      // Make sure the logs directory exists
+      this.ensureLogDirectory();
+      
+      // Check if file exists
       if (fs.existsSync(filePath)) {
-        return logParser.parseLogFile(filePath);
+        try {
+          console.log(`Reading ban logs from ${filePath}`);
+          const logs = logParser.parseLogFile(filePath);
+          console.log(`Successfully parsed ${logs.length} ban log entries`);
+          return logs;
+        } catch (parseError) {
+          console.error(`Error parsing log file ${filePath}:`, parseError);
+          return []; // Return empty array on parse error
+        }
+      } else {
+        console.log(`No ban log file exists for guild ${guildId}`);
+        return []; // Return empty array if file doesn't exist
       }
     } catch (error) {
       console.error('Error reading ban logs:', error);
+      return []; // Return empty array on any error
     }
-    
-    return [];
   }
 
   /**

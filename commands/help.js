@@ -32,7 +32,7 @@ module.exports = {
                 },
                 { 
                     name: '<:Role_:1358183713522847855> Moderation', 
-                    value: '`.ban @user [reason]` - Ban member\n`.unban ID [reason]` - Unban member by ID\n`.kick @user [reason]` - Kick member\n`.mute @user [duration] [reason]` - Mute member\n`.unmute @user [reason]` - Unmute member\n`.purge <amount> [reason]` - Delete multiple messages\n`.dm @user <message>` - Send a direct message to user' 
+                    value: '`.ban @user [reason]` - Ban member\n`.unban ID [reason]` - Unban member by ID\n`.banlist [page]` - View ban list\n`.banlist-enhanced [filters]` - Advanced ban list\n`.baninfo ID` - View detailed ban info\n`.kick @user [reason]` - Kick member\n`.mute @user [duration] [reason]` - Mute member\n`.unmute @user [reason]` - Unmute member\n`.purge <amount> [reason]` - Delete multiple messages\n`.dm @user <message>` - Send a direct message to user' 
                 },
                 {
                     name: '<:Role_:1358183713522847855> Blacklist System',
