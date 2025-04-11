@@ -1102,8 +1102,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Call the loadBanList function with the server ID
     loadBanList(serverId);
-      .then(response => response.json())
-      .then(data => {
+  }
+  /* Removed code */
+  /*    .then(data => {
         if (data.success && data.bans) {
           if (data.bans.length === 0) {
             bansList.innerHTML = `<p class="empty-message">No bans found</p>`;
@@ -1173,23 +1174,13 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function refreshModerationLog() {
     const serverId = serverSelect?.value;
-    const moderationLog = document.getElementById('moderation-log');
-    const logTypeFilter = document.getElementById('log-type-filter')?.value || 'all';
     
-    if (!serverId || !moderationLog) return;
+    if (!serverId) return;
     
-    // Show loading state
-    moderationLog.innerHTML = `
-      <div class="log-loading">
-        <div class="spinner"></div>
-        <p>Loading moderation logs...</p>
-      </div>
-    `;
-    
-    // Make API request
-    fetch(`/api/moderation/logs?serverId=${serverId}&type=${logTypeFilter}`)
-      .then(response => response.json())
-      .then(data => {
+    // Call the loadAutomodLog function with the server ID
+    loadAutomodLog(serverId);
+  }
+  /* Removed old code */
         if (data.success && data.logs) {
           if (data.logs.length === 0) {
             moderationLog.innerHTML = `<p class="empty-message">No logs found</p>`;
