@@ -404,11 +404,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   /**
-   * Load ban list for a server
+   * Load ban list for a server (BRAND NEW IMPLEMENTATION)
    * @param {string} serverId - Discord server ID
    */
   function loadBanList(serverId) {
-    if (!banListBody) return;
+    if (!banListBody) {
+      console.error("Ban list table body not found in the DOM");
+      return;
+    }
     
     // Show loading state
     banListBody.innerHTML = `
@@ -422,25 +425,51 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // Fetch ban data from our API using the centralized fetchAPI function
-    console.log(`Fetching ban data for server: ${serverId}`);
-    fetchAPI(`/api/moderation/bans/${serverId}`, {
-      credentials: 'include' // Include credentials in the request
-    })
-      .then(data => {
-        // Log the response for debugging
-        console.log('Ban list API response:', data);
-        // Update stats
+    // Execute the fetch immediately
+    (async function() {
+      try {
+        console.log(`Fetching ban data for server: ${serverId} (BRAND NEW IMPLEMENTATION)`);
+        
+        // Create the request manually for maximum control
+        const response = await fetch(`/api/moderation/bans/${serverId}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'include', // Always include credentials
+          cache: 'no-store', // Don't cache the results
+          redirect: 'follow',
+          mode: 'same-origin'
+        });
+        
+        // Log complete response for debugging
+        console.log(`Ban API status: ${response.status}`, response);
+        
+        // Handle HTTP errors
+        if (!response.ok) {
+          const statusText = response.statusText || "Unknown error";
+          throw new Error(`HTTP error ${response.status}: ${statusText}`);
+        }
+        
+        // Parse the JSON response
+        const data = await response.json();
+        console.log('Ban list data received:', data);
+        
+        // Update the ban count in the UI if element exists
         if (document.getElementById('totalBans')) {
           document.getElementById('totalBans').textContent = data.total || 0;
         }
         
+        // Check for API-level success
         if (!data.success) {
           throw new Error(data.message || 'Failed to load ban list');
         }
         
+        // Get the bans array with fallback to empty array
         const bans = data.bans || [];
         
+        // Handle empty ban list
         if (bans.length === 0) {
           banListBody.innerHTML = `
             <tr class="empty-state">
@@ -455,44 +484,66 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         
+        // When we have bans, clear previous content
         banListBody.innerHTML = '';
         
+        // Render each ban
         bans.forEach(ban => {
-          // Format the date
-          const banDate = new Date(ban.bannedAt);
-          const formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
-          
-          // Determine duration text
-          let durationText = ban.permanent ? 'Permanent' : (ban.duration || 'Permanent');
-          
-          banListBody.innerHTML += `
-            <tr>
-              <td>
-                <div class="user-info">
-                  <div class="user-avatar">
-                    <img src="${ban.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag}'s avatar">
+          try {
+            // Format the date with error handling
+            let formattedDate = "Unknown date";
+            try {
+              const banDate = new Date(ban.bannedAt || Date.now());
+              formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
+            } catch (dateError) {
+              console.warn("Error formatting ban date:", dateError);
+            }
+            
+            // Determine duration text with fallback
+            const durationText = ban.permanent ? 'Permanent' : (ban.duration || 'Permanent');
+            
+            banListBody.innerHTML += `
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <div class="user-avatar">
+                      <img src="${ban.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag}'s avatar">
+                    </div>
+                    <div class="user-details">
+                      <div class="user-name">${ban.username || ban.tag || 'Unknown User'}</div>
+                      <div class="user-id">${ban.id}</div>
+                    </div>
                   </div>
-                  <div class="user-details">
-                    <div class="user-name">${ban.username || ban.tag || 'Unknown User'}</div>
-                    <div class="user-id">${ban.id}</div>
+                </td>
+                <td>${ban.reason || 'No reason provided'}</td>
+                <td>${formattedDate}</td>
+                <td>${durationText}</td>
+                <td>
+                  <div class="table-actions">
+                    <button class="admin3d-btn admin3d-btn-sm admin3d-btn-secondary view-ban-details" data-userid="${ban.id}" title="View Details">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="admin3d-btn admin3d-btn-sm admin3d-btn-primary unban-user" data-userid="${ban.id}" title="Unban User">
+                      <i class="fas fa-user-check"></i>
+                    </button>
                   </div>
-                </div>
-              </td>
-              <td>${ban.reason || 'No reason provided'}</td>
-              <td>${formattedDate}</td>
-              <td>${durationText}</td>
-              <td>
-                <div class="table-actions">
-                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-secondary view-ban-details" data-userid="${ban.id}" title="View Details">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-primary unban-user" data-userid="${ban.id}" title="Unban User">
-                    <i class="fas fa-user-check"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          `;
+                </td>
+              </tr>
+            `;
+          } catch (renderError) {
+            console.error(`Error rendering ban entry for ID ${ban.id || 'unknown'}:`, renderError);
+            // Add a fallback row showing the error
+            banListBody.innerHTML += `
+              <tr class="error-row">
+                <td colspan="5">
+                  <div class="error-state-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error displaying ban entry: ${renderError.message}</p>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }
         });
         
         // Add event listeners for actions
@@ -500,8 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
           button.addEventListener('click', function() {
             const userId = this.getAttribute('data-userid');
             if (confirm(`Are you sure you want to unban user ${userId}?`)) {
-              // Implement unban functionality here
-              console.log(`Unban user ${userId}`);
+              unbanUser(userId);
             }
           });
         });
@@ -509,12 +559,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.view-ban-details').forEach(button => {
           button.addEventListener('click', function() {
             const userId = this.getAttribute('data-userid');
-            // Implement view details functionality here
             console.log(`View details for user ${userId}`);
+            // Show user details in a modal
+            showNotification(`Ban details for user ${userId} are not available in this version.`, 'info');
           });
         });
-      })
-      .catch(error => {
+        
+      } catch (error) {
         console.error('Error loading ban list:', error);
         banListBody.innerHTML = `
           <tr class="error-state">
@@ -526,7 +577,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </td>
           </tr>
         `;
-      });
+      }
+    })();
   }
   
   /**
