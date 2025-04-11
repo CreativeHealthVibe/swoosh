@@ -19,7 +19,7 @@ async function fetchAPI(url, options = {}) {
       'Accept': 'application/json',
       'X-Requested-With': 'XMLHttpRequest'
     },
-    credentials: 'same-origin' // Include cookies for auth
+    credentials: 'include' // Include cookies for auth in all environments
   };
   
   // If method is POST, add Content-Type header
@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
+        credentials: 'include', // Include credentials in the request
         body: JSON.stringify(formData)
       })
         .then(response => {
@@ -319,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
+        credentials: 'include', // Include credentials in the request
         body: JSON.stringify(formData)
       })
         .then(response => {
@@ -1307,6 +1309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
       },
+      credentials: 'include', // Include credentials in the request
       body: JSON.stringify({
         userId,
         reason,
@@ -1379,6 +1382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
       },
+      credentials: 'include', // Include credentials in the request
       body: JSON.stringify({
         userId,
         reason,
@@ -1429,6 +1433,7 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include', // Include credentials in the request
       body: JSON.stringify({
         userId,
         reason,
@@ -1479,6 +1484,7 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include', // Include credentials in the request
       body: JSON.stringify({
         channelId,
         amount,
@@ -1618,7 +1624,8 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
-      }
+      },
+      credentials: 'include' // Include credentials in the request
     })
       .then(response => response.json())
       .then(data => {
@@ -1702,6 +1709,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
       },
+      credentials: 'include', // Include credentials in the request
       body: JSON.stringify({
         ...warningData,
         serverId
@@ -1761,6 +1769,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
       },
+      credentials: 'include', // Include credentials in the request
       body: JSON.stringify({
         serverId
       })
@@ -1816,6 +1825,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
       },
+      credentials: 'include', // Include credentials in the request
       body: JSON.stringify({
         userId,
         serverId
