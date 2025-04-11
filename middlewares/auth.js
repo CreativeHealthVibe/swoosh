@@ -27,6 +27,21 @@ const isAdmin = (req, res, next) => {
   if (!req.isAuthenticated()) {
     // User is not authenticated
     req.session.returnTo = req.originalUrl;
+    
+    // Check if this is an AJAX/API request
+    const isApiRequest = req.xhr || req.path.startsWith('/api/');
+    
+    if (isApiRequest) {
+      // For API requests, return a JSON response
+      console.log(`API auth failed for ${req.path}`);
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        redirectTo: '/auth/login'
+      });
+    }
+    
+    // For regular page requests, redirect to login
     req.flash('error', 'Please log in to access this page');
     return res.redirect('/auth/login');
   }
@@ -34,6 +49,18 @@ const isAdmin = (req, res, next) => {
   // Check if req.user exists and has the isAdmin property
   if (!req.user) {
     console.error('User object is undefined or null in isAdmin middleware');
+    
+    // Check if this is an AJAX/API request
+    const isApiRequest = req.xhr || req.path.startsWith('/api/');
+    
+    if (isApiRequest) {
+      // For API requests, return a JSON response
+      return res.status(500).json({
+        success: false,
+        message: 'Session error: Invalid user session'
+      });
+    }
+    
     return res.status(500).render('error', {
       title: 'Session Error',
       message: 'Your session appears to be invalid. Please try logging in again.',
@@ -50,6 +77,18 @@ const isAdmin = (req, res, next) => {
   }
   
   // User is authenticated but not an admin
+  // Check if this is an AJAX/API request
+  const isApiRequest = req.xhr || req.path.startsWith('/api/');
+  
+  if (isApiRequest) {
+    // For API requests, return a JSON response
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied: Admin privileges required'
+    });
+  }
+  
+  // For regular page requests, show error page
   return res.status(403).render('error', {
     title: 'Access Denied',
     message: 'You do not have permission to access this page',
