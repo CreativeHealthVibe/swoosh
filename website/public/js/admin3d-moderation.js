@@ -1438,7 +1438,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`/api/moderation/warnings/${warningId}`, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({
         serverId
@@ -1491,7 +1493,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`/api/moderation/unban`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({
         userId,
@@ -1542,7 +1546,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`/api/moderation/automod`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({
         ...settings,
@@ -1593,7 +1599,12 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function loadAutomodSettings(serverId) {
     // Make API request
-    fetch(`/api/moderation/automod?serverId=${serverId}`)
+    fetch(`/api/moderation/automod?serverId=${serverId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
       .then(response => {
         // Check for 401 Unauthorized or 403 Forbidden responses
         if (response.status === 401 || response.status === 403) {
