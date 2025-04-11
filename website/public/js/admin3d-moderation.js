@@ -1180,59 +1180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Call the loadAutomodLog function with the server ID
     loadAutomodLog(serverId);
   }
-  /* Removed old code */
-        if (data.success && data.logs) {
-          if (data.logs.length === 0) {
-            moderationLog.innerHTML = `<p class="empty-message">No logs found</p>`;
-            return;
-          }
-          
-          // Clear loading state
-          moderationLog.innerHTML = '';
-          
-          // Add each log to the list
-          data.logs.forEach(log => {
-            const logItem = document.createElement('div');
-            logItem.className = `log-item log-${log.type}`;
-            
-            // Format the date
-            const logDate = new Date(log.timestamp || Date.now());
-            const formattedDate = logDate.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            });
-            
-            logItem.innerHTML = `
-              <div class="log-icon">
-                <i class="fas fa-${getLogIcon(log.type)}"></i>
-              </div>
-              <div class="log-content">
-                <div class="log-header">
-                  <span class="log-type">${capitalizeFirstLetter(log.type)}</span>
-                  <span class="log-time">${formattedDate}</span>
-                </div>
-                <div class="log-message">
-                  ${log.message || 'No details provided'}
-                </div>
-                <div class="log-executor">
-                  <span>By: ${log.executor?.username || 'Unknown'}</span>
-                </div>
-              </div>
-            `;
-            
-            moderationLog.appendChild(logItem);
-          });
-        } else {
-          moderationLog.innerHTML = `<p class="error-message">Error: ${data.error || 'Failed to load logs'}</p>`;
-        }
-      })
-      .catch(error => {
-        moderationLog.innerHTML = `<p class="error-message">Error: ${error.message || 'Failed to load logs'}</p>`;
-      });
-  }
   
   /**
    * Fetch warnings for a user
