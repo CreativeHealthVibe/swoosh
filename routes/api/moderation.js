@@ -13,10 +13,30 @@ const fs = require('fs');
 // Apply admin authentication middleware to all routes
 // This ensures all endpoints require authentication
 router.use((req, res, next) => {
-  console.log(`API Request: ${req.method} ${req.originalUrl}, Auth state: ${req.isAuthenticated()}`);
+  console.log(`API Request: ${req.method} ${req.originalUrl}, Auth state: ${typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : 'function not available'}`);
   
-  // Call the isAdmin middleware
-  isAdmin(req, res, next);
+  // Add explicit authentication check
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated()) {
+    console.error('Not authenticated in moderation API middleware');
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required',
+      redirectTo: '/auth/login'
+    });
+  }
+  
+  // Verify admin status
+  if (!req.user || (!req.user.isAdmin && !req.user.is_admin)) {
+    console.error('Not admin in moderation API middleware');
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied: Admin privileges required'
+    });
+  }
+  
+  // User is authenticated and has admin privileges
+  console.log('Authentication successful for moderation API');
+  next();
 });
 
 /**
@@ -322,7 +342,8 @@ router.post('/warn', async (req, res) => {
  */
 router.get('/automod/:serverId', async (req, res) => {
   // First, check if user is authenticated and admin
-  if (!req.isAuthenticated() || (!req.user.isAdmin && !req.user.is_admin)) {
+  // Using safe check for isAuthenticated
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !req.user || (!req.user.isAdmin && !req.user.is_admin)) {
     console.error('Attempt to access automod settings without authentication or admin privileges');
     return res.status(403).json({
       success: false,
@@ -417,11 +438,12 @@ router.get('/automod/:serverId', async (req, res) => {
 router.post('/automod', async (req, res) => {
   // Check authentication - using the isAdmin middleware
   // This should already be applied by router.use(isAdmin) at the top of the file
-  if (!req.user) {
-    console.error('Attempt to save automod settings without authentication');
+  // Using safe check for isAuthenticated
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !req.user || (!req.user.isAdmin && !req.user.is_admin)) {
+    console.error('Attempt to save automod settings without proper authentication');
     return res.status(403).json({
       success: false,
-      message: 'Authentication failed. Please log in.'
+      message: 'Authentication failed. Admin privileges required.'
     });
   }
   
@@ -539,12 +561,12 @@ router.post('/automod', async (req, res) => {
 router.get('/bans/:serverId', async (req, res) => {
   // Check authentication - using the isAdmin middleware
   // This should already be applied by router.use(isAdmin) at the top of the file
-  // Added additional check to provide clear error message
-  if (!req.user) {
-    console.error('Attempt to access ban list without authentication');
+  // Using safe check for isAuthenticated
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !req.user || (!req.user.isAdmin && !req.user.is_admin)) {
+    console.error('Attempt to access ban list without proper authentication');
     return res.status(403).json({
       success: false,
-      message: 'Authentication failed. Please log in.'
+      message: 'Authentication failed. Admin privileges required.'
     });
   }
   
@@ -704,11 +726,12 @@ router.get('/bans/:serverId', async (req, res) => {
 router.get('/warnings/:serverId', async (req, res) => {
   // Check authentication - using the isAdmin middleware
   // This should already be applied by router.use(isAdmin) at the top of the file
-  if (!req.user) {
-    console.error('Attempt to access warnings list without authentication');
+  // Using safe check for isAuthenticated
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !req.user || (!req.user.isAdmin && !req.user.is_admin)) {
+    console.error('Attempt to access warnings list without proper authentication');
     return res.status(403).json({
       success: false,
-      message: 'Authentication failed. Please log in.'
+      message: 'Authentication failed. Admin privileges required.'
     });
   }
   
@@ -845,11 +868,12 @@ router.get('/warnings/:serverId', async (req, res) => {
 router.get('/history/:serverId', async (req, res) => {
   // Check authentication - using the isAdmin middleware
   // This should already be applied by router.use(isAdmin) at the top of the file
-  if (!req.user) {
-    console.error('Attempt to access moderation history without authentication');
+  // Using safe check for isAuthenticated
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !req.user || (!req.user.isAdmin && !req.user.is_admin)) {
+    console.error('Attempt to access moderation history without proper authentication');
     return res.status(403).json({
       success: false,
-      message: 'Authentication failed. Please log in.'
+      message: 'Authentication failed. Admin privileges required.'
     });
   }
   

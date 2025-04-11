@@ -8,7 +8,8 @@
  * If not, redirect to login page
  */
 const isAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
+  // Safely check if function exists to prevent errors
+  if (typeof req.isAuthenticated === 'function' && req.isAuthenticated()) {
     return next();
   }
   
@@ -26,7 +27,8 @@ const isAdmin = (req, res, next) => {
   console.log(`isAdmin middleware for URL: ${req.originalUrl}, Method: ${req.method}`);
   
   // First ensure that the user is authenticated
-  if (!req.isAuthenticated()) {
+  // Safely check if function exists to prevent errors
+  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated()) {
     // User is not authenticated
     req.session.returnTo = req.originalUrl;
     
@@ -34,7 +36,8 @@ const isAdmin = (req, res, next) => {
     const isApiRequest = req.xhr || 
                         req.originalUrl.includes('/api/') || 
                         req.get('Accept') === 'application/json' ||
-                        req.get('X-Requested-With') === 'XMLHttpRequest';
+                        req.get('X-Requested-With') === 'XMLHttpRequest' ||
+                        req.get('Content-Type') === 'application/json';
     
     console.log(`Request auth check: isXHR=${req.xhr}, path=${req.originalUrl}, Accept=${req.get('Accept')}, X-Requested-With=${req.get('X-Requested-With')}, isApiRequest=${isApiRequest}`);
     
@@ -61,7 +64,8 @@ const isAdmin = (req, res, next) => {
     const isApiRequest = req.xhr || 
                         req.originalUrl.includes('/api/') || 
                         req.get('Accept') === 'application/json' ||
-                        req.get('X-Requested-With') === 'XMLHttpRequest';
+                        req.get('X-Requested-With') === 'XMLHttpRequest' ||
+                        req.get('Content-Type') === 'application/json';
     
     console.log(`User object check: isXHR=${req.xhr}, path=${req.originalUrl}, Accept=${req.get('Accept')}, X-Requested-With=${req.get('X-Requested-With')}, isApiRequest=${isApiRequest}`);
     
@@ -90,11 +94,12 @@ const isAdmin = (req, res, next) => {
   }
   
   // User is authenticated but not an admin
-  // Check if this is an AJAX/API request
+  // Enhanced API request detection - covers more cases
   const isApiRequest = req.xhr || 
                       req.originalUrl.includes('/api/') || 
                       req.get('Accept') === 'application/json' ||
-                      req.get('X-Requested-With') === 'XMLHttpRequest';
+                      req.get('X-Requested-With') === 'XMLHttpRequest' ||
+                      req.get('Content-Type') === 'application/json';
   
   console.log(`Admin check: isXHR=${req.xhr}, path=${req.originalUrl}, Accept=${req.get('Accept')}, X-Requested-With=${req.get('X-Requested-With')}, isApiRequest=${isApiRequest}`);
   
@@ -122,7 +127,8 @@ const isAdmin = (req, res, next) => {
  * Middleware to redirect authenticated users away from login page
  */
 const redirectIfAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
+  // Safely check if function exists to prevent errors
+  if (typeof req.isAuthenticated === 'function' && req.isAuthenticated()) {
     return res.redirect('/admin3d');
   }
   next();

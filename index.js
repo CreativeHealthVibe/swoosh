@@ -504,17 +504,25 @@ app.use(session({
   }),
   secret: process.env.SESSION_SECRET || 'swoosh-admin-dashboard-secret',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // Changed to true to ensure session is always stored
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
+    secure: false, // Set to false to work in all environments
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    sameSite: 'lax' // Allow cookies to be sent in cross-site requests
   }
 }));
+
+// Debug session middleware
+app.use((req, res, next) => {
+  console.log(`Session debug: isAuthenticated=${req.isAuthenticated()}, sessionID=${req.sessionID}, hasUser=${!!req.user}`);
+  next();
+});
 
 // Set up flash messages
 app.use(flash());
 
-// Set up passport for authentication
+// Set up passport for authentication 
+// Note: Passport serializer/deserializer is defined in utils/passport/discord.js
 app.use(passport.initialize());
 app.use(passport.session());
 
