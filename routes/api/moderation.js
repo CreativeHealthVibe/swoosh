@@ -36,13 +36,73 @@ router.post('/ban', async (req, res) => {
   }
   
   try {
-    // For demonstration, we'll just return success
-    // In a real implementation, this would perform the ban action
+    // Get the server ID from the request body
+    const { serverId } = req.body;
     
-    console.log(`Ban request received for user ${userId} with reason: ${banReason}`);
+    if (!serverId) {
+      return res.json({
+        success: false,
+        message: 'Server ID is required'
+      });
+    }
+    
+    console.log(`Ban request received for user ${userId} in server ${serverId} with reason: ${banReason}`);
     console.log(`Ban duration: ${banDuration}, Delete messages: ${deleteMessages}, Add to blacklist: ${addToBlacklist}`);
     
-    // Simulate successful ban
+    // Get the guild from the client
+    const guild = client.guilds.cache.get(serverId);
+    
+    if (!guild) {
+      return res.json({
+        success: false,
+        message: 'Guild not found or bot does not have access'
+      });
+    }
+    
+    // Check permissions
+    const botMember = guild.members.cache.get(client.user.id);
+    if (!botMember || !botMember.permissions.has('BAN_MEMBERS')) {
+      return res.json({
+        success: false,
+        message: 'Bot does not have BAN_MEMBERS permission in this server'
+      });
+    }
+    
+    // Try to ban the user
+    const deleteMessageSeconds = deleteMessages ? 60 * 60 * 24 * 7 : 0; // 7 days if true, 0 if false
+    const fullReason = `${banReason} | Banned by: ${req.user.username || req.user.displayName || 'Admin'}`;
+    
+    await guild.members.ban(userId, {
+      deleteMessageSeconds,
+      reason: fullReason
+    });
+    
+    // Log the ban using the ban logger
+    banLogger.logBan({
+      serverId,
+      userId,
+      reason: banReason,
+      executor: {
+        id: req.user.id || 'ADMIN_PANEL',
+        name: req.user.username || req.user.displayName || 'Admin Panel',
+        discriminator: req.user.discriminator || '0000'
+      },
+      duration: banDuration === 'permanent' ? null : banDuration
+    });
+    
+    // Add to blacklist if requested
+    if (addToBlacklist === 'true' || addToBlacklist === true) {
+      try {
+        // Use the blacklist manager to add the user to the blacklist
+        const blacklistManager = require('../../handlers/blacklistManager');
+        await blacklistManager.addToBlacklist(userId, banReason, 'global', req.user.id);
+        console.log(`Added user ${userId} to blacklist`);
+      } catch (blacklistError) {
+        console.error('Error adding user to blacklist:', blacklistError);
+        // Continue execution, as the ban was successful even if blacklisting failed
+      }
+    }
+    
     return res.json({
       success: true,
       message: `User ${userId} has been banned successfully`
@@ -79,16 +139,163 @@ router.post('/warn', async (req, res) => {
   }
   
   try {
-    // For demonstration, we'll just return success
-    // In a real implementation, this would issue the warning
+    // Get the server ID from the request body
+    const { serverId } = req.body;
     
-    console.log(`Warning request received for user ${warnUserId} with reason: ${warnReason}`);
+    if (!serverId) {
+      return res.json({
+        success: false,
+        message: 'Server ID is required'
+      });
+    }
+    
+    console.log(`Warning request received for user ${warnUserId} in server ${serverId} with reason: ${warnReason}`);
     console.log(`Severity: ${warningSeverity}, Duration: ${warningDuration}, Notify user: ${notifyUser}`);
     
-    // Simulate successful warning
+    // Get the guild from the client
+    const guild = client.guilds.cache.get(serverId);
+    
+    if (!guild) {
+      return res.json({
+        success: false,
+        message: 'Guild not found or bot does not have access'
+      });
+    }
+    
+    // Validate user ID format
+    if (!/^\d{17,19}$/.test(warnUserId)) {
+      return res.json({
+        success: false,
+        message: 'Invalid Discord user ID format'
+      });
+    }
+    
+    // Check if Discord database is initialized
+    if (!client.discordDB || !client.discordDB.initialized) {
+      return res.status(503).json({
+        success: false,
+        message: 'Discord database not initialized'
+      });
+    }
+    
+    // Generate warning ID
+    const warningId = `warning_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+    
+    // Calculate expiration date if not permanent
+    let expiresAt = null;
+    if (warningDuration && warningDuration !== 'permanent') {
+      expiresAt = new Date();
+      
+      // Parse duration
+      const value = parseInt(warningDuration.slice(0, -1));
+      const unit = warningDuration.slice(-1);
+      
+      switch (unit) {
+        case 'd': // Days
+          expiresAt.setDate(expiresAt.getDate() + value);
+          break;
+        case 'w': // Weeks
+          expiresAt.setDate(expiresAt.getDate() + (value * 7));
+          break;
+        case 'm': // Months
+          expiresAt.setMonth(expiresAt.getMonth() + value);
+          break;
+        default:
+          // Default to 30 days if format is unknown
+          expiresAt.setDate(expiresAt.getDate() + 30);
+      }
+    }
+    
+    // Create warning document
+    const warningDoc = {
+      id: warningId,
+      userId: warnUserId,
+      guildId: serverId,
+      reason: warnReason,
+      severity: warningSeverity || 'medium',
+      issuedBy: req.user.username || req.user.displayName || 'Admin Panel',
+      issuedById: req.user.id || 'ADMIN_PANEL',
+      timestamp: new Date().toISOString(),
+      expires: expiresAt ? expiresAt.toISOString() : null
+    };
+    
+    // Save to database
+    await client.discordDB.setDocument('warnings', warningId, warningDoc);
+    
+    // Try to notify the user if requested
+    let notificationSent = false;
+    if (notifyUser === 'true' || notifyUser === true) {
+      try {
+        // Try to fetch the user
+        const user = await client.users.fetch(warnUserId).catch(() => null);
+        
+        if (user) {
+          // Create the warning embed
+          const embed = {
+            title: 'Warning Notification',
+            description: `You have received a warning in **${guild.name}**`,
+            color: 0xffcc00, // Yellow/orange color for warnings
+            fields: [
+              {
+                name: 'Reason',
+                value: warnReason || 'No reason provided'
+              },
+              {
+                name: 'Severity',
+                value: warningSeverity.charAt(0).toUpperCase() + warningSeverity.slice(1) || 'Medium'
+              }
+            ],
+            timestamp: new Date(),
+            footer: {
+              text: `Warning ID: ${warningId}`
+            }
+          };
+          
+          // Add expiration field if not permanent
+          if (expiresAt) {
+            embed.fields.push({
+              name: 'Expires',
+              value: expiresAt.toLocaleDateString()
+            });
+          }
+          
+          // Send the DM
+          await user.send({ embeds: [embed] });
+          notificationSent = true;
+        }
+      } catch (dmError) {
+        console.error(`Failed to send warning DM to user ${warnUserId}:`, dmError);
+        // Continue execution even if notification fails
+      }
+    }
+    
+    // Log the warning in the moderation log
+    try {
+      const logMessage = `Warning issued to user ${warnUserId} - Severity: ${warningSeverity}, Reason: ${warnReason}`;
+      const logPath = path.join(banLogger.logsDir, `mod-log-${serverId}.txt`);
+      
+      // Ensure directory exists
+      const logsDir = path.dirname(logPath);
+      if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+      }
+      
+      // Format log entry
+      const timestamp = new Date().toISOString();
+      const logEntry = `[${timestamp}] WARNING: ${logMessage}\n`;
+      
+      // Append to log file
+      fs.appendFileSync(logPath, logEntry);
+    } catch (logError) {
+      console.error('Error writing to warning log:', logError);
+      // Continue execution even if logging fails
+    }
+    
     return res.json({
       success: true,
-      message: `Warning issued to user ${warnUserId} successfully`
+      message: `Warning issued to user ${warnUserId} successfully`,
+      warningId,
+      notified: notificationSent
     });
   } catch (error) {
     console.error('Error warning user:', error);
