@@ -978,18 +978,37 @@ document.addEventListener('DOMContentLoaded', () => {
         serverId
       })
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(response => {
       // Hide loading state
       document.querySelector('.loading-overlay').style.display = 'none';
       
+      // Check for 401 Unauthorized or 403 Forbidden responses
+      if (response.status === 401 || response.status === 403) {
+        return response.json().then(errorData => {
+          console.error('Authentication error:', errorData);
+          // Check if we need to redirect to login
+          if (errorData.redirectTo) {
+            window.location.href = errorData.redirectTo;
+            return Promise.reject(new Error('Authentication required. Redirecting to login...'));
+          } else {
+            throw new Error(errorData.message || 'Authentication failed');
+          }
+        });
+      }
+      
+      if (!response.ok) {
+        throw new Error('Failed to ban user');
+      }
+      return response.json();
+    })
+    .then(data => {
       if (data.success) {
         showNotification(`User ${userId} banned successfully`, 'success');
         hideAllModals();
         refreshBansList();
         refreshModerationLog();
       } else {
-        showNotification(`Error: ${data.error || 'Failed to ban user'}`, 'error');
+        showNotification(`Error: ${data.message || 'Failed to ban user'}`, 'error');
       }
     })
     .catch(error => {
