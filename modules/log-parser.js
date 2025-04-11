@@ -139,18 +139,37 @@ function filterByDateRange(entries, startDate, endDate) {
  * @param {Array} entries - Array of log entries
  * @returns {Array} - Ban events
  */
+/**
+ * Extract ban and unban events from log entries
+ * @param {Array} entries - Array of log entries
+ * @returns {Array} - Extracted ban and unban events
+ */
 function extractBanEvents(entries) {
-  return entries.filter(entry => entry.eventType === 'User Banned').map(entry => {
+  return entries.filter(entry => 
+    entry.eventType === 'User Banned' || entry.eventType === 'User Unbanned'
+  ).map(entry => {
+    // Skip if user data is missing
+    if (!entry.user || !entry.user.id) {
+      return null;
+    }
+    
+    // Skip if executor data is missing
+    if (!entry.executor) {
+      entry.executor = { id: 'unknown', username: 'Unknown' };
+    }
+    
     return {
       timestamp: entry.timestamp,
       date: entry.date,
+      eventType: entry.eventType === 'User Banned' ? 'ban' : 'unban',
       userId: entry.user.id,
-      username: entry.user.username,
+      userName: entry.user.username || entry.user.name || 'Unknown User',
       executorId: entry.executor.id,
-      executorName: entry.executor.username,
-      reason: entry.details.reason || 'No reason provided'
+      executorName: entry.executor.username || entry.executor.name || 'Unknown',
+      details: entry.details || {},
+      reason: entry.details && entry.details.reason ? entry.details.reason : 'No reason provided'
     };
-  });
+  }).filter(event => event !== null); // Remove any null events from missing data
 }
 
 /**
