@@ -37,12 +37,59 @@
       </select>
     </div>
     
+    <!-- Direct Ban System button -->
+    <div class="direct-access-button-container">
+      <button type="button" class="direct-access-button" id="useDirectBanSystem">
+        <i class="fas fa-tools"></i> Direct Ban Management
+      </button>
+    </div>
+    
     <!-- Emergency button -->
     <div class="emergency-tools">
       <a href="/admin3d/moderation-emergency" class="emergency-link">
         <i class="fas fa-exclamation-triangle"></i> Emergency Tools
       </a>
     </div>
+    
+    <style>
+      /* Direct system button styling */
+      .direct-access-button-container {
+        display: inline-flex;
+        align-items: center;
+        margin: 0 10px;
+      }
+      
+      .direct-access-button {
+        background-color: #7289da;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s ease;
+      }
+      
+      .direct-access-button:hover {
+        background-color: #5969ac;
+      }
+      
+      .direct-access-button i {
+        font-size: 16px;
+      }
+      
+      @media (max-width: 768px) {
+        .direct-access-button-container {
+          margin: 10px 0;
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
   </div>
   
   <!-- Stats Cards - Exact match to reference -->
@@ -162,66 +209,52 @@
             <div class="mod-section-content">
               <p class="mod-desc">Ban a user from your server with customizable options.</p>
               
-              <form action="/admin3d/moderation/ban-user" method="POST" id="banUserForm" data-ajax="true" data-reset="true">
-                <input type="hidden" id="banServerId" name="serverId" value="">
+              <!-- Direct access form instead of problematic API -->
+              <div class="direct-access-notice">
+                <p><strong>⚠️ Using the form below is not recommended</strong></p>
+                <p>Please use the <strong>"Direct Ban Management"</strong> button at the top of the page for reliable ban management.</p>
+                <button type="button" class="mod-btn primary-btn" id="redirectToBanManager">
+                  <i class="fas fa-arrow-right"></i> Go to Direct Ban Manager
+                </button>
+              </div>
+              
+              <script>
+                // Redirect to direct ban manager
+                document.getElementById('redirectToBanManager').addEventListener('click', function() {
+                  const selectedServerId = document.getElementById('serverSelect').value;
+                  if (selectedServerId) {
+                    window.location.href = `/admin3d/direct-bans?server=${selectedServerId}`;
+                  } else {
+                    window.location.href = '/admin3d/direct-bans';
+                  }
+                });
+              </script>
+              
+              <style>
+                .direct-access-notice {
+                  background-color: rgba(255, 153, 0, 0.1);
+                  border-left: 4px solid #ff9900;
+                  padding: 10px 15px;
+                  margin-bottom: 20px;
+                }
                 
-                <div class="form-field">
-                  <label for="userId">User ID or @Mention</label>
-                  <input type="text" id="userId" name="userId" placeholder="Enter user ID or @mention" required>
-                </div>
+                .direct-access-notice p {
+                  margin: 5px 0;
+                }
                 
-                <div class="form-field">
-                  <label for="banReason">Reason</label>
-                  <textarea id="banReason" name="banReason" placeholder="Explain the reason for this ban..." required rows="3"></textarea>
-                </div>
+                .direct-access-notice button {
+                  margin-top: 10px;
+                }
                 
-                <div class="form-row">
-                  <div class="form-field">
-                    <label for="banDuration">Duration</label>
-                    <select id="banDuration" name="banDuration">
-                      <option value="permanent">Permanent</option>
-                      <option value="1d">1 Day</option>
-                      <option value="3d">3 Days</option>
-                      <option value="7d">1 Week</option>
-                      <option value="14d">2 Weeks</option>
-                      <option value="30d">1 Month</option>
-                      <option value="custom">Custom...</option>
-                    </select>
-                  </div>
-                </div>
+                .primary-btn {
+                  background-color: #7289da;
+                  color: white;
+                }
                 
-                <!-- Custom Duration Input (hidden by default) -->
-                <div id="customDurationGroup" class="form-field" style="display: none;">
-                  <label for="customDuration">Custom Duration</label>
-                  <div class="custom-duration-inputs">
-                    <input type="number" id="customDuration" name="customDuration" min="1" value="1">
-                    <select id="customDurationUnit" name="customDurationUnit">
-                      <option value="h">Hours</option>
-                      <option value="d" selected>Days</option>
-                      <option value="w">Weeks</option>
-                      <option value="m">Months</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div class="form-options">
-                  <div class="form-check">
-                    <input type="checkbox" id="deleteMessages" name="deleteMessages" value="true">
-                    <label for="deleteMessages">Delete recent messages</label>
-                  </div>
-                  
-                  <div class="form-check">
-                    <input type="checkbox" id="addToBlacklist" name="addToBlacklist" value="true">
-                    <label for="addToBlacklist">Add to blacklist</label>
-                  </div>
-                </div>
-                
-                <div class="form-actions">
-                  <button type="submit" class="mod-btn danger-btn" id="banUserBtn">
-                    <i class="fas fa-gavel"></i> Ban User
-                  </button>
-                </div>
-              </form>
+                .primary-btn:hover {
+                  background-color: #5969ac;
+                }
+              </style>
             </div>
           </div>
           
@@ -1226,134 +1259,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   /**
-   * Load ban list for a server
+   * Load ban list for a server - REPLACED WITH DIRECT ACCESS
+   * Redirects to the more reliable direct ban access page
    * @param {string} serverId - Discord server ID
    */
   function loadBanList(serverId) {
     if (!document.getElementById('banListBody')) return;
     
-    // Show loading state
+    // Show loading state with redirect message
     document.getElementById('banListBody').innerHTML = `
       <tr class="loading-state">
         <td colspan="5">
           <div class="empty-state-message">
-            <i class="fas fa-circle-notch fa-spin"></i>
-            <p>Loading ban list...</p>
+            <i class="fas fa-arrow-right"></i>
+            <p>Please use the "Direct Ban Management" button at the top of the page for reliable access to bans</p>
           </div>
         </td>
       </tr>
     `;
     
-    // Fetch ban data from API with proper authentication
-    fetch(`/api/moderation/bans/${serverId}`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include' // Use 'include' instead of 'same-origin' for cross-domain auth
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to load ban list');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Ban data loaded:', data);
-      
-      // Update ban count
-      if (document.getElementById('totalBans')) {
-        document.getElementById('totalBans').textContent = data.total || 0;
-      }
-      
-      // Show empty state if no bans
-      if (!data.bans || data.bans.length === 0) {
-        document.getElementById('banListBody').innerHTML = `
-          <tr class="empty-state">
-            <td colspan="5">
-              <div class="empty-state-message">
-                <i class="fas fa-info-circle"></i>
-                <p>No bans found for this server</p>
-              </div>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-      
-      // Generate ban list HTML
-      const banListHTML = data.bans.map(ban => {
-        // Format the date
-        const banDate = new Date(ban.bannedAt || ban.date || Date.now());
-        const formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
-        
-        // Determine duration text
-        let durationText = ban.permanent ? 'Permanent' : (ban.duration || 'Permanent');
-        
-        return `
-          <tr>
-            <td>
-              <div class="user-info">
-                <div class="user-avatar">
-                  <img src="${ban.avatarURL || ban.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag || 'User'}'s avatar">
-                </div>
-                <div class="user-details">
-                  <div class="username">${ban.username || ban.tag || 'Unknown User'}</div>
-                  <div class="user-id">${ban.userId || ban.id || ''}</div>
-                </div>
-              </div>
-            </td>
-            <td>${ban.reason || 'No reason provided'}</td>
-            <td>${formattedDate}</td>
-            <td>${durationText}</td>
-            <td>
-              <div class="action-buttons">
-                <button class="action-btn btn-unban" data-user-id="${ban.userId || ban.id || ''}" title="Unban User">
-                  <i class="fas fa-user-check"></i>
-                </button>
-                <button class="action-btn btn-info" data-user-id="${ban.userId || ban.id || ''}" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-      
-      document.getElementById('banListBody').innerHTML = banListHTML;
-      
-      // Add event listeners to action buttons
-      document.querySelectorAll('.btn-unban').forEach(button => {
-        button.addEventListener('click', function() {
-          const userId = this.getAttribute('data-user-id');
-          if (confirm(`Are you sure you want to unban user ${userId}?`)) {
-            unbanUser(serverId, userId);
-          }
-        });
-      });
-      
-      document.querySelectorAll('.btn-info').forEach(button => {
-        button.addEventListener('click', function() {
-          const userId = this.getAttribute('data-user-id');
-          showBanDetails(serverId, userId);
-        });
-      });
-    })
-    .catch(error => {
-      console.error('Error loading ban list:', error);
-      document.getElementById('banListBody').innerHTML = `
-        <tr class="error-state">
-          <td colspan="5">
-            <div class="error-state-message">
-              <i class="fas fa-exclamation-triangle"></i>
-              <p>Failed to load ban list: ${error.message}</p>
-            </div>
-          </td>
-        </tr>
-      `;
-    });
+    // Update ban count to indicate we need to use direct access
+    if (document.getElementById('totalBans')) {
+      document.getElementById('totalBans').textContent = "⚠️";
+    }
+    
+    // Show a notification to use the direct access button
+    if (typeof showNotification === 'function') {
+      showNotification('info', 'Please use the Direct Ban Management button for reliable access to the ban list');
+    }
   }
   
   /**
