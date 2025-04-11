@@ -197,11 +197,31 @@ router.get('/bans/:serverId', async (req, res) => {
     const banLogs = banLogger.getBanLogs(serverId);
     const banEvents = logParser.extractBanEvents(banLogs);
     
+    // Also get logs from the main bot log which might contain more ban events
+    const botLogPath = path.join(banLogger.logsDir, 'bot-log.txt');
+    let allBanEvents = [...banEvents]; // Start with guild-specific logs
+    
+    // Add any additional ban events from the main log
+    if (fs.existsSync(botLogPath)) {
+      try {
+        const botLogs = logParser.parseLogFile(botLogPath);
+        const mainBanEvents = logParser.extractBanEvents(botLogs);
+        // Only add events that aren't already included
+        mainBanEvents.forEach(event => {
+          if (!allBanEvents.some(existing => existing.userId === event.userId)) {
+            allBanEvents.push(event);
+          }
+        });
+      } catch (error) {
+        console.warn('Could not process bot-log.txt:', error.message);
+      }
+    }
+    
     // Map bans to a more detailed format
     const bannedUsers = [];
     bans.forEach(ban => {
       // Find matching log entry for this ban
-      const logEntry = banEvents.find(event => event.userId === ban.user.id);
+      const logEntry = allBanEvents.find(event => event.userId === ban.user.id);
       
       const banInfo = {
         id: ban.user.id,
@@ -223,10 +243,12 @@ router.get('/bans/:serverId', async (req, res) => {
           banInfo.duration = logEntry.details.duration;
         }
       } else {
+        // For bans without log entries, set default values
         banInfo.bannedAt = new Date().toISOString();
         banInfo.bannedBy = 'Unknown';
       }
       
+      // Ensure all bans are displayed regardless of log availability
       bannedUsers.push(banInfo);
     });
     
