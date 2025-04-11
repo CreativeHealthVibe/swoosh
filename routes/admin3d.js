@@ -87,6 +87,190 @@ router.get('/moderation', (req, res) => {
 });
 
 /**
+ * GET /admin3d/moderation/automod-settings/:serverId
+ * Get auto-moderation settings for a server
+ */
+router.get('/moderation/automod-settings/:serverId', (req, res) => {
+  const { serverId } = req.params;
+  const client = req.app.get('client');
+  const autoMod = require('../modules/auto-moderation').getInstance();
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
+  try {
+    // Get settings from auto-mod module
+    if (autoMod) {
+      const settings = autoMod.getServerSettings(serverId);
+      return res.json({
+        success: true,
+        settings
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Auto-moderation module not available'
+      });
+    }
+  } catch (error) {
+    console.error('Error getting auto-moderation settings:', error);
+    return res.json({
+      success: false,
+      message: `Failed to get settings: ${error.message}`
+    });
+  }
+});
+
+/**
+ * GET /admin3d/moderation/automod-filters/:serverId
+ * Get custom filters for a server
+ */
+router.get('/moderation/automod-filters/:serverId', (req, res) => {
+  const { serverId } = req.params;
+  const client = req.app.get('client');
+  const autoMod = require('../modules/auto-moderation').getInstance();
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
+  try {
+    // Get filters from auto-mod module
+    if (autoMod) {
+      const filters = autoMod.getServerFilters(serverId);
+      return res.json({
+        success: true,
+        filters
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Auto-moderation module not available'
+      });
+    }
+  } catch (error) {
+    console.error('Error getting auto-moderation filters:', error);
+    return res.json({
+      success: false,
+      message: `Failed to get filters: ${error.message}`
+    });
+  }
+});
+
+/**
+ * GET /admin3d/moderation/automod-logs/:serverId
+ * Get auto-moderation logs for a server
+ */
+router.get('/moderation/automod-logs/:serverId', (req, res) => {
+  const { serverId } = req.params;
+  const client = req.app.get('client');
+  const autoMod = require('../modules/auto-moderation').getInstance();
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
+  try {
+    // Get logs from auto-mod module
+    if (autoMod) {
+      const logs = autoMod.getServerLogs(serverId);
+      return res.json({
+        success: true,
+        logs
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Auto-moderation module not available'
+      });
+    }
+  } catch (error) {
+    console.error('Error getting auto-moderation logs:', error);
+    return res.json({
+      success: false,
+      message: `Failed to get logs: ${error.message}`
+    });
+  }
+});
+
+/**
+ * GET /admin3d/moderation/log-channels/:serverId
+ * Get available log channels for a server
+ */
+router.get('/moderation/log-channels/:serverId', async (req, res) => {
+  const { serverId } = req.params;
+  const client = req.app.get('client');
+  const autoMod = require('../modules/auto-moderation').getInstance();
+  
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
+  
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
+  try {
+    // Get channels from auto-mod module
+    if (autoMod) {
+      const channels = await autoMod.getServerLogChannels(serverId);
+      return res.json({
+        success: true,
+        channels
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Auto-moderation module not available'
+      });
+    }
+  } catch (error) {
+    console.error('Error getting server log channels:', error);
+    return res.json({
+      success: false,
+      message: `Failed to get channels: ${error.message}`
+    });
+  }
+});
+
+/**
  * POST /admin3d/moderation/ban-user
  * Ban a user from a server
  */
@@ -154,9 +338,10 @@ router.post('/moderation/warn-user', (req, res) => {
  * POST /admin3d/moderation/automod-settings
  * Save auto-moderation settings
  */
-router.post('/moderation/automod-settings', (req, res) => {
+router.post('/moderation/automod-settings', async (req, res) => {
   const { serverId } = req.body;
   const client = req.app.get('client');
+  const autoMod = require('../modules/auto-moderation').getInstance();
   
   if (!client) {
     return res.json({
@@ -172,27 +357,91 @@ router.post('/moderation/automod-settings', (req, res) => {
     });
   }
   
-  // For demonstration, we'll just return success
+  // Log the received settings
   console.log(`Auto-mod settings received for server ${serverId}`);
   
-  // This would be replaced with actual settings save logic in a real implementation
-  return res.json({
-    success: true,
-    message: 'Auto-moderation settings saved successfully'
-  });
+  try {
+    // Extract settings from request body
+    const {
+      enableAutomod,
+      logActions,
+      logChannel,
+      filterProfanity,
+      filterLinks,
+      filterInvites,
+      filterMassMentions,
+      mentionThreshold,
+      antiSpam,
+      spamThreshold,
+      spamTimeWindow,
+      antiCaps,
+      capsThreshold,
+      defaultAction,
+      muteTime,
+      muteTimeUnit,
+      escalateRepeated,
+      maxViolations
+    } = req.body;
+    
+    // Format settings
+    const settings = {
+      enabled: enableAutomod === 'on' || enableAutomod === true,
+      logActions: logActions === 'on' || logActions === true,
+      logChannel: logChannel || '',
+      filters: {
+        profanity: filterProfanity === 'on' || filterProfanity === true,
+        links: filterLinks === 'on' || filterLinks === true,
+        invites: filterInvites === 'on' || filterInvites === true,
+        massMentions: filterMassMentions === 'on' || filterMassMentions === true,
+        caps: antiCaps === 'on' || antiCaps === true
+      },
+      mentionThreshold: parseInt(mentionThreshold) || 5,
+      antiSpam: {
+        enabled: antiSpam === 'on' || antiSpam === true,
+        messageThreshold: parseInt(spamThreshold) || 5,
+        timeWindow: parseInt(spamTimeWindow) || 5
+      },
+      capsThreshold: parseInt(capsThreshold) || 70,
+      defaultAction: defaultAction || 'delete',
+      muteTime: `${muteTime || 10}${muteTimeUnit || 'm'}`,
+      escalateRepeated: escalateRepeated === 'on' || escalateRepeated === true,
+      maxViolations: parseInt(maxViolations) || 5
+    };
+    
+    // Save settings using the auto-mod module
+    if (autoMod) {
+      await autoMod.saveServerSettings(serverId, settings);
+      return res.json({
+        success: true,
+        message: 'Auto-moderation settings saved successfully',
+        settings
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Auto-moderation module not available'
+      });
+    }
+  } catch (error) {
+    console.error('Error saving auto-moderation settings:', error);
+    return res.json({
+      success: false,
+      message: `Failed to save settings: ${error.message}`
+    });
+  }
 });
 
 /**
  * POST /admin3d/moderation/save-filter
  * Save a custom message filter
  */
-router.post('/moderation/save-filter', (req, res) => {
+router.post('/moderation/save-filter', async (req, res) => {
   const { 
-    serverId, filterName, conditionType, conditionValue, 
-    conditionLogic, customLogic, filterAction, actionMessage 
+    serverId, filterType, filterContent, filterAction
   } = req.body;
   
   const client = req.app.get('client');
+  const autoMod = require('../modules/auto-moderation').getInstance();
   
   if (!client) {
     return res.json({
@@ -201,37 +450,98 @@ router.post('/moderation/save-filter', (req, res) => {
     });
   }
   
-  if (!serverId || !filterName) {
+  if (!serverId || !filterType || !filterContent) {
     return res.json({
       success: false,
-      message: 'Server ID and filter name are required'
+      message: 'Server ID, filter type, and filter content are required'
     });
   }
   
-  // Log the filter details for demonstration
-  console.log('New filter created:', {
-    serverId,
-    filterName,
-    conditions: Array.isArray(conditionType) ? 
-      conditionType.map((type, i) => ({
-        type,
-        value: conditionValue[i]
-      })) : 
-      [{ type: conditionType, value: conditionValue }],
-    logic: conditionLogic === 'custom' ? customLogic : conditionLogic,
-    action: filterAction,
-    actionMessage
-  });
+  try {
+    // Log the filter details
+    console.log('New filter request:', {
+      serverId,
+      filterType,
+      filterContent,
+      filterAction
+    });
+    
+    // Create filter object
+    const filter = {
+      type: filterType,
+      content: filterContent,
+      action: filterAction || 'delete'
+    };
+    
+    // Save using the auto-mod module
+    if (autoMod) {
+      const newFilter = await autoMod.addFilter(serverId, filter);
+      
+      return res.json({
+        success: true,
+        message: 'Custom filter saved successfully',
+        filter: newFilter
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Auto-moderation module not available'
+      });
+    }
+  } catch (error) {
+    console.error('Error saving filter:', error);
+    return res.json({
+      success: false,
+      message: `Failed to save filter: ${error.message}`
+    });
+  }
+});
+
+/**
+ * DELETE /admin3d/moderation/delete-filter/:serverId/:filterId
+ * Delete a custom filter
+ */
+router.delete('/moderation/delete-filter/:serverId/:filterId', async (req, res) => {
+  const { serverId, filterId } = req.params;
+  const client = req.app.get('client');
+  const autoMod = require('../modules/auto-moderation').getInstance();
   
-  // Create unique filter ID using timestamp
-  const filterId = `filter_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+  if (!client) {
+    return res.json({
+      success: false,
+      message: 'Discord client not available'
+    });
+  }
   
-  // This would be replaced with actual database storage in a real implementation
-  return res.json({
-    success: true,
-    message: 'Message filter saved successfully',
-    filterId
-  });
+  if (!serverId || !filterId) {
+    return res.json({
+      success: false,
+      message: 'Server ID and filter ID are required'
+    });
+  }
+  
+  try {
+    // Remove filter using the auto-mod module
+    if (autoMod) {
+      await autoMod.removeFilter(serverId, filterId);
+      
+      return res.json({
+        success: true,
+        message: 'Custom filter removed successfully'
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Auto-moderation module not available'
+      });
+    }
+  } catch (error) {
+    console.error('Error removing filter:', error);
+    return res.json({
+      success: false,
+      message: `Failed to remove filter: ${error.message}`
+    });
+  }
 });
 
 /**
