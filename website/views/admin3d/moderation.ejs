@@ -1227,14 +1227,15 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // Fetch ban data from API
+    // Fetch ban data from API with proper authentication
     fetch(`/api/moderation/bans/${serverId}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json'
       },
-      credentials: 'same-origin'
+      credentials: 'include' // Use 'include' instead of 'same-origin' for cross-domain auth
     })
     .then(response => {
       if (!response.ok) {
@@ -1463,7 +1464,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({ serverId, userId }),
-      credentials: 'same-origin'
+      credentials: 'include'
     })
     .then(response => {
       if (!response.ok) {
@@ -1515,9 +1516,10 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json'
       },
-      credentials: 'same-origin'
+      credentials: 'include'
     })
     .then(response => {
       if (!response.ok) {
