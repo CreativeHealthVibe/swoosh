@@ -3,6 +3,7 @@
   Premium Edition
   
   Moderation management page with ban, warning, and automod tools
+  Now with integrated robust direct ban access
 %>
 
 <div class="admin3d-moderation">
@@ -10,6 +11,14 @@
   <div class="moderation-header">
     <h1 class="moderation-title">Moderation Command Center</h1>
     <p class="moderation-subtitle">Advanced tools for server management</p>
+    
+    <!-- Direct ban access button -->
+    <div class="direct-access-button">
+      <a href="/admin3d/direct-bans" class="admin3d-btn admin3d-btn-accent">
+        <i class="fas fa-shield-alt"></i> Direct Ban Management
+      </a>
+      <span class="tooltip">Having issues with the ban list below? Use our direct access system instead.</span>
+    </div>
   </div>
   
   <!-- Server selector -->
@@ -26,6 +35,13 @@
           <option disabled>No servers available</option>
         <% } %>
       </select>
+    </div>
+    
+    <!-- Emergency button -->
+    <div class="emergency-tools">
+      <a href="/admin3d/moderation-emergency" class="emergency-link">
+        <i class="fas fa-exclamation-triangle"></i> Emergency Tools
+      </a>
     </div>
   </div>
   

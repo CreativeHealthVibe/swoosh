@@ -1,10 +1,19 @@
-<%# Direct Ban List Access Page (Emergency Fallback) %>
+<%# 
+  SWOOSH Bot 3D Admin Dashboard
+  Premium Edition
+  
+  Direct Ban Access - A more robust way to access bans when the API is having issues
+%>
 
 <div class="direct-ban-access">
-  <h1>Server Ban List - Direct Access</h1>
+  <div class="admin3d-section-header">
+    <h1>Direct Ban Access</h1>
+    <p class="admin3d-section-description">This interface provides a more reliable method to view and manage server bans</p>
+  </div>
   
+  <!-- Server selector -->
   <div class="server-selector">
-    <select id="directServerSelect">
+    <select id="serverSelect">
       <option value="">Select a server</option>
       <% if (servers && servers.length > 0) { %>
         <% servers.forEach(server => { %>
@@ -14,247 +23,693 @@
         <option disabled>No servers available</option>
       <% } %>
     </select>
-    <button id="loadBansButton" class="admin3d-btn admin3d-btn-primary">Load Bans</button>
-  </div>
-  
-  <div id="banListContainer">
-    <div class="loading-container" style="display: none;">
-      <div class="loading-spinner"></div>
-      <p>Loading ban list...</p>
-    </div>
     
-    <div class="error-container" style="display: none;">
-      <div class="error-icon">❌</div>
-      <p class="error-message"></p>
-    </div>
+    <button id="loadBans" class="admin3d-btn admin3d-btn-primary">
+      <i class="fas fa-sync-alt"></i> Load Bans
+    </button>
     
-    <div class="ban-list-wrapper">
-      <p class="ban-count-info">Total bans: <span id="banCount">0</span></p>
-      <table class="ban-list-table">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Reason</th>
-            <th>Date</th>
-            <th>Duration</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="directBanListBody">
-          <tr class="empty-state">
-            <td colspan="5">
-              <div class="empty-state-message">
-                <i class="fas fa-info-circle"></i>
-                <p>Please select a server to view bans</p>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="back-link">
+      <a href="/admin3d/moderation" class="admin3d-link">
+        <i class="fas fa-arrow-left"></i> Back to Moderation Dashboard
+      </a>
     </div>
   </div>
   
-  <!-- Hidden form for direct data submission -->
-  <form id="directBanForm" method="POST" action="/admin3d/direct-ban-fetch" style="display: none;">
-    <input type="hidden" name="serverId" id="serverIdInput">
-    <input type="hidden" name="_csrf" value="<%= csrf %>">
-  </form>
+  <!-- Ban form -->
+  <div class="admin3d-card ban-form-card" id="banFormCard" style="display: none;">
+    <div class="admin3d-card-header">
+      <h2><i class="fas fa-gavel"></i> Ban User</h2>
+    </div>
+    <div class="admin3d-card-content">
+      <form id="directBanForm">
+        <input type="hidden" id="banServerId" name="serverId" value="">
+        
+        <div class="admin3d-form-group">
+          <label for="userId">User ID or @Mention</label>
+          <input type="text" id="userId" name="userId" placeholder="Enter user ID or @mention" required class="admin3d-form-input">
+        </div>
+        
+        <div class="admin3d-form-group">
+          <label for="banReason">Reason</label>
+          <textarea id="banReason" name="banReason" placeholder="Explain the reason for this ban..." rows="3" class="admin3d-form-textarea"></textarea>
+        </div>
+        
+        <div class="admin3d-form-options">
+          <div class="admin3d-form-check">
+            <input type="checkbox" id="deleteMessages" name="deleteMessages" value="true">
+            <label for="deleteMessages">Delete recent messages</label>
+          </div>
+          
+          <div class="admin3d-form-check">
+            <input type="checkbox" id="addToBlacklist" name="addToBlacklist" value="true">
+            <label for="addToBlacklist">Add to blacklist</label>
+          </div>
+        </div>
+        
+        <div class="admin3d-form-actions">
+          <button type="submit" class="admin3d-btn admin3d-btn-danger">
+            <i class="fas fa-gavel"></i> Ban User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Ban list container -->
+  <div class="admin3d-card ban-list-card">
+    <div class="admin3d-card-header">
+      <h2><i class="fas fa-list"></i> Server Ban List</h2>
+      <div class="header-actions">
+        <button id="refreshBans" class="admin3d-btn admin3d-btn-icon" title="Refresh ban list" style="display: none;">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+    </div>
+    <div class="admin3d-card-content" id="banListContainer">
+      <!-- Initial state -->
+      <div class="initial-state" id="initialState">
+        <div class="message-container">
+          <i class="fas fa-arrow-up"></i>
+          <p>Select a server and click "Load Bans" to view the ban list</p>
+        </div>
+      </div>
+      
+      <!-- Loading state -->
+      <div class="loading-container" id="loadingState" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Loading ban list...</p>
+      </div>
+      
+      <!-- Error state -->
+      <div class="error-container" id="errorState" style="display: none;">
+        <div class="error-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <p id="errorMessage">Error loading ban list</p>
+        <button id="retryButton" class="admin3d-btn admin3d-btn-secondary">
+          <i class="fas fa-redo"></i> Retry
+        </button>
+      </div>
+      
+      <!-- Ban list state -->
+      <div id="banListState" style="display: none;">
+        <div class="admin3d-search-filters">
+          <div class="admin3d-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="banSearchInput" placeholder="Search bans..." class="admin3d-form-input">
+          </div>
+        </div>
+        
+        <div class="ban-count-info" id="banCount">
+          Total bans: <span>0</span>
+        </div>
+        
+        <table class="ban-list-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Reason</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="banListBody">
+            <!-- Ban list rows will be added here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Unban Modal -->
+<div class="admin3d-modal" id="unbanModal">
+  <div class="admin3d-modal-content">
+    <div class="admin3d-modal-header">
+      <h3>Unban User</h3>
+      <span class="admin3d-modal-close">&times;</span>
+    </div>
+    <div class="admin3d-modal-body">
+      <p>Are you sure you want to unban <span id="unbanUsername">this user</span>?</p>
+      <form id="unbanForm">
+        <input type="hidden" id="unbanServerId" name="serverId">
+        <input type="hidden" id="unbanUserId" name="userId">
+        
+        <div class="admin3d-form-group">
+          <label for="unbanReason">Reason (optional)</label>
+          <textarea id="unbanReason" name="unbanReason" rows="2" class="admin3d-form-textarea" placeholder="Reason for unbanning..."></textarea>
+        </div>
+        
+        <div class="admin3d-form-actions">
+          <button type="button" class="admin3d-btn admin3d-btn-secondary cancel-unban">Cancel</button>
+          <button type="submit" class="admin3d-btn admin3d-btn-primary">
+            <i class="fas fa-check"></i> Confirm Unban
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const directServerSelect = document.getElementById('directServerSelect');
-  const loadBansButton = document.getElementById('loadBansButton');
-  const directBanListBody = document.getElementById('directBanListBody');
-  const directBanForm = document.getElementById('directBanForm');
-  const serverIdInput = document.getElementById('serverIdInput');
-  const banCount = document.getElementById('banCount');
-  const loadingContainer = document.querySelector('.loading-container');
-  const errorContainer = document.querySelector('.error-container');
-  const errorMessage = document.querySelector('.error-message');
-  
-  // Button to load bans
-  loadBansButton.addEventListener('click', function() {
-    const serverId = directServerSelect.value;
-    if (!serverId) {
-      showError('Please select a server first');
-      return;
-    }
+  document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const serverSelect = document.getElementById('serverSelect');
+    const loadBansButton = document.getElementById('loadBans');
+    const refreshBansButton = document.getElementById('refreshBans');
+    const banListContainer = document.getElementById('banListContainer');
+    const initialState = document.getElementById('initialState');
+    const loadingState = document.getElementById('loadingState');
+    const errorState = document.getElementById('errorState');
+    const banListState = document.getElementById('banListState');
+    const banListBody = document.getElementById('banListBody');
+    const banCount = document.getElementById('banCount');
+    const errorMessage = document.getElementById('errorMessage');
+    const retryButton = document.getElementById('retryButton');
+    const banSearchInput = document.getElementById('banSearchInput');
     
-    // Show loading state
-    showLoading();
+    // Ban form elements
+    const banFormCard = document.getElementById('banFormCard');
+    const directBanForm = document.getElementById('directBanForm');
+    const banServerId = document.getElementById('banServerId');
     
-    // Set server ID in form
-    serverIdInput.value = serverId;
+    // Unban modal elements
+    const unbanModal = document.getElementById('unbanModal');
+    const unbanForm = document.getElementById('unbanForm');
+    const unbanServerId = document.getElementById('unbanServerId');
+    const unbanUserId = document.getElementById('unbanUserId');
+    const unbanUsername = document.getElementById('unbanUsername');
+    const cancelUnbanButtons = document.querySelectorAll('.cancel-unban, .admin3d-modal-close');
     
-    // Use form POST submission
-    // This is different from fetch() and can bypass certain authentication issues
-    if (isIframe()) {
-      // For iframe mode, use window.location to avoid CORS issues with form submission
-      window.location.href = `/admin3d/direct-ban-fetch?serverId=${encodeURIComponent(serverId)}`;
-    } else {
-      // Submit the form
-      directBanForm.submit();
-    }
+    // Current server and bans
+    let currentServerId = null;
+    let currentBans = [];
+    let filteredBans = [];
     
-    // Fallback if submission doesn't redirect
-    setTimeout(function() {
-      // If we're still here after 5 seconds, the form submission failed
-      hideLoading();
-      showError('Request timed out. Please try again.');
-    }, 5000);
-  });
-  
-  // Check if we're in an iframe
-  function isIframe() {
-    try {
-      return window.self !== window.top;
-    } catch (e) {
-      return true;
-    }
-  }
-  
-  // Set up UI helper functions
-  function showLoading() {
-    loadingContainer.style.display = 'flex';
-    errorContainer.style.display = 'none';
-    directBanListBody.innerHTML = '';
-  }
-  
-  function hideLoading() {
-    loadingContainer.style.display = 'none';
-  }
-  
-  function showError(message) {
-    errorContainer.style.display = 'flex';
-    errorMessage.textContent = message;
-    hideLoading();
-  }
-  
-  // Function to display ban data (called when data is loaded via GET parameter)
-  window.displayBanData = function(banData) {
-    hideLoading();
+    // Event Listeners
+    loadBansButton.addEventListener('click', loadBans);
+    refreshBansButton.addEventListener('click', refreshBans);
+    retryButton.addEventListener('click', retryLoadBans);
+    serverSelect.addEventListener('change', handleServerChange);
+    banSearchInput.addEventListener('input', filterBans);
+    directBanForm.addEventListener('submit', handleBanSubmit);
+    unbanForm.addEventListener('submit', handleUnbanSubmit);
     
-    if (!banData || !banData.success) {
-      showError(banData?.message || 'Failed to load ban list');
-      return;
-    }
+    cancelUnbanButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        unbanModal.style.display = 'none';
+      });
+    });
     
-    const bans = banData.bans || [];
-    banCount.textContent = bans.length;
+    // Click outside modal to close
+    window.addEventListener('click', (event) => {
+      if (event.target === unbanModal) {
+        unbanModal.style.display = 'none';
+      }
+    });
     
-    if (bans.length === 0) {
-      directBanListBody.innerHTML = `
-        <tr class="empty-state">
-          <td colspan="5">
-            <div class="empty-state-message">
-              <i class="fas fa-info-circle"></i>
-              <p>No bans found for this server</p>
-            </div>
-          </td>
-        </tr>
-      `;
-      return;
-    }
-    
-    directBanListBody.innerHTML = '';
-    
-    bans.forEach(ban => {
-      // Format date
-      let formattedDate = "Unknown date";
-      try {
-        const banDate = new Date(ban.bannedAt || Date.now());
-        formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
-      } catch (dateError) {
-        console.warn("Error formatting ban date:", dateError);
+    // Handle server change
+    function handleServerChange() {
+      const serverId = serverSelect.value;
+      
+      // Update the form's server ID
+      banServerId.value = serverId;
+      
+      // Show/hide the ban form card
+      if (serverId) {
+        banFormCard.style.display = 'block';
+      } else {
+        banFormCard.style.display = 'none';
       }
       
-      // Determine duration text
-      const durationText = ban.permanent ? 'Permanent' : (ban.duration || 'Permanent');
+      // Reset the ban list if server changed
+      if (currentServerId !== serverId) {
+        resetBanList();
+      }
+    }
+    
+    // Load bans for the selected server
+    function loadBans() {
+      const serverId = serverSelect.value;
       
-      directBanListBody.innerHTML += `
-        <tr>
+      if (!serverId) {
+        showError('Please select a server first');
+        return;
+      }
+      
+      currentServerId = serverId;
+      
+      // Show loading state
+      showLoading();
+      
+      // Enable refresh button
+      refreshBansButton.style.display = 'block';
+      
+      // Fetch bans
+      fetch('/admin3d/direct-bans/fetch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ serverId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          currentBans = data.bans;
+          filteredBans = [...currentBans];
+          renderBanList(currentBans);
+        } else {
+          showError(data.message || 'Failed to load ban list');
+        }
+      })
+      .catch(error => {
+        console.error('Error loading bans:', error);
+        showError('Error connecting to server');
+      });
+    }
+    
+    // Refresh the current ban list
+    function refreshBans() {
+      if (currentServerId) {
+        loadBans();
+      }
+    }
+    
+    // Retry loading bans
+    function retryLoadBans() {
+      if (currentServerId) {
+        loadBans();
+      } else {
+        showInitial();
+      }
+    }
+    
+    // Filter bans based on search input
+    function filterBans() {
+      const searchTerm = banSearchInput.value.toLowerCase();
+      
+      if (!searchTerm) {
+        filteredBans = [...currentBans];
+      } else {
+        filteredBans = currentBans.filter(ban => 
+          ban.username.toLowerCase().includes(searchTerm) ||
+          ban.tag.toLowerCase().includes(searchTerm) ||
+          ban.id.includes(searchTerm) ||
+          ban.reason.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      renderBanList(filteredBans);
+    }
+    
+    // Render ban list
+    function renderBanList(bans) {
+      // Update count
+      banCount.querySelector('span').textContent = bans.length;
+      
+      // Show ban list state
+      showBanList();
+      
+      // Clear previous list
+      banListBody.innerHTML = '';
+      
+      if (bans.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.className = 'empty-row';
+        emptyRow.innerHTML = `
+          <td colspan="4">
+            <div class="empty-message">
+              <i class="fas fa-info-circle"></i>
+              <p>No bans found in this server</p>
+            </div>
+          </td>
+        `;
+        banListBody.appendChild(emptyRow);
+        return;
+      }
+      
+      // Sort bans by username
+      bans.sort((a, b) => a.username.localeCompare(b.username));
+      
+      // Add ban rows
+      bans.forEach(ban => {
+        const row = document.createElement('tr');
+        
+        // Format date
+        const banDate = new Date(ban.bannedAt);
+        const formattedDate = isValidDate(banDate) ? 
+          banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 
+          'Unknown';
+        
+        row.innerHTML = `
           <td>
-            <div class="user-info">
-              <div class="user-avatar">
-                <img src="${ban.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag}'s avatar">
-              </div>
-              <div class="user-details">
-                <div class="user-name">${ban.username || ban.tag || 'Unknown User'}</div>
+            <div class="user-cell">
+              <img src="${ban.avatarURL}" alt="${ban.username}" class="user-avatar">
+              <div class="user-info">
+                <div class="username">${escapeHtml(ban.username)}</div>
                 <div class="user-id">${ban.id}</div>
               </div>
             </div>
           </td>
-          <td>${ban.reason || 'No reason provided'}</td>
+          <td>${escapeHtml(ban.reason || 'No reason provided')}</td>
           <td>${formattedDate}</td>
-          <td>${durationText}</td>
           <td>
-            <div class="table-actions">
-              <form action="/admin3d/direct-unban" method="POST">
-                <input type="hidden" name="serverId" value="${directServerSelect.value}">
-                <input type="hidden" name="userId" value="${ban.id}">
-                <input type="hidden" name="_csrf" value="<%= csrf %>">
-                <button type="submit" class="admin3d-btn admin3d-btn-sm admin3d-btn-primary">
-                  <i class="fas fa-user-check"></i> Unban
-                </button>
-              </form>
-            </div>
+            <button class="admin3d-btn admin3d-btn-small unban-btn" data-userid="${ban.id}" data-username="${escapeHtml(ban.username)}">
+              <i class="fas fa-undo"></i> Unban
+            </button>
           </td>
-        </tr>
-      `;
-    });
-  };
-  
-  // Check if there's ban data in URL parameters (when returning from form submission)
-  const urlParams = new URLSearchParams(window.location.search);
-  const banDataParam = urlParams.get('banData');
-  
-  if (banDataParam) {
-    try {
-      const banData = JSON.parse(decodeURIComponent(banDataParam));
-      displayBanData(banData);
+        `;
+        
+        banListBody.appendChild(row);
+      });
       
-      // Set the server select to match the loaded data
-      const serverId = urlParams.get('serverId');
-      if (serverId) {
-        directServerSelect.value = serverId;
-      }
-    } catch (e) {
-      console.error('Error parsing ban data from URL:', e);
-      showError('Error loading ban data');
+      // Add event listeners to unban buttons
+      document.querySelectorAll('.unban-btn').forEach(button => {
+        button.addEventListener('click', openUnbanModal);
+      });
     }
-  }
-});
+    
+    // Open unban modal
+    function openUnbanModal(event) {
+      const userId = event.currentTarget.dataset.userid;
+      const username = event.currentTarget.dataset.username;
+      
+      unbanServerId.value = currentServerId;
+      unbanUserId.value = userId;
+      unbanUsername.textContent = username;
+      
+      unbanModal.style.display = 'block';
+    }
+    
+    // Handle ban form submission
+    function handleBanSubmit(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(directBanForm);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Show loading state
+      showLoading();
+      
+      // Send ban request
+      fetch('/admin3d/direct-bans/ban-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Clear the form
+          directBanForm.reset();
+          
+          // Show success message
+          showSuccess(data.message);
+          
+          // Refresh the ban list
+          setTimeout(() => {
+            refreshBans();
+          }, 1000);
+        } else {
+          showError(data.message || 'Failed to ban user');
+        }
+      })
+      .catch(error => {
+        console.error('Error banning user:', error);
+        showError('Error connecting to server');
+      });
+    }
+    
+    // Handle unban form submission
+    function handleUnbanSubmit(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(unbanForm);
+      const data = Object.fromEntries(formData.entries());
+      
+      // Hide modal
+      unbanModal.style.display = 'none';
+      
+      // Show loading state
+      showLoading();
+      
+      // Send unban request
+      fetch('/admin3d/direct-bans/unban-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          showSuccess(data.message);
+          
+          // Refresh the ban list
+          setTimeout(() => {
+            refreshBans();
+          }, 1000);
+        } else {
+          showError(data.message || 'Failed to unban user');
+        }
+      })
+      .catch(error => {
+        console.error('Error unbanning user:', error);
+        showError('Error connecting to server');
+      });
+    }
+    
+    // Show success message
+    function showSuccess(message) {
+      // Create and show toast message
+      const toast = document.createElement('div');
+      toast.className = 'admin3d-toast success';
+      toast.innerHTML = `
+        <div class="toast-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="toast-message">${message}</div>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Show toast
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+      
+      // Remove toast after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+    
+    // State management helpers
+    function resetBanList() {
+      currentBans = [];
+      filteredBans = [];
+      banSearchInput.value = '';
+      showInitial();
+    }
+    
+    function showInitial() {
+      initialState.style.display = 'block';
+      loadingState.style.display = 'none';
+      errorState.style.display = 'none';
+      banListState.style.display = 'none';
+      refreshBansButton.style.display = 'none';
+    }
+    
+    function showLoading() {
+      initialState.style.display = 'none';
+      loadingState.style.display = 'block';
+      errorState.style.display = 'none';
+      banListState.style.display = 'none';
+    }
+    
+    function showError(message) {
+      initialState.style.display = 'none';
+      loadingState.style.display = 'none';
+      errorState.style.display = 'block';
+      banListState.style.display = 'none';
+      
+      errorMessage.textContent = message || 'Error loading ban list';
+    }
+    
+    function showBanList() {
+      initialState.style.display = 'none';
+      loadingState.style.display = 'none';
+      errorState.style.display = 'none';
+      banListState.style.display = 'block';
+    }
+    
+    // Helper functions
+    function isValidDate(date) {
+      return date instanceof Date && !isNaN(date);
+    }
+    
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+    
+    // Check URL for server parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const serverParam = urlParams.get('server');
+    
+    if (serverParam) {
+      // Find and select the server in the dropdown
+      const serverOption = Array.from(serverSelect.options).find(option => option.value === serverParam);
+      if (serverOption) {
+        serverSelect.value = serverParam;
+        handleServerChange();
+        // Auto-load bans
+        loadBans();
+      }
+    }
+  });
 </script>
 
 <style>
+  /* Additional styles for the direct ban access page */
   .direct-ban-access {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
   }
   
+  .admin3d-section-header {
+    margin-bottom: 20px;
+  }
+  
+  .admin3d-section-header h1 {
+    margin-bottom: 5px;
+    color: #8936ff; /* Premium purple color */
+  }
+  
+  .admin3d-section-description {
+    margin-top: 0;
+    color: #ccc;
+  }
+  
   .server-selector {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    align-items: center;
   }
   
   .server-selector select {
     flex: 1;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-radius: 4px;
     border: 1px solid #3a3a3a;
     background-color: #2a2a2a;
     color: #fff;
+    font-size: 14px;
   }
   
-  .loading-container {
+  .back-link {
+    margin-left: auto;
+  }
+  
+  .admin3d-link {
+    color: #7289da;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+  }
+  
+  .admin3d-link:hover {
+    text-decoration: underline;
+  }
+  
+  .ban-form-card {
+    margin-bottom: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .ban-list-card {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .admin3d-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background-color: #333;
+    border-bottom: 1px solid #3a3a3a;
+  }
+  
+  .admin3d-card-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .admin3d-card-content {
+    padding: 20px;
+  }
+  
+  .initial-state,
+  .loading-container,
+  .error-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 40px 20px;
+    text-align: center;
+  }
+  
+  .message-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #7289da;
+  }
+  
+  .message-container i {
+    font-size: 30px;
+    margin-bottom: 15px;
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-20px);
+    }
+    60% {
+      transform: translateY(-10px);
+    }
   }
   
   .loading-spinner {
@@ -264,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: 50%;
     border-top: 4px solid #7289da;
     animation: spin 1s linear infinite;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
   
   @keyframes spin {
@@ -272,29 +727,26 @@ document.addEventListener('DOMContentLoaded', function() {
     100% { transform: rotate(360deg); }
   }
   
-  .error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
+  .error-icon {
+    font-size: 30px;
     color: #ff5555;
+    margin-bottom: 15px;
   }
   
-  .error-icon {
-    font-size: 40px;
-    margin-bottom: 10px;
+  #errorMessage {
+    color: #ff5555;
+    margin-bottom: 15px;
   }
   
   .ban-count-info {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     font-weight: bold;
+    color: #ccc;
   }
   
   .ban-list-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
   }
   
   .ban-list-table th,
@@ -305,47 +757,160 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   .ban-list-table th {
-    background-color: #2a2a2a;
+    background-color: #333;
     font-weight: bold;
+    color: #fff;
   }
   
-  .user-info {
+  .user-cell {
     display: flex;
     align-items: center;
     gap: 10px;
   }
   
-  .user-avatar img {
-    width: 40px;
-    height: 40px;
+  .user-avatar {
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     object-fit: cover;
   }
   
-  .user-details {
+  .user-info {
     display: flex;
     flex-direction: column;
   }
   
-  .user-name {
+  .username {
     font-weight: bold;
+    color: #fff;
   }
   
   .user-id {
-    font-size: 0.8em;
-    opacity: 0.7;
+    font-size: 12px;
+    color: #999;
   }
   
-  .empty-state-message {
+  .admin3d-btn-small {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  
+  .empty-row td {
+    padding: 40px 0;
+  }
+  
+  .empty-message {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px;
-    color: #888;
+    color: #999;
   }
   
-  .empty-state-message i {
-    font-size: 30px;
+  .empty-message i {
+    font-size: 24px;
     margin-bottom: 10px;
+    color: #666;
+  }
+  
+  /* Modal styles */
+  .admin3d-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .admin3d-modal-content {
+    position: relative;
+    background-color: #2a2a2a;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    animation: modalIn 0.3s ease-out;
+  }
+  
+  @keyframes modalIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .admin3d-modal-header {
+    padding: 15px 20px;
+    background-color: #333;
+    border-bottom: 1px solid #3a3a3a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .admin3d-modal-header h3 {
+    margin: 0;
+    color: #fff;
+  }
+  
+  .admin3d-modal-close {
+    color: #999;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .admin3d-modal-close:hover {
+    color: #fff;
+  }
+  
+  .admin3d-modal-body {
+    padding: 20px;
+  }
+  
+  /* Toast notification */
+  .admin3d-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #2a2a2a;
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+  }
+  
+  .admin3d-toast.show {
+    transform: translateX(0);
+  }
+  
+  .admin3d-toast.success .toast-icon {
+    color: #4caf50;
+  }
+  
+  .admin3d-toast.error .toast-icon {
+    color: #f44336;
+  }
+  
+  .toast-icon i {
+    font-size: 20px;
+  }
+  
+  .toast-message {
+    color: #fff;
   }
 </style>
