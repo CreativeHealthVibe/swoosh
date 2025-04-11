@@ -833,33 +833,120 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function loadAutomodSettings(serverId) {
     if (!automodSettingsForm) return;
+    if (!serverId) return;
     
-    // For demo purposes, we'll just simulate loading settings
-    // In a real application, you would fetch this from an API
-    setTimeout(() => {
-      // Set default values for the form (this would come from the API)
-      document.getElementById('profanityFilter').checked = true;
-      document.getElementById('profanityFilterLevel').value = 'medium';
-      document.getElementById('linkFilter').checked = true;
-      document.getElementById('inviteBlocker').checked = true;
-      document.getElementById('antiSpam').checked = true;
-      document.getElementById('antiMention').checked = true;
-      document.getElementById('antiRaid').checked = false;
-      document.getElementById('messageThreshold').value = 5;
-      document.getElementById('timeThreshold').value = 5;
-      document.getElementById('violationAction').value = 'warn';
-      document.getElementById('spamAction').value = 'mute';
-      document.getElementById('muteDuration').value = '30m';
-      document.getElementById('logActions').checked = true;
-      document.getElementById('notifyUsers').checked = true;
-      
-      // Update UI based on settings
-      if (document.getElementById('profanityFilterLevel').value === 'custom') {
-        document.getElementById('customWordListGroup').style.display = 'block';
-      } else {
-        document.getElementById('customWordListGroup').style.display = 'none';
-      }
-    }, 800);
+    // Show loading spinner or indicator
+    const automodContainer = document.querySelector('#auto-moderation .admin3d-card-content');
+    if (automodContainer) {
+      automodContainer.innerHTML += `
+        <div class="loading-overlay" id="automod-loading">
+          <div class="spinner">
+            <i class="fas fa-circle-notch fa-spin"></i>
+          </div>
+          <div class="loading-text">Loading auto-moderation settings...</div>
+        </div>
+      `;
+    }
+    
+    // Fetch automod settings from our API using the centralized fetchAPI function
+    console.log(`Fetching automod settings for server: ${serverId}`);
+    fetchAPI(`/api/moderation/automod/${serverId}`, {
+      credentials: 'include' // Include credentials in the request
+    })
+      .then(data => {
+        // Remove loading indicator
+        document.getElementById('automod-loading')?.remove();
+        
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to load auto-moderation settings');
+        }
+        
+        const settings = data.settings || {};
+        console.log('Loaded automod settings:', settings);
+        
+        // Apply settings to form elements if they exist
+        if (document.getElementById('automodServerId')) {
+          document.getElementById('automodServerId').value = serverId;
+        }
+        
+        if (document.getElementById('profanityFilter')) {
+          document.getElementById('profanityFilter').checked = settings.filterProfanity === true;
+        }
+        
+        if (document.getElementById('profanityFilterLevel')) {
+          document.getElementById('profanityFilterLevel').value = settings.profanityThreshold || 'medium';
+        }
+        
+        if (document.getElementById('linkFilter')) {
+          document.getElementById('linkFilter').checked = settings.filterLinks === true;
+        }
+        
+        if (document.getElementById('inviteBlocker')) {
+          document.getElementById('inviteBlocker').checked = settings.filterInvites === true;
+        }
+        
+        if (document.getElementById('antiSpam')) {
+          document.getElementById('antiSpam').checked = settings.filterSpam === true;
+        }
+        
+        if (document.getElementById('antiMention') && settings.filterMentions !== undefined) {
+          document.getElementById('antiMention').checked = settings.filterMentions === true;
+        }
+        
+        if (document.getElementById('antiRaid')) {
+          document.getElementById('antiRaid').checked = settings.antiRaid === true;
+        }
+        
+        if (document.getElementById('messageThreshold')) {
+          document.getElementById('messageThreshold').value = settings.spamThreshold || 5;
+        }
+        
+        if (document.getElementById('timeThreshold') && settings.timeThreshold !== undefined) {
+          document.getElementById('timeThreshold').value = settings.timeThreshold || 5;
+        }
+        
+        if (document.getElementById('violationAction') && settings.violationAction !== undefined) {
+          document.getElementById('violationAction').value = settings.violationAction || 'warn';
+        }
+        
+        if (document.getElementById('spamAction')) {
+          document.getElementById('spamAction').value = settings.spamAction || 'mute';
+        }
+        
+        if (document.getElementById('muteDuration') && settings.muteDuration !== undefined) {
+          document.getElementById('muteDuration').value = settings.muteDuration || '30m';
+        }
+        
+        if (document.getElementById('logActions') && settings.logActions !== undefined) {
+          document.getElementById('logActions').checked = settings.logActions !== false;
+        }
+        
+        if (document.getElementById('notifyUsers') && settings.notifyUsers !== undefined) {
+          document.getElementById('notifyUsers').checked = settings.notifyUsers !== false;
+        }
+        
+        // Update UI based on settings
+        if (document.getElementById('profanityFilterLevel') && 
+            document.getElementById('profanityFilterLevel').value === 'custom' && 
+            document.getElementById('customWordListGroup')) {
+          document.getElementById('customWordListGroup').style.display = 'block';
+        } else if (document.getElementById('customWordListGroup')) {
+          document.getElementById('customWordListGroup').style.display = 'none';
+        }
+        
+        // If antiRaid setting exists, show/hide raid options
+        if (document.getElementById('antiRaid') && document.getElementById('raidOptions')) {
+          document.getElementById('raidOptions').style.display = 
+            settings.antiRaid === true ? 'block' : 'none';
+        }
+      })
+      .catch(error => {
+        // Remove loading indicator
+        document.getElementById('automod-loading')?.remove();
+        
+        console.error('Error loading automod settings:', error);
+        showNotification(`Error loading auto-moderation settings: ${error.message}`, 'error');
+      });
   }
   
   // Initialize server selector
@@ -1772,15 +1859,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Show loading state
-    document.querySelector('.loading-overlay').style.display = 'flex';
+    const loadingOverlay = document.querySelector('.loading-overlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'flex';
+    }
     
-    // Make API request
-    fetch(`/api/moderation/automod`, {
+    // Use the centralized fetchAPI for better error handling
+    return fetchAPI('/api/moderation/automod', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         ...settings,
