@@ -275,10 +275,168 @@
       
       <!-- Warning System Tab -->
       <div id="warning-system" class="tab-content">
-        <div class="warning-placeholder">
-          <i class="fas fa-exclamation-triangle"></i>
-          <h3>Warning System</h3>
-          <p>This section will be implemented in the next update.</p>
+        <div class="mod-warning-section">
+          <!-- Warning System Header -->
+          <div class="mod-section-header-wrapper">
+            <h2 class="mod-main-title">Warning Management System</h2>
+            <p class="mod-main-desc">Issue warnings to users, view warning history, and manage warning policies.</p>
+          </div>
+          
+          <div class="mod-warning-container">
+            <!-- Issue Warning Form -->
+            <div class="mod-warn-user">
+              <div class="mod-section-header">
+                <div class="mod-section-icon warning-icon">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>Issue Warning</h3>
+                <div class="mod-premium-badge">
+                  <span>PREMIUM</span>
+                </div>
+              </div>
+              <div class="mod-section-content">
+                <p class="mod-desc">Issue a warning to a user in the selected server. Warnings will be tracked and can be used for automated moderation.</p>
+                <form id="warnUserForm" action="/admin3d/warnings/add" method="POST">
+                  <input type="hidden" id="warnServerId" name="serverId">
+                  
+                  <div class="form-field">
+                    <label for="warnUserId">User ID or @mention</label>
+                    <input type="text" id="warnUserId" name="userId" placeholder="Enter user ID or @mention" required>
+                  </div>
+                  
+                  <div class="form-field">
+                    <label for="warnReason">Warning Reason</label>
+                    <textarea id="warnReason" name="reason" placeholder="Explain the reason for this warning..." required rows="3"></textarea>
+                  </div>
+                  
+                  <div class="form-options">
+                    <div class="form-check">
+                      <input type="checkbox" id="notifyUser" name="notifyUser" checked>
+                      <label for="notifyUser">Notify user via DM</label>
+                    </div>
+                  </div>
+                  
+                  <div class="form-actions">
+                    <button type="submit" class="mod-btn danger-btn">
+                      <i class="fas fa-exclamation-triangle"></i>
+                      <span>Issue Warning</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            
+            <!-- Warning List -->
+            <div class="mod-current-warnings">
+              <div class="mod-section-header">
+                <div class="mod-section-icon list-icon">
+                  <i class="fas fa-list"></i>
+                </div>
+                <h3>Warning History</h3>
+                <div id="refreshWarnings" class="mod-refresh-btn" title="Refresh warnings list">
+                  <i class="fas fa-sync-alt"></i>
+                </div>
+              </div>
+              <div class="mod-section-content">
+                <div class="admin3d-search-filters">
+                  <div class="admin3d-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="warningSearchInput" placeholder="Search warnings...">
+                  </div>
+                </div>
+                
+                <div class="admin3d-table-wrapper">
+                  <table class="admin3d-table">
+                    <thead>
+                      <tr>
+                        <th>User</th>
+                        <th>Reason</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="warningListBody">
+                      <tr class="empty-state">
+                        <td colspan="5">
+                          <div class="empty-state-message">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Please select a server to view warnings</p>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Warning Statistics and Management -->
+          <div class="mod-warning-stats-container">
+            <div class="mod-warning-stats">
+              <div class="mod-section-header">
+                <div class="mod-section-icon warning-stats-icon">
+                  <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>Warning Statistics</h3>
+              </div>
+              <div class="mod-section-content">
+                <div class="warning-stats-grid">
+                  <div class="warning-stat-item">
+                    <div class="warning-stat-value" id="totalServerWarnings">-</div>
+                    <div class="warning-stat-label">Total Warnings</div>
+                  </div>
+                  <div class="warning-stat-item">
+                    <div class="warning-stat-value" id="activeWarnings">-</div>
+                    <div class="warning-stat-label">Active Warnings</div>
+                  </div>
+                  <div class="warning-stat-item">
+                    <div class="warning-stat-value" id="warnedUsers">-</div>
+                    <div class="warning-stat-label">Warned Users</div>
+                  </div>
+                  <div class="warning-stat-item">
+                    <div class="warning-stat-value" id="avgWarningsPerUser">-</div>
+                    <div class="warning-stat-label">Avg. Per User</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- User Warning Details Modal (will be shown when clicking on a user) -->
+          <div id="userWarningModal" class="mod-modal">
+            <div class="mod-modal-content">
+              <div class="mod-modal-header">
+                <h3>User Warning Details</h3>
+                <span class="mod-modal-close">&times;</span>
+              </div>
+              <div class="mod-modal-body">
+                <div class="user-warning-profile">
+                  <div class="user-warning-avatar">
+                    <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="User Avatar" id="warningUserAvatar">
+                  </div>
+                  <div class="user-warning-info">
+                    <h4 id="warningUserName">Username</h4>
+                    <div id="warningUserId">User ID</div>
+                    <div class="user-warning-count">
+                      <span id="userWarningCount">0</span> warnings
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="user-warning-list" id="userWarningList">
+                  <!-- Warning items will be inserted here by JavaScript -->
+                </div>
+                
+                <div class="user-warning-actions">
+                  <button class="mod-btn warning-clear-btn" id="clearUserWarnings">
+                    <i class="fas fa-trash-alt"></i> Clear All Warnings
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -1171,6 +1329,327 @@
     margin: 0;
   }
   
+  /* Warning System Styles */
+  .mod-warning-section {
+    margin-bottom: 30px;
+  }
+  
+  .mod-section-header-wrapper {
+    margin-bottom: 25px;
+  }
+  
+  .mod-main-title {
+    font-size: 24px;
+    color: #fff;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+  }
+  
+  .mod-main-desc {
+    color: #aaa;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .mod-warning-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 25px;
+    margin-bottom: 25px;
+  }
+  
+  .mod-warn-user, .mod-current-warnings {
+    background: linear-gradient(to bottom, #2A2A2A, #2D2D2D);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.3s ease;
+  }
+  
+  .warning-stats-icon {
+    background: linear-gradient(135deg, rgba(255, 153, 0, 0.2), rgba(255, 153, 0, 0.1));
+    color: #ff9900;
+    border: 1px solid rgba(255, 153, 0, 0.1);
+  }
+  
+  .mod-warning-stats-container {
+    margin-bottom: 25px;
+  }
+  
+  .mod-warning-stats {
+    background: linear-gradient(to bottom, #2A2A2A, #2D2D2D);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+  }
+  
+  .warning-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+  
+  .warning-stat-item {
+    background: rgba(20, 20, 20, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid rgba(255, 153, 0, 0.1);
+  }
+  
+  .warning-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ff9900;
+    margin-bottom: 5px;
+  }
+  
+  .warning-stat-label {
+    font-size: 12px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Modal styles */
+  .mod-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .mod-modal-content {
+    background: linear-gradient(to bottom, #333, #2A2A2A);
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    animation: modalFadeIn 0.3s ease;
+  }
+  
+  @keyframes modalFadeIn {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .mod-modal-header {
+    padding: 15px 20px;
+    background: linear-gradient(to right, #222, #333);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .mod-modal-header h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+  }
+  
+  .mod-modal-close {
+    font-size: 24px;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .mod-modal-close:hover {
+    color: #fff;
+  }
+  
+  .mod-modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  
+  .user-warning-profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    background: rgba(20, 20, 20, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .user-warning-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+    border: 2px solid rgba(255, 153, 0, 0.3);
+  }
+  
+  .user-warning-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .user-warning-info {
+    flex: 1;
+  }
+  
+  .user-warning-info h4 {
+    margin: 0 0 5px 0;
+    color: #fff;
+    font-size: 18px;
+  }
+  
+  .user-warning-info div {
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .user-warning-count {
+    font-weight: 600;
+    color: #ff9900;
+  }
+  
+  .user-warning-list {
+    margin-bottom: 20px;
+  }
+  
+  .warning-item {
+    background: rgba(20, 20, 20, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 3px solid #ff9900;
+  }
+  
+  .warning-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .warning-item-date {
+    color: #aaa;
+    font-size: 12px;
+  }
+  
+  .warning-item-status {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  
+  .warning-active {
+    background-color: rgba(255, 153, 0, 0.2);
+    color: #ff9900;
+    border: 1px solid rgba(255, 153, 0, 0.3);
+  }
+  
+  .warning-inactive {
+    background-color: rgba(100, 100, 100, 0.2);
+    color: #aaa;
+    border: 1px solid rgba(100, 100, 100, 0.3);
+  }
+  
+  .warning-item-reason {
+    color: #ddd;
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+  }
+  
+  .warning-item-moderator {
+    color: #aaa;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .warning-item-moderator i {
+    margin-right: 5px;
+  }
+  
+  .warning-item-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .warning-item-btn {
+    background: rgba(20, 20, 20, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+  }
+  
+  .warning-item-btn i {
+    margin-right: 5px;
+  }
+  
+  .warning-item-btn:hover {
+    background: rgba(20, 20, 20, 0.5);
+    color: #fff;
+  }
+  
+  .warning-toggle-btn:hover {
+    border-color: #64aaff;
+    color: #64aaff;
+  }
+  
+  .warning-remove-btn:hover {
+    border-color: #ff5050;
+    color: #ff5050;
+  }
+  
+  .user-warning-actions {
+    text-align: center;
+  }
+  
+  .warning-clear-btn {
+    background: linear-gradient(to bottom, rgba(255, 70, 70, 0.2), rgba(255, 70, 70, 0.1));
+    color: #ff5050;
+    border: 1px solid rgba(255, 70, 70, 0.2);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .warning-clear-btn:hover {
+    background: linear-gradient(to bottom, rgba(255, 70, 70, 0.3), rgba(255, 70, 70, 0.2));
+    transform: translateY(-2px);
+  }
+  
+  .warning-clear-btn i {
+    margin-right: 8px;
+  }
+  
   /* Responsive styles */
   @media (max-width: 1200px) {
     .mod-stats-cards {
@@ -1262,6 +1741,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Load relevant data
       loadBanList(selectedId);
+      loadWarningList(selectedId);
       
       // Simulate loading stats for demonstration
       setTimeout(() => {
@@ -1323,6 +1803,453 @@ document.addEventListener('DOMContentLoaded', () => {
     if (serverId) loadBanList(serverId);
   });
   
+  // Initialize warning system
+  const warnUserForm = document.getElementById('warnUserForm');
+  const refreshWarnings = document.getElementById('refreshWarnings');
+  const userWarningModal = document.getElementById('userWarningModal');
+  const closeUserWarningModal = document.querySelector('.mod-modal-close');
+  const clearUserWarningsBtn = document.getElementById('clearUserWarnings');
+  
+  // Warning form submission
+  if (warnUserForm) {
+    warnUserForm.addEventListener('submit', function(e) {
+      const serverId = document.getElementById('warnServerId').value;
+      if (!serverId) {
+        e.preventDefault();
+        alert('Please select a server first');
+        return false;
+      }
+    });
+  }
+  
+  // Refresh warnings button
+  if (refreshWarnings) {
+    refreshWarnings.addEventListener('click', function() {
+      const serverId = serverSelect.value;
+      if (serverId) loadWarningList(serverId);
+    });
+  }
+  
+  // Close modal
+  if (closeUserWarningModal) {
+    closeUserWarningModal.addEventListener('click', function() {
+      userWarningModal.style.display = 'none';
+    });
+  }
+  
+  // Clear user warnings
+  if (clearUserWarningsBtn) {
+    clearUserWarningsBtn.addEventListener('click', function() {
+      const userId = document.getElementById('warningUserId').textContent;
+      const serverId = serverSelect.value;
+      
+      if (confirm(`Are you sure you want to clear all warnings for user ${userId}?`)) {
+        clearUserWarnings(serverId, userId);
+      }
+    });
+  }
+  
+  // Close modal when clicking outside
+  window.addEventListener('click', function(e) {
+    if (e.target === userWarningModal) {
+      userWarningModal.style.display = 'none';
+    }
+  });
+  
+  /**
+   * Load warning list for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadWarningList(serverId) {
+    if (!document.getElementById('warningListBody')) return;
+    
+    // Update hidden fields for warning form
+    if (document.getElementById('warnServerId')) {
+      document.getElementById('warnServerId').value = serverId;
+    }
+    
+    // Show loading state
+    document.getElementById('warningListBody').innerHTML = `
+      <tr class="loading-state">
+        <td colspan="5">
+          <div class="empty-state-message">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Loading warnings...</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    
+    // Reset warning stats
+    document.getElementById('totalServerWarnings').textContent = '-';
+    document.getElementById('activeWarnings').textContent = '-';
+    document.getElementById('warnedUsers').textContent = '-';
+    document.getElementById('avgWarningsPerUser').textContent = '-';
+    
+    // Fetch warning data from the API
+    fetch(`/admin3d/warnings/list/${serverId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load warnings');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Warning data loaded:', data);
+      
+      // Update warning count in stats section
+      const totalWarnings = data.warnings?.length || 0;
+      document.getElementById('totalServerWarnings').textContent = totalWarnings;
+      
+      // Calculate active warnings
+      const activeWarnings = data.warnings?.filter(w => w.active).length || 0;
+      document.getElementById('activeWarnings').textContent = activeWarnings;
+      
+      // Calculate warned users (unique)
+      const uniqueUsers = new Set();
+      data.warnings?.forEach(w => uniqueUsers.add(w.userId));
+      const warnedUsers = uniqueUsers.size;
+      document.getElementById('warnedUsers').textContent = warnedUsers;
+      
+      // Calculate average warnings per user
+      const avgWarnings = warnedUsers > 0 ? (totalWarnings / warnedUsers).toFixed(1) : '0';
+      document.getElementById('avgWarningsPerUser').textContent = avgWarnings;
+      
+      // Show empty state if no warnings
+      if (!data.warnings || data.warnings.length === 0) {
+        document.getElementById('warningListBody').innerHTML = `
+          <tr class="empty-state">
+            <td colspan="5">
+              <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No warnings found for this server</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Generate warnings list HTML
+      const warningsListHTML = data.warnings.map(warning => {
+        // Format the date
+        const warningDate = new Date(warning.timestamp);
+        const formattedDate = warningDate.toLocaleDateString() + ' ' + warningDate.toLocaleTimeString();
+        
+        // Determine status text and class
+        const statusClass = warning.active ? 'warning-active' : 'warning-inactive';
+        const statusText = warning.active ? 'Active' : 'Inactive';
+        
+        return `
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">
+                  <img src="${warning.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${warning.username}'s avatar">
+                </div>
+                <div class="user-details">
+                  <div class="username">${warning.username || 'Unknown User'}</div>
+                  <div class="user-id">${warning.userId}</div>
+                </div>
+              </div>
+            </td>
+            <td>${warning.reason || 'No reason provided'}</td>
+            <td>${formattedDate}</td>
+            <td><span class="warning-item-status ${statusClass}">${statusText}</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn warning-toggle-btn" data-warning-id="${warning.id}" data-active="${warning.active}" title="${warning.active ? 'Deactivate' : 'Activate'} Warning">
+                  <i class="fas ${warning.active ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
+                </button>
+                <button class="action-btn warning-user-btn" data-user-id="${warning.userId}" title="View User Warnings">
+                  <i class="fas fa-user"></i>
+                </button>
+                <button class="action-btn warning-remove-btn" data-warning-id="${warning.id}" title="Delete Warning">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('warningListBody').innerHTML = warningsListHTML;
+      
+      // Add event listeners to action buttons
+      document.querySelectorAll('.warning-toggle-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const warningId = this.getAttribute('data-warning-id');
+          const isActive = this.getAttribute('data-active') === 'true';
+          toggleWarningStatus(serverId, warningId, !isActive);
+        });
+      });
+      
+      document.querySelectorAll('.warning-user-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.getAttribute('data-user-id');
+          showUserWarningDetails(serverId, userId);
+        });
+      });
+      
+      document.querySelectorAll('.warning-remove-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const warningId = this.getAttribute('data-warning-id');
+          if (confirm('Are you sure you want to delete this warning? This action cannot be undone.')) {
+            removeWarning(serverId, warningId);
+          }
+        });
+      });
+    })
+    .catch(error => {
+      console.error('Error loading warnings:', error);
+      document.getElementById('warningListBody').innerHTML = `
+        <tr class="error-state">
+          <td colspan="5">
+            <div class="error-state-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>Failed to load warnings: ${error.message}</p>
+              <button class="retry-button" onclick="loadWarningList('${serverId}')">
+                <i class="fas fa-sync-alt"></i> Retry
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+  }
+  
+  /**
+   * Toggle warning status (active/inactive)
+   * @param {string} serverId - Discord server ID
+   * @param {string} warningId - Warning ID
+   * @param {boolean} active - New active status
+   */
+  function toggleWarningStatus(serverId, warningId, active) {
+    fetch('/admin3d/warnings/update-status', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        serverId,
+        warningId,
+        active
+      }),
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Reload warnings list to reflect changes
+        loadWarningList(serverId);
+      } else {
+        alert(`Failed to update warning status: ${data.message}`);
+      }
+    })
+    .catch(error => {
+      console.error('Error updating warning status:', error);
+      alert(`Error updating warning status: ${error.message}`);
+    });
+  }
+  
+  /**
+   * Remove a warning
+   * @param {string} serverId - Discord server ID
+   * @param {string} warningId - Warning ID
+   */
+  function removeWarning(serverId, warningId) {
+    fetch('/admin3d/warnings/remove', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        serverId,
+        warningId
+      }),
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Reload warnings list to reflect changes
+        loadWarningList(serverId);
+      } else {
+        alert(`Failed to remove warning: ${data.message}`);
+      }
+    })
+    .catch(error => {
+      console.error('Error removing warning:', error);
+      alert(`Error removing warning: ${error.message}`);
+    });
+  }
+  
+  /**
+   * Show user warning details in modal
+   * @param {string} serverId - Discord server ID
+   * @param {string} userId - User ID
+   */
+  function showUserWarningDetails(serverId, userId) {
+    // Show loading state
+    document.getElementById('warningUserName').textContent = 'Loading...';
+    document.getElementById('warningUserId').textContent = userId;
+    document.getElementById('userWarningCount').textContent = '...';
+    document.getElementById('userWarningList').innerHTML = `
+      <div class="empty-state-message">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <p>Loading user warnings...</p>
+      </div>
+    `;
+    
+    // Show the modal
+    userWarningModal.style.display = 'flex';
+    
+    // Fetch user warnings
+    fetch(`/admin3d/warnings/user/${serverId}/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update user info
+        document.getElementById('warningUserName').textContent = data.user.username || 'Unknown User';
+        document.getElementById('warningUserId').textContent = data.user.id;
+        document.getElementById('userWarningCount').textContent = data.warnings.length;
+        document.getElementById('warningUserAvatar').src = data.user.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png';
+        
+        // Show empty state if no warnings
+        if (!data.warnings || data.warnings.length === 0) {
+          document.getElementById('userWarningList').innerHTML = `
+            <div class="empty-state-message">
+              <i class="fas fa-info-circle"></i>
+              <p>No warnings found for this user</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Generate warning items
+        const warningListHTML = data.warnings.map(warning => {
+          // Format the date
+          const warningDate = new Date(warning.timestamp);
+          const formattedDate = warningDate.toLocaleDateString() + ' ' + warningDate.toLocaleTimeString();
+          
+          // Determine status class
+          const statusClass = warning.active ? 'warning-active' : 'warning-inactive';
+          const statusText = warning.active ? 'Active' : 'Inactive';
+          
+          return `
+            <div class="warning-item">
+              <div class="warning-item-header">
+                <div class="warning-item-date">${formattedDate}</div>
+                <div class="warning-item-status ${statusClass}">${statusText}</div>
+              </div>
+              <p class="warning-item-reason">${warning.reason}</p>
+              <div class="warning-item-moderator">
+                <i class="fas fa-shield-alt"></i> Issued by ${warning.moderatorName}
+              </div>
+              <div class="warning-item-actions">
+                <button class="warning-item-btn warning-toggle-btn" data-warning-id="${warning.id}" data-active="${warning.active}">
+                  <i class="fas ${warning.active ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
+                  ${warning.active ? 'Deactivate' : 'Activate'}
+                </button>
+                <button class="warning-item-btn warning-remove-btn" data-warning-id="${warning.id}">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        document.getElementById('userWarningList').innerHTML = warningListHTML;
+        
+        // Add event listeners
+        document.querySelectorAll('.warning-item .warning-toggle-btn').forEach(button => {
+          button.addEventListener('click', function() {
+            const warningId = this.getAttribute('data-warning-id');
+            const isActive = this.getAttribute('data-active') === 'true';
+            toggleWarningStatus(serverId, warningId, !isActive);
+            userWarningModal.style.display = 'none'; // Close modal after action
+          });
+        });
+        
+        document.querySelectorAll('.warning-item .warning-remove-btn').forEach(button => {
+          button.addEventListener('click', function() {
+            const warningId = this.getAttribute('data-warning-id');
+            if (confirm('Are you sure you want to delete this warning? This action cannot be undone.')) {
+              removeWarning(serverId, warningId);
+              userWarningModal.style.display = 'none'; // Close modal after action
+            }
+          });
+        });
+      } else {
+        document.getElementById('userWarningList').innerHTML = `
+          <div class="error-state-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>Failed to load user warnings: ${data.message}</p>
+          </div>
+        `;
+      }
+    })
+    .catch(error => {
+      console.error('Error loading user warnings:', error);
+      document.getElementById('userWarningList').innerHTML = `
+        <div class="error-state-message">
+          <i class="fas fa-exclamation-circle"></i>
+          <p>Error loading user warnings: ${error.message}</p>
+        </div>
+      `;
+    });
+  }
+  
+  /**
+   * Clear all warnings for a user
+   * @param {string} serverId - Discord server ID
+   * @param {string} userId - User ID
+   */
+  function clearUserWarnings(serverId, userId) {
+    fetch('/admin3d/warnings/clear', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        serverId,
+        userId
+      }),
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Close modal and reload warnings list
+        userWarningModal.style.display = 'none';
+        loadWarningList(serverId);
+      } else {
+        alert(`Failed to clear warnings: ${data.message}`);
+      }
+    })
+    .catch(error => {
+      console.error('Error clearing warnings:', error);
+      alert(`Error clearing warnings: ${error.message}`);
+    });
+  }
+
   /**
    * Load ban list for a server using direct server access
    * @param {string} serverId - Discord server ID
