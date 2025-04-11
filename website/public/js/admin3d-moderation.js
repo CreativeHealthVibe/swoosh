@@ -477,7 +477,12 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     
     // Fetch moderation history from our API
-    fetch(`/api/moderation/history/${serverId}`)
+    fetch(`/api/moderation/history/${serverId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
       .then(response => {
         // Check for 401 Unauthorized or 403 Forbidden responses
         if (response.status === 401 || response.status === 403) {
@@ -979,7 +984,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`/api/moderation/ban`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({
         userId,
@@ -1049,7 +1056,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`/api/moderation/kick`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({
         userId,
@@ -1286,7 +1295,12 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     
     // Make API request
-    fetch(`/api/moderation/warnings?userId=${userId}&serverId=${serverId}`)
+    fetch(`/api/moderation/warnings?userId=${userId}&serverId=${serverId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
       .then(response => response.json())
       .then(data => {
         if (data.success && data.warnings) {
@@ -1365,7 +1379,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`/api/moderation/warnings`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
       body: JSON.stringify({
         ...warningData,
