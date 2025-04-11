@@ -165,6 +165,20 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(`Fetching ban data for server: ${serverId}`);
     fetch(`/api/moderation/bans/${serverId}`)
       .then(response => {
+        // Check for 401 Unauthorized or 403 Forbidden responses
+        if (response.status === 401 || response.status === 403) {
+          return response.json().then(errorData => {
+            console.error('Authentication error:', errorData);
+            // Check if we need to redirect to login
+            if (errorData.redirectTo) {
+              window.location.href = errorData.redirectTo;
+              return Promise.reject(new Error('Authentication required. Redirecting to login...'));
+            } else {
+              throw new Error(errorData.message || 'Authentication failed');
+            }
+          });
+        }
+        
         if (!response.ok) {
           throw new Error('Failed to fetch ban list');
         }
@@ -294,6 +308,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch warning data from our API
     fetch(`/api/moderation/warnings/${serverId}`)
       .then(response => {
+        // Check for 401 Unauthorized or 403 Forbidden responses
+        if (response.status === 401 || response.status === 403) {
+          return response.json().then(errorData => {
+            console.error('Authentication error:', errorData);
+            // Check if we need to redirect to login
+            if (errorData.redirectTo) {
+              window.location.href = errorData.redirectTo;
+              return Promise.reject(new Error('Authentication required. Redirecting to login...'));
+            } else {
+              throw new Error(errorData.message || 'Authentication failed');
+            }
+          });
+        }
+        
         if (!response.ok) {
           throw new Error('Failed to fetch warnings list');
         }
@@ -441,6 +469,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch moderation history from our API
     fetch(`/api/moderation/history/${serverId}`)
       .then(response => {
+        // Check for 401 Unauthorized or 403 Forbidden responses
+        if (response.status === 401 || response.status === 403) {
+          return response.json().then(errorData => {
+            console.error('Authentication error:', errorData);
+            // Check if we need to redirect to login
+            if (errorData.redirectTo) {
+              window.location.href = errorData.redirectTo;
+              return Promise.reject(new Error('Authentication required. Redirecting to login...'));
+            } else {
+              throw new Error(errorData.message || 'Authentication failed');
+            }
+          });
+        }
+        
         if (!response.ok) {
           throw new Error('Failed to fetch moderation history');
         }
@@ -1507,7 +1549,26 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadAutomodSettings(serverId) {
     // Make API request
     fetch(`/api/moderation/automod?serverId=${serverId}`)
-      .then(response => response.json())
+      .then(response => {
+        // Check for 401 Unauthorized or 403 Forbidden responses
+        if (response.status === 401 || response.status === 403) {
+          return response.json().then(errorData => {
+            console.error('Authentication error:', errorData);
+            // Check if we need to redirect to login
+            if (errorData.redirectTo) {
+              window.location.href = errorData.redirectTo;
+              return Promise.reject(new Error('Authentication required. Redirecting to login...'));
+            } else {
+              throw new Error(errorData.message || 'Authentication failed');
+            }
+          });
+        }
+        
+        if (!response.ok) {
+          throw new Error('Failed to load automod settings');
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success && data.settings) {
           const settings = data.settings;
