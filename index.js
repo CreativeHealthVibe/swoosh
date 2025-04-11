@@ -174,7 +174,8 @@ client.once('ready', async () => {
     
     // Initialize Auto-Moderation Module
     try {
-      autoMod.initialize(client);
+      console.log('Initializing Auto-Moderation System...');
+      autoMod.init(client);
     } catch (autoModError) {
       console.error('❌ Auto-Moderation initialization error:', autoModError);
     }
