@@ -149,73 +149,72 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // For demo purposes, we'll just show some sample data
-    // In a real application, you would fetch this from an API
-    setTimeout(() => {
-      const sampleBans = [
-        {
-          userId: '123456789012345678',
-          username: 'User1#1234',
-          reason: 'Spamming in multiple channels',
-          date: '2025-04-08',
-          duration: 'Permanent',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png'
-        },
-        {
-          userId: '234567890123456789',
-          username: 'User2#5678',
-          reason: 'Posting inappropriate content',
-          date: '2025-04-07',
-          duration: '7 days',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
-        },
-        {
-          userId: '345678901234567890',
-          username: 'User3#9012',
-          reason: 'Harassment of other members',
-          date: '2025-04-05',
-          duration: '30 days',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png'
+    // Fetch ban data from our API
+    fetch(`/api/moderation/bans/${serverId}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch ban list');
         }
-      ];
-      
-      if (sampleBans.length === 0) {
-        banListBody.innerHTML = `
-          <tr class="empty-state">
-            <td colspan="5">
-              <div class="empty-state-message">
-                <i class="fas fa-info-circle"></i>
-                <p>No bans found for this server</p>
-              </div>
-            </td>
-          </tr>
-        `;
-      } else {
+        return response.json();
+      })
+      .then(data => {
+        // Update stats
+        if (document.getElementById('totalBans')) {
+          document.getElementById('totalBans').textContent = data.total || 0;
+        }
+        
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to load ban list');
+        }
+        
+        const bans = data.bans || [];
+        
+        if (bans.length === 0) {
+          banListBody.innerHTML = `
+            <tr class="empty-state">
+              <td colspan="5">
+                <div class="empty-state-message">
+                  <i class="fas fa-info-circle"></i>
+                  <p>No bans found for this server</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        
         banListBody.innerHTML = '';
         
-        sampleBans.forEach(ban => {
+        bans.forEach(ban => {
+          // Format the date
+          const banDate = new Date(ban.bannedAt);
+          const formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
+          
+          // Determine duration text
+          let durationText = ban.permanent ? 'Permanent' : (ban.duration || 'Permanent');
+          
           banListBody.innerHTML += `
             <tr>
               <td>
                 <div class="user-info">
                   <div class="user-avatar">
-                    <img src="${ban.avatar}" alt="${ban.username}'s avatar">
+                    <img src="${ban.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag}'s avatar">
                   </div>
                   <div class="user-details">
-                    <div class="user-name">${ban.username}</div>
-                    <div class="user-id">${ban.userId}</div>
+                    <div class="user-name">${ban.username || ban.tag || 'Unknown User'}</div>
+                    <div class="user-id">${ban.id}</div>
                   </div>
                 </div>
               </td>
-              <td>${ban.reason}</td>
-              <td>${ban.date}</td>
-              <td>${ban.duration}</td>
+              <td>${ban.reason || 'No reason provided'}</td>
+              <td>${formattedDate}</td>
+              <td>${durationText}</td>
               <td>
                 <div class="table-actions">
-                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-secondary" title="View Details">
+                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-secondary view-ban-details" data-userid="${ban.id}" title="View Details">
                     <i class="fas fa-eye"></i>
                   </button>
-                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-primary" title="Unban User">
+                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-primary unban-user" data-userid="${ban.id}" title="Unban User">
                     <i class="fas fa-user-check"></i>
                   </button>
                 </div>
@@ -223,8 +222,39 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>
           `;
         });
-      }
-    }, 1000);
+        
+        // Add event listeners for actions
+        document.querySelectorAll('.unban-user').forEach(button => {
+          button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-userid');
+            if (confirm(`Are you sure you want to unban user ${userId}?`)) {
+              // Implement unban functionality here
+              console.log(`Unban user ${userId}`);
+            }
+          });
+        });
+        
+        document.querySelectorAll('.view-ban-details').forEach(button => {
+          button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-userid');
+            // Implement view details functionality here
+            console.log(`View details for user ${userId}`);
+          });
+        });
+      })
+      .catch(error => {
+        console.error('Error loading ban list:', error);
+        banListBody.innerHTML = `
+          <tr class="error-state">
+            <td colspan="5">
+              <div class="error-state-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Error loading ban list: ${error.message}</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
   }
   
   /**
@@ -246,87 +276,90 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // For demo purposes, we'll just show some sample data
-    // In a real application, you would fetch this from an API
-    setTimeout(() => {
-      const sampleWarnings = [
-        {
-          userId: '123456789012345678',
-          username: 'User1#1234',
-          reason: 'Excessive caps in messages',
-          severity: 'Low',
-          date: '2025-04-08',
-          status: 'Active',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png'
-        },
-        {
-          userId: '234567890123456789',
-          username: 'User2#5678',
-          reason: 'Minor spam in #general',
-          severity: 'Medium',
-          date: '2025-04-06',
-          status: 'Active',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
-        },
-        {
-          userId: '345678901234567890',
-          username: 'User3#9012',
-          reason: 'Disrespectful behavior towards moderators',
-          severity: 'High',
-          date: '2025-04-02',
-          status: 'Expired',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png'
+    // Fetch warning data from our API
+    fetch(`/api/moderation/warnings/${serverId}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch warnings list');
         }
-      ];
-      
-      if (sampleWarnings.length === 0) {
-        warningListBody.innerHTML = `
-          <tr class="empty-state">
-            <td colspan="6">
-              <div class="empty-state-message">
-                <i class="fas fa-info-circle"></i>
-                <p>No warnings found for this server</p>
-              </div>
-            </td>
-          </tr>
-        `;
-      } else {
+        return response.json();
+      })
+      .then(data => {
+        // Update stats
+        if (document.getElementById('totalWarnings')) {
+          document.getElementById('totalWarnings').textContent = data.total || 0;
+        }
+        
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to load warnings list');
+        }
+        
+        const warnings = data.warnings || [];
+        
+        if (warnings.length === 0) {
+          warningListBody.innerHTML = `
+            <tr class="empty-state">
+              <td colspan="6">
+                <div class="empty-state-message">
+                  <i class="fas fa-info-circle"></i>
+                  <p>No warnings found for this server</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        
         warningListBody.innerHTML = '';
         
-        sampleWarnings.forEach(warning => {
-          let severityClass = '';
-          switch (warning.severity) {
-            case 'Low': severityClass = 'severity-low'; break;
-            case 'Medium': severityClass = 'severity-medium'; break;
-            case 'High': severityClass = 'severity-high'; break;
-            case 'Critical': severityClass = 'severity-critical'; break;
+        warnings.forEach(warning => {
+          // Format the date
+          const warningDate = new Date(warning.issuedAt);
+          const formattedDate = warningDate.toLocaleDateString() + ' ' + warningDate.toLocaleTimeString();
+          
+          // Normalize severity for display
+          let severityDisplay = warning.severity || 'medium';
+          if (typeof severityDisplay === 'string') {
+            severityDisplay = severityDisplay.charAt(0).toUpperCase() + severityDisplay.slice(1);
           }
           
-          let statusClass = warning.status === 'Active' ? 'status-active' : 'status-expired';
+          // Determine severity class
+          let severityClass = '';
+          switch (severityDisplay.toLowerCase()) {
+            case 'low': severityClass = 'severity-low'; break;
+            case 'medium': severityClass = 'severity-medium'; break;
+            case 'high': severityClass = 'severity-high'; break;
+            case 'critical': severityClass = 'severity-critical'; break;
+            default: severityClass = 'severity-medium'; break;
+          }
+          
+          // Status display
+          const statusDisplay = warning.status || 'Active';
+          const statusClass = statusDisplay === 'Active' ? 'status-active' : 'status-expired';
           
           warningListBody.innerHTML += `
             <tr>
               <td>
                 <div class="user-info">
                   <div class="user-avatar">
-                    <img src="${warning.avatar}" alt="${warning.username}'s avatar">
+                    <img src="${warning.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${warning.username || 'Unknown User'}'s avatar">
                   </div>
                   <div class="user-details">
-                    <div class="user-name">${warning.username}</div>
+                    <div class="user-name">${warning.username || 'Unknown User'}</div>
                     <div class="user-id">${warning.userId}</div>
                   </div>
                 </div>
               </td>
-              <td>${warning.reason}</td>
-              <td><span class="severity-badge ${severityClass}">${warning.severity}</span></td>
-              <td>${warning.date}</td>
-              <td><span class="status-badge ${statusClass}">${warning.status}</span></td>
+              <td>${warning.reason || 'No reason provided'}</td>
+              <td><span class="severity-badge ${severityClass}">${severityDisplay}</span></td>
+              <td>${formattedDate}</td>
+              <td><span class="status-badge ${statusClass}">${statusDisplay}</span></td>
               <td>
                 <div class="table-actions">
-                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-secondary" title="View Details">
+                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-secondary view-warning-details" data-id="${warning.id}" data-userid="${warning.userId}" title="View Details">
                     <i class="fas fa-eye"></i>
                   </button>
-                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-danger" title="Remove Warning">
+                  <button class="admin3d-btn admin3d-btn-sm admin3d-btn-danger remove-warning" data-id="${warning.id}" data-userid="${warning.userId}" title="Remove Warning">
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 </div>
@@ -334,8 +367,41 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>
           `;
         });
-      }
-    }, 1000);
+        
+        // Add event listeners for actions
+        document.querySelectorAll('.remove-warning').forEach(button => {
+          button.addEventListener('click', function() {
+            const warningId = this.getAttribute('data-id');
+            const userId = this.getAttribute('data-userid');
+            if (confirm(`Are you sure you want to remove warning ${warningId} for user ${userId}?`)) {
+              // Implement remove warning functionality here
+              console.log(`Remove warning ${warningId} for user ${userId}`);
+            }
+          });
+        });
+        
+        document.querySelectorAll('.view-warning-details').forEach(button => {
+          button.addEventListener('click', function() {
+            const warningId = this.getAttribute('data-id');
+            const userId = this.getAttribute('data-userid');
+            // Implement view details functionality here
+            console.log(`View warning details for warning ${warningId}, user ${userId}`);
+          });
+        });
+      })
+      .catch(error => {
+        console.error('Error loading warnings list:', error);
+        warningListBody.innerHTML = `
+          <tr class="error-state">
+            <td colspan="6">
+              <div class="error-state-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Error loading warnings: ${error.message}</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
   }
   
   /**
@@ -357,75 +423,144 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // For demo purposes, we'll just show some sample data
-    // In a real application, you would fetch this from an API
-    setTimeout(() => {
-      const sampleLogs = [
-        {
-          time: '2025-04-10 14:32:05',
-          username: 'User1#1234',
-          userId: '123456789012345678',
-          violation: 'Profanity Filter',
-          action: 'Message Deleted',
-          details: 'Message contained prohibited words',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/0.png'
-        },
-        {
-          time: '2025-04-10 13:18:42',
-          username: 'User2#5678',
-          userId: '234567890123456789',
-          violation: 'Spam Detection',
-          action: 'User Warned',
-          details: '5 messages in 3 seconds',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/1.png'
-        },
-        {
-          time: '2025-04-09 22:51:17',
-          username: 'User3#9012',
-          userId: '345678901234567890',
-          violation: 'Discord Invite',
-          action: 'Message Deleted',
-          details: 'Message contained Discord invite link',
-          avatar: 'https://cdn.discordapp.com/embed/avatars/2.png'
+    // Fetch moderation history from our API
+    fetch(`/api/moderation/history/${serverId}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch moderation history');
         }
-      ];
-      
-      if (sampleLogs.length === 0) {
+        return response.json();
+      })
+      .then(data => {
+        // Update stats
+        if (document.getElementById('automodActions')) {
+          // Filter only automod actions (message-delete, etc.)
+          const automodEvents = data.history ? data.history.filter(
+            item => item.type === 'message-delete' || 
+                  item.type === 'mute' || 
+                  item.type.includes('auto')
+          ) : [];
+          document.getElementById('automodActions').textContent = automodEvents.length || 0;
+        }
+        
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to load moderation history');
+        }
+        
+        // Get all history, but highlight automod actions
+        const history = data.history || [];
+        
+        if (history.length === 0) {
+          automodLogBody.innerHTML = `
+            <tr class="empty-state">
+              <td colspan="5">
+                <div class="empty-state-message">
+                  <i class="fas fa-info-circle"></i>
+                  <p>No moderation history found for this server</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        
+        // Limit to 50 most recent actions to avoid overloading the UI
+        const recentHistory = history.slice(0, 50);
+        
+        automodLogBody.innerHTML = '';
+        
+        recentHistory.forEach(log => {
+          // Format the date
+          const actionDate = new Date(log.actionAt);
+          const formattedDate = actionDate.toLocaleDateString() + ' ' + actionDate.toLocaleTimeString();
+          
+          // Determine action type display
+          let actionType = 'Other';
+          let actionDisplay = 'Other Action';
+          
+          switch(log.type) {
+            case 'ban':
+              actionType = 'Ban';
+              actionDisplay = 'User Banned';
+              break;
+            case 'unban':
+              actionType = 'Unban';
+              actionDisplay = 'User Unbanned';
+              break;
+            case 'kick':
+              actionType = 'Kick';
+              actionDisplay = 'User Kicked';
+              break;
+            case 'mute':
+              actionType = 'Mute';
+              actionDisplay = 'User Muted';
+              break;
+            case 'warning':
+              actionType = 'Warning';
+              actionDisplay = 'Warning Issued';
+              break;
+            case 'message-delete':
+              actionType = 'Message Deletion';
+              actionDisplay = 'Message Deleted';
+              break;
+            default:
+              actionType = log.type.charAt(0).toUpperCase() + log.type.slice(1);
+              actionDisplay = actionType;
+          }
+          
+          // Construct details 
+          let details = log.reason || 'No details';
+          if (log.details) {
+            if (typeof log.details === 'object') {
+              // Try to format object details nicely
+              details = '';
+              for (const [key, value] of Object.entries(log.details)) {
+                if (key !== 'reason') { // Reason is already shown
+                  details += `${key}: ${value}, `;
+                }
+              }
+              details = details.replace(/, $/, '');
+            } else {
+              details = log.details;
+            }
+          }
+          
+          // Get avatar URL
+          const avatarURL = 'https://cdn.discordapp.com/embed/avatars/0.png';
+          
+          automodLogBody.innerHTML += `
+            <tr>
+              <td>${formattedDate}</td>
+              <td>
+                <div class="user-info">
+                  <div class="user-avatar small">
+                    <img src="${avatarURL}" alt="${log.username || 'Unknown User'}'s avatar">
+                  </div>
+                  <div class="user-details">
+                    <div class="user-name">${log.username || 'Unknown User'}</div>
+                  </div>
+                </div>
+              </td>
+              <td>${actionType}</td>
+              <td>${actionDisplay}</td>
+              <td>${details}</td>
+            </tr>
+          `;
+        });
+      })
+      .catch(error => {
+        console.error('Error loading moderation history:', error);
         automodLogBody.innerHTML = `
-          <tr class="empty-state">
+          <tr class="error-state">
             <td colspan="5">
-              <div class="empty-state-message">
-                <i class="fas fa-info-circle"></i>
-                <p>No auto-moderation logs found</p>
+              <div class="error-state-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Error loading moderation history: ${error.message}</p>
               </div>
             </td>
           </tr>
         `;
-      } else {
-        automodLogBody.innerHTML = '';
-        
-        sampleLogs.forEach(log => {
-          automodLogBody.innerHTML += `
-            <tr>
-              <td>${log.time}</td>
-              <td>
-                <div class="user-info">
-                  <div class="user-avatar small">
-                    <img src="${log.avatar}" alt="${log.username}'s avatar">
-                  </div>
-                  <div class="user-details">
-                    <div class="user-name">${log.username}</div>
-                  </div>
-                </div>
-              </td>
-              <td>${log.violation}</td>
-              <td>${log.action}</td>
-              <td>${log.details}</td>
-            </tr>
-          `;
-        });
-      }
-    }, 1000);
+      });
   }
   
   /**
