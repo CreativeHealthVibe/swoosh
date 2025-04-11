@@ -10,6 +10,13 @@
 document.addEventListener('DOMContentLoaded', () => {
   if (!document.getElementById('moderation-three-container')) return;
   
+  // Check if THREE.js is loaded
+  if (typeof THREE === 'undefined') {
+    console.warn('THREE.js not loaded! Falling back to 2D mode.');
+    document.body.classList.add('three-js-unavailable');
+    return; // Exit initialization if THREE is not available
+  }
+  
   // Three.js variables
   let camera, scene, renderer;
   let geometry, material, mesh;
