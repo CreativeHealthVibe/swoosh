@@ -940,87 +940,110 @@ router.get('/history/:serverId', async (req, res) => {
     // Read logs from various sources
     const logs = [];
     
-    // Check for ban logs
-    const banLogs = banLogger.getBanLogs(serverId);
-    if (banLogs && banLogs.length > 0) {
-      // Extract ban/unban events
-      const banEvents = logParser.extractBanEvents(banLogs);
-      
-      // Format and add to logs
-      banEvents.forEach(event => {
-        logs.push({
-          id: `ban-${event.userId}-${event.date.getTime()}`,
-          type: event.eventType === 'ban' ? 'ban' : 'unban',
-          userId: event.userId,
-          username: event.userName || 'Unknown User',
-          reason: event.details && event.details.reason ? event.details.reason : 'No reason provided',
-          actionBy: event.executorName || 'System',
-          actionAt: event.date.toISOString(),
-          guild: guild.name,
-          guildId: serverId
-        });
-      });
-    }
-    
-    // Add data from general moderation logs
-    const modLogsPath = path.join(banLogger.logsDir, `mod-log-${serverId}.txt`);
-    if (fs.existsSync(modLogsPath)) {
-      const modLogs = logParser.parseLogFile(modLogsPath);
-      
-      // Format and add to logs
-      modLogs.forEach(log => {
-        // Try to determine the event type
-        let type = 'other';
-        if (log.eventType === 'User Kicked') type = 'kick';
-        if (log.eventType === 'User Muted') type = 'mute';
-        if (log.eventType === 'User Unmuted') type = 'unmute';
-        if (log.eventType === 'Message Deleted') type = 'message-delete';
-        if (log.eventType === 'Warning Issued') type = 'warning';
+    // Check for ban logs (with fallback)
+    try {
+      const banLogs = banLogger.getBanLogs(serverId);
+      if (banLogs && banLogs.length > 0) {
+        // Extract ban/unban events
+        const banEvents = logParser.extractBanEvents(banLogs);
         
-        const userId = log.user ? log.user.id : null;
-        
-        // Only add if we have a user ID
-        if (userId) {
+        // Format and add to logs
+        banEvents.forEach(event => {
           logs.push({
-            id: `${type}-${userId}-${log.date.getTime()}`,
-            type: type,
-            userId: userId,
-            username: log.user.name || 'Unknown User',
-            reason: log.details && log.details.reason ? log.details.reason : 'No reason provided',
-            actionBy: log.executor ? log.executor.name : 'System',
-            actionAt: log.date.toISOString(),
+            id: `ban-${event.userId}-${event.date.getTime()}`,
+            type: event.eventType === 'ban' ? 'ban' : 'unban',
+            userId: event.userId,
+            username: event.userName || 'Unknown User',
+            reason: event.details && event.details.reason ? event.details.reason : 'No reason provided',
+            actionBy: event.executorName || 'System',
+            actionAt: event.date.toISOString(),
             guild: guild.name,
-            guildId: serverId,
-            details: log.details
-          });
-        }
-      });
-    }
-    
-    // Check for warnings in the Discord database
-    if (client.discordDB && client.discordDB.initialized) {
-      const warnings = client.discordDB.findDocuments('warnings', (doc) => {
-        return doc.guildId === serverId;
-      });
-      
-      // Add warnings to the history
-      if (warnings && warnings.length > 0) {
-        warnings.forEach(warning => {
-          logs.push({
-            id: warning.id || `warning-${warning.userId}-${new Date(warning.timestamp).getTime()}`,
-            type: 'warning',
-            userId: warning.userId,
-            username: warning.username || 'Unknown User',
-            reason: warning.reason || 'No reason provided',
-            actionBy: warning.issuedBy || 'System',
-            actionAt: warning.timestamp || new Date().toISOString(),
-            guild: guild.name,
-            guildId: serverId,
-            severity: warning.severity || 'medium',
-            expires: warning.expires || null
+            guildId: serverId
           });
         });
+      } else {
+        console.log(`No ban logs found for server ${serverId}, continuing with empty ban log list`);
       }
+    } catch (banLogError) {
+      console.error(`Error processing ban logs for server ${serverId}:`, banLogError);
+      // Continue execution even if ban logs processing fails
+    }
+    
+    // Add data from general moderation logs (with fallback)
+    try {
+      const modLogsPath = path.join(banLogger.logsDir, `mod-log-${serverId}.txt`);
+      if (fs.existsSync(modLogsPath)) {
+        const modLogs = logParser.parseLogFile(modLogsPath);
+        
+        // Format and add to logs
+        modLogs.forEach(log => {
+          // Try to determine the event type
+          let type = 'other';
+          if (log.eventType === 'User Kicked') type = 'kick';
+          if (log.eventType === 'User Muted') type = 'mute';
+          if (log.eventType === 'User Unmuted') type = 'unmute';
+          if (log.eventType === 'Message Deleted') type = 'message-delete';
+          if (log.eventType === 'Warning Issued') type = 'warning';
+          
+          const userId = log.user ? log.user.id : null;
+          
+          // Only add if we have a user ID
+          if (userId) {
+            logs.push({
+              id: `${type}-${userId}-${log.date.getTime()}`,
+              type: type,
+              userId: userId,
+              username: log.user.name || 'Unknown User',
+              reason: log.details && log.details.reason ? log.details.reason : 'No reason provided',
+              actionBy: log.executor ? log.executor.name : 'System',
+              actionAt: log.date.toISOString(),
+              guild: guild.name,
+              guildId: serverId,
+              details: log.details
+            });
+          }
+        });
+      } else {
+        console.log(`No moderation log file exists for guild ${serverId}, continuing with empty mod log list`);
+      }
+    } catch (modLogError) {
+      console.error(`Error processing moderation logs for server ${serverId}:`, modLogError);
+      // Continue execution even if mod logs processing fails
+    }
+    
+    // Check for warnings in the Discord database (with fallback)
+    try {
+      if (client.discordDB && client.discordDB.initialized) {
+        const warnings = client.discordDB.findDocuments('warnings', (doc) => {
+          return doc.guildId === serverId;
+        });
+        
+        // Add warnings to the history
+        if (warnings && warnings.length > 0) {
+          warnings.forEach(warning => {
+            logs.push({
+              id: warning.id || `warning-${warning.userId}-${new Date(warning.timestamp).getTime()}`,
+              type: 'warning',
+              userId: warning.userId,
+              username: warning.username || 'Unknown User',
+              reason: warning.reason || 'No reason provided',
+              actionBy: warning.issuedBy || 'System',
+              actionAt: warning.timestamp || new Date().toISOString(),
+              guild: guild.name,
+              guildId: serverId,
+              severity: warning.severity || 'medium',
+              expires: warning.expires || null
+            });
+          });
+        } else {
+          console.log(`No warnings found in database for server ${serverId}`);
+        }
+      } else {
+        console.log('Discord database not initialized, skipping warnings data');
+      }
+    } catch (warningsError) {
+      console.error(`Error retrieving warnings for server ${serverId}:`, warningsError);
+      // Continue execution even if warnings retrieval fails
     }
     
     // Sort all logs by date (newest first)
