@@ -40,6 +40,7 @@ const blacklistManager = require('./handlers/blacklistManager');
 const DiscordDatabaseManager = require('./handlers/discordDatabaseManager');
 const StatsWebSocketServer = require('./modules/stats-websocket');
 const logging = require('./modules/logging');
+const autoMod = require('./modules/auto-moderation');
 const config = require('./config');
 const adminUtils = require('./utils/admin');
 const database = require('./utils/database');
@@ -169,6 +170,13 @@ client.once('ready', async () => {
       }
     } else {
       console.error('❌ Failed to initialize Discord database - check channel permissions');
+    }
+    
+    // Initialize Auto-Moderation Module
+    try {
+      autoMod.initialize(client);
+    } catch (autoModError) {
+      console.error('❌ Auto-Moderation initialization error:', autoModError);
     }
     
     // Post initial bot status
