@@ -163,7 +163,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fetch ban data from our API
     console.log(`Fetching ban data for server: ${serverId}`);
-    fetch(`/api/moderation/bans/${serverId}`)
+    fetch(`/api/moderation/bans/${serverId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
       .then(response => {
         // Check for 401 Unauthorized or 403 Forbidden responses
         if (response.status === 401 || response.status === 403) {
@@ -306,7 +311,12 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     
     // Fetch warning data from our API
-    fetch(`/api/moderation/warnings/${serverId}`)
+    fetch(`/api/moderation/warnings/${serverId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
       .then(response => {
         // Check for 401 Unauthorized or 403 Forbidden responses
         if (response.status === 401 || response.status === 403) {

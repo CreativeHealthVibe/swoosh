@@ -23,17 +23,23 @@ const isAuthenticated = (req, res, next) => {
  * If not, show an error page
  */
 const isAdmin = (req, res, next) => {
+  console.log(`isAdmin middleware for URL: ${req.originalUrl}, Method: ${req.method}`);
+  
   // First ensure that the user is authenticated
   if (!req.isAuthenticated()) {
     // User is not authenticated
     req.session.returnTo = req.originalUrl;
     
-    // Check if this is an AJAX/API request
-    const isApiRequest = req.xhr || req.path.startsWith('/api/');
+    // Check if this is an AJAX/API request - more comprehensive check
+    const isApiRequest = req.xhr || 
+                        req.originalUrl.includes('/api/') || 
+                        req.get('Accept') === 'application/json';
+    
+    console.log(`Request auth check: isXHR=${req.xhr}, path=${req.originalUrl}, isApiRequest=${isApiRequest}`);
     
     if (isApiRequest) {
       // For API requests, return a JSON response
-      console.log(`API auth failed for ${req.path}`);
+      console.log(`API auth failed for ${req.originalUrl} - returning JSON 401`);
       return res.status(401).json({
         success: false,
         message: 'Authentication required',
@@ -51,10 +57,15 @@ const isAdmin = (req, res, next) => {
     console.error('User object is undefined or null in isAdmin middleware');
     
     // Check if this is an AJAX/API request
-    const isApiRequest = req.xhr || req.path.startsWith('/api/');
+    const isApiRequest = req.xhr || 
+                        req.originalUrl.includes('/api/') || 
+                        req.get('Accept') === 'application/json';
+    
+    console.log(`User object check: isXHR=${req.xhr}, path=${req.originalUrl}, isApiRequest=${isApiRequest}`);
     
     if (isApiRequest) {
       // For API requests, return a JSON response
+      console.log(`API user object error for ${req.originalUrl} - returning JSON 500`);
       return res.status(500).json({
         success: false,
         message: 'Session error: Invalid user session'
@@ -78,10 +89,15 @@ const isAdmin = (req, res, next) => {
   
   // User is authenticated but not an admin
   // Check if this is an AJAX/API request
-  const isApiRequest = req.xhr || req.path.startsWith('/api/');
+  const isApiRequest = req.xhr || 
+                      req.originalUrl.includes('/api/') || 
+                      req.get('Accept') === 'application/json';
+  
+  console.log(`Admin check: isXHR=${req.xhr}, path=${req.originalUrl}, isApiRequest=${isApiRequest}`);
   
   if (isApiRequest) {
     // For API requests, return a JSON response
+    console.log(`API admin access denied for ${req.originalUrl} - returning JSON 403`);
     return res.status(403).json({
       success: false,
       message: 'Access denied: Admin privileges required'
