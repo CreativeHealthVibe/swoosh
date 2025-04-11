@@ -1,0 +1,1737 @@
+<%# 
+  SWOOSH Bot 3D Admin Dashboard
+  Premium Edition
+  
+  Moderation management page with ban, warning, and automod tools
+  Now with integrated robust direct ban access
+%>
+
+<div class="admin3d-moderation">
+  <!-- Big, visible header -->
+  <div class="moderation-header">
+    <h1 class="moderation-title">Moderation Command Center</h1>
+    <p class="moderation-subtitle">Advanced tools for server management</p>
+    
+    <!-- Direct ban access button - Redirects to emergency system -->
+    <div class="direct-access-button">
+      <button id="useDirectBanSystem" class="admin3d-btn admin3d-btn-accent">
+        <i class="fas fa-shield-alt"></i> Direct Ban Management
+      </button>
+      <span class="tooltip">Access the more reliable ban management system</span>
+    </div>
+  </div>
+  
+  <!-- Server selector -->
+  <div class="mod-server-selector">
+    <span>Server:</span>
+    <div class="server-selector-wrapper">
+      <select id="serverSelect">
+        <option value="">Select a server</option>
+        <% if (servers && servers.length > 0) { %>
+          <% servers.forEach(server => { %>
+            <option value="<%= server.id %>"><%= server.name %></option>
+          <% }); %>
+        <% } else { %>
+          <option disabled>No servers available</option>
+        <% } %>
+      </select>
+    </div>
+    
+    <!-- Removed the direct ban system button per user request -->
+    
+    <!-- Emergency button -->
+    <div class="emergency-tools">
+      <a href="/admin3d/moderation-emergency" class="emergency-link">
+        <i class="fas fa-exclamation-triangle"></i> Emergency Tools
+      </a>
+    </div>
+    
+    <style>
+      /* Direct system button styling */
+      .direct-access-button-container {
+        display: inline-flex;
+        align-items: center;
+        margin: 0 10px;
+      }
+      
+      .direct-access-button {
+        background-color: #7289da;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s ease;
+      }
+      
+      .direct-access-button:hover {
+        background-color: #5969ac;
+      }
+      
+      .direct-access-button i {
+        font-size: 16px;
+      }
+      
+      @media (max-width: 768px) {
+        .direct-access-button-container {
+          margin: 10px 0;
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </div>
+  
+  <!-- Stats Cards - Exact match to reference -->
+  <div class="mod-stats-cards">
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon ban-icon">
+        <i class="fas fa-gavel"></i>
+      </div>
+      <div class="mod-stat-content">
+        <h3 id="totalBans">0</h3>
+        <span>Active Bans</span>
+      </div>
+    </div>
+    
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon warning-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <div class="mod-stat-content">
+        <h3 id="totalWarnings">0</h3>
+        <span>Active Warnings</span>
+      </div>
+    </div>
+    
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon shield-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <div class="mod-stat-content">
+        <h3 id="automodActions">0</h3>
+        <span>AutoMod Actions</span>
+      </div>
+    </div>
+    
+    <!-- New Stats Card: Member Count -->
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon member-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="mod-stat-content">
+        <h3 id="memberCount">0</h3>
+        <span>Total Members</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tab nav buttons - Exact match to reference -->
+  <div class="mod-tab-navigation">
+    <button class="mod-nav-btn active" data-tab="ban-management">
+      <i class="fas fa-gavel"></i> Ban Management
+    </button>
+    <button class="mod-nav-btn" data-tab="warning-system">
+      <i class="fas fa-exclamation-triangle"></i> Warning System
+    </button>
+    <button class="mod-nav-btn" data-tab="auto-moderation">
+      <i class="fas fa-shield-alt"></i> Auto-Moderation
+    </button>
+    <!-- New Tab Button: Advanced Filters -->
+    <button class="mod-nav-btn" data-tab="advanced-filters">
+      <i class="fas fa-filter"></i> Advanced Filters
+    </button>
+  </div>
+  
+  <!-- 3D Visualization Container -->
+  <div id="moderation-three-container" class="moderation-three-container"></div>
+  
+  <!-- Content Container -->
+  <div class="mod-content-container" id="moderation-tabs">
+    
+    <!-- Fix for form interaction issues -->
+    <style>
+      /* Fix input interaction issues */
+      .admin3d-form-input,
+      .admin3d-form-textarea,
+      .admin3d-form-select,
+      .admin3d-btn {
+        position: relative;
+        z-index: 100 !important;
+        pointer-events: auto !important;
+      }
+      
+      /* Make sure forms are above the THREE.js canvas */
+      #moderation-tabs .tab-content {
+        position: relative;
+        z-index: 50;
+      }
+      
+      /* Ensure inputs can be interacted with */
+      .admin3d-form-group {
+        position: relative;
+        z-index: 100;
+      }
+      
+      /* Ensure THREE.js doesn't block */
+      #three-container {
+        pointer-events: none !important;
+        z-index: -1 !important;
+      }
+    </style>
+    
+    <!-- Tab Content -->
+    <div class="tab-content-container">
+      <!-- Ban Management Tab -->
+      <div id="ban-management" class="tab-content active">
+        <div class="mod-section mod-ban-section">
+          <!-- Left section: Ban User -->
+          <div class="mod-ban-user">
+            <div class="mod-section-header">
+              <div class="mod-section-icon">
+                <i class="fas fa-user-slash"></i>
+              </div>
+              <h3>Ban User</h3>
+              <div class="mod-premium-badge">
+                <span>Premium</span>
+              </div>
+            </div>
+            <div class="mod-section-content">
+              <p class="mod-desc">Ban a user from your server with customizable options.</p>
+              
+              <!-- Reliable ban user form with direct form submission -->
+              <form action="/admin3d/direct-bans/ban-user" method="POST" id="banUserForm">
+                <input type="hidden" id="banServerId" name="serverId" value="">
+                
+                <div class="form-field">
+                  <label for="userId">User ID or @Mention</label>
+                  <input type="text" id="userId" name="userId" placeholder="Enter user ID or @mention" required>
+                </div>
+                
+                <div class="form-field">
+                  <label for="banReason">Reason</label>
+                  <textarea id="banReason" name="reason" placeholder="Explain the reason for this ban..." required rows="3"></textarea>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-field">
+                    <label for="banDuration">Duration</label>
+                    <select id="banDuration" name="duration">
+                      <option value="permanent">Permanent</option>
+                      <option value="1d">1 Day</option>
+                      <option value="3d">3 Days</option>
+                      <option value="7d">1 Week</option>
+                      <option value="14d">2 Weeks</option>
+                      <option value="30d">1 Month</option>
+                      <option value="custom">Custom...</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <!-- Custom Duration Input (hidden by default) -->
+                <div id="customDurationGroup" class="form-field" style="display: none;">
+                  <label for="customDuration">Custom Duration</label>
+                  <div class="custom-duration-inputs">
+                    <input type="number" id="customDuration" name="customDuration" min="1" value="1">
+                    <select id="customDurationUnit" name="customDurationUnit">
+                      <option value="h">Hours</option>
+                      <option value="d" selected>Days</option>
+                      <option value="w">Weeks</option>
+                      <option value="m">Months</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="form-options">
+                  <div class="form-check">
+                    <input type="checkbox" id="deleteMessages" name="deleteMessages" value="true">
+                    <label for="deleteMessages">Delete recent messages</label>
+                  </div>
+                  
+                  <div class="form-check">
+                    <input type="checkbox" id="addToBlacklist" name="addToBlacklist" value="true">
+                    <label for="addToBlacklist">Add to blacklist</label>
+                  </div>
+                </div>
+                
+                <div class="form-actions">
+                  <button type="submit" class="mod-btn danger-btn" id="banUserBtn">
+                    <i class="fas fa-gavel"></i> Ban User
+                  </button>
+                </div>
+              </form>
+              
+              <script>
+                // Show/hide custom duration input
+                document.getElementById('banDuration').addEventListener('change', function() {
+                  const customDurationGroup = document.getElementById('customDurationGroup');
+                  if (this.value === 'custom') {
+                    customDurationGroup.style.display = 'block';
+                  } else {
+                    customDurationGroup.style.display = 'none';
+                  }
+                });
+              </script>
+            </div>
+          </div>
+          
+          <!-- Right section: Current Bans -->
+          <div class="mod-current-bans">
+            <div class="mod-section-header">
+              <div class="mod-section-icon list-icon">
+                <i class="fas fa-list"></i>
+              </div>
+              <h3>Current Bans</h3>
+              <div class="mod-refresh-btn" id="refreshBans">
+                <i class="fas fa-sync-alt"></i>
+              </div>
+            </div>
+            <div class="mod-section-content">
+              <!-- Ban List Search -->
+              <div class="admin3d-search-filters">
+                <div class="admin3d-search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" id="banSearchInput" placeholder="Search bans...">
+                </div>
+              </div>
+              
+              <!-- Ban List Table -->
+              <div class="admin3d-table-wrapper">
+                <table class="admin3d-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Reason</th>
+                      <th>Date</th>
+                      <th>Duration</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="banListBody">
+                    <tr class="empty-state">
+                      <td colspan="5">
+                        <div class="empty-state-message">
+                          <i class="fas fa-info-circle"></i>
+                          <p>Select a server to view ban list</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Warning System Tab -->
+      <div id="warning-system" class="tab-content">
+        <div class="admin3d-grid">
+          <!-- Issue Warning Form -->
+          <div class="admin3d-card" data-premium="true">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-exclamation-circle"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Issue Warning</h3>
+            </div>
+            <div class="admin3d-card-content">
+              <p class="admin3d-card-description">
+                Issue a warning to a user with customizable severity levels.
+              </p>
+              
+              <form action="/admin3d/moderation/warn-user" method="POST" id="warnUserForm" data-ajax="true" data-reset="true">
+                <input type="hidden" id="warnServerId" name="serverId" value="">
+                
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="warnUserId">User ID or @Mention</label>
+                  <input class="admin3d-form-input" type="text" id="warnUserId" name="warnUserId" placeholder="Enter user ID or @mention" required>
+                </div>
+                
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="warnReason">Reason</label>
+                  <textarea class="admin3d-form-textarea" id="warnReason" name="warnReason" placeholder="Explain the warning reason..." required rows="3"></textarea>
+                </div>
+                
+                <div class="admin3d-form-row">
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="warningSeverity">Severity</label>
+                    <select class="admin3d-form-select" id="warningSeverity" name="warningSeverity">
+                      <option value="low">Low</option>
+                      <option value="medium" selected>Medium</option>
+                      <option value="high">High</option>
+                      <option value="critical">Critical</option>
+                    </select>
+                  </div>
+                  
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="warningDuration">Expiration</label>
+                    <select class="admin3d-form-select" id="warningDuration" name="warningDuration">
+                      <option value="permanent">Never</option>
+                      <option value="7d">7 Days</option>
+                      <option value="30d" selected>30 Days</option>
+                      <option value="90d">90 Days</option>
+                      <option value="180d">6 Months</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="admin3d-form-options">
+                  <div class="admin3d-form-check">
+                    <input type="checkbox" id="notifyUser" name="notifyUser" value="true" checked>
+                    <label for="notifyUser">Notify user via DM</label>
+                  </div>
+                </div>
+                
+                <div class="admin3d-form-actions">
+                  <button type="submit" class="admin3d-btn admin3d-btn-warning" id="warnUserBtn">
+                    <i class="fas fa-exclamation-triangle"></i> Issue Warning
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Warning List -->
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-history"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Warning History</h3>
+              <div class="admin3d-card-actions">
+                <button class="admin3d-btn admin3d-btn-icon" id="refreshWarnings" title="Refresh warning list">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </div>
+            <div class="admin3d-card-content">
+              <div class="admin3d-search-filters">
+                <div class="admin3d-search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" class="admin3d-form-input" id="warningSearchInput" placeholder="Search warnings...">
+                </div>
+                <div class="admin3d-filter-select">
+                  <select class="admin3d-form-select" id="warningFilterSelect">
+                    <option value="all">All Warnings</option>
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                    <option value="high">High Severity</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Warning List Table -->
+              <div class="admin3d-table-wrapper">
+                <table class="admin3d-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Reason</th>
+                      <th>Severity</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="warningListBody">
+                    <tr class="empty-state">
+                      <td colspan="6">
+                        <div class="empty-state-message">
+                          <i class="fas fa-info-circle"></i>
+                          <p>Select a server to view warnings</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Auto-Moderation Tab -->
+      <div id="auto-moderation" class="tab-content">
+        <div class="admin3d-grid">
+          <!-- Auto-Mod Settings -->
+          <div class="admin3d-card" data-premium="true">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-cogs"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Auto-Moderation Settings</h3>
+            </div>
+            <div class="admin3d-card-content">
+              <p class="admin3d-card-description">
+                Configure advanced auto-moderation features for your server.
+              </p>
+              
+              <form action="/admin3d/moderation/automod-settings" method="POST" id="automodSettingsForm" data-ajax="true">
+                <input type="hidden" id="automodServerId" name="serverId" value="">
+                
+                <!-- Content Filtering -->
+                <div class="settings-section">
+                  <h4 class="settings-section-title">
+                    <i class="fas fa-filter"></i> Content Filtering
+                  </h4>
+                  
+                  <div class="admin3d-toggle-group">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="profanityFilter">
+                        <input type="checkbox" id="profanityFilter" name="profanityFilter" value="true">
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Profanity Filter</span>
+                        <small>Filter messages containing profanity</small>
+                      </div>
+                    </div>
+                    
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="linkFilter">
+                        <input type="checkbox" id="linkFilter" name="linkFilter" value="true">
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Link Filter</span>
+                        <small>Filter or verify posted links</small>
+                      </div>
+                    </div>
+                    
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="inviteBlocker">
+                        <input type="checkbox" id="inviteBlocker" name="inviteBlocker" value="true">
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Discord Invite Blocker</span>
+                        <small>Block Discord invite links</small>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="profanityFilterLevel">Profanity Filter Strictness</label>
+                    <select class="admin3d-form-select" id="profanityFilterLevel" name="profanityFilterLevel">
+                      <option value="low">Low - Only extreme profanity</option>
+                      <option value="medium" selected>Medium - Balanced filtering</option>
+                      <option value="high">High - Strict filtering</option>
+                      <option value="custom">Custom - Word list</option>
+                    </select>
+                  </div>
+                  
+                  <!-- Custom Word List (hidden by default) -->
+                  <div id="customWordListGroup" class="admin3d-form-group" style="display: none;">
+                    <label class="admin3d-form-label" for="customWordList">Custom Word List</label>
+                    <textarea class="admin3d-form-textarea" id="customWordList" name="customWordList" placeholder="Enter words to filter, one per line..." rows="4"></textarea>
+                    <div class="admin3d-form-note">
+                      <i class="fas fa-info-circle"></i>
+                      <span>These words will be filtered in addition to the default list</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Anti-Spam Protection -->
+                <div class="settings-section">
+                  <h4 class="settings-section-title">
+                    <i class="fas fa-shield-alt"></i> Anti-Spam Protection
+                  </h4>
+                  
+                  <div class="admin3d-toggle-group">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="antiSpam">
+                        <input type="checkbox" id="antiSpam" name="antiSpam" value="true">
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Message Spam Protection</span>
+                        <small>Detect and prevent message spam</small>
+                      </div>
+                    </div>
+                    
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="antiMention">
+                        <input type="checkbox" id="antiMention" name="antiMention" value="true">
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Mention Spam Protection</span>
+                        <small>Prevent mass mention spam</small>
+                      </div>
+                    </div>
+                    
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="antiRaid">
+                        <input type="checkbox" id="antiRaid" name="antiRaid" value="true">
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Anti-Raid Protection</span>
+                        <small>Detect and prevent server raids</small>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="admin3d-form-row">
+                    <div class="admin3d-form-group half-width">
+                      <label class="admin3d-form-label" for="messageThreshold">Message Threshold</label>
+                      <input type="number" class="admin3d-form-input" id="messageThreshold" name="messageThreshold" min="2" max="20" value="5">
+                      <div class="admin3d-form-note">
+                        <span>Number of messages</span>
+                      </div>
+                    </div>
+                    
+                    <div class="admin3d-form-group half-width">
+                      <label class="admin3d-form-label" for="timeThreshold">Time Window</label>
+                      <input type="number" class="admin3d-form-input" id="timeThreshold" name="timeThreshold" min="1" max="30" value="5">
+                      <div class="admin3d-form-note">
+                        <span>Seconds</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Violation Actions -->
+                <div class="settings-section">
+                  <h4 class="settings-section-title">
+                    <i class="fas fa-gavel"></i> Automated Actions
+                  </h4>
+                  
+                  <div class="admin3d-form-row">
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="violationAction">Content Violation Action</label>
+                      <select class="admin3d-form-select" id="violationAction" name="violationAction">
+                        <option value="delete">Delete Message Only</option>
+                        <option value="warn" selected>Warn User</option>
+                        <option value="mute">Timeout User</option>
+                        <option value="kick">Kick User</option>
+                        <option value="ban">Ban User</option>
+                      </select>
+                    </div>
+                    
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="spamAction">Spam Violation Action</label>
+                      <select class="admin3d-form-select" id="spamAction" name="spamAction">
+                        <option value="delete">Delete Messages Only</option>
+                        <option value="warn">Warn User</option>
+                        <option value="mute" selected>Timeout User</option>
+                        <option value="kick">Kick User</option>
+                        <option value="ban">Ban User</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="muteDuration">Timeout Duration</label>
+                    <select class="admin3d-form-select" id="muteDuration" name="muteDuration">
+                      <option value="5m">5 Minutes</option>
+                      <option value="10m">10 Minutes</option>
+                      <option value="30m" selected>30 Minutes</option>
+                      <option value="1h">1 Hour</option>
+                      <option value="2h">2 Hours</option>
+                      <option value="6h">6 Hours</option>
+                      <option value="12h">12 Hours</option>
+                      <option value="1d">1 Day</option>
+                      <option value="3d">3 Days</option>
+                      <option value="7d">7 Days</option>
+                    </select>
+                  </div>
+                  
+                  <div class="admin3d-toggle-group">
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="logActions">
+                        <input type="checkbox" id="logActions" name="logActions" value="true" checked>
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Log All Actions</span>
+                        <small>Record all moderation actions to the log channel</small>
+                      </div>
+                    </div>
+                    
+                    <div class="admin3d-toggle-item">
+                      <label class="admin3d-toggle" for="notifyUsers">
+                        <input type="checkbox" id="notifyUsers" name="notifyUsers" value="true" checked>
+                        <span class="admin3d-toggle-slider"></span>
+                      </label>
+                      <div class="admin3d-toggle-label">
+                        <span>Notify Users</span>
+                        <small>Send DM to users who receive automated warnings</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="admin3d-form-actions">
+                  <button type="submit" class="admin3d-btn admin3d-btn-primary" id="saveAutomodBtn">
+                    <i class="fas fa-save"></i> Save Settings
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Auto-Mod Log -->
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-clipboard-list"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Auto-Moderation Log</h3>
+              <div class="admin3d-card-actions">
+                <button class="admin3d-btn admin3d-btn-icon" id="refreshAutomod" title="Refresh automod log">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </div>
+            <div class="admin3d-card-content">
+              <div class="admin3d-search-filters">
+                <div class="admin3d-search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" class="admin3d-form-input" id="automodSearchInput" placeholder="Search logs...">
+                </div>
+                <div class="admin3d-filter-select">
+                  <select class="admin3d-form-select" id="automodFilterSelect">
+                    <option value="all">All Violations</option>
+                    <option value="profanity">Profanity</option>
+                    <option value="spam">Message Spam</option>
+                    <option value="mention">Mention Spam</option>
+                    <option value="invite">Discord Invites</option>
+                    <option value="link">Malicious Links</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Auto-Mod Log Table -->
+              <div class="admin3d-table-wrapper">
+                <table class="admin3d-table">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>User</th>
+                      <th>Violation</th>
+                      <th>Action</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="automodLogBody">
+                    <tr class="empty-state">
+                      <td colspan="5">
+                        <div class="empty-state-message">
+                          <i class="fas fa-info-circle"></i>
+                          <p>Select a server to view auto-moderation logs</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Advanced Filters Tab - NEW FEATURE -->
+      <div id="advanced-filters" class="tab-content">
+        <div class="admin3d-grid">
+          <!-- Message Filter Builder -->
+          <div class="admin3d-card" data-premium="true">
+            <div class="admin3d-card-header premium-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-code"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Message Filter Builder</h3>
+              <div class="premium-icon">
+                <i class="fas fa-crown"></i>
+              </div>
+            </div>
+            <div class="admin3d-card-content">
+              <p class="admin3d-card-description">
+                Create advanced message filters with complex conditional logic.
+              </p>
+              
+              <form action="/admin3d/moderation/save-filter" method="POST" id="messageFilterForm" data-ajax="true">
+                <input type="hidden" id="filterServerId" name="serverId" value="">
+                
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="filterName">Filter Name</label>
+                  <input class="admin3d-form-input" type="text" id="filterName" name="filterName" placeholder="Enter a name for this filter..." required>
+                </div>
+                
+                <div class="filter-builder">
+                  <div class="filter-builder-header">
+                    <h4>Filter Conditions</h4>
+                    <button type="button" class="admin3d-btn admin3d-btn-sm" id="addConditionBtn">
+                      <i class="fas fa-plus"></i> Add Condition
+                    </button>
+                  </div>
+                  
+                  <div class="filter-conditions" id="filterConditions">
+                    <div class="filter-condition">
+                      <div class="condition-part">
+                        <select class="admin3d-form-select" name="conditionType[]">
+                          <option value="contains">Contains Text</option>
+                          <option value="starts_with">Starts With</option>
+                          <option value="ends_with">Ends With</option>
+                          <option value="regex">Matches Regex</option>
+                          <option value="length_gt">Length Greater Than</option>
+                          <option value="length_lt">Length Less Than</option>
+                          <option value="has_attachment">Has Attachment</option>
+                          <option value="has_link">Has Link</option>
+                          <option value="has_mention">Has Mention</option>
+                          <option value="has_emoji">Has Emoji</option>
+                        </select>
+                      </div>
+                      <div class="condition-part">
+                        <input class="admin3d-form-input" type="text" name="conditionValue[]" placeholder="Value...">
+                      </div>
+                      <div class="condition-part condition-actions">
+                        <button type="button" class="admin3d-btn admin3d-btn-icon admin3d-btn-sm remove-condition">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="filter-builder-logic">
+                    <h4>Condition Logic</h4>
+                    <div class="admin3d-form-group">
+                      <select class="admin3d-form-select" id="conditionLogic" name="conditionLogic">
+                        <option value="all">Match ALL conditions (AND)</option>
+                        <option value="any">Match ANY condition (OR)</option>
+                        <option value="custom">Custom Logic</option>
+                      </select>
+                    </div>
+                    <div id="customLogicGroup" class="admin3d-form-group" style="display: none;">
+                      <input class="admin3d-form-input" type="text" id="customLogic" name="customLogic" placeholder="Example: (1 AND 2) OR 3">
+                      <div class="admin3d-form-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Use condition numbers starting from 1, with AND, OR, NOT operators</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="filter-actions">
+                  <h4>Actions to Take</h4>
+                  <div class="admin3d-form-group">
+                    <select class="admin3d-form-select" id="filterAction" name="filterAction">
+                      <option value="delete">Delete Message</option>
+                      <option value="warn">Warn User</option>
+                      <option value="timeout">Timeout User</option>
+                      <option value="notify">Notify Moderators</option>
+                      <option value="log">Log Only</option>
+                    </select>
+                  </div>
+                  
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="actionMessage">Message to User</label>
+                    <textarea class="admin3d-form-textarea" id="actionMessage" name="actionMessage" 
+                              placeholder="Message to send to user when filter is triggered..." rows="2"></textarea>
+                  </div>
+                </div>
+                
+                <div class="admin3d-form-actions">
+                  <button type="submit" class="admin3d-btn admin3d-btn-success" id="saveFilterBtn">
+                    <i class="fas fa-save"></i> Save Filter
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Active Filters -->
+          <div class="admin3d-card">
+            <div class="admin3d-card-header">
+              <div>
+                <div class="admin3d-card-icon">
+                  <i class="fas fa-list"></i>
+                </div>
+              </div>
+              <h3 class="admin3d-card-title">Active Filters</h3>
+              <div class="admin3d-card-actions">
+                <button class="admin3d-btn admin3d-btn-icon" id="refreshFilters" title="Refresh filter list">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </div>
+            <div class="admin3d-card-content">
+              <div class="active-filters-list" id="activeFiltersList">
+                <div class="empty-state">
+                  <div class="empty-state-message">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Select a server to view active filters</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Notification Area -->
+  <div class="notification-area"></div>
+</div>
+
+<!-- Hidden Templates -->
+<template id="filterConditionTemplate">
+  <div class="filter-condition">
+    <div class="condition-part">
+      <select class="admin3d-form-select" name="conditionType[]">
+        <option value="contains">Contains Text</option>
+        <option value="starts_with">Starts With</option>
+        <option value="ends_with">Ends With</option>
+        <option value="regex">Matches Regex</option>
+        <option value="length_gt">Length Greater Than</option>
+        <option value="length_lt">Length Less Than</option>
+        <option value="has_attachment">Has Attachment</option>
+        <option value="has_link">Has Link</option>
+        <option value="has_mention">Has Mention</option>
+        <option value="has_emoji">Has Emoji</option>
+      </select>
+    </div>
+    <div class="condition-part">
+      <input class="admin3d-form-input" type="text" name="conditionValue[]" placeholder="Value...">
+    </div>
+    <div class="condition-part condition-actions">
+      <button type="button" class="admin3d-btn admin3d-btn-icon admin3d-btn-sm remove-condition">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
+  </div>
+</template>
+
+<template id="activeFilterTemplate">
+  <div class="admin3d-list-item">
+    <div class="admin3d-list-item-header">
+      <div class="admin3d-list-item-title">{{filterName}}</div>
+      <div class="admin3d-list-item-actions">
+        <button class="admin3d-btn admin3d-btn-icon admin3d-btn-sm edit-filter" data-id="{{filterId}}">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="admin3d-btn admin3d-btn-icon admin3d-btn-sm admin3d-btn-danger delete-filter" data-id="{{filterId}}">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    </div>
+    <div class="admin3d-list-item-body">
+      <div class="admin3d-list-item-conditions">
+        <div class="admin3d-badge">{{conditionCount}} conditions</div>
+        <div class="admin3d-badge">{{conditionLogic}}</div>
+      </div>
+      <div class="admin3d-list-item-action">
+        <div class="admin3d-badge admin3d-badge-action">{{action}}</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Direct THREE.js import for critical premium features -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js"></script>
+
+<script>
+// Add notification function if not already available
+if (typeof showNotification !== 'function') {
+  window.showNotification = function(type, message, duration = 5000) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `admin3d-notification ${type}`;
+    
+    // Add icon based on type
+    let icon = 'info-circle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'error') icon = 'exclamation-circle';
+    if (type === 'warning') icon = 'exclamation-triangle';
+    
+    notification.innerHTML = `
+      <div class="notification-icon">
+        <i class="fas fa-${icon}"></i>
+      </div>
+      <div class="notification-content">
+        <div class="notification-message">${message}</div>
+      </div>
+      <div class="notification-close" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </div>
+    `;
+    
+    // Create notifications container if it doesn't exist
+    let notificationsContainer = document.querySelector('.admin3d-notifications');
+    if (!notificationsContainer) {
+      notificationsContainer = document.createElement('div');
+      notificationsContainer.className = 'admin3d-notifications';
+      document.body.appendChild(notificationsContainer);
+      
+      // Add styles if not already present
+      if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+          .admin3d-notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+          }
+          .admin3d-notification {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slide-in 0.3s ease-out forwards;
+            background: #2d3748;
+            border-left: 4px solid #4a5568;
+            color: white;
+          }
+          .admin3d-notification.success {
+            border-left-color: #48bb78;
+          }
+          .admin3d-notification.error {
+            border-left-color: #f56565;
+          }
+          .admin3d-notification.warning {
+            border-left-color: #ed8936;
+          }
+          .admin3d-notification.info {
+            border-left-color: #4299e1;
+          }
+          .notification-icon {
+            margin-right: 12px;
+            font-size: 18px;
+          }
+          .admin3d-notification.success .notification-icon {
+            color: #48bb78;
+          }
+          .admin3d-notification.error .notification-icon {
+            color: #f56565;
+          }
+          .admin3d-notification.warning .notification-icon {
+            color: #ed8936;
+          }
+          .admin3d-notification.info .notification-icon {
+            color: #4299e1;
+          }
+          .notification-content {
+            flex: 1;
+          }
+          .notification-close {
+            margin-left: 12px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+          }
+          .notification-close:hover {
+            opacity: 1;
+          }
+          @keyframes slide-in {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+          @keyframes slide-out {
+            from {
+              transform: translateX(0);
+              opacity: 1;
+            }
+            to {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+    
+    // Add to DOM
+    notificationsContainer.appendChild(notification);
+    
+    // Auto-remove after duration
+    if (duration > 0) {
+      setTimeout(() => {
+        notification.style.animation = 'slide-out 0.3s ease-in forwards';
+        setTimeout(() => notification.remove(), 300);
+      }, duration);
+    }
+    
+    return notification;
+  };
+}
+
+// Verify THREE.js loaded successfully and show warning if not
+if (typeof THREE === 'undefined') {
+  console.error('THREE.js failed to load! Premium 3D features will not be available.');
+  // Add visual notification for user
+  setTimeout(() => {
+    showNotification('error', 'Premium 3D visualization failed to load. Please refresh the page or try a different browser for the full experience.');
+  }, 1000);
+} else {
+  console.log('THREE.js loaded successfully. Premium 3D features are available.');
+  setTimeout(() => {
+    showNotification('success', 'Premium 3D visualization loaded successfully!');
+  }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // DOM Elements
+  const serverSelect = document.getElementById('serverSelect');
+  const tabButtons = document.querySelectorAll('.mod-nav-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+  const banForm = document.getElementById('banUserForm');
+  const banList = document.getElementById('banList');
+  const warningList = document.getElementById('warningList');
+  const automodList = document.getElementById('automodList');
+  const directBanButton = document.getElementById('useDirectBanSystem');
+  
+  // Initialize tabs
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Remove active class from all buttons and contents
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Add active class to clicked button and corresponding content
+      button.classList.add('active');
+      const tabId = button.getAttribute('data-tab');
+      document.getElementById(tabId)?.classList.add('active');
+    });
+  });
+  
+  // Initialize server selector
+  if (serverSelect) {
+    serverSelect.addEventListener('change', function() {
+      const selectedId = this.value;
+      if (!selectedId) return;
+      
+      // Update hidden fields
+      document.querySelectorAll('[name="serverId"]').forEach(field => {
+        field.value = selectedId;
+      });
+      
+      // Load server data
+      document.getElementById('totalBans').textContent = '...';
+      document.getElementById('totalWarnings').textContent = '...';
+      document.getElementById('automodActions').textContent = '...';
+      document.getElementById('memberCount').textContent = '...';
+      
+      // Call API for data
+      loadServerData(selectedId);
+    });
+  }
+  
+  // Ban Form Duration Selection
+  const banDuration = document.getElementById('banDuration');
+  const customDurationGroup = document.getElementById('customDurationGroup');
+  
+  if (banDuration && customDurationGroup) {
+    banDuration.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customDurationGroup.style.display = 'block';
+      } else {
+        customDurationGroup.style.display = 'none';
+      }
+    });
+  }
+  
+  // Custom Word List Toggle
+  const profanityFilterLevel = document.getElementById('profanityFilterLevel');
+  const customWordListGroup = document.getElementById('customWordListGroup');
+  
+  if (profanityFilterLevel && customWordListGroup) {
+    profanityFilterLevel.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customWordListGroup.style.display = 'block';
+      } else {
+        customWordListGroup.style.display = 'none';
+      }
+    });
+  }
+  
+  // Custom Logic Toggle
+  const conditionLogic = document.getElementById('conditionLogic');
+  const customLogicGroup = document.getElementById('customLogicGroup');
+  
+  if (conditionLogic && customLogicGroup) {
+    conditionLogic.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customLogicGroup.style.display = 'block';
+      } else {
+        customLogicGroup.style.display = 'none';
+      }
+    });
+  }
+  
+  // Advanced Filter Condition Builder
+  const addConditionBtn = document.getElementById('addConditionBtn');
+  const filterConditions = document.getElementById('filterConditions');
+  const filterConditionTemplate = document.getElementById('filterConditionTemplate');
+  
+  if (addConditionBtn && filterConditions && filterConditionTemplate) {
+    addConditionBtn.addEventListener('click', function() {
+      const newCondition = document.importNode(filterConditionTemplate.content, true);
+      filterConditions.appendChild(newCondition);
+      
+      // Add event listener to the new remove button
+      const removeButtons = filterConditions.querySelectorAll('.remove-condition');
+      const lastRemoveButton = removeButtons[removeButtons.length - 1];
+      lastRemoveButton.addEventListener('click', function() {
+        this.closest('.filter-condition').remove();
+      });
+    });
+    
+    // Add event listeners to initial remove button
+    document.querySelectorAll('.remove-condition').forEach(button => {
+      button.addEventListener('click', function() {
+        this.closest('.filter-condition').remove();
+      });
+    });
+  }
+  
+  /**
+   * Load server data for moderation
+   * @param {string} serverId - Discord server ID
+   */
+  function loadServerData(serverId) {
+    if (!serverId) return;
+    
+    // Update empty state messages
+    updateEmptyState(`Loading data for server ${serverId}...`);
+    
+    // Load ban list
+    loadBanList(serverId);
+    
+    // Load warning list
+    loadWarningList(serverId);
+    
+    // Load automod log
+    loadAutomodActions(serverId);
+    
+    // Load automod settings
+    loadAutomodSettings(serverId);
+    
+    // Load active filters
+    loadActiveFilters(serverId);
+    
+    // Update server stats
+    loadServerStats(serverId);
+  }
+  
+  /**
+   * Update empty state messages in tables
+   * @param {string} message - Message to display
+   */
+  function updateEmptyState(message) {
+    const emptyStates = document.querySelectorAll('.empty-state-message p');
+    emptyStates.forEach(elem => {
+      elem.textContent = message;
+    });
+  }
+  
+  /**
+   * Load server statistics
+   * @param {string} serverId - Discord server ID
+   */
+  function loadServerStats(serverId) {
+    // This would normally fetch from an API
+    // For demo purposes, we'll use sample data
+    setTimeout(() => {
+      document.getElementById('totalBans').textContent = Math.floor(Math.random() * 10);
+      document.getElementById('totalWarnings').textContent = Math.floor(Math.random() * 20);
+      document.getElementById('automodActions').textContent = Math.floor(Math.random() * 50);
+      
+      // Find server in the dropdown to get member count
+      const serverOption = Array.from(serverSelect.options).find(option => option.value === serverId);
+      if (serverOption) {
+        const serverName = serverOption.text;
+        const memberCount = serverName.match(/\((\d+)\)$/);
+        document.getElementById('memberCount').textContent = memberCount ? memberCount[1] : Math.floor(Math.random() * 500);
+      } else {
+        document.getElementById('memberCount').textContent = Math.floor(Math.random() * 500);
+      }
+    }, 800);
+  }
+  
+  /**
+   * Load ban list for a server using direct server access
+   * @param {string} serverId - Discord server ID
+   */
+  function loadBanList(serverId) {
+    if (!document.getElementById('banListBody')) return;
+    
+    // Show loading state
+    document.getElementById('banListBody').innerHTML = `
+      <tr class="loading-state">
+        <td colspan="5">
+          <div class="empty-state-message">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <p>Loading ban list...</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    
+    // Fetch ban data from the direct endpoint
+    fetch(`/admin3d/direct-bans/list/${serverId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load ban list');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Ban data loaded:', data);
+      
+      // Update ban count
+      if (document.getElementById('totalBans')) {
+        document.getElementById('totalBans').textContent = data.total || 0;
+      }
+      
+      // Show empty state if no bans
+      if (!data.bans || data.bans.length === 0) {
+        document.getElementById('banListBody').innerHTML = `
+          <tr class="empty-state">
+            <td colspan="5">
+              <div class="empty-state-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No bans found for this server</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Generate ban list HTML
+      const banListHTML = data.bans.map(ban => {
+        // Format the date
+        const banDate = new Date(ban.bannedAt || ban.date || Date.now());
+        const formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
+        
+        // Determine duration text
+        let durationText = ban.permanent ? 'Permanent' : (ban.duration || 'Permanent');
+        
+        return `
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">
+                  <img src="${ban.avatarURL || ban.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag || 'User'}'s avatar">
+                </div>
+                <div class="user-details">
+                  <div class="username">${ban.username || ban.tag || 'Unknown User'}</div>
+                  <div class="user-id">${ban.userId || ban.id || ''}</div>
+                </div>
+              </div>
+            </td>
+            <td>${ban.reason || 'No reason provided'}</td>
+            <td>${formattedDate}</td>
+            <td>${durationText}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn btn-unban" data-user-id="${ban.userId || ban.id || ''}" title="Unban User">
+                  <i class="fas fa-user-check"></i>
+                </button>
+                <button class="action-btn btn-info" data-user-id="${ban.userId || ban.id || ''}" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('banListBody').innerHTML = banListHTML;
+      
+      // Add event listeners to action buttons
+      document.querySelectorAll('.btn-unban').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.getAttribute('data-user-id');
+          if (confirm(`Are you sure you want to unban user ${userId}?`)) {
+            unbanUser(serverId, userId);
+          }
+        });
+      });
+      
+      document.querySelectorAll('.btn-info').forEach(button => {
+        button.addEventListener('click', function() {
+          const userId = this.getAttribute('data-user-id');
+          showBanDetails(serverId, userId);
+        });
+      });
+    })
+    .catch(error => {
+      console.error('Error loading ban list:', error);
+      document.getElementById('banListBody').innerHTML = `
+        <tr class="error-state">
+          <td colspan="5">
+            <div class="error-state-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Failed to load ban list: ${error.message}</p>
+              <button class="retry-button" onclick="loadBanList('${serverId}')">
+                <i class="fas fa-sync-alt"></i> Retry
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+  }
+  
+  /**
+   * Load warning list for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadWarningList(serverId) {
+    if (!document.getElementById('warningListBody')) return;
+    
+    document.getElementById('warningListBody').innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading warnings...</p></div>';
+    
+    // This would normally fetch from an API
+    // For demo purposes, we'll show some sample data
+    setTimeout(() => {
+      // Sample data would be replaced with actual API data
+      document.getElementById('warningListBody').innerHTML = '';
+    }, 800);
+  }
+  
+  /**
+   * Load automod actions for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadAutomodActions(serverId) {
+    if (!document.getElementById('automodLogBody')) return;
+    
+    document.getElementById('automodLogBody').innerHTML = '<div class="admin3d-loading"><div class="admin3d-spinner"></div><p>Loading automod logs...</p></div>';
+    
+    // This would normally fetch from an API
+    // For demo purposes, we'll show some sample data
+    setTimeout(() => {
+      // Sample data would be replaced with actual API data
+      document.getElementById('automodLogBody').innerHTML = '';
+    }, 800);
+  }
+  
+  /**
+   * Load automod settings for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadAutomodSettings(serverId) {
+    // This would normally fetch settings from an API
+    // For demo purposes, we'll just set some defaults
+    document.getElementById('profanityFilter').checked = true;
+    document.getElementById('linkFilter').checked = true;
+    document.getElementById('inviteBlocker').checked = false;
+    document.getElementById('antiSpam').checked = true;
+    document.getElementById('antiMention').checked = true;
+    document.getElementById('antiRaid').checked = false;
+  }
+  
+  /**
+   * Load active filters for a server
+   * @param {string} serverId - Discord server ID
+   */
+  function loadActiveFilters(serverId) {
+    const activeFiltersList = document.getElementById('activeFiltersList');
+    if (!activeFiltersList) return;
+    
+    activeFiltersList.innerHTML = `
+      <div class="admin3d-loading">
+        <div class="admin3d-spinner"></div>
+        <p>Loading active filters...</p>
+      </div>
+    `;
+    
+    // This would normally fetch from an API
+    // For demo purposes, we'll show empty state
+    setTimeout(() => {
+      activeFiltersList.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-message">
+            <i class="fas fa-filter"></i>
+            <p>No custom filters created yet</p>
+          </div>
+          <p class="empty-state-description">Use the filter builder to create custom message filters</p>
+        </div>
+      `;
+    }, 800);
+  }
+  
+  // Add refresh button functionality
+  document.getElementById('refreshBans')?.addEventListener('click', function() {
+    const serverId = serverSelect.value;
+    if (serverId) loadBanList(serverId);
+  });
+  
+  document.getElementById('refreshWarnings')?.addEventListener('click', function() {
+    const serverId = serverSelect.value;
+    if (serverId) loadWarningList(serverId);
+  });
+  
+  document.getElementById('refreshAutomod')?.addEventListener('click', function() {
+    const serverId = serverSelect.value;
+    if (serverId) loadAutomodActions(serverId);
+  });
+  
+  document.getElementById('refreshFilters')?.addEventListener('click', function() {
+    const serverId = serverSelect.value;
+    if (serverId) loadActiveFilters(serverId);
+  });
+  
+  /**
+   * Unban a user from the server using direct access
+   * @param {string} serverId - Discord server ID
+   * @param {string} userId - User ID to unban
+   */
+  function unbanUser(serverId, userId) {
+    if (!serverId || !userId) return;
+    
+    // Show loading state
+    const button = document.querySelector(`.btn-unban[data-user-id="${userId}"]`);
+    if (button) {
+      const originalHTML = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+      button.disabled = true;
+    }
+    
+    // Send unban request to direct access endpoint
+    fetch('/admin3d/direct-bans/unban', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ serverId, userId }),
+      credentials: 'include'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to unban user');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Unban response:', data);
+      if (data.success) {
+        // Show success message
+        if (typeof showNotification === 'function') {
+          showNotification('success', `User ${userId} has been unbanned`);
+        } else {
+          alert(`User ${userId} has been unbanned`);
+        }
+        
+        // Refresh ban list
+        loadBanList(serverId);
+      } else {
+        throw new Error(data.message || 'Failed to unban user');
+      }
+    })
+    .catch(error => {
+      console.error('Error unbanning user:', error);
+      // Show error message
+      if (typeof showNotification === 'function') {
+        showNotification('error', `Failed to unban user: ${error.message}`);
+      } else {
+        alert(`Failed to unban user: ${error.message}`);
+      }
+      
+      // Reset button
+      if (button) {
+        button.innerHTML = '<i class="fas fa-user-check"></i>';
+        button.disabled = false;
+      }
+    });
+  }
+  
+  /**
+   * Show ban details in a modal using direct access
+   * @param {string} serverId - Discord server ID
+   * @param {string} userId - User ID to show details for
+   */
+  function showBanDetails(serverId, userId) {
+    // Fetch ban details from direct access endpoint
+    fetch(`/admin3d/direct-bans/details/${serverId}/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load ban details');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Ban details:', data);
+      
+      // Show ban details modal
+      // This would normally use a modal component
+      let modalHTML = `
+        <div class="admin3d-modal-header">
+          <h3 class="admin3d-modal-title">Ban Details</h3>
+          <button class="admin3d-modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="admin3d-modal-body">
+          <div class="admin3d-ban-info">
+      `;
+      
+      // Add ban details
+      if (data.ban) {
+        const ban = data.ban;
+        const banDate = new Date(ban.bannedAt || ban.date || Date.now());
+        const formattedDate = banDate.toLocaleDateString() + ' ' + banDate.toLocaleTimeString();
+        
+        modalHTML += `
+          <div class="admin3d-user-header">
+            <div class="user-avatar">
+              <img src="${ban.avatarURL || ban.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${ban.username || ban.tag || 'User'}'s avatar">
+            </div>
+            <div class="user-details">
+              <div class="username">${ban.username || ban.tag || 'Unknown User'}</div>
+              <div class="user-id">${ban.userId || ban.id || ''}</div>
+            </div>
+          </div>
+          
+          <div class="admin3d-ban-row">
+            <div class="admin3d-ban-label">Reason</div>
+            <div class="admin3d-ban-value">${ban.reason || 'No reason provided'}</div>
+          </div>
+          
+          <div class="admin3d-ban-row">
+            <div class="admin3d-ban-label">Date</div>
+            <div class="admin3d-ban-value">${formattedDate}</div>
+          </div>
+          
+          <div class="admin3d-ban-row">
+            <div class="admin3d-ban-label">Duration</div>
+            <div class="admin3d-ban-value">${ban.permanent ? 'Permanent' : (ban.duration || 'Permanent')}</div>
+          </div>
+          
+          <div class="admin3d-ban-row">
+            <div class="admin3d-ban-label">Moderator</div>
+            <div class="admin3d-ban-value">${ban.moderator || ban.executor || 'Unknown'}</div>
+          </div>
+        `;
+        
+        // Add history if available
+        if (ban.history && ban.history.length > 0) {
+          modalHTML += `
+            <div class="admin3d-ban-row">
+              <div class="admin3d-ban-label">History</div>
+              <div class="admin3d-ban-value">
+                <ul class="admin3d-history-list">
+          `;
+          
+          ban.history.forEach(item => {
+            const itemDate = new Date(item.date || item.timestamp || Date.now());
+            const formattedItemDate = itemDate.toLocaleDateString() + ' ' + itemDate.toLocaleTimeString();
+            
+            modalHTML += `
+              <li class="admin3d-history-item">
+                <span class="history-action">${item.action || item.type || 'Action'}</span>
+                <span class="history-date">${formattedItemDate}</span>
+                <span class="history-reason">${item.reason || ''}</span>
+              </li>
+            `;
+          });
+          
+          modalHTML += `
+                </ul>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        modalHTML += `
+          <div class="admin3d-empty-state">
+            <i class="fas fa-info-circle"></i>
+            <p>No detailed information available for this ban</p>
+          </div>
+        `;
+      }
+      
+      modalHTML += `
+          </div>
+        </div>
+        <div class="admin3d-modal-footer">
+          <button class="admin3d-btn" onclick="closeModal()">Close</button>
+          <button class="admin3d-btn admin3d-btn-danger" onclick="unbanUser('${serverId}', '${userId}')">Unban User</button>
+        </div>
+      `;
+      
+      // Show modal
+      if (typeof showModal === 'function') {
+        showModal(modalHTML);
+      } else {
+        const modalContainer = document.createElement('div');
+        modalContainer.className = 'admin3d-modal-container';
+        modalContainer.innerHTML = `
+          <div class="admin3d-modal-overlay" onclick="closeModal()"></div>
+          <div class="admin3d-modal">
+            ${modalHTML}
+          </div>
+        `;
+        document.body.appendChild(modalContainer);
+        
+        // Add close modal function to window
+        window.closeModal = function() {
+          const modal = document.querySelector('.admin3d-modal-container');
+          if (modal) {
+            modal.remove();
+          }
+        };
+      }
+    })
+    .catch(error => {
+      console.error('Error loading ban details:', error);
+      // Show error message
+      if (typeof showNotification === 'function') {
+        showNotification('error', `Failed to load ban details: ${error.message}`);
+      } else {
+        alert(`Failed to load ban details: ${error.message}`);
+      }
+    });
+  }
+});
+</script>
+
+<!-- Button script removed as button was removed per user request -->

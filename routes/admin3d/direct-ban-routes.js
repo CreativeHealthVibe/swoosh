@@ -1,6 +1,7 @@
 /**
  * Direct Ban Access Routes 
  * These routes provide a more robust way to access bans when the API version has authentication issues
+ * Used both by the direct-ban-access.ejs page and integrated into the main moderation.ejs page
  */
 const express = require('express');
 const router = express.Router();
