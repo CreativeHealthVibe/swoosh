@@ -31,10 +31,10 @@ function getTimeBasedGreeting() {
 
 /**
  * GET /admin
- * Root admin route - redirects to welcome page
+ * Root admin route - redirects to admin3d dashboard
  */
 router.get('/', (req, res) => {
-  res.redirect('/admin/welcome');
+  res.redirect('/admin3d');
 });
 
 /**

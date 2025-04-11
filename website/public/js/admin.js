@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     return; // Don't set up WebSocket on settings pages
   }
   
-  // Only set up WebSocket on welcome page and other pages that need it
-  if (currentPath === '/admin' || currentPath === '/admin/welcome') {
+  // Only set up WebSocket on welcome page, admin3d, and other pages that need it
+  if (currentPath === '/admin' || currentPath === '/admin/welcome' || currentPath === '/admin3d') {
     // Set up WebSocket connection for real-time updates
     setupWebSocket();
     
