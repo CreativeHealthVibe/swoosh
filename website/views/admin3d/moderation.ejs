@@ -873,7 +873,26 @@
   </div>
 </template>
 
+<!-- Direct THREE.js import for critical premium features -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js"></script>
+
 <script>
+// Verify THREE.js loaded successfully and show warning if not
+if (typeof THREE === 'undefined') {
+  console.error('THREE.js failed to load! Premium 3D features will not be available.');
+  // Add visual notification for user
+  setTimeout(() => {
+    if (typeof showNotification === 'function') {
+      showNotification('error', 'Premium 3D visualization failed to load. Please refresh the page or try a different browser for the full experience.');
+    } else {
+      alert('Premium 3D visualization failed to load. Please refresh the page or try a different browser for the full experience.');
+    }
+  }, 1000);
+} else {
+  console.log('THREE.js loaded successfully. Premium 3D features are available.');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements
   const serverSelect = document.getElementById('serverSelect');
