@@ -6,6 +6,68 @@
  * and integrates with the 3D visualization system.
  */
 
+/**
+ * Centralized function to handle API requests with consistent auth handling
+ * @param {string} url - API endpoint URL
+ * @param {Object} options - Fetch options (method, headers, body)
+ * @returns {Promise} - Promise that resolves to the parsed JSON response
+ */
+async function fetchAPI(url, options = {}) {
+  // Default options
+  const defaultOptions = {
+    headers: {
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    credentials: 'same-origin' // Include cookies for auth
+  };
+  
+  // If method is POST, add Content-Type header
+  if (options.method === 'POST') {
+    defaultOptions.headers['Content-Type'] = 'application/json';
+  }
+  
+  // Merge options
+  const fetchOptions = {
+    ...defaultOptions,
+    ...options,
+    headers: {
+      ...defaultOptions.headers,
+      ...(options.headers || {})
+    }
+  };
+  
+  console.log(`API Request to ${url}`, fetchOptions);
+  
+  try {
+    const response = await fetch(url, fetchOptions);
+    
+    // Handle auth errors
+    if (response.status === 401 || response.status === 403) {
+      const errorData = await response.json();
+      console.error(`Authentication error (${response.status}):`, errorData);
+      
+      if (errorData.redirectTo) {
+        window.location.href = errorData.redirectTo;
+        throw new Error('Authentication required. Redirecting to login...');
+      } else {
+        throw new Error(errorData.message || 'Authentication failed');
+      }
+    }
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error (${response.status}):`, errorText);
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('API request error:', error);
+    throw error;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Add premium edition class to body for enhanced styling
   document.body.classList.add('premium-edition');
@@ -358,34 +420,11 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // Fetch ban data from our API
+    // Fetch ban data from our API using the centralized fetchAPI function
     console.log(`Fetching ban data for server: ${serverId}`);
-    fetch(`/api/moderation/bans/${serverId}`, {
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
+    fetchAPI(`/api/moderation/bans/${serverId}`, {
+      credentials: 'include' // Include credentials in the request
     })
-      .then(response => {
-        // Check for 401 Unauthorized or 403 Forbidden responses
-        if (response.status === 401 || response.status === 403) {
-          return response.json().then(errorData => {
-            console.error('Authentication error:', errorData);
-            // Check if we need to redirect to login
-            if (errorData.redirectTo) {
-              window.location.href = errorData.redirectTo;
-              return Promise.reject(new Error('Authentication required. Redirecting to login...'));
-            } else {
-              throw new Error(errorData.message || 'Authentication failed');
-            }
-          });
-        }
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch ban list');
-        }
-        return response.json();
-      })
       .then(data => {
         // Log the response for debugging
         console.log('Ban list API response:', data);
@@ -507,33 +546,11 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // Fetch warning data from our API
-    fetch(`/api/moderation/warnings/${serverId}`, {
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
+    // Fetch warning data from our API using the centralized fetchAPI function
+    console.log(`Fetching warning data for server: ${serverId}`);
+    fetchAPI(`/api/moderation/warnings/${serverId}`, {
+      credentials: 'include' // Include credentials in the request
     })
-      .then(response => {
-        // Check for 401 Unauthorized or 403 Forbidden responses
-        if (response.status === 401 || response.status === 403) {
-          return response.json().then(errorData => {
-            console.error('Authentication error:', errorData);
-            // Check if we need to redirect to login
-            if (errorData.redirectTo) {
-              window.location.href = errorData.redirectTo;
-              return Promise.reject(new Error('Authentication required. Redirecting to login...'));
-            } else {
-              throw new Error(errorData.message || 'Authentication failed');
-            }
-          });
-        }
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch warnings list');
-        }
-        return response.json();
-      })
       .then(data => {
         // Update stats
         if (document.getElementById('totalWarnings')) {
@@ -673,33 +690,11 @@ document.addEventListener('DOMContentLoaded', () => {
       </tr>
     `;
     
-    // Fetch moderation history from our API
-    fetch(`/api/moderation/history/${serverId}`, {
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
+    // Fetch moderation history from our API using the centralized fetchAPI function
+    console.log(`Fetching moderation history for server: ${serverId}`);
+    fetchAPI(`/api/moderation/history/${serverId}`, {
+      credentials: 'include' // Include credentials in the request
     })
-      .then(response => {
-        // Check for 401 Unauthorized or 403 Forbidden responses
-        if (response.status === 401 || response.status === 403) {
-          return response.json().then(errorData => {
-            console.error('Authentication error:', errorData);
-            // Check if we need to redirect to login
-            if (errorData.redirectTo) {
-              window.location.href = errorData.redirectTo;
-              return Promise.reject(new Error('Authentication required. Redirecting to login...'));
-            } else {
-              throw new Error(errorData.message || 'Authentication failed');
-            }
-          });
-        }
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch moderation history');
-        }
-        return response.json();
-      })
       .then(data => {
         // Update stats
         if (document.getElementById('automodActions')) {
@@ -968,18 +963,58 @@ document.addEventListener('DOMContentLoaded', () => {
       event.preventDefault();
       
       const formData = new FormData(automodForm);
+      const serverId = serverSelect?.value;
+      
+      if (!serverId) {
+        alert('Please select a server first');
+        return;
+      }
+      
       const automodData = {
+        serverId: serverId,
         filterProfanity: formData.get('filterProfanity') === 'on',
+        profanityAction: formData.get('profanityAction') || 'delete',
+        profanityThreshold: formData.get('profanityThreshold') || 'medium',
+        filterLinks: formData.get('filterLinks') === 'on',
         filterSpam: formData.get('filterSpam') === 'on',
-        filterInvites: formData.get('filterInvites') === 'on',
+        spamThreshold: formData.get('spamThreshold') || 5,
+        spamAction: formData.get('spamAction') || 'mute',
         antiRaid: formData.get('antiRaid') === 'on',
-        raidThreshold: formData.get('raidThreshold'),
-        raidAction: formData.get('raidAction'),
-        warningThreshold: formData.get('warningThreshold'),
-        warningAction: formData.get('warningAction')
+        raidThreshold: formData.get('raidThreshold') || 10,
+        raidAction: formData.get('raidAction') || 'lockdown',
+        raidDuration: formData.get('raidDuration') || '30m'
       };
       
-      saveAutomodSettings(automodData);
+      // Show submitting state
+      const submitBtn = document.querySelector('#automodForm button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Saving...';
+      
+      // Use the centralized fetchAPI for better error handling
+      fetchAPI('/api/moderation/automod', {
+        method: 'POST',
+        body: JSON.stringify(automodData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(data => {
+          if (data.success) {
+            showNotification('Auto-moderation settings saved successfully', 'success');
+          } else {
+            throw new Error(data.message || 'Failed to save auto-moderation settings');
+          }
+        })
+        .catch(error => {
+          console.error('Error saving automod settings:', error);
+          showNotification(`Error: ${error.message}`, 'error');
+        })
+        .finally(() => {
+          // Reset button state
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        });
     });
   }
   
