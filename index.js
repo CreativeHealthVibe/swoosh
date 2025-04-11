@@ -488,23 +488,51 @@ app.use(express.static(path.join(__dirname, 'website/public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set up session middleware with PostgreSQL store
+// Set up session middleware with PostgreSQL store and fallback to memory store
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
+const MemoryStore = session.MemoryStore;
+
+// Create PostgreSQL pool with advanced error handling
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  max: 20, // Maximum number of clients in the pool
+  idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
+  connectionTimeoutMillis: 5000, // How long to wait for a connection to become available
+  maxUses: 7500 // Close and replace connection after it's been used this many times
 });
 
-app.use(session({
-  store: new pgSession({
+// Add event listeners for pool errors
+pool.on('error', (err) => {
+  console.error('Session store pool error:', err);
+  // Don't crash on connection errors, just log them
+});
+
+// Create session store
+let sessionStore;
+try {
+  // Try to use PostgreSQL session store
+  sessionStore = new pgSession({
     pool,
     tableName: 'session', // Use a custom table name
-    createTableIfMissing: true // Create table if it doesn't exist
-  }),
+    createTableIfMissing: true, // Create table if it doesn't exist
+    errorLog: console.error, // Optional error handler for session storage
+    pruneSessionInterval: 60 // Prune expired sessions every 60 seconds
+  });
+  console.log('Using PostgreSQL session store');
+} catch (error) {
+  // Fallback to memory store if PostgreSQL is not available
+  console.error('Failed to initialize PostgreSQL session store, falling back to memory store:', error);
+  sessionStore = new MemoryStore();
+  console.log('Using memory session store as fallback');
+}
+
+app.use(session({
+  store: sessionStore,
   secret: process.env.SESSION_SECRET || 'swoosh-admin-dashboard-secret',
   resave: false,
-  saveUninitialized: true, // Changed to true to ensure session is always stored
+  saveUninitialized: true, // Ensure session is always stored
   cookie: {
     secure: false, // Set to false to work in all environments
     maxAge: 24 * 60 * 60 * 1000, // 1 day
