@@ -11,6 +11,7 @@ const path = require('path');
 // Import routes
 const directBanRoutes = require('./admin3d/direct-ban-routes');
 const warningRoutes = require('./admin3d/warning-routes');
+const automodRoutes = require('./admin3d/automod-routes');
 
 // Apply admin authentication middleware to all routes
 router.use(isAdmin);
@@ -881,6 +882,7 @@ router.get('/profile', async (req, res) => {
 // Register routes
 router.use('/', directBanRoutes);
 router.use('/', warningRoutes);
+router.use('/moderation', automodRoutes);
 
 // Add a link in the moderation page to the direct ban access
 router.get('/moderation-emergency', (req, res) => {
