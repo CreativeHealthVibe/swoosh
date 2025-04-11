@@ -462,8 +462,8 @@
                 </div>
               </div>
               <div class="mod-section-content">
-                <form id="automodSettingsForm" action="/admin3d/moderation/automod-settings" method="POST">
-                  <input type="hidden" id="automodServerId" name="serverId">
+                <form id="automod-settings-form" action="/admin3d/moderation/automod-settings" method="POST">
+                  <input type="hidden" name="serverId" id="automod-server-selector">
                   
                   <div class="automod-setting-group">
                     <h4>General Settings</h4>
@@ -3414,3 +3414,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 100);
 });
 </script>
+
+<!-- Auto-moderation System JavaScript -->
+<script src="/js/admin3d-automod-updated.js"></script>
