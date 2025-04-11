@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const customDurationGroup = document.getElementById('customDurationGroup');
   const banRefreshBtn = document.querySelector('.mod-refresh-btn');
   const banList = document.getElementById('banList');
+  const banListBody = document.getElementById('banListBody');
   
   // Warning Management Elements
   const warnUserForm = document.getElementById('warnUserForm');
@@ -96,6 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  // Add event listener for refresh buttons
+  if (banRefreshBtn) {
+    banRefreshBtn.addEventListener('click', function() {
+      const serverId = serverSelect.value;
+      if (serverId) {
+        console.log('Manually refreshing ban list...');
+        loadBanList(serverId);
+      }
+    });
+  }
+  
   /**
    * Load server data for moderation
    * @param {string} serverId - Discord server ID
@@ -150,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     
     // Fetch ban data from our API
+    console.log(`Fetching ban data for server: ${serverId}`);
     fetch(`/api/moderation/bans/${serverId}`)
       .then(response => {
         if (!response.ok) {
@@ -158,6 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return response.json();
       })
       .then(data => {
+        // Log the response for debugging
+        console.log('Ban list API response:', data);
         // Update stats
         if (document.getElementById('totalBans')) {
           document.getElementById('totalBans').textContent = data.total || 0;
