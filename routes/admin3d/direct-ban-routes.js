@@ -1,389 +1,418 @@
 /**
- * Direct Ban List Access Routes
- * Alternative routes for accessing ban data with less authentication complexity
- * This is a workaround for issues with the standard API approach
+ * Direct Ban Access Routes 
+ * These routes provide a more robust way to access bans when the API version has authentication issues
  */
 const express = require('express');
 const router = express.Router();
 const { isAdmin } = require('../../middlewares/auth');
-const path = require('path');
-const fs = require('fs');
+const { executeQuery } = require('../../utils/database');
 
-// Get references to required modules
-let banLogger, logParser;
-try {
-  banLogger = require('../../modules/ban-logger');
-  logParser = require('../../modules/log-parser');
-} catch (error) {
-  console.error('Error loading modules for direct-ban-routes:', error);
-}
-
-// Apply admin middleware
+// Apply admin authentication middleware to all routes
 router.use(isAdmin);
 
 /**
- * Direct Ban List Access Page
  * GET /admin3d/direct-bans
+ * Direct access to ban list
  */
-router.get('/direct-bans', (req, res) => {
-  // Get the Discord client from the app
+router.get('/direct-bans', async (req, res) => {
   const client = req.app.get('client');
-  
-  if (!client) {
-    return res.render('admin3d/error', {
-      message: 'Discord client not available',
-      error: { status: 503, stack: 'Bot client is not initialized' }
-    });
-  }
-  
-  try {
-    // Get all guilds the bot is in
-    const guilds = client.guilds.cache.map(guild => ({
+
+  // Get available servers if client is available
+  let servers = [];
+  if (client) {
+    servers = client.guilds.cache.map(guild => ({
       id: guild.id,
-      name: guild.name,
-      memberCount: guild.memberCount,
-      icon: guild.iconURL({ dynamic: true }) || null
-    }));
-    
-    // Render the direct ban access page
-    return res.render('admin3d/direct-ban-access', {
-      servers: guilds,
-      user: req.user,
-      totalServers: guilds.length,
-      title: 'Direct Ban Access',
-      csrf: req.csrfToken ? req.csrfToken() : ''
-    });
-  } catch (error) {
-    console.error('Error rendering direct ban access page:', error);
-    return res.render('admin3d/error', {
-      message: 'Failed to load direct ban access page',
-      error: { status: 500, stack: error.stack }
-    });
+      name: guild.name + ' (' + guild.memberCount + ')',
+      memberCount: guild.memberCount
+    })).sort((a, b) => a.name.localeCompare(b.name));
   }
+
+  res.render('admin3d/direct-ban-access', {
+    title: 'Direct Ban Management | SWOOSH Bot',
+    user: req.user,
+    client,
+    servers,
+    customStyles: ['direct-access.css'],
+    layout: 'layouts/admin3d'
+  });
 });
 
 /**
- * Direct Ban Fetch Handler (POST version)
- * POST /admin3d/direct-ban-fetch
+ * POST /admin3d/direct-bans/fetch
+ * Fetch bans for a server using robust mechanism with fallback
  */
-router.post('/direct-ban-fetch', async (req, res) => {
-  const client = req.app.get('client');
-  const { serverId } = req.body;
-  
-  console.log(`Direct ban fetch request (POST) for server ${serverId} by user ${req.user.username || req.user.displayName}`);
-  
-  if (!client) {
-    return res.render('admin3d/error', {
-      message: 'Discord client not available',
-      error: { status: 503, stack: 'Bot client is not initialized' }
-    });
-  }
-  
-  if (!serverId) {
-    return res.render('admin3d/error', {
-      message: 'Server ID is required',
-      error: { status: 400, stack: 'Missing server ID' }
-    });
-  }
-  
+router.post('/direct-bans/fetch', async (req, res) => {
   try {
-    // Get the guild from the client
-    const guild = client.guilds.cache.get(serverId);
+    const { serverId } = req.body;
+    const client = req.app.get('client');
     
-    if (!guild) {
-      console.error(`Guild not found with ID: ${serverId}`);
-      return res.render('admin3d/error', {
-        message: 'Guild not found or bot does not have access',
-        error: { status: 404, stack: `Guild with ID ${serverId} not found` }
+    if (!client) {
+      return res.json({
+        success: false,
+        message: 'Discord client not available'
       });
     }
     
-    // Fetch bans from Discord API
-    console.log(`Direct: Fetching ban list for guild: ${guild.name}`);
-    const bans = await guild.bans.fetch();
-    console.log(`Direct: Successfully fetched ${bans.size} bans from Discord API`);
-    
-    // Get ban logs to enhance the ban data (if available)
-    let allBanEvents = [];
-    
-    try {
-      if (banLogger && typeof banLogger.getBanLogs === 'function') {
-        const banLogs = banLogger.getBanLogs(serverId);
-        
-        if (banLogs && Array.isArray(banLogs) && banLogs.length > 0 && 
-            logParser && typeof logParser.extractBanEvents === 'function') {
-          const banEvents = logParser.extractBanEvents(banLogs);
-          allBanEvents = [...banEvents];
-          console.log(`Direct: Found ${banEvents.length} ban events from logs`);
-        }
-        
-        // Also check main bot log for more ban events
-        const botLogPath = path.join(banLogger.logsDir, 'bot-log.txt');
-        
-        if (fs.existsSync(botLogPath) && typeof logParser.parseLogFile === 'function') {
-          const botLogs = logParser.parseLogFile(botLogPath);
-          const mainBanEvents = logParser.extractBanEvents(botLogs);
-          
-          if (mainBanEvents && Array.isArray(mainBanEvents)) {
-            mainBanEvents.forEach(event => {
-              if (event && event.userId && 
-                  !allBanEvents.some(existing => existing && existing.userId === event.userId)) {
-                allBanEvents.push(event);
-              }
-            });
-          }
-        }
-      }
-    } catch (logError) {
-      console.error('Direct: Error processing ban logs:', logError);
-      // Continue with basic ban data only
+    if (!serverId) {
+      return res.json({
+        success: false,
+        message: 'Server ID is required'
+      });
     }
     
-    // Map bans to a detailed format
-    const bannedUsers = [];
-    bans.forEach(ban => {
-      // Find matching log entry
-      const logEntry = allBanEvents.find(event => event && event.userId === ban.user.id);
-      
-      const banInfo = {
+    // Get the server
+    const guild = client.guilds.cache.get(serverId);
+    if (!guild) {
+      return res.json({
+        success: false,
+        message: 'Server not found or the bot does not have access to it'
+      });
+    }
+    
+    // Check if the bot has permission to view bans
+    const botMember = guild.members.cache.get(client.user.id);
+    if (!botMember || !botMember.permissions.has('BanMembers')) {
+      return res.json({
+        success: false,
+        message: 'Bot does not have permission to view bans for this server'
+      });
+    }
+    
+    // Try to fetch bans with error handling and retries
+    const bans = await fetchBansWithRetry(guild);
+    
+    // Process the bans to the format expected by the front-end
+    const processedBans = bans.map(ban => {
+      return {
         id: ban.user.id,
-        username: ban.user.username || 'Unknown',
-        tag: ban.user.tag || 'Unknown User', 
-        avatarURL: ban.user.displayAvatarURL({ dynamic: true }),
+        username: ban.user.username || 'Unknown User',
+        tag: ban.user.tag || ban.user.username || 'Unknown User',
+        avatarURL: ban.user.displayAvatarURL ? ban.user.displayAvatarURL({ format: 'webp' }) : 
+                  'https://cdn.discordapp.com/embed/avatars/0.png',
         reason: ban.reason || 'No reason provided',
-        permanent: true
+        permanent: true, // Assume permanent for now
+        bannedAt: new Date().toISOString(),
+        bannedBy: 'Unknown'
       };
-      
-      // Add extra data from logs if available
-      if (logEntry) {
-        banInfo.bannedBy = logEntry.executorName;
-        banInfo.bannedAt = logEntry.date.toISOString();
-        
-        if (logEntry.details && logEntry.details.duration) {
-          banInfo.permanent = false;
-          banInfo.duration = logEntry.details.duration;
-        }
-      } else {
-        banInfo.bannedAt = new Date().toISOString();
-        banInfo.bannedBy = 'Unknown';
-      }
-      
-      bannedUsers.push(banInfo);
     });
     
-    // Sort by date (newest first)
-    bannedUsers.sort((a, b) => new Date(b.bannedAt) - new Date(a.bannedAt));
+    // Try to enhance ban data with information from the database
+    const enhancedBans = await enhanceBanData(processedBans, serverId, client);
     
-    // Create response data object
-    const banData = {
+    return res.json({
       success: true,
-      bans: bannedUsers,
-      total: bannedUsers.length,
-      serverId: serverId,
+      bans: enhancedBans,
+      total: enhancedBans.length,
+      serverId,
       serverName: guild.name
-    };
-    
-    // Redirect back to the direct-bans page with the ban data in query params
-    return res.redirect(`/admin3d/direct-bans?banData=${encodeURIComponent(JSON.stringify(banData))}&serverId=${serverId}`);
+    });
   } catch (error) {
-    console.error('Direct: Error fetching banned users:', error);
-    return res.render('admin3d/error', {
-      message: `Failed to fetch banned users: ${error.message}`,
-      error: { status: 500, stack: error.stack }
+    console.error('Error fetching bans:', error);
+    return res.json({
+      success: false,
+      message: `Error fetching bans: ${error.message}`,
+      error: error.toString()
     });
   }
 });
 
 /**
- * Direct Ban Fetch Handler (GET version - used by embedded iframes)
- * GET /admin3d/direct-ban-fetch
+ * POST /admin3d/direct-bans/ban-user
+ * Ban a user through a direct mechanism
  */
-router.get('/direct-ban-fetch', async (req, res) => {
-  const client = req.app.get('client');
-  const { serverId } = req.query;
-  
-  console.log(`Direct ban fetch request (GET) for server ${serverId} by user ${req.user.username || req.user.displayName}`);
-  
-  if (!client) {
-    return res.render('admin3d/error', {
-      message: 'Discord client not available',
-      error: { status: 503, stack: 'Bot client is not initialized' }
-    });
-  }
-  
-  if (!serverId) {
-    return res.render('admin3d/error', {
-      message: 'Server ID is required',
-      error: { status: 400, stack: 'Missing server ID' }
-    });
-  }
-  
+router.post('/direct-bans/ban-user', async (req, res) => {
   try {
-    // Get the guild from the client
-    const guild = client.guilds.cache.get(serverId);
+    const { 
+      serverId, 
+      userId, 
+      banReason, 
+      deleteMessages, 
+      addToBlacklist 
+    } = req.body;
     
-    if (!guild) {
-      console.error(`Guild not found with ID: ${serverId}`);
-      return res.render('admin3d/error', {
-        message: 'Guild not found or bot does not have access',
-        error: { status: 404, stack: `Guild with ID ${serverId} not found` }
+    const client = req.app.get('client');
+    
+    if (!client) {
+      return res.json({
+        success: false,
+        message: 'Discord client not available'
       });
     }
     
-    // Fetch bans from Discord API
-    console.log(`Direct: Fetching ban list for guild: ${guild.name}`);
-    const bans = await guild.bans.fetch();
-    console.log(`Direct: Successfully fetched ${bans.size} bans from Discord API`);
-    
-    // Get ban logs to enhance the ban data (if available)
-    let allBanEvents = [];
-    
-    try {
-      if (banLogger && typeof banLogger.getBanLogs === 'function') {
-        const banLogs = banLogger.getBanLogs(serverId);
-        
-        if (banLogs && Array.isArray(banLogs) && banLogs.length > 0 && 
-            logParser && typeof logParser.extractBanEvents === 'function') {
-          const banEvents = logParser.extractBanEvents(banLogs);
-          allBanEvents = [...banEvents];
-          console.log(`Direct: Found ${banEvents.length} ban events from logs`);
-        }
-        
-        // Also check main bot log for more ban events
-        const botLogPath = path.join(banLogger.logsDir, 'bot-log.txt');
-        
-        if (fs.existsSync(botLogPath) && typeof logParser.parseLogFile === 'function') {
-          const botLogs = logParser.parseLogFile(botLogPath);
-          const mainBanEvents = logParser.extractBanEvents(botLogs);
-          
-          if (mainBanEvents && Array.isArray(mainBanEvents)) {
-            mainBanEvents.forEach(event => {
-              if (event && event.userId && 
-                  !allBanEvents.some(existing => existing && existing.userId === event.userId)) {
-                allBanEvents.push(event);
-              }
-            });
-          }
-        }
-      }
-    } catch (logError) {
-      console.error('Direct: Error processing ban logs:', logError);
-      // Continue with basic ban data only
+    if (!serverId || !userId) {
+      return res.json({
+        success: false,
+        message: 'Server ID and User ID are required'
+      });
     }
     
-    // Map bans to a detailed format
-    const bannedUsers = [];
-    bans.forEach(ban => {
-      // Find matching log entry
-      const logEntry = allBanEvents.find(event => event && event.userId === ban.user.id);
-      
-      const banInfo = {
-        id: ban.user.id,
-        username: ban.user.username || 'Unknown',
-        tag: ban.user.tag || 'Unknown User', 
-        avatarURL: ban.user.displayAvatarURL({ dynamic: true }),
-        reason: ban.reason || 'No reason provided',
-        permanent: true
-      };
-      
-      // Add extra data from logs if available
-      if (logEntry) {
-        banInfo.bannedBy = logEntry.executorName;
-        banInfo.bannedAt = logEntry.date.toISOString();
-        
-        if (logEntry.details && logEntry.details.duration) {
-          banInfo.permanent = false;
-          banInfo.duration = logEntry.details.duration;
-        }
-      } else {
-        banInfo.bannedAt = new Date().toISOString();
-        banInfo.bannedBy = 'Unknown';
+    // Get the server
+    const guild = client.guilds.cache.get(serverId);
+    if (!guild) {
+      return res.json({
+        success: false,
+        message: 'Server not found or the bot does not have access to it'
+      });
+    }
+    
+    // Check if the bot has permission to ban
+    const botMember = guild.members.cache.get(client.user.id);
+    if (!botMember || !botMember.permissions.has('BanMembers')) {
+      return res.json({
+        success: false,
+        message: 'Bot does not have permission to ban members in this server'
+      });
+    }
+    
+    // Clean up user ID if it's a mention
+    const cleanUserId = userId.replace(/[<@!>]/g, '');
+    
+    // Determine how many days of messages to delete
+    const deleteDays = deleteMessages === 'true' ? 7 : 0;
+
+    // Add to ban logger if available
+    const banLogger = client.banLogger || require('../../modules/ban-logger');
+    
+    // Create a ban log entry before banning
+    if (banLogger && typeof banLogger.logBan === 'function') {
+      try {
+        await banLogger.logBan({
+          userId: cleanUserId,
+          guildId: serverId,
+          moderatorId: req.user.id,
+          reason: banReason || 'No reason provided',
+          permanent: true,
+          deleteDays: deleteDays
+        });
+      } catch (logError) {
+        console.error('Error logging ban:', logError);
+        // Continue with the ban even if logging fails
       }
-      
-      bannedUsers.push(banInfo);
+    }
+    
+    // Attempt to ban the user
+    await guild.members.ban(cleanUserId, { 
+      reason: `${banReason || 'No reason provided'} | Banned by ${req.user.username || 'Admin'} via Control Panel`,
+      deleteMessageDays: deleteDays
     });
     
-    // Sort by date (newest first)
-    bannedUsers.sort((a, b) => new Date(b.bannedAt) - new Date(a.bannedAt));
+    // Add to blacklist if requested
+    if (addToBlacklist === 'true') {
+      try {
+        const blacklistManager = require('../../handlers/blacklistManager');
+        blacklistManager.addToBlacklist(
+          cleanUserId, 
+          req.user.id, 
+          banReason || 'No reason provided', 
+          null, // Permanent
+          'global'
+        );
+      } catch (blacklistError) {
+        console.error('Error adding to blacklist:', blacklistError);
+        // Continue even if blacklisting fails
+      }
+    }
     
-    // Create response data object
-    const banData = {
+    return res.json({
       success: true,
-      bans: bannedUsers,
-      total: bannedUsers.length,
-      serverId: serverId,
-      serverName: guild.name
-    };
-    
-    // Redirect back to the direct-bans page with the ban data in query params
-    return res.redirect(`/admin3d/direct-bans?banData=${encodeURIComponent(JSON.stringify(banData))}&serverId=${serverId}`);
+      message: `User ${cleanUserId} has been banned successfully`,
+      userId: cleanUserId
+    });
   } catch (error) {
-    console.error('Direct: Error fetching banned users:', error);
-    return res.render('admin3d/error', {
-      message: `Failed to fetch banned users: ${error.message}`,
-      error: { status: 500, stack: error.stack }
+    console.error('Error banning user:', error);
+    return res.json({
+      success: false,
+      message: `Error banning user: ${error.message}`,
+      error: error.toString()
     });
   }
 });
 
 /**
- * Direct Unban Handler
- * POST /admin3d/direct-unban
+ * POST /admin3d/direct-bans/unban-user
+ * Unban a user through a direct mechanism
  */
-router.post('/direct-unban', async (req, res) => {
-  const client = req.app.get('client');
-  const { serverId, userId } = req.body;
-  
-  console.log(`Direct unban request for user ${userId} in server ${serverId} by ${req.user.username || req.user.displayName}`);
-  
-  if (!client) {
-    return res.render('admin3d/error', {
-      message: 'Discord client not available',
-      error: { status: 503, stack: 'Bot client is not initialized' }
-    });
-  }
-  
-  if (!serverId || !userId) {
-    return res.render('admin3d/error', {
-      message: 'Server ID and User ID are required',
-      error: { status: 400, stack: 'Missing required parameters' }
-    });
-  }
-  
+router.post('/direct-bans/unban-user', async (req, res) => {
   try {
-    // Get the guild from the client
-    const guild = client.guilds.cache.get(serverId);
+    const { serverId, userId, unbanReason } = req.body;
+    const client = req.app.get('client');
     
-    if (!guild) {
-      return res.render('admin3d/error', {
-        message: 'Guild not found or bot does not have access',
-        error: { status: 404, stack: `Guild with ID ${serverId} not found` }
+    if (!client) {
+      return res.json({
+        success: false,
+        message: 'Discord client not available'
       });
+    }
+    
+    if (!serverId || !userId) {
+      return res.json({
+        success: false,
+        message: 'Server ID and User ID are required'
+      });
+    }
+    
+    // Get the server
+    const guild = client.guilds.cache.get(serverId);
+    if (!guild) {
+      return res.json({
+        success: false,
+        message: 'Server not found or the bot does not have access to it'
+      });
+    }
+    
+    // Check if the bot has permission to unban
+    const botMember = guild.members.cache.get(client.user.id);
+    if (!botMember || !botMember.permissions.has('BanMembers')) {
+      return res.json({
+        success: false,
+        message: 'Bot does not have permission to unban members in this server'
+      });
+    }
+    
+    // Clean up user ID if necessary
+    const cleanUserId = userId.replace(/[<@!>]/g, '');
+    
+    // Log the unban action if a logger is available
+    const banLogger = client.banLogger || require('../../modules/ban-logger');
+    if (banLogger && typeof banLogger.logUnban === 'function') {
+      try {
+        await banLogger.logUnban({
+          userId: cleanUserId,
+          guildId: serverId,
+          moderatorId: req.user.id,
+          reason: unbanReason || 'No reason provided'
+        });
+      } catch (logError) {
+        console.error('Error logging unban:', logError);
+        // Continue with the unban even if logging fails
+      }
     }
     
     // Attempt to unban the user
-    await guild.members.unban(userId, `Unbanned by ${req.user.username || req.user.displayName} via Admin Dashboard`);
+    await guild.members.unban(cleanUserId, `${unbanReason || 'No reason provided'} | Unbanned by ${req.user.username || 'Admin'} via Control Panel`);
     
-    console.log(`Direct: Successfully unbanned user ${userId} from ${guild.name}`);
-    
-    // Log this action
-    if (banLogger && typeof banLogger.logUnban === 'function') {
-      banLogger.logUnban(serverId, userId, {
-        executorId: req.user.id,
-        executorName: req.user.username || req.user.displayName,
-        reason: `Unbanned by ${req.user.username || req.user.displayName} via Admin Dashboard`
-      });
-    }
-    
-    // Successfully unbanned - now reload the ban list to show updated data
-    return res.redirect(`/admin3d/direct-ban-fetch?serverId=${serverId}`);
+    return res.json({
+      success: true,
+      message: `User ${cleanUserId} has been unbanned successfully`,
+      userId: cleanUserId
+    });
   } catch (error) {
-    console.error('Direct: Error unbanning user:', error);
-    return res.render('admin3d/error', {
-      message: `Failed to unban user: ${error.message}`,
-      error: { status: 500, stack: error.stack }
+    console.error('Error unbanning user:', error);
+    return res.json({
+      success: false,
+      message: `Error unbanning user: ${error.message}`,
+      error: error.toString()
     });
   }
 });
+
+// Helper Functions
+/**
+ * Fetch bans with retry mechanism
+ * @param {Guild} guild - Discord guild
+ * @returns {Promise<Array>} - Array of bans
+ */
+async function fetchBansWithRetry(guild, maxRetries = 3) {
+  let retries = 0;
+  let lastError = null;
+  
+  while (retries < maxRetries) {
+    try {
+      const bans = await guild.bans.fetch();
+      return Array.from(bans.values());
+    } catch (error) {
+      lastError = error;
+      retries++;
+      console.log(`Retry ${retries}/${maxRetries} failed: ${error.message}`);
+      
+      // Wait a bit before retrying
+      await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+    }
+  }
+  
+  // If we get here, all retries failed
+  throw new Error(`Failed to fetch bans after ${maxRetries} attempts: ${lastError.message}`);
+}
+
+/**
+ * Enhance ban data with information from logs
+ * @param {Array} bans - Processed ban data
+ * @param {string} guildId - Guild ID
+ * @param {Client} client - Discord client
+ * @returns {Array} - Enhanced ban data
+ */
+async function enhanceBanData(bans, guildId, client) {
+  try {
+    // Try to get ban logs from database
+    if (!client.discordDB) {
+      return bans; // No database available
+    }
+    
+    // Create a map of user IDs to ban objects for quick lookup
+    const banMap = new Map();
+    bans.forEach(ban => {
+      banMap.set(ban.id, ban);
+    });
+    
+    try {
+      // Try to fetch ban logs from the database
+      const logs = await client.discordDB.getCollection('ban_logs');
+      if (!logs) return bans;
+      
+      // Get all logs for this guild
+      const guildLogs = Object.values(logs)
+        .filter(log => log.guildId === guildId && log.action === 'ban');
+      
+      // Update ban data with log information
+      guildLogs.forEach(log => {
+        const ban = banMap.get(log.userId);
+        if (ban) {
+          // Update with information from the log
+          ban.bannedAt = log.timestamp || ban.bannedAt;
+          ban.bannedBy = log.moderatorName || log.moderatorId || ban.bannedBy;
+          // If the log has a reason and the current ban doesn't, use the log reason
+          if (log.reason && (!ban.reason || ban.reason === 'No reason provided')) {
+            ban.reason = log.reason;
+          }
+        }
+      });
+    } catch (dbError) {
+      console.error("Error getting ban logs from database:", dbError);
+      // Continue without logs
+    }
+    
+    try {
+      // See if we have an alternative database
+      if (client.db) {
+        // Try to query the SQL database for ban information
+        const banRecords = await executeQuery({
+          text: 'SELECT * FROM ban_logs WHERE guild_id = $1',
+          values: [guildId]
+        }, true);
+        
+        if (banRecords && banRecords.length > 0) {
+          banRecords.forEach(record => {
+            const ban = banMap.get(record.user_id);
+            if (ban) {
+              ban.bannedAt = record.created_at || ban.bannedAt;
+              ban.bannedBy = record.moderator_name || record.moderator_id || ban.bannedBy;
+              if (record.reason && (!ban.reason || ban.reason === 'No reason provided')) {
+                ban.reason = record.reason;
+              }
+            }
+          });
+        }
+      }
+    } catch (sqlError) {
+      console.error("Error getting ban logs from SQL database:", sqlError);
+      // Continue without SQL data
+    }
+    
+    return bans;
+  } catch (error) {
+    console.error("Error enhancing ban data:", error);
+    return bans; // Return original bans on error
+  }
+}
 
 module.exports = router;

@@ -79,7 +79,7 @@ router.get('/moderation', (req, res) => {
     user: req.user,
     client,
     servers,
-    customStyles: ['admin3d-moderation-custom.css'], // Add custom moderation styles
+    customStyles: ['admin3d-moderation-custom.css', 'direct-access.css'], // Added direct access styles
     layout: 'layouts/admin3d'
   });
 });
