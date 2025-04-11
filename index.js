@@ -540,10 +540,10 @@ app.get('/', (req, res) => {
     return res.redirect(`/auth/discord/callback?code=${req.query.code}`);
   }
   
-  // If user is authenticated, redirect to welcome page
+  // If user is authenticated, redirect to the Premium Admin3D Dashboard
   if (req.isAuthenticated()) {
-    console.log('User already authenticated, redirecting to welcome page');
-    return res.redirect('/admin/welcome');
+    console.log('User already authenticated, redirecting to Admin3D Dashboard');
+    return res.redirect('/admin3d');
   }
   
   // Otherwise render landing page

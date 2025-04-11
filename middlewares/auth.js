@@ -65,7 +65,7 @@ const isAdmin = (req, res, next) => {
  */
 const redirectIfAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
-    return res.redirect('/admin/welcome');
+    return res.redirect('/admin3d');
   }
   next();
 };
