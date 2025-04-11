@@ -171,27 +171,51 @@ router.get('/bans/:serverId', async (req, res) => {
   }
   
   try {
+    console.log(`Fetching ban list for server ID: ${serverId}`);
+    
     // Get the guild from the client
     const guild = client.guilds.cache.get(serverId);
     
     if (!guild) {
+      console.log(`Guild not found with ID: ${serverId}`);
       return res.json({
         success: false,
         message: 'Guild not found or bot does not have access'
       });
     }
     
-    // Check if the bot has ban permissions
-    const botMember = guild.members.cache.get(client.user.id);
-    if (!botMember.permissions.has('BAN_MEMBERS')) {
-      return res.json({
-        success: false,
-        message: 'Bot does not have BAN_MEMBERS permission in this server'
-      });
+    console.log(`Found guild: ${guild.name}`);
+    
+    // Check if the bot has ban permissions - safely with error handling
+    try {
+      const botMember = guild.members.cache.get(client.user.id);
+      if (botMember && !botMember.permissions.has('BAN_MEMBERS')) {
+        console.log('Bot does not have BAN_MEMBERS permission');
+        return res.json({
+          success: false,
+          message: 'Bot does not have BAN_MEMBERS permission in this server'
+        });
+      }
+    } catch (permError) {
+      console.error('Error checking permissions:', permError);
+      // Continue anyway - we'll attempt to fetch bans regardless
     }
     
-    // Fetch actual bans from Discord API
-    const bans = await guild.bans.fetch();
+    // Fetch actual bans from Discord API with error handling
+    console.log('Attempting to fetch bans from Discord API...');
+    let bans;
+    try {
+      bans = await guild.bans.fetch();
+      console.log(`Successfully fetched ${bans.size} bans from Discord API`);
+    } catch (fetchError) {
+      console.error('Error fetching bans from Discord API:', fetchError);
+      // Return a partial response with just the error
+      return res.json({
+        success: false,
+        message: `Error fetching bans: ${fetchError.message}`,
+        errorCode: fetchError.code || 'UNKNOWN'
+      });
+    }
     
     // Get ban logs to enhance the ban data
     const banLogs = banLogger.getBanLogs(serverId);
