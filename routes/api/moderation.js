@@ -5,6 +5,10 @@
 const express = require('express');
 const router = express.Router();
 const { isAdmin } = require('../../middlewares/auth');
+const banLogger = require('../../modules/ban-logger');
+const logParser = require('../../modules/log-parser');
+const path = require('path');
+const fs = require('fs');
 
 // Apply admin authentication middleware to all routes
 router.use(isAdmin);
@@ -145,11 +149,12 @@ router.post('/automod', async (req, res) => {
 });
 
 /**
- * GET /api/moderation/bans
- * Get list of banned users
+ * GET /api/moderation/bans/:serverId
+ * Get list of banned users for a specific server
  */
-router.get('/bans', async (req, res) => {
+router.get('/bans/:serverId', async (req, res) => {
   const client = req.app.get('client');
+  const { serverId } = req.params;
   
   if (!client) {
     return res.json({
@@ -158,44 +163,80 @@ router.get('/bans', async (req, res) => {
     });
   }
   
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
   try {
-    // For demonstration, we'll return mock banned users
-    // In a real implementation, this would fetch from Discord
+    // Get the guild from the client
+    const guild = client.guilds.cache.get(serverId);
     
-    const mockBannedUsers = [
-      {
-        id: '123456789012345678',
-        username: 'TroubleUser',
-        discriminator: '1234',
-        reason: 'Violating server rules',
-        bannedBy: 'Admin#0001',
-        bannedAt: new Date().toISOString(),
-        permanent: true
-      },
-      {
-        id: '234567890123456789',
-        username: 'Spammer',
-        discriminator: '5678',
-        reason: 'Mass advertising',
-        bannedBy: 'Moderator#1234',
-        bannedAt: new Date(Date.now() - 86400000).toISOString(),
-        permanent: false,
-        duration: '7 days'
-      },
-      {
-        id: '345678901234567890',
-        username: 'BadActor',
-        discriminator: '9012',
-        reason: 'Harassment',
-        bannedBy: 'Admin#0001',
-        bannedAt: new Date(Date.now() - 259200000).toISOString(),
-        permanent: true
+    if (!guild) {
+      return res.json({
+        success: false,
+        message: 'Guild not found or bot does not have access'
+      });
+    }
+    
+    // Check if the bot has ban permissions
+    const botMember = guild.members.cache.get(client.user.id);
+    if (!botMember.permissions.has('BAN_MEMBERS')) {
+      return res.json({
+        success: false,
+        message: 'Bot does not have BAN_MEMBERS permission in this server'
+      });
+    }
+    
+    // Fetch actual bans from Discord API
+    const bans = await guild.bans.fetch();
+    
+    // Get ban logs to enhance the ban data
+    const banLogs = banLogger.getBanLogs(serverId);
+    const banEvents = logParser.extractBanEvents(banLogs);
+    
+    // Map bans to a more detailed format
+    const bannedUsers = [];
+    bans.forEach(ban => {
+      // Find matching log entry for this ban
+      const logEntry = banEvents.find(event => event.userId === ban.user.id);
+      
+      const banInfo = {
+        id: ban.user.id,
+        username: ban.user.username,
+        tag: ban.user.tag, 
+        avatarURL: ban.user.displayAvatarURL({ dynamic: true }),
+        reason: ban.reason || 'No reason provided',
+        permanent: true // Default to permanent since Discord doesn't store duration
+      };
+      
+      // Add extra data from logs if available
+      if (logEntry) {
+        banInfo.bannedBy = logEntry.executorName;
+        banInfo.bannedAt = logEntry.date.toISOString();
+        
+        // Check if there's duration info in the details
+        if (logEntry.details && logEntry.details.duration) {
+          banInfo.permanent = false;
+          banInfo.duration = logEntry.details.duration;
+        }
+      } else {
+        banInfo.bannedAt = new Date().toISOString();
+        banInfo.bannedBy = 'Unknown';
       }
-    ];
+      
+      bannedUsers.push(banInfo);
+    });
+    
+    // Sort by date (newest first)
+    bannedUsers.sort((a, b) => new Date(b.bannedAt) - new Date(a.bannedAt));
     
     return res.json({
       success: true,
-      bans: mockBannedUsers
+      bans: bannedUsers,
+      total: bannedUsers.length
     });
   } catch (error) {
     console.error('Error fetching banned users:', error);
@@ -207,11 +248,12 @@ router.get('/bans', async (req, res) => {
 });
 
 /**
- * GET /api/moderation/warnings
- * Get list of warned users
+ * GET /api/moderation/warnings/:serverId
+ * Get list of warned users for a specific server
  */
-router.get('/warnings', async (req, res) => {
+router.get('/warnings/:serverId', async (req, res) => {
   const client = req.app.get('client');
+  const { serverId } = req.params;
   
   if (!client) {
     return res.json({
@@ -220,49 +262,103 @@ router.get('/warnings', async (req, res) => {
     });
   }
   
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
   try {
-    // For demonstration, we'll return mock warnings
-    // In a real implementation, this would fetch from database
+    // Check if Discord database is initialized
+    if (!client.discordDB || !client.discordDB.initialized) {
+      return res.status(503).json({
+        success: false,
+        message: 'Discord database not initialized'
+      });
+    }
     
-    const mockWarnings = [
-      {
-        id: '1',
-        userId: '123456789012345678',
-        username: 'NewUser',
-        discriminator: '5678',
-        reason: 'Spamming in #general channel',
-        severity: 'medium',
-        issuedBy: 'Moderator#1234',
-        issuedAt: new Date(Date.now() - 7200000).toISOString(),
-        expires: new Date(Date.now() + 2592000000).toISOString()
-      },
-      {
-        id: '2',
-        userId: '234567890123456789',
-        username: 'Member',
-        discriminator: '4321',
-        reason: 'Minor rule violation',
-        severity: 'low',
-        issuedBy: 'Helper#8765',
-        issuedAt: new Date(Date.now() - 86400000).toISOString(),
-        expires: new Date(Date.now() + 2592000000).toISOString()
-      },
-      {
-        id: '3',
-        userId: '345678901234567890',
-        username: 'ProblemUser',
-        discriminator: '6789',
-        reason: 'Posting inappropriate content',
-        severity: 'high',
-        issuedBy: 'Admin#0001',
-        issuedAt: new Date(Date.now() - 259200000).toISOString(),
-        expires: null
+    // Get warnings from Discord database for the server
+    const warnings = client.discordDB.findDocuments('warnings', (doc) => {
+      return doc.guildId === serverId;
+    });
+    
+    // If no warnings are found, return an empty array
+    if (!warnings || warnings.length === 0) {
+      return res.json({
+        success: true,
+        warnings: [],
+        total: 0
+      });
+    }
+    
+    // Enhance the warnings with more data
+    const enhancedWarnings = await Promise.all(warnings.map(async (warning) => {
+      // Default values
+      let username = 'Unknown User';
+      let avatarURL = 'https://cdn.discordapp.com/embed/avatars/0.png';
+      
+      // Try to get user data from the Discord API
+      try {
+        if (warning.userId) {
+          const guild = client.guilds.cache.get(serverId);
+          if (guild) {
+            try {
+              const member = await guild.members.fetch(warning.userId).catch(() => null);
+              if (member) {
+                username = member.user.username;
+                avatarURL = member.user.displayAvatarURL({ dynamic: true });
+              } else {
+                // Try to fetch from user cache if not in guild
+                const user = await client.users.fetch(warning.userId).catch(() => null);
+                if (user) {
+                  username = user.username;
+                  avatarURL = user.displayAvatarURL({ dynamic: true });
+                }
+              }
+            } catch (error) {
+              console.error(`Error fetching user data for warning ${warning.id}:`, error);
+            }
+          }
+        }
+      } catch (userError) {
+        console.error(`Error processing user for warning ${warning.id}:`, userError);
       }
-    ];
+      
+      // Format the warning for response
+      const formattedWarning = {
+        id: warning.id,
+        userId: warning.userId,
+        username: username,
+        avatarURL: avatarURL,
+        reason: warning.reason || 'No reason provided',
+        severity: warning.severity || 'medium',
+        issuedBy: warning.issuedBy || 'System',
+        issuedAt: warning.timestamp || new Date().toISOString()
+      };
+      
+      // Add expiration if it exists
+      if (warning.expires) {
+        const expiryDate = new Date(warning.expires);
+        formattedWarning.expires = expiryDate.toISOString();
+        
+        // Check if warning is expired
+        const now = new Date();
+        formattedWarning.status = now > expiryDate ? 'Expired' : 'Active';
+      } else {
+        formattedWarning.status = 'Active';
+      }
+      
+      return formattedWarning;
+    }));
+    
+    // Sort warnings by date (newest first)
+    enhancedWarnings.sort((a, b) => new Date(b.issuedAt) - new Date(a.issuedAt));
     
     return res.json({
       success: true,
-      warnings: mockWarnings
+      warnings: enhancedWarnings,
+      total: enhancedWarnings.length
     });
   } catch (error) {
     console.error('Error fetching warnings:', error);
@@ -274,11 +370,12 @@ router.get('/warnings', async (req, res) => {
 });
 
 /**
- * GET /api/moderation/history
- * Get moderation action history
+ * GET /api/moderation/history/:serverId
+ * Get moderation action history for a specific server
  */
-router.get('/history', async (req, res) => {
+router.get('/history/:serverId', async (req, res) => {
   const client = req.app.get('client');
+  const { serverId } = req.params;
   
   if (!client) {
     return res.json({
@@ -287,49 +384,117 @@ router.get('/history', async (req, res) => {
     });
   }
   
+  if (!serverId) {
+    return res.json({
+      success: false,
+      message: 'Server ID is required'
+    });
+  }
+  
   try {
-    // For demonstration, we'll return mock moderation history
-    // In a real implementation, this would fetch from database
+    // Get the guild from the client
+    const guild = client.guilds.cache.get(serverId);
     
-    const mockHistory = [
-      {
-        id: '1',
-        type: 'ban',
-        userId: '123456789012345678',
-        username: 'TroubleUser',
-        discriminator: '1234',
-        reason: 'Violating server rules',
-        actionBy: 'Admin#0001',
-        actionAt: new Date().toISOString(),
-        guild: 'The Phantom Syndicate'
-      },
-      {
-        id: '2',
-        type: 'warning',
-        userId: '234567890123456789',
-        username: 'NewUser',
-        discriminator: '5678',
-        reason: 'Spamming in #general',
-        actionBy: 'Moderator#1234',
-        actionAt: new Date(Date.now() - 7200000).toISOString(),
-        guild: 'SWOOSH Official'
-      },
-      {
-        id: '3',
-        type: 'kick',
-        userId: '345678901234567890',
-        username: 'AngryGamer',
-        discriminator: '4321',
-        reason: 'Inappropriate language',
-        actionBy: 'Helper#8765',
-        actionAt: new Date(Date.now() - 86400000).toISOString(),
-        guild: 'Coding Hub'
+    if (!guild) {
+      return res.json({
+        success: false,
+        message: 'Guild not found or bot does not have access'
+      });
+    }
+    
+    // Read logs from various sources
+    const logs = [];
+    
+    // Check for ban logs
+    const banLogs = banLogger.getBanLogs(serverId);
+    if (banLogs && banLogs.length > 0) {
+      // Extract ban/unban events
+      const banEvents = logParser.extractBanEvents(banLogs);
+      
+      // Format and add to logs
+      banEvents.forEach(event => {
+        logs.push({
+          id: `ban-${event.userId}-${event.date.getTime()}`,
+          type: event.eventType === 'ban' ? 'ban' : 'unban',
+          userId: event.userId,
+          username: event.userName || 'Unknown User',
+          reason: event.details && event.details.reason ? event.details.reason : 'No reason provided',
+          actionBy: event.executorName || 'System',
+          actionAt: event.date.toISOString(),
+          guild: guild.name,
+          guildId: serverId
+        });
+      });
+    }
+    
+    // Add data from general moderation logs
+    const modLogsPath = path.join(banLogger.logsDir, `mod-log-${serverId}.txt`);
+    if (fs.existsSync(modLogsPath)) {
+      const modLogs = logParser.parseLogFile(modLogsPath);
+      
+      // Format and add to logs
+      modLogs.forEach(log => {
+        // Try to determine the event type
+        let type = 'other';
+        if (log.eventType === 'User Kicked') type = 'kick';
+        if (log.eventType === 'User Muted') type = 'mute';
+        if (log.eventType === 'User Unmuted') type = 'unmute';
+        if (log.eventType === 'Message Deleted') type = 'message-delete';
+        if (log.eventType === 'Warning Issued') type = 'warning';
+        
+        const userId = log.user ? log.user.id : null;
+        
+        // Only add if we have a user ID
+        if (userId) {
+          logs.push({
+            id: `${type}-${userId}-${log.date.getTime()}`,
+            type: type,
+            userId: userId,
+            username: log.user.name || 'Unknown User',
+            reason: log.details && log.details.reason ? log.details.reason : 'No reason provided',
+            actionBy: log.executor ? log.executor.name : 'System',
+            actionAt: log.date.toISOString(),
+            guild: guild.name,
+            guildId: serverId,
+            details: log.details
+          });
+        }
+      });
+    }
+    
+    // Check for warnings in the Discord database
+    if (client.discordDB && client.discordDB.initialized) {
+      const warnings = client.discordDB.findDocuments('warnings', (doc) => {
+        return doc.guildId === serverId;
+      });
+      
+      // Add warnings to the history
+      if (warnings && warnings.length > 0) {
+        warnings.forEach(warning => {
+          logs.push({
+            id: warning.id || `warning-${warning.userId}-${new Date(warning.timestamp).getTime()}`,
+            type: 'warning',
+            userId: warning.userId,
+            username: warning.username || 'Unknown User',
+            reason: warning.reason || 'No reason provided',
+            actionBy: warning.issuedBy || 'System',
+            actionAt: warning.timestamp || new Date().toISOString(),
+            guild: guild.name,
+            guildId: serverId,
+            severity: warning.severity || 'medium',
+            expires: warning.expires || null
+          });
+        });
       }
-    ];
+    }
+    
+    // Sort all logs by date (newest first)
+    logs.sort((a, b) => new Date(b.actionAt) - new Date(a.actionAt));
     
     return res.json({
       success: true,
-      history: mockHistory
+      history: logs,
+      total: logs.length
     });
   } catch (error) {
     console.error('Error fetching moderation history:', error);
