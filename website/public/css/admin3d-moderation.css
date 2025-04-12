@@ -307,7 +307,7 @@
 
 .mod-ban-user:hover, .mod-current-bans:hover {
   border-color: var(--premium-panel-highlight);
-  box-shadow: 0 8px 32px rgba(80, 80, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(137, 54, 255, 0.3);
 }
 
 .mod-section-header {
@@ -586,7 +586,7 @@
   height: 100%;
   background: linear-gradient(135deg, 
     rgba(137, 54, 255, 0.05),
-    rgba(0, 195, 255, 0.025)
+    rgba(137, 54, 255, 0.025)
   );
   pointer-events: none;
 }
@@ -1123,8 +1123,8 @@ input:checked + .admin3d-toggle-slider:before {
 
 /* Severity colors */
 .severity-low {
-  background-color: rgba(0, 195, 255, 0.15);
-  color: #00c3ff;
+  background-color: rgba(137, 54, 255, 0.15);
+  color: #a577ff;
 }
 
 .severity-medium {
