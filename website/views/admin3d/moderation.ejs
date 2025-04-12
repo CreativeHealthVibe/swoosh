@@ -10,6 +10,9 @@
   <!-- 3D Visualization Container (positioned as background) -->
   <div id="moderation-three-container" class="moderation-three-container"></div>
   
+  <!-- Premium $555K 3D Visualization Container -->
+  <div id="moderationVisualization" class="premium-visualization-container"></div>
+  
   <!-- Holographic Enterprise Badge -->
   <div class="holographic-badge">
     <div class="holographic-badge-inner">
@@ -47,62 +50,86 @@
     </div>
   </div>
   
-  <!-- Stats Cards with Interactive 3D Elements -->
-  <div class="mod-stats-cards">
-    <div class="mod-stat-card">
-      <div class="mod-stat-icon ban-icon">
+  <!-- Stats Cards with Interactive 3D Elements - Premium $555k Edition -->
+  <div class="mod-stats-cards premium-moderation-stats">
+    <div class="mod-stat-card premium-card stat-card premium-gradient-bg">
+      <div class="mod-stat-icon ban-icon premium-icon-container">
         <i class="fas fa-gavel"></i>
+        <div class="premium-icon-pulse"></div>
       </div>
       <div class="mod-stat-content">
-        <h3 id="totalBans">0</h3>
-        <span>Active Bans</span>
+        <h3 id="totalBans" class="premium-stat-value">0</h3>
+        <span class="premium-stat-label">Active Bans</span>
       </div>
+      <div class="stat-glow-effect"></div>
     </div>
     
-    <div class="mod-stat-card">
-      <div class="mod-stat-icon warning-icon">
+    <div class="mod-stat-card premium-card stat-card premium-gradient-bg">
+      <div class="mod-stat-icon warning-icon premium-icon-container">
         <i class="fas fa-exclamation-triangle"></i>
+        <div class="premium-icon-pulse"></div>
       </div>
       <div class="mod-stat-content">
-        <h3 id="totalWarnings">0</h3>
-        <span>Active Warnings</span>
+        <h3 id="totalWarnings" class="premium-stat-value">0</h3>
+        <span class="premium-stat-label">Active Warnings</span>
       </div>
+      <div class="stat-glow-effect"></div>
     </div>
     
-    <div class="mod-stat-card">
-      <div class="mod-stat-icon shield-icon">
+    <div class="mod-stat-card premium-card stat-card premium-gradient-bg">
+      <div class="mod-stat-icon shield-icon premium-icon-container">
         <i class="fas fa-shield-alt"></i>
+        <div class="premium-icon-pulse"></div>
       </div>
       <div class="mod-stat-content">
-        <h3 id="automodActions">0</h3>
-        <span>AutoMod Actions</span>
+        <h3 id="automodActions" class="premium-stat-value">0</h3>
+        <span class="premium-stat-label">AutoMod Actions</span>
       </div>
+      <div class="stat-glow-effect"></div>
     </div>
     
-    <div class="mod-stat-card">
-      <div class="mod-stat-icon member-icon">
+    <div class="mod-stat-card premium-card stat-card premium-gradient-bg">
+      <div class="mod-stat-icon member-icon premium-icon-container">
         <i class="fas fa-users"></i>
+        <div class="premium-icon-pulse"></div>
       </div>
       <div class="mod-stat-content">
-        <h3 id="memberCount">0</h3>
-        <span>Total Members</span>
+        <h3 id="memberCount" class="premium-stat-value">0</h3>
+        <span class="premium-stat-label">Total Members</span>
       </div>
+      <div class="stat-glow-effect"></div>
     </div>
   </div>
   
-  <!-- Premium Tab Navigation -->
-  <div class="mod-tab-navigation">
-    <button class="mod-nav-btn active" data-tab="ban-management">
-      <i class="fas fa-gavel"></i> <span>Ban Management</span>
+  <!-- Premium $555K Tab Navigation -->
+  <div class="mod-tab-navigation premium-tab-nav">
+    <button class="mod-nav-btn premium-tab-btn active" data-tab="bansTab">
+      <div class="premium-tab-icon">
+        <i class="fas fa-gavel"></i>
+      </div>
+      <span>Ban Management</span>
+      <div class="premium-tab-highlight"></div>
     </button>
-    <button class="mod-nav-btn" data-tab="warning-system">
-      <i class="fas fa-exclamation-triangle"></i> <span>Warning System</span>
+    <button class="mod-nav-btn premium-tab-btn" data-tab="warningsTab">
+      <div class="premium-tab-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <span>Warning System</span>
+      <div class="premium-tab-highlight"></div>
     </button>
-    <button class="mod-nav-btn" data-tab="auto-moderation">
-      <i class="fas fa-shield-alt"></i> <span>Auto-Moderation</span>
+    <button class="mod-nav-btn premium-tab-btn" data-tab="automodTab">
+      <div class="premium-tab-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <span>Auto-Moderation</span>
+      <div class="premium-tab-highlight"></div>
     </button>
-    <button class="mod-nav-btn" data-tab="advanced-filters">
-      <i class="fas fa-filter"></i> <span>Advanced Filters</span>
+    <button class="mod-nav-btn premium-tab-btn" data-tab="filtersTab">
+      <div class="premium-tab-icon">
+        <i class="fas fa-filter"></i>
+      </div>
+      <span>Advanced Filters</span>
+      <div class="premium-tab-highlight"></div>
     </button>
   </div>
   
@@ -160,7 +187,7 @@
     <!-- Tab Content -->
     <div class="tab-content-container">
       <!-- Ban Management Tab -->
-      <div id="ban-management" class="tab-content active">
+      <div id="bansTab" class="tab-content active">
         <div class="mod-section mod-ban-section">
           <!-- Left section: Ban User -->
           <div class="mod-ban-user">
@@ -290,7 +317,7 @@
       </div>
       
       <!-- Warning System Tab -->
-      <div id="warning-system" class="tab-content">
+      <div id="warningsTab" class="tab-content">
         <div class="mod-warning-section">
           <!-- Warning System Header -->
           <div class="mod-section-header-wrapper">
@@ -457,7 +484,7 @@
       </div>
       
       <!-- Auto-Moderation Tab -->
-      <div id="auto-moderation" class="tab-content">
+      <div id="automodTab" class="tab-content">
         <div class="mod-automod-section">
           <!-- Auto-Moderation Header -->
           <div class="mod-section-header-wrapper">
