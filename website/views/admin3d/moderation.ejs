@@ -2217,6 +2217,51 @@
       flex-direction: column;
     }
   }
+  
+  /* Escalation tiers styling */
+  .escalation-field {
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid rgba(114, 137, 218, 0.1);
+    margin-top: 15px;
+  }
+  
+  .escalation-tiers {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  
+  .escalation-tier {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(40, 40, 40, 0.5);
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid rgba(114, 137, 218, 0.05);
+    transition: all 0.2s ease;
+  }
+  
+  .escalation-tier:hover {
+    background: rgba(50, 50, 50, 0.5);
+    border-color: rgba(114, 137, 218, 0.2);
+  }
+  
+  .tier-label {
+    font-weight: 500;
+    color: #eee;
+  }
+  
+  .tier-action {
+    width: 180px;
+    background: rgba(30, 30, 30, 0.7);
+    border: 1px solid rgba(114, 137, 218, 0.2);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
 </style>
 
 <!-- Main JavaScript for functionality -->
