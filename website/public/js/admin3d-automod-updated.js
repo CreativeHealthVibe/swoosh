@@ -33,6 +33,12 @@ const muteTimeInput = document.getElementById('muteTime');
 const muteTimeUnitSelect = document.getElementById('muteTimeUnit');
 const escalateRepeatedCheckbox = document.getElementById('escalateRepeated');
 const maxViolationsInput = document.getElementById('maxViolations');
+// New tier-based escalation selectors
+const tier1ActionSelect = document.getElementById('tier1Action');
+const tier2ActionSelect = document.getElementById('tier2Action');
+const tier3ActionSelect = document.getElementById('tier3Action');
+const tier4ActionSelect = document.getElementById('tier4Action');
+const escalationTiersContainer = document.getElementById('escalation-tiers-container');
 const enableAutomodCheckbox = document.getElementById('enableAutomod');
 const filtersListBody = document.getElementById('filtersListBody');
 const automodLogsBody = document.getElementById('automodLogsBody');
@@ -120,6 +126,17 @@ function setupDependentFieldToggles() {
   if (escalateRepeatedCheckbox && maxViolationsInput) {
     escalateRepeatedCheckbox.addEventListener('change', () => {
       maxViolationsInput.disabled = !escalateRepeatedCheckbox.checked;
+      
+      // Toggle escalation tiers container visibility
+      if (escalationTiersContainer) {
+        escalationTiersContainer.style.display = escalateRepeatedCheckbox.checked ? 'block' : 'none';
+        
+        // Enable/disable tier action selects
+        if (tier1ActionSelect) tier1ActionSelect.disabled = !escalateRepeatedCheckbox.checked;
+        if (tier2ActionSelect) tier2ActionSelect.disabled = !escalateRepeatedCheckbox.checked;
+        if (tier3ActionSelect) tier3ActionSelect.disabled = !escalateRepeatedCheckbox.checked;
+        if (tier4ActionSelect) tier4ActionSelect.disabled = !escalateRepeatedCheckbox.checked;
+      }
     });
   }
   
