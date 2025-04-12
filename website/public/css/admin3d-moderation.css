@@ -641,8 +641,8 @@
 }
 
 .tab-btn {
-  background: none;
-  border: none;
+  background: #000000;
+  border: 1px solid transparent;
   color: var(--text-muted);
   font-size: 1rem;
   font-weight: 600;
@@ -658,16 +658,14 @@
 
 .tab-btn:hover {
   color: var(--text);
-  background: rgba(30, 30, 60, 0.5);
+  background: #000000;
+  border: 1px solid rgba(91, 77, 164, 0.3);
 }
 
 .tab-btn.active {
   color: var(--text);
-  background: linear-gradient(
-    135deg,
-    rgba(137, 54, 255, 0.3),
-    rgba(30, 30, 60, 0.5)
-  );
+  background: #000000;
+  border: 1px solid rgba(137, 54, 255, 0.5);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -685,15 +683,18 @@
 
 .tab-content-container {
   margin-top: 1.5rem;
+  background: #000000;
 }
 
 .tab-content {
   display: none;
+  background: #000000;
 }
 
 .tab-content.active {
   display: block;
   animation: fadeIn 0.3s ease;
+  background: #000000;
 }
 
 @keyframes fadeIn {
@@ -1116,7 +1117,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(30, 30, 60, 0.6);
+  background-color: #000000;
   transition: all 0.3s ease;
   border-radius: 22px;
   border: 1px solid rgba(91, 77, 164, 0.2);
