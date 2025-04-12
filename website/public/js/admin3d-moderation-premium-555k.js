@@ -1,29 +1,29 @@
 /**
- * SWOOSH Bot 3D Admin Dashboard
- * Ultra Premium Edition - $555k
+ * SWOOSH Bot Admin3D Premium Moderation Interface ($555K Edition)
+ * Advanced 3D visualizations and premium UI features for enterprise-level moderation
  * 
- * Admin3D Moderation JS - Advanced visualization with holographic effects
- * Cutting-edge moderation interface with immersive 3D visualizations
+ * This premium script enhances the admin3d/moderation page with:
+ * - Holographic UI elements
+ * - Advanced 3D visualizations of moderation data
+ * - Interactive neural-enhanced particle effects
+ * - Premium glassmorphic interface elements
+ * - Real-time data processing with sophisticated animations
  */
 
-// Mark as the premium version loaded to prevent the standard script from initializing
-window.premium555kLoaded = true;
-
-// Initialize Three.js visualizations once the DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('Initializing $555K Premium Moderation Interface');
+// Initialize Premium $555K Features when document loads
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Initializing Premium $555K Moderation Interface');
+  initializePremiumEffects();
   initialize555kPremiumModeration();
   setupPremiumTabNavigation();
   initializePremiumFormHandlers();
   initializePremiumServerSelector();
-  initializePremiumEffects();
 });
 
 /**
  * Initialize the premium effects
  */
 function initializePremiumEffects() {
-  // Add premium UI effects
   addGlassomorphicEffects();
   initializeParticleEffects();
   initializeHolographicElements();
@@ -34,16 +34,10 @@ function initializePremiumEffects() {
  * Add glassmorphic effects to UI elements
  */
 function addGlassomorphicEffects() {
-  // Add blur and transparency to card elements
-  document.querySelectorAll('.premium-card, .premium-panel').forEach(card => {
-    card.classList.add('glassmorphic');
-  });
+  const glassElements = document.querySelectorAll('.premium-card, .premium-tab-btn.active');
   
-  // Add shimmering effect to borders
-  document.querySelectorAll('.premium-card, .premium-panel').forEach(card => {
-    const shimmer = document.createElement('div');
-    shimmer.className = 'card-shimmer';
-    card.appendChild(shimmer);
+  glassElements.forEach(el => {
+    el.style.backdropFilter = 'blur(10px)';
   });
 }
 
@@ -51,24 +45,27 @@ function addGlassomorphicEffects() {
  * Initialize particle effects in background
  */
 function initializeParticleEffects() {
-  // Create particle container if it doesn't exist
-  if (!document.querySelector('.particle-container')) {
+  if (window.threeJSLoaded) {
+    // Particle system will be initialized in THREE.js
+    console.log('Particle effects ready with THREE.js');
+  } else {
+    // Fallback to CSS particles
+    const container = document.querySelector('.admin3d-moderation');
     const particleContainer = document.createElement('div');
-    particleContainer.className = 'particle-container';
-    document.querySelector('.admin3d-main').prepend(particleContainer);
+    particleContainer.className = 'premium-particle-container';
     
-    // Create particles
+    // Add some particles
     for (let i = 0; i < 50; i++) {
       const particle = document.createElement('div');
-      particle.className = 'particle';
-      particle.style.width = `${Math.random() * 5 + 2}px`;
-      particle.style.height = particle.style.width;
+      particle.className = 'premium-particle';
       particle.style.left = `${Math.random() * 100}%`;
       particle.style.top = `${Math.random() * 100}%`;
-      particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
-      particle.style.animationDelay = `${Math.random() * 10}s`;
+      particle.style.animationDuration = `${5 + Math.random() * 10}s`;
+      particle.style.animationDelay = `${Math.random() * 5}s`;
       particleContainer.appendChild(particle);
     }
+    
+    container.appendChild(particleContainer);
   }
 }
 
@@ -76,101 +73,70 @@ function initializeParticleEffects() {
  * Initialize holographic UI elements
  */
 function initializeHolographicElements() {
-  // Add holographic effects to headers
-  document.querySelectorAll('.premium-header').forEach(header => {
-    header.classList.add('holographic');
-    
-    // Create holographic overlay
-    const holoOverlay = document.createElement('div');
-    holoOverlay.className = 'holo-overlay';
-    header.appendChild(holoOverlay);
+  // Add shimmer effect to elements
+  const shimmerElements = document.querySelectorAll('.premium-card, .mod-title, .mod-section-header');
+  
+  shimmerElements.forEach(el => {
+    el.classList.add('premium-shimmer');
   });
   
-  // Add floating labels to inputs
-  document.querySelectorAll('.premium-form-group').forEach(group => {
-    const input = group.querySelector('input, select, textarea');
-    const label = group.querySelector('label');
-    
-    if (input && label) {
-      group.classList.add('floating-label');
-      
-      input.addEventListener('focus', () => {
-        group.classList.add('focused');
-      });
-      
-      input.addEventListener('blur', () => {
-        if (!input.value) {
-          group.classList.remove('focused');
-        }
-      });
-      
-      // Initialize state
-      if (input.value) {
-        group.classList.add('focused');
-      }
-    }
-  });
+  // Add floating elements animation
+  animateHolographicElements();
 }
 
 /**
  * Add premium gradients to backgrounds
  */
 function addPremiumGradients() {
-  // Add animated gradient backgrounds
-  document.querySelectorAll('.premium-gradient-bg').forEach(el => {
-    el.classList.add('animated-gradient');
-  });
+  const bgElements = document.querySelectorAll('.mod-server-selector, .mod-section-header');
   
-  // Add subtle gradient to the main content area if it doesn't have one
-  const mainContent = document.querySelector('.admin3d-main');
-  if (mainContent && !mainContent.classList.contains('premium-gradient-bg')) {
-    mainContent.classList.add('premium-subtle-gradient');
-  }
+  bgElements.forEach(el => {
+    el.classList.add('premium-gradient-bg');
+  });
 }
 
 /**
- * Initialize the server selector with premium dynamic loading visuals
+ * Animate holographic UI elements with subtle floating movement
+ */
+function animateHolographicElements() {
+  const elements = document.querySelectorAll('.premium-card, .holographic-badge');
+  
+  // Add subtle floating animation
+  elements.forEach(el => {
+    let startY = 0;
+    let floatY = 0;
+    let floatX = 0;
+    
+    function updatePosition() {
+      const time = Date.now() * 0.001;
+      floatY = Math.sin(time) * 3;
+      floatX = Math.sin(time * 0.7) * 1.5;
+      
+      el.style.transform = `translateY(${startY + floatY}px) translateX(${floatX}px)`;
+      requestAnimationFrame(updatePosition);
+    }
+    
+    updatePosition();
+  });
+}
+
+/**
+ * Initialize the premium server selector with dynamic loading visuals
  */
 function initializePremiumServerSelector() {
   const serverSelect = document.getElementById('serverSelect');
+  
   if (!serverSelect) return;
   
-  // Add premium styling to select
+  // Add premium styling
   serverSelect.classList.add('premium-select');
   
-  // Create custom styled select
-  const selectContainer = document.createElement('div');
-  selectContainer.className = 'premium-select-container';
-  serverSelect.parentNode.insertBefore(selectContainer, serverSelect);
-  selectContainer.appendChild(serverSelect);
-  
-  // Add premium dropdown icon
-  const dropdownIcon = document.createElement('div');
-  dropdownIcon.className = 'premium-select-arrow';
-  dropdownIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
-  selectContainer.appendChild(dropdownIcon);
-  
+  // Add event listener for server selection
   serverSelect.addEventListener('change', function() {
     const serverId = this.value;
-    
-    // Update hidden form fields
-    document.querySelectorAll('[id$="ServerId"]').forEach(input => {
-      input.value = serverId;
-    });
-    
     if (serverId) {
-      // Show premium loading state
-      document.querySelectorAll('.empty-state-message').forEach(el => {
-        el.innerHTML = `
-          <div class="premium-loading">
-            <div class="premium-loading-spinner"></div>
-            <div class="premium-loading-text">Loading server data...</div>
-          </div>
-        `;
-      });
-      
-      // Load server data with premium effects
       loadPremiumServerData(serverId);
+      updatePremiumVisualization(serverId);
     }
   });
 }
@@ -180,29 +146,29 @@ function initializePremiumServerSelector() {
  * @param {string} serverId - Discord server ID
  */
 function loadPremiumServerData(serverId) {
-  // Show loading animations on cards
-  document.querySelectorAll('.premium-card').forEach(card => {
-    card.classList.add('loading');
+  // Show loading effects
+  document.querySelectorAll('.premium-stat-value').forEach(el => {
+    el.innerHTML = '<div class="premium-loading">Loading...</div>';
   });
-
-  // Load bans with premium UI
-  loadPremiumBans(serverId);
   
-  // Load warnings with premium UI
-  loadPremiumWarnings(serverId);
+  // Update server ID in form inputs
+  document.getElementById('banServerId').value = serverId;
+  document.getElementById('warnServerId').value = serverId;
+  if (document.getElementById('automod-server-selector')) {
+    document.getElementById('automod-server-selector').value = serverId;
+  }
+  if (document.getElementById('filterServerId')) {
+    document.getElementById('filterServerId').value = serverId;
+  }
   
-  // Load server stats with premium animations
+  // Load server stats
   loadPremiumServerStats(serverId);
   
-  // Update visualization with enhanced effects
-  updatePremiumVisualization(serverId);
-  
-  // Remove loading state after all data is loaded
-  setTimeout(() => {
-    document.querySelectorAll('.premium-card').forEach(card => {
-      card.classList.remove('loading');
-    });
-  }, 2000);
+  // Update active tab content
+  const activeTab = document.querySelector('.premium-tab-btn.active');
+  if (activeTab) {
+    updatePremiumVisualizationForTab(activeTab.dataset.tab);
+  }
 }
 
 /**
@@ -210,37 +176,22 @@ function loadPremiumServerData(serverId) {
  * @param {string} serverId - Discord server ID
  */
 function loadPremiumServerStats(serverId) {
-  fetch(`/admin3d/server-stats/${serverId}`, {
-    credentials: 'include'
-  })
-  .then(response => response.json())
-  .then(data => {
-    // Update stats cards with premium animations
-    updatePremiumStatWithAnimation('totalBans', data.bans || 0);
-    updatePremiumStatWithAnimation('totalWarnings', data.warnings || 0);
-    updatePremiumStatWithAnimation('automodActions', data.automodActions || 0);
-    updatePremiumStatWithAnimation('memberCount', data.members || 0);
-    
-    // Add premium pulse effect to stats cards
-    document.querySelectorAll('.stat-card').forEach(card => {
-      card.classList.add('premium-pulse');
-      setTimeout(() => {
-        card.classList.remove('premium-pulse');
-      }, 2000);
+  fetch(`/admin3d/api/server-stats/${serverId}`)
+    .then(response => response.json())
+    .then(data => {
+      // Update stats with animation
+      updatePremiumStatWithAnimation('totalBans', data.totalBans || 0);
+      updatePremiumStatWithAnimation('totalWarnings', data.totalWarnings || 0);
+      updatePremiumStatWithAnimation('automodActions', data.automodActions || 0);
+      updatePremiumStatWithAnimation('memberCount', data.memberCount || 0);
+    })
+    .catch(error => {
+      console.error('Error fetching server stats:', error);
+      // Set default values on error
+      document.querySelectorAll('.premium-stat-value').forEach(el => {
+        el.textContent = '0';
+      });
     });
-  })
-  .catch(error => {
-    console.error('Error loading server stats:', error);
-    // Set default values with subtle error indication
-    document.querySelectorAll('.stat-card').forEach(card => {
-      card.classList.add('premium-error');
-    });
-    
-    document.getElementById('totalBans').textContent = '0';
-    document.getElementById('totalWarnings').textContent = '0';
-    document.getElementById('automodActions').textContent = '0';
-    document.getElementById('memberCount').textContent = '0';
-  });
 }
 
 /**
@@ -249,58 +200,49 @@ function loadPremiumServerStats(serverId) {
  * @param {number} value - New value
  */
 function updatePremiumStatWithAnimation(elementId, value) {
-  const element = document.getElementById(elementId);
-  if (!element) return;
+  const statElement = document.getElementById(elementId);
+  if (!statElement) return;
   
-  // Get current value or default to 0
-  const currentValue = parseInt(element.textContent.replace(/,/g, '')) || 0;
-  const difference = value - currentValue;
+  // Store original value
+  const originalValue = parseInt(statElement.textContent.replace(/[^0-9]/g, '') || '0');
   
-  // More sophisticated animation with easing
-  const duration = 2000; // Animation duration in ms
-  const steps = 60; // Number of steps for smoother animation
-  const stepTime = duration / steps;
+  // Determine if it's an increase or decrease
+  const isIncrease = value > originalValue;
+  const isDecrease = value < originalValue;
   
-  // Remove any existing animation
-  if (element._animationInterval) {
-    clearInterval(element._animationInterval);
-  }
+  // Create animation effect
+  let startTime = null;
+  const duration = 1500; // 1.5 seconds
   
-  // Create particle burst effect for significant changes
-  if (Math.abs(difference) > 5) {
-    createParticleBurst(element, difference > 0 ? 'increase' : 'decrease');
-  }
-  
-  // Add glow effect during animation
-  element.classList.add('premium-stat-animating');
-  
-  // Premium animation interval with advanced easing
-  element._animationInterval = setInterval(() => {
-    const elapsed = new Date() - startTime;
-    if (elapsed >= duration) {
-      clearInterval(element._animationInterval);
-      element._animationInterval = null;
-      element.textContent = value.toLocaleString();
-      
-      // Add completion effect
-      element.classList.remove('premium-stat-animating');
-      element.classList.add('premium-stat-updated');
-      setTimeout(() => {
-        element.classList.remove('premium-stat-updated');
-      }, 1500);
-      
-      return;
+  function animateStat(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const progress = Math.min((timestamp - startTime) / duration, 1);
+    
+    // Easing function
+    const eased = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+    
+    // Calculate current value
+    const currentValue = Math.floor(originalValue + (value - originalValue) * eased);
+    statElement.textContent = currentValue.toLocaleString();
+    
+    // Continue animation if not complete
+    if (progress < 1) {
+      requestAnimationFrame(animateStat);
+    } else {
+      // Animation complete, add effect for change
+      if (isIncrease) {
+        createParticleBurst(statElement, 'increase');
+        statElement.classList.add('stat-increase');
+        setTimeout(() => statElement.classList.remove('stat-increase'), 1000);
+      } else if (isDecrease) {
+        createParticleBurst(statElement, 'decrease');
+        statElement.classList.add('stat-decrease');
+        setTimeout(() => statElement.classList.remove('stat-decrease'), 1000);
+      }
     }
-    
-    // Advanced easing function for premium feel
-    const progress = elapsed / duration;
-    const easedProgress = 1 - Math.pow(1 - progress, 4); // Quartic ease-out for premium smoothness
-    const stepValue = currentValue + Math.round(difference * easedProgress);
-    
-    element.textContent = stepValue.toLocaleString();
-  }, stepTime);
+  }
   
-  const startTime = new Date();
+  requestAnimationFrame(animateStat);
 }
 
 /**
@@ -309,142 +251,88 @@ function updatePremiumStatWithAnimation(elementId, value) {
  * @param {string} type - Type of change ('increase' or 'decrease')
  */
 function createParticleBurst(element, type) {
+  // Create particle container
+  const burstContainer = document.createElement('div');
+  burstContainer.className = 'premium-particle-burst';
+  
+  // Set position relative to the element
   const rect = element.getBoundingClientRect();
-  const burst = document.createElement('div');
-  burst.className = `premium-particle-burst ${type}`;
-  
-  // Position burst at the element
-  burst.style.left = `${rect.left + rect.width / 2}px`;
-  burst.style.top = `${rect.top + rect.height / 2}px`;
-  
-  // Add to document body
-  document.body.appendChild(burst);
+  burstContainer.style.position = 'absolute';
+  burstContainer.style.left = `${rect.left + rect.width / 2}px`;
+  burstContainer.style.top = `${rect.top + rect.height / 2}px`;
   
   // Create particles
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 15; i++) {
     const particle = document.createElement('div');
-    particle.className = 'burst-particle';
+    particle.className = `premium-burst-particle ${type}`;
     
     // Random angle and distance
-    const angle = (i / 12) * 2 * Math.PI;
-    const distance = 30 + Math.random() * 20;
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 5 + Math.random() * 30;
+    const duration = 500 + Math.random() * 1000;
     
     // Set initial position
     particle.style.left = '0px';
     particle.style.top = '0px';
     
-    // Set end position with keyframes
-    const keyframes = [
-      { transform: 'translate(-50%, -50%) scale(0.2)' },
-      { 
-        transform: `translate(
-          calc(-50% + ${Math.cos(angle) * distance}px), 
-          calc(-50% + ${Math.sin(angle) * distance}px)
-        ) scale(${0.5 + Math.random() * 0.5})`
-      }
-    ];
+    // Set movement
+    particle.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+    particle.style.transition = `transform ${duration}ms ease-out, opacity ${duration}ms ease-out`;
     
-    // Animation options
-    const options = {
-      duration: 600 + Math.random() * 400,
-      easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)',
-      fill: 'forwards'
-    };
+    // Set delay
+    particle.style.transitionDelay = `${Math.random() * 100}ms`;
     
-    // Add particle to burst
-    burst.appendChild(particle);
-    
-    // Animate particle
-    particle.animate(keyframes, options);
+    // Add to container
+    burstContainer.appendChild(particle);
   }
   
-  // Remove burst after animation completes
+  // Add to body
+  document.body.appendChild(burstContainer);
+  
+  // Remove after animation completes
   setTimeout(() => {
-    if (burst.parentNode) {
-      burst.parentNode.removeChild(burst);
-    }
-  }, 1500);
+    document.body.removeChild(burstContainer);
+  }, 2000);
 }
 
 /**
  * Set up premium tab navigation with enhanced transitions
  */
 function setupPremiumTabNavigation() {
-  const tabButtons = document.querySelectorAll('.mod-nav-btn');
-  if (!tabButtons.length) return;
+  const tabButtons = document.querySelectorAll('.premium-tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
   
-  // Add premium styling to tab buttons
-  tabButtons.forEach(button => {
-    button.classList.add('premium-tab-btn');
-    
-    // Add shimmer effect
-    const shimmer = document.createElement('div');
-    shimmer.className = 'btn-shimmer';
-    button.appendChild(shimmer);
-    
-    button.addEventListener('click', function() {
-      const tabId = this.dataset.tab;
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Remove active class from all buttons and hide all content
+      tabButtons.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
       
-      // Play premium click sound
-      playPremiumUISound('tab-switch');
-      
-      // Update active button with advanced animation
-      document.querySelectorAll('.mod-nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.setProperty('--premium-tab-active', '0');
-      });
-      
+      // Add active class to clicked button
       this.classList.add('active');
-      this.style.setProperty('--premium-tab-active', '1');
       
-      // Update tab indicator position
-      updatePremiumTabIndicator(this);
-      
-      // Animate tab transition
-      const activeTab = document.querySelector('.tab-content.active');
-      const newTab = document.getElementById(tabId);
-      
-      if (activeTab && newTab && activeTab !== newTab) {
-        // Premium transition between tabs
-        activeTab.classList.add('tab-exit');
-        newTab.classList.add('tab-enter');
-        
-        // Remove active class from current tab (delayed)
-        setTimeout(() => {
-          activeTab.classList.remove('active');
-          activeTab.classList.remove('tab-exit');
-          newTab.classList.add('active');
-          
-          // Delay entrance animation slightly
-          setTimeout(() => {
-            newTab.classList.remove('tab-enter');
-          }, 50);
-        }, 300);
-      } else if (newTab) {
-        // Just activate the new tab if there's no active tab
-        document.querySelectorAll('.tab-content').forEach(tab => {
-          tab.classList.remove('active');
-        });
-        newTab.classList.add('active');
+      // Show corresponding content
+      const tabId = this.dataset.tab;
+      const content = document.getElementById(tabId);
+      if (content) {
+        content.classList.add('active');
       }
       
-      // Special case for visualization adaptation based on active tab
+      // Update the premium tab indicator
+      updatePremiumTabIndicator(this);
+      
+      // Update the 3D visualization for this tab
       updatePremiumVisualizationForTab(tabId);
+      
+      // Play UI sound
+      playPremiumUISound('tab');
     });
   });
   
-  // Add premium tab indicator
-  const tabNav = document.querySelector('.mod-nav');
-  if (tabNav && !document.querySelector('.premium-tab-indicator')) {
-    const indicator = document.createElement('div');
-    indicator.className = 'premium-tab-indicator';
-    tabNav.appendChild(indicator);
-    
-    // Set initial position
-    const activeBtn = document.querySelector('.mod-nav-btn.active');
-    if (activeBtn) {
-      updatePremiumTabIndicator(activeBtn);
-    }
+  // Initialize active tab indicator
+  const activeBtn = document.querySelector('.premium-tab-btn.active');
+  if (activeBtn) {
+    updatePremiumTabIndicator(activeBtn);
   }
 }
 
@@ -453,16 +341,10 @@ function setupPremiumTabNavigation() {
  * @param {HTMLElement} activeBtn - The active tab button
  */
 function updatePremiumTabIndicator(activeBtn) {
-  const indicator = document.querySelector('.premium-tab-indicator');
-  if (!indicator) return;
-  
-  // Get position and dimensions of the active button
-  const rect = activeBtn.getBoundingClientRect();
-  const navRect = document.querySelector('.mod-nav').getBoundingClientRect();
-  
-  // Set indicator position and width
-  indicator.style.left = `${rect.left - navRect.left}px`;
-  indicator.style.width = `${rect.width}px`;
+  const highlight = activeBtn.querySelector('.premium-tab-highlight');
+  if (highlight) {
+    highlight.style.opacity = '1';
+  }
 }
 
 /**
@@ -470,252 +352,70 @@ function updatePremiumTabIndicator(activeBtn) {
  * @param {string} sound - Sound type to play
  */
 function playPremiumUISound(sound) {
-  // Premium UI sound system
-  const sounds = {
-    'tab-switch': {
-      frequency: 1800,
-      duration: 40,
-      type: 'sine',
-      volume: 0.1
-    },
-    'button-click': {
-      frequency: 2200,
-      duration: 30,
-      type: 'sine',
-      volume: 0.1
-    },
-    'notification': {
-      frequency: 1500,
-      duration: 80,
-      type: 'sine',
-      volume: 0.1
-    },
-    'error': {
-      frequency: 300,
-      duration: 100,
-      type: 'triangle',
-      volume: 0.1
-    },
-    'success': {
-      frequency: 2000,
-      duration: 60,
-      type: 'sine',
-      volume: 0.1
-    }
-  };
-  
-  // Get sound parameters
-  const params = sounds[sound] || sounds['button-click'];
-  
-  // Create audio context
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-  
-  // Configure oscillator
-  oscillator.type = params.type;
-  oscillator.frequency.setValueAtTime(params.frequency, audioContext.currentTime);
-  
-  // For some sounds, add a frequency sweep
-  if (sound === 'notification' || sound === 'success') {
-    oscillator.frequency.exponentialRampToValueAtTime(
-      params.frequency * 1.5, 
-      audioContext.currentTime + params.duration / 1000
-    );
-  } else if (sound === 'error') {
-    oscillator.frequency.exponentialRampToValueAtTime(
-      params.frequency * 0.8, 
-      audioContext.currentTime + params.duration / 1000
-    );
-  }
-  
-  // Configure gain (volume)
-  gainNode.gain.setValueAtTime(params.volume, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + params.duration / 1000);
-  
-  // Connect nodes
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-  
-  // Play sound
-  oscillator.start();
-  oscillator.stop(audioContext.currentTime + params.duration / 1000);
+  // Sound is optional for future implementation
+  // Could integrate with a Web Audio API solution
+  console.log(`Premium UI sound: ${sound}`);
 }
 
 /**
  * Initialize premium form handlers with enhanced interactivity
  */
 function initializePremiumFormHandlers() {
-  // Add premium form styling
-  document.querySelectorAll('.mod-form').forEach(form => {
-    form.classList.add('premium-form');
+  setupPremiumFormSubmissionHandlers();
+  
+  // Add premium effect to form fields
+  document.querySelectorAll('.form-field').forEach(field => {
+    field.classList.add('premium-field');
   });
   
-  // Ban duration handler with premium select
+  // Add premium styling to buttons
+  document.querySelectorAll('.mod-btn').forEach(btn => {
+    btn.classList.add('premium-btn');
+  });
+  
+  // Update custom duration field visibility
   const banDuration = document.getElementById('banDuration');
   const customDurationGroup = document.getElementById('customDurationGroup');
   
   if (banDuration && customDurationGroup) {
-    // Add premium styling
-    banDuration.classList.add('premium-select');
-    customDurationGroup.classList.add('premium-form-group');
-    
     banDuration.addEventListener('change', function() {
       if (this.value === 'custom') {
-        // Show custom duration with animation
         customDurationGroup.style.display = 'block';
-        customDurationGroup.style.opacity = '0';
-        setTimeout(() => {
-          customDurationGroup.style.opacity = '1';
-        }, 10);
       } else {
-        // Hide with animation
-        customDurationGroup.style.opacity = '0';
-        setTimeout(() => {
-          customDurationGroup.style.display = 'none';
-        }, 300);
+        customDurationGroup.style.display = 'none';
       }
-      
-      // Play premium UI sound
-      playPremiumUISound('button-click');
     });
   }
-  
-  // Form submission handlers with premium effects
-  setupPremiumFormSubmissionHandlers();
 }
 
 /**
  * Setup form submission handlers with premium animations
  */
 function setupPremiumFormSubmissionHandlers() {
-  // Premium-ize all buttons
-  document.querySelectorAll('.mod-btn, button[type="submit"]').forEach(button => {
-    if (!button.classList.contains('premium-btn')) {
-      button.classList.add('premium-btn');
-      
-      // Add premium hover effect elements
-      const hoverEffect = document.createElement('div');
-      hoverEffect.className = 'btn-hover-effect';
-      button.appendChild(hoverEffect);
-    }
-  });
-  
-  // Ban user form submission with premium effects
+  // Ban user form
   const banUserForm = document.getElementById('banUserForm');
   if (banUserForm) {
-    banUserForm.classList.add('premium-form');
-    
     banUserForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const button = this.querySelector('button[type="submit"]');
-      if (button) {
-        // Play premium UI sound
-        playPremiumUISound('button-click');
-        
-        // Show premium loading state
-        const originalText = button.innerHTML;
-        button.disabled = true;
-        button.innerHTML = `
-          <div class="premium-btn-loading">
-            <div class="premium-btn-loading-spinner"></div>
-            <span>Processing</span>
-          </div>
-        `;
-        button.classList.add('loading');
-        
-        // Submit form data with premium processing animation
-        const formData = new FormData(this);
-        
-        fetch(this.action, {
-          method: 'POST',
-          body: formData,
-          credentials: 'include'
-        })
-        .then(response => response.json())
-        .then(data => {
-          // Reset button with animation
-          button.classList.remove('loading');
-          button.classList.add(data.success ? 'success' : 'error');
-          
-          // Show appropriate icon
-          button.innerHTML = data.success ? 
-            '<i class="fas fa-check"></i> Success' : 
-            '<i class="fas fa-times"></i> Failed';
-          
-          setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = originalText;
-            button.classList.remove('success', 'error');
-          }, 2000);
-          
-          if (data.success) {
-            // Play success sound
-            playPremiumUISound('success');
-            
-            // Show premium success notification
-            showPremiumNotification('success', 'User Banned', data.message || 'The user has been banned successfully.');
-            
-            // Reset form with animation
-            this.classList.add('form-success');
-            setTimeout(() => {
-              this.reset();
-              this.classList.remove('form-success');
-            }, 500);
-            
-            // Refresh the ban list with premium animation
-            const serverId = document.getElementById('serverSelect').value;
-            if (serverId) {
-              loadPremiumBans(serverId);
-              updatePremiumVisualization(serverId);
-              loadPremiumServerStats(serverId);
-            }
-          } else {
-            // Play error sound
-            playPremiumUISound('error');
-            
-            // Show premium error notification
-            showPremiumNotification('error', 'Ban Failed', data.message || 'Failed to ban the user.');
-            
-            // Shake form to indicate error
-            this.classList.add('form-error');
-            setTimeout(() => {
-              this.classList.remove('form-error');
-            }, 500);
-          }
-        })
-        .catch(error => {
-          console.error('Ban request error:', error);
-          
-          // Play error sound
-          playPremiumUISound('error');
-          
-          // Reset button with animation
-          button.classList.remove('loading');
-          button.classList.add('error');
-          button.innerHTML = '<i class="fas fa-times"></i> Error';
-          
-          setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = originalText;
-            button.classList.remove('error');
-          }, 2000);
-          
-          // Show premium error notification
-          showPremiumNotification('error', 'Ban Request Failed', 'An error occurred while processing your request.');
-        });
+      const serverId = document.getElementById('banServerId').value;
+      if (!serverId) {
+        e.preventDefault();
+        showPremiumNotification('error', 'Server Required', 'Please select a server before banning a user.');
+        return;
       }
     });
   }
   
-  // Warning form submission (similar pattern)
+  // Warn user form
   const warnUserForm = document.getElementById('warnUserForm');
   if (warnUserForm) {
-    warnUserForm.classList.add('premium-form');
-    
-    // Implementation similar to banUserForm
-    // ... (Similar implementation as banUserForm with premium effects)
+    warnUserForm.addEventListener('submit', function(e) {
+      const serverId = document.getElementById('warnServerId').value;
+      if (!serverId) {
+        e.preventDefault();
+        showPremiumNotification('error', 'Server Required', 'Please select a server before issuing a warning.');
+        return;
+      }
+    });
   }
 }
 
@@ -726,22 +426,52 @@ function setupPremiumFormSubmissionHandlers() {
  * @param {string} message - Notification message
  */
 function showPremiumNotification(type, title, message) {
-  // Create notification element if Admin3DNotification exists
-  if (typeof Admin3DNotification !== 'undefined') {
-    // Use existing notification system with premium styling
-    Admin3DNotification[type](title, {
-      message: message,
-      duration: 8000,
-      animation: 'slide-right',
-      className: 'premium-notification'
-    });
-    
-    // Play notification sound
-    playPremiumUISound(type === 'error' ? 'error' : 'notification');
-  } else {
-    // Fallback to console
-    console.log(`${type.toUpperCase()}: ${title} - ${message}`);
-  }
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `premium-notification ${type}`;
+  
+  // Create notification content
+  notification.innerHTML = `
+    <div class="premium-notification-icon">
+      <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+    </div>
+    <div class="premium-notification-content">
+      <h4>${title}</h4>
+      <p>${message}</p>
+    </div>
+    <div class="premium-notification-close">
+      <i class="fas fa-times"></i>
+    </div>
+  `;
+  
+  // Add to document
+  document.body.appendChild(notification);
+  
+  // Show with animation
+  setTimeout(() => {
+    notification.classList.add('active');
+  }, 10);
+  
+  // Add close handler
+  const closeBtn = notification.querySelector('.premium-notification-close');
+  closeBtn.addEventListener('click', function() {
+    notification.classList.remove('active');
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  });
+  
+  // Auto-close after 5 seconds
+  setTimeout(() => {
+    if (document.body.contains(notification)) {
+      notification.classList.remove('active');
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }
+  }, 5000);
 }
 
 /**
@@ -749,11 +479,9 @@ function showPremiumNotification(type, title, message) {
  * @param {string} tabId - Active tab ID
  */
 function updatePremiumVisualizationForTab(tabId) {
-  // Get the current server ID
-  const serverId = document.getElementById('serverSelect')?.value;
+  const serverId = document.getElementById('serverSelect').value;
   if (!serverId) return;
   
-  // Update visualization based on active tab
   switch (tabId) {
     case 'bansTab':
       updatePremiumBanVisualization(serverId);
@@ -769,7 +497,6 @@ function updatePremiumVisualizationForTab(tabId) {
       break;
     default:
       updatePremiumDefaultVisualization(serverId);
-      break;
   }
 }
 
@@ -779,173 +506,86 @@ function updatePremiumVisualizationForTab(tabId) {
 function initialize555kPremiumModeration() {
   // Check if THREE.js is loaded
   if (typeof THREE === 'undefined') {
-    console.error('THREE.js is not loaded');
+    console.warn('THREE.js not loaded. Premium 3D visualizations disabled.');
     return;
   }
   
-  // Get visualization container
+  // Create scene
+  const scene = new THREE.Scene();
+  
+  // Create camera
+  const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 5;
+  
+  // Create renderer
   const container = document.getElementById('moderationVisualization');
   if (!container) return;
   
-  // Set up scene
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000818);
-  
-  // Set up camera with premium positioning
-  const camera = new THREE.PerspectiveCamera(
-    60, // Wider FOV for more immersive feel
-    container.clientWidth / container.clientHeight,
-    0.1,
-    1000
-  );
-  camera.position.set(0, 0, 6); // Positioned for optimal view
-  
-  // Set up renderer with premium quality
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  container.innerHTML = '';
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(container.offsetWidth, container.offsetHeight);
+  renderer.setClearColor(0x000000, 0);
   container.appendChild(renderer.domElement);
   
-  // Create groups for different visualizations
-  const visualizationGroups = {
-    bans: new THREE.Group(),
-    warnings: new THREE.Group(),
-    automod: new THREE.Group(),
-    filters: new THREE.Group(),
-    default: new THREE.Group()
-  };
-  
-  // Add groups to scene
-  Object.values(visualizationGroups).forEach(group => {
-    scene.add(group);
-  });
-  
-  // Add premium lighting
-  // Main directional light
-  const mainLight = new THREE.DirectionalLight(0x9e7cff, 1);
-  mainLight.position.set(5, 5, 5);
-  mainLight.castShadow = true;
-  mainLight.shadow.camera.near = 0.1;
-  mainLight.shadow.camera.far = 25;
-  mainLight.shadow.mapSize.width = 2048;
-  mainLight.shadow.mapSize.height = 2048;
-  scene.add(mainLight);
-  
-  // Ambient light for overall illumination
-  const ambientLight = new THREE.AmbientLight(0x333366, 0.5);
-  scene.add(ambientLight);
-  
-  // Purple spot light for dramatic effect
-  const purpleSpot = new THREE.SpotLight(0x9e7cff, 2, 20, Math.PI / 6, 0.5);
-  purpleSpot.position.set(-5, 2, 3);
-  scene.add(purpleSpot);
-  
-  // Cyan rim light
-  const cyanSpot = new THREE.SpotLight(0x00ffff, 1, 20, Math.PI / 6, 0.5);
-  cyanSpot.position.set(3, -2, -3);
-  scene.add(cyanSpot);
-  
-  // Add background particles for premium atmosphere
+  // Add background particles
   addPremiumBackgroundParticles(scene);
   
-  // Create default sphere (will be replaced by actual visualizations)
-  createPremiumDefaultSphere(visualizationGroups.default);
+  // Create visualization groups
+  const banGroup = new THREE.Group();
+  const warningGroup = new THREE.Group();
+  const automodGroup = new THREE.Group();
+  const filterGroup = new THREE.Group();
   
-  // Add post-processing for premium visual effects
-  let composer;
-  try {
-    // EffectComposer should be loaded from Three.js extensions
-    if (typeof THREE.EffectComposer !== 'undefined') {
-      composer = new THREE.EffectComposer(renderer);
-      
-      // Add render pass
-      const renderPass = new THREE.RenderPass(scene, camera);
-      composer.addPass(renderPass);
-      
-      // Add bloom pass for premium glow
-      const bloomPass = new THREE.UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.6, // bloom strength
-        0.4, // bloom radius
-        0.85  // bloom threshold
-      );
-      composer.addPass(bloomPass);
-    }
-  } catch (e) {
-    console.warn('Post-processing not available:', e);
-    composer = null;
+  // Add groups to scene
+  scene.add(banGroup);
+  scene.add(warningGroup);
+  scene.add(automodGroup);
+  scene.add(filterGroup);
+  
+  // Set default state
+  createPremiumDefaultSphere(scene);
+  
+  // Add controls if available
+  let controls = null;
+  if (typeof THREE.OrbitControls !== 'undefined') {
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
   }
   
-  // Handle window resize
-  window.addEventListener('resize', () => {
-    camera.aspect = container.clientWidth / container.clientHeight;
+  // Resize handler
+  window.addEventListener('resize', function() {
+    camera.aspect = container.offsetWidth / container.offsetHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    if (composer) composer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(container.offsetWidth, container.offsetHeight);
   });
   
-  // Animation with premium smooth motion
-  let targetRotationX = 0;
-  let targetRotationY = 0;
-  let currentRotationX = 0;
-  let currentRotationY = 0;
-  
-  // Track mouse for interactive rotation
-  container.addEventListener('mousemove', (event) => {
-    const rect = container.getBoundingClientRect();
-    const mouseX = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
-    const mouseY = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
-    
-    targetRotationX = mouseY * 0.3;
-    targetRotationY = mouseX * 0.5;
-  });
-  
+  // Animation loop
   function animate() {
     requestAnimationFrame(animate);
     
-    // Smooth rotation with premium easing
-    currentRotationX += (targetRotationX - currentRotationX) * 0.05;
-    currentRotationY += (targetRotationY - currentRotationY) * 0.05;
+    // Update controls if available
+    if (controls) controls.update();
     
-    // Apply rotation to active group
-    Object.values(visualizationGroups).forEach(group => {
-      if (group.visible) {
-        group.rotation.x = currentRotationX;
-        group.rotation.y = currentRotationY + Date.now() * 0.0001;
-      }
-    });
-    
-    // Pulse effect on lights for premium ambiance
-    const time = Date.now() * 0.001;
-    purpleSpot.intensity = 2 + Math.sin(time * 1.5) * 0.3;
-    cyanSpot.intensity = 1 + Math.cos(time * 1.3) * 0.2;
-    
-    // Render with composer if available
-    if (composer) {
-      composer.render();
-    } else {
-      renderer.render(scene, camera);
-    }
+    // Render scene
+    renderer.render(scene, camera);
   }
   
-  // Start animation
+  // Start animation loop
   animate();
   
-  // Store references for later use
-  window.premium555kVisualization = {
+  // Store references for later updates
+  window.premiumVisualization = {
     scene,
     camera,
     renderer,
-    composer,
-    visualizationGroups,
-    container
+    banGroup,
+    warningGroup,
+    automodGroup,
+    filterGroup
   };
-  
-  // Show default visualization
-  updatePremiumDefaultVisualization('initial');
 }
 
 /**
@@ -953,12 +593,15 @@ function initialize555kPremiumModeration() {
  * @param {string} serverId - Discord server ID
  */
 function updatePremiumVisualization(serverId) {
-  // Get active tab ID
-  const activeTab = document.querySelector('.mod-nav-btn.active');
-  if (!activeTab) return;
+  if (!window.premiumVisualization) return;
   
-  const tabId = activeTab.dataset.tab;
-  updatePremiumVisualizationForTab(tabId);
+  const activeTab = document.querySelector('.premium-tab-btn.active');
+  if (activeTab) {
+    updatePremiumVisualizationForTab(activeTab.dataset.tab);
+  } else {
+    // Default to ban visualization if no tab is active
+    updatePremiumBanVisualization(serverId);
+  }
 }
 
 /**
@@ -966,67 +609,72 @@ function updatePremiumVisualization(serverId) {
  * @param {THREE.Scene} scene - The Three.js scene
  */
 function addPremiumBackgroundParticles(scene) {
-  // Create particle material with premium glow
-  const particleMaterial = new THREE.PointsMaterial({
-    color: 0x8866ff,
-    size: 0.05,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    opacity: 0.8,
-    sizeAttenuation: true
-  });
-  
-  // Create particle geometry
-  const particleCount = 1000;
-  const particleGeometry = new THREE.BufferGeometry();
+  const particleCount = 200;
+  const particles = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
   const sizes = new Float32Array(particleCount);
   const colors = new Float32Array(particleCount * 3);
   
-  const color1 = new THREE.Color(0x8866ff);
-  const color2 = new THREE.Color(0x2233ff);
-  
-  // Set random positions, sizes, and colors
+  // Generate particle positions and colors
   for (let i = 0; i < particleCount; i++) {
-    // Position in a sphere
-    const radius = 15 + Math.random() * 10;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI;
+    const i3 = i * 3;
     
-    positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-    positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-    positions[i * 3 + 2] = radius * Math.cos(phi);
+    // Position
+    positions[i3] = (Math.random() - 0.5) * 20;
+    positions[i3 + 1] = (Math.random() - 0.5) * 20;
+    positions[i3 + 2] = (Math.random() - 0.5) * 20;
     
-    // Random size
-    sizes[i] = 0.1 + Math.random() * 0.5;
+    // Size
+    sizes[i] = Math.random() * 0.1 + 0.05;
     
-    // Color gradient between two colors
-    const mixRatio = Math.random();
-    const particleColor = color1.clone().lerp(color2, mixRatio);
-    
-    colors[i * 3] = particleColor.r;
-    colors[i * 3 + 1] = particleColor.g;
-    colors[i * 3 + 2] = particleColor.b;
+    // Color
+    colors[i3] = 0.4 + Math.random() * 0.2; // R (blueish-purple)
+    colors[i3 + 1] = 0.3 + Math.random() * 0.2; // G
+    colors[i3 + 2] = 0.7 + Math.random() * 0.3; // B
   }
   
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-  particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  // Set attributes
+  particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+  particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  
+  // Create shader material
+  const particleMaterial = new THREE.PointsMaterial({
+    size: 0.1,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending
+  });
   
   // Create particle system
-  const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+  const particleSystem = new THREE.Points(particles, particleMaterial);
+  
+  // Add to scene
   scene.add(particleSystem);
   
   // Animate particles
-  const updateParticles = () => {
-    const time = Date.now() * 0.0001;
-    particleSystem.rotation.x = time * 0.05;
-    particleSystem.rotation.y = time * 0.03;
+  function animateParticles() {
+    const positions = particles.attributes.position.array;
+    const sizes = particles.attributes.size.array;
     
-    requestAnimationFrame(updateParticles);
-  };
+    for (let i = 0; i < particleCount; i++) {
+      const i3 = i * 3;
+      
+      // Slow movement
+      positions[i3 + 1] += Math.sin(Date.now() * 0.001 + i) * 0.002;
+      
+      // Pulse size
+      sizes[i] = (Math.sin(Date.now() * 0.003 + i) * 0.03 + 0.08);
+    }
+    
+    particles.attributes.position.needsUpdate = true;
+    particles.attributes.size.needsUpdate = true;
+    
+    requestAnimationFrame(animateParticles);
+  }
   
-  updateParticles();
+  animateParticles();
 }
 
 /**
@@ -1034,156 +682,40 @@ function addPremiumBackgroundParticles(scene) {
  * @param {string} serverId - Discord server ID
  */
 function loadPremiumBans(serverId) {
-  const banListBody = document.getElementById('banListBody');
-  if (!banListBody) return;
+  // Create loading visualization
+  if (window.premiumVisualization) {
+    const { banGroup } = window.premiumVisualization;
+    banGroup.clear();
+    createPremiumLoadingVisualization(banGroup);
+  }
   
-  // Show premium loading state
-  banListBody.innerHTML = `
-    <tr class="premium-loading-state">
-      <td colspan="5">
-        <div class="premium-loading">
-          <div class="premium-loading-spinner"></div>
-          <div class="premium-loading-text">
-            <div class="loading-title">Retrieving Ban Records</div>
-            <div class="loading-subtitle">Analyzing server ban history...</div>
-          </div>
-        </div>
-      </td>
-    </tr>
-  `;
-  
-  // Fetch ban data
-  fetch(`/admin3d/direct-bans/list/${serverId}`, {
-    credentials: 'include'
-  })
-  .then(response => {
-    if (!response.ok) throw new Error('Failed to load ban data');
-    return response.json();
-  })
-  .then(data => {
-    if (!data.bans || data.bans.length === 0) {
-      // Show premium empty state
-      banListBody.innerHTML = `
-        <tr class="premium-empty-state">
-          <td colspan="5">
-            <div class="premium-empty-state-message">
-              <div class="premium-empty-icon">
-                <i class="fas fa-shield-alt"></i>
-              </div>
-              <div class="premium-empty-title">No Bans Found</div>
-              <div class="premium-empty-description">
-                This server doesn't have any banned users. When users are banned, they'll appear here.
-              </div>
-            </div>
-          </td>
-        </tr>
-      `;
-      return;
-    }
-    
-    // Fill table with premium ban data
-    banListBody.innerHTML = '';
-    
-    // Add staggered reveal animation
-    data.bans.forEach((ban, index) => {
-      const tr = document.createElement('tr');
-      tr.className = 'premium-table-row';
-      tr.style.animationDelay = `${index * 50}ms`;
-      
-      // Format date with premium style
-      const banDate = new Date(ban.date || Date.now());
-      const formattedDate = new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(banDate);
-      
-      // Format duration with premium style
-      let duration = 'Permanent';
-      if (ban.duration && !ban.permanent) {
-        duration = ban.duration;
+  // Fetch ban list data
+  fetch(`/admin3d/api/bans/${serverId}`)
+    .then(response => response.json())
+    .then(data => {
+      if (window.premiumVisualization) {
+        const { banGroup } = window.premiumVisualization;
+        banGroup.clear();
+        
+        if (data && data.bans && data.bans.length > 0) {
+          createPremiumBanVisualization(data.bans, banGroup);
+          
+          // Also update the UI table
+          updateBanList(data.bans);
+        } else {
+          createPremiumEmptyStateVisualization(banGroup, 'No bans found for this server');
+        }
       }
+    })
+    .catch(error => {
+      console.error('Error fetching bans:', error);
       
-      tr.innerHTML = `
-        <td>
-          <div class="premium-user-info">
-            <div class="premium-username">${ban.username || 'Unknown User'}</div>
-            <div class="premium-user-id">${ban.userId}</div>
-          </div>
-        </td>
-        <td>
-          <div class="premium-reason">
-            ${ban.reason || 'No reason provided'}
-          </div>
-        </td>
-        <td>
-          <div class="premium-date">
-            <div class="date-primary">${formattedDate.split(',')[0]}</div>
-            <div class="date-secondary">${formattedDate.split(',')[1]}</div>
-          </div>
-        </td>
-        <td>
-          <div class="premium-duration ${duration.toLowerCase() === 'permanent' ? 'permanent' : ''}">
-            ${duration}
-          </div>
-        </td>
-        <td>
-          <div class="premium-action-buttons">
-            <button class="premium-action-btn unban-btn" data-user-id="${ban.userId}" title="Unban User">
-              <i class="fas fa-user-check"></i>
-              <span class="btn-text">Unban</span>
-            </button>
-            <button class="premium-action-btn details-btn" data-user-id="${ban.userId}" title="View Details">
-              <i class="fas fa-info-circle"></i>
-              <span class="btn-text">Details</span>
-            </button>
-          </div>
-        </td>
-      `;
-      
-      banListBody.appendChild(tr);
+      if (window.premiumVisualization) {
+        const { banGroup } = window.premiumVisualization;
+        banGroup.clear();
+        createPremiumErrorStateVisualization(banGroup);
+      }
     });
-    
-    // Add premium event listeners to action buttons
-    setupPremiumBanActionButtons();
-  })
-  .catch(error => {
-    console.error('Error loading bans:', error);
-    
-    // Show premium error state
-    banListBody.innerHTML = `
-      <tr class="premium-error-state">
-        <td colspan="5">
-          <div class="premium-error-message">
-            <div class="premium-error-icon">
-              <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="premium-error-title">Failed to Load Ban List</div>
-            <div class="premium-error-description">
-              We encountered an error while retrieving the ban list.
-            </div>
-            <button id="retryBanLoad" class="premium-retry-btn">
-              <i class="fas fa-sync-alt"></i> Retry
-            </button>
-          </div>
-        </td>
-      </tr>
-    `;
-    
-    // Add retry button event listener
-    document.getElementById('retryBanLoad')?.addEventListener('click', function() {
-      // Play premium UI sound
-      playPremiumUISound('button-click');
-      
-      // Show retry animation
-      this.classList.add('retrying');
-      setTimeout(() => {
-        loadPremiumBans(serverId);
-      }, 500);
-    });
-  });
 }
 
 /**
@@ -1191,114 +723,35 @@ function loadPremiumBans(serverId) {
  * @param {THREE.Group} group - Three.js group to add the sphere to
  */
 function createPremiumDefaultSphere(group) {
-  // Clear existing objects
-  while (group.children.length > 0) {
-    group.remove(group.children[0]);
-  }
-  
-  // Create premium holographic sphere
-  const sphereGeometry = new THREE.SphereGeometry(2, 64, 64);
-  
-  // Create premium material with wireframe overlay
-  const coreMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x5522aa,
-    metalness: 0.7,
-    roughness: 0.3,
-    emissive: 0x220033,
-    emissiveIntensity: 0.2,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.1
-  });
-  
-  // Create sphere
-  const sphere = new THREE.Mesh(sphereGeometry, coreMaterial);
-  group.add(sphere);
-  
-  // Add wireframe overlay
-  const wireGeometry = new THREE.SphereGeometry(2.01, 32, 32);
-  const wireMaterial = new THREE.MeshBasicMaterial({
-    color: 0x9966ff,
-    wireframe: true,
+  const geometry = new THREE.SphereGeometry(2, 32, 32);
+  const material = new THREE.MeshPhongMaterial({
+    color: 0x7289DA,
+    emissive: 0x4a5c9e,
+    specular: 0xffffff,
+    shininess: 30,
     transparent: true,
-    opacity: 0.3
-  });
-  
-  const wireframe = new THREE.Mesh(wireGeometry, wireMaterial);
-  group.add(wireframe);
-  
-  // Add outer glow
-  const glowGeometry = new THREE.SphereGeometry(2.1, 32, 32);
-  const glowMaterial = new THREE.MeshBasicMaterial({
-    color: 0x9966ff,
-    transparent: true,
-    opacity: 0.1,
-    side: THREE.BackSide
-  });
-  
-  const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-  group.add(glow);
-  
-  // Add floating particles around sphere
-  const particleCount = 100;
-  const particleGeometry = new THREE.BufferGeometry();
-  const particlePositions = new Float32Array(particleCount * 3);
-  
-  for (let i = 0; i < particleCount; i++) {
-    // Position particles in a shell around the sphere
-    const radius = 2.5 + Math.random() * 0.5;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI * 2;
-    
-    particlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-    particlePositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-    particlePositions[i * 3 + 2] = radius * Math.cos(phi);
-  }
-  
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-  
-  const particleMaterial = new THREE.PointsMaterial({
-    color: 0xaa66ff,
-    size: 0.1,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
     opacity: 0.7
   });
   
-  const particles = new THREE.Points(particleGeometry, particleMaterial);
-  group.add(particles);
+  const sphere = new THREE.Mesh(geometry, material);
   
-  // Add floating text
-  const loader = new THREE.FontLoader();
+  // Add to group
+  group.add(sphere);
   
-  // Position all groups correctly
-  group.visible = true;
-  Object.values(window.premium555kVisualization.visualizationGroups).forEach(g => {
-    if (g !== group) g.visible = false;
-  });
+  // Add light to illuminate the sphere
+  const light = new THREE.PointLight(0x7289DA, 1, 10);
+  light.position.set(2, 2, 2);
+  group.add(light);
   
   // Add animation
-  const clock = new THREE.Clock();
-  const animate = () => {
-    const time = clock.getElapsedTime();
+  function animateSphere() {
+    sphere.rotation.y += 0.005;
+    sphere.rotation.x += 0.002;
     
-    // Pulse effect on particles
-    particleMaterial.size = 0.1 + Math.sin(time * 2) * 0.03;
-    particleMaterial.opacity = 0.7 + Math.sin(time * 1.5) * 0.2;
-    
-    // Pulse effect on wireframe
-    wireMaterial.opacity = 0.3 + Math.sin(time * 1.2) * 0.1;
-    
-    // Rotate wireframe differently than core
-    wireframe.rotation.x = time * 0.2;
-    wireframe.rotation.z = time * 0.1;
-    
-    // Pulse glow
-    glowMaterial.opacity = 0.1 + Math.sin(time) * 0.05;
-    
-    requestAnimationFrame(animate);
-  };
+    requestAnimationFrame(animateSphere);
+  }
   
-  animate();
+  animateSphere();
 }
 
 /**
@@ -1306,44 +759,12 @@ function createPremiumDefaultSphere(group) {
  * @param {string} serverId - Discord server ID
  */
 function updatePremiumBanVisualization(serverId) {
-  // Get visualization references
-  const viz = window.premium555kVisualization;
-  if (!viz) return;
+  loadPremiumBans(serverId);
   
-  // Show loading visualization while fetching data
-  createPremiumLoadingVisualization(viz.visualizationGroups.bans);
-  
-  // Show the ban visualization group
-  Object.values(viz.visualizationGroups).forEach(group => {
-    group.visible = false;
-  });
-  viz.visualizationGroups.bans.visible = true;
-  
-  // Fetch ban data for visualization
-  fetch(`/admin3d/direct-bans/list/${serverId}`, {
-    credentials: 'include'
-  })
-  .then(response => {
-    if (!response.ok) throw new Error('Failed to load ban data');
-    return response.json();
-  })
-  .then(data => {
-    if (!data.bans || data.bans.length === 0) {
-      // Show empty state visualization
-      createPremiumEmptyStateVisualization(
-        viz.visualizationGroups.bans, 
-        'No bans found'
-      );
-      return;
-    }
-    
-    // Create premium visualization with actual ban data
-    createPremiumBanVisualization(data.bans, viz.visualizationGroups.bans);
-  })
-  .catch(error => {
-    console.error('Error loading ban visualization data:', error);
-    createPremiumErrorStateVisualization(viz.visualizationGroups.bans);
-  });
+  // Also update the UI table
+  if (typeof loadBans === 'function') {
+    loadBans(serverId);
+  }
 }
 
 /**
@@ -1351,116 +772,47 @@ function updatePremiumBanVisualization(serverId) {
  * @param {THREE.Group} group - Three.js group to add visualization to
  */
 function createPremiumLoadingVisualization(group) {
-  // Clear existing objects
-  while (group.children.length > 0) {
-    group.remove(group.children[0]);
-  }
-  
-  // Create premium loading ring
-  const ringGeometry = new THREE.TorusGeometry(2, 0.1, 16, 100);
-  const ringMaterial = new THREE.MeshBasicMaterial({
-    color: 0x9966ff,
+  // Create loading circle
+  const geometry = new THREE.RingGeometry(1, 1.2, 32);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0x7289DA,
     transparent: true,
-    opacity: 0.7
+    opacity: 0.7,
+    side: THREE.DoubleSide
   });
   
-  const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+  const ring = new THREE.Mesh(geometry, material);
   group.add(ring);
   
-  // Create second ring
-  const ring2Geometry = new THREE.TorusGeometry(2, 0.1, 16, 100);
-  const ring2Material = new THREE.MeshBasicMaterial({
-    color: 0x33aaff,
-    transparent: true,
-    opacity: 0.5
-  });
+  // Create segments for loading animation
+  const segmentCount = 8;
+  const segments = [];
   
-  const ring2 = new THREE.Mesh(ring2Geometry, ring2Material);
-  ring2.rotation.x = Math.PI / 2;
-  group.add(ring2);
-  
-  // Create third ring
-  const ring3Geometry = new THREE.TorusGeometry(1.7, 0.05, 16, 100);
-  const ring3Material = new THREE.MeshBasicMaterial({
-    color: 0xffaa33,
-    transparent: true,
-    opacity: 0.6
-  });
-  
-  const ring3 = new THREE.Mesh(ring3Geometry, ring3Material);
-  ring3.rotation.y = Math.PI / 2;
-  group.add(ring3);
-  
-  // Create central sphere
-  const sphereGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-  const sphereMaterial = new THREE.MeshPhongMaterial({
-    color: 0xffffff,
-    emissive: 0x9966ff,
-    emissiveIntensity: 0.5,
-    transparent: true,
-    opacity: 0.9
-  });
-  
-  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-  group.add(sphere);
-  
-  // Create particles
-  const particleCount = 100;
-  const particleGeometry = new THREE.BufferGeometry();
-  const particlePositions = new Float32Array(particleCount * 3);
-  
-  for (let i = 0; i < particleCount; i++) {
-    // Random positions in a sphere
-    const radius = Math.random() * 2;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI;
+  for (let i = 0; i < segmentCount; i++) {
+    const segmentGeometry = new THREE.TorusGeometry(1.1, 0.1, 8, 6, Math.PI / 6);
+    const segmentMaterial = new THREE.MeshBasicMaterial({
+      color: 0x7289DA,
+      transparent: true,
+      opacity: 0.2 + (i / segmentCount) * 0.8
+    });
     
-    particlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-    particlePositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-    particlePositions[i * 3 + 2] = radius * Math.cos(phi);
+    const segment = new THREE.Mesh(segmentGeometry, segmentMaterial);
+    segment.rotation.z = (i / segmentCount) * Math.PI * 2;
+    
+    group.add(segment);
+    segments.push(segment);
   }
   
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-  
-  const particleMaterial = new THREE.PointsMaterial({
-    color: 0x9966ff,
-    size: 0.1,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    opacity: 0.7
-  });
-  
-  const particles = new THREE.Points(particleGeometry, particleMaterial);
-  group.add(particles);
-  
-  // Animate loading visualization
-  const clock = new THREE.Clock();
-  
+  // Animate loading
   function animateLoading() {
-    const time = clock.getElapsedTime();
+    ring.rotation.z += 0.01;
     
-    // Rotate rings
-    ring.rotation.x = time * 0.5;
-    ring.rotation.y = time * 0.3;
+    segments.forEach((segment, i) => {
+      segment.rotation.z += 0.02 + (i / segmentCount) * 0.01;
+      segment.material.opacity = 0.2 + (Math.sin(Date.now() * 0.001 + i) * 0.5 + 0.5) * 0.8;
+    });
     
-    ring2.rotation.x = Math.PI / 2 + time * 0.7;
-    ring2.rotation.z = time * 0.4;
-    
-    ring3.rotation.y = Math.PI / 2 + time * 0.6;
-    ring3.rotation.z = time * 0.5;
-    
-    // Pulse central sphere
-    const scale = 0.8 + Math.sin(time * 3) * 0.2;
-    sphere.scale.set(scale, scale, scale);
-    sphere.material.emissiveIntensity = 0.5 + Math.sin(time * 2) * 0.3;
-    
-    // Fade particles
-    particleMaterial.opacity = 0.7 + Math.sin(time * 2) * 0.3;
-    
-    // Only continue animation if this group is still in the scene
-    if (group.parent) {
-      requestAnimationFrame(animateLoading);
-    }
+    requestAnimationFrame(animateLoading);
   }
   
   animateLoading();
@@ -1472,275 +824,182 @@ function createPremiumLoadingVisualization(group) {
  * @param {THREE.Group} group - Three.js group to add visualization to
  */
 function createPremiumBanVisualization(bans, group) {
-  // Clear existing objects
-  while (group.children.length > 0) {
-    group.remove(group.children[0]);
-  }
+  // Calculate stats for visualization
+  const totalBans = bans.length;
+  const reasonCounts = {};
+  const dateGroups = {};
   
-  // Create a central hub
-  const hubGeometry = new THREE.OctahedronGeometry(1, 1);
-  const hubMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x6633aa,
-    metalness: 0.7,
-    roughness: 0.3,
-    emissive: 0x220033,
-    emissiveIntensity: 0.3,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.1
+  // Process ban data
+  bans.forEach(ban => {
+    // Process reasons
+    const reason = ban.reason || 'Unknown';
+    reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
+    
+    // Process dates
+    const date = new Date(ban.createdAt || Date.now());
+    const month = date.toLocaleString('default', { month: 'short', year: '2-digit' });
+    dateGroups[month] = (dateGroups[month] || 0) + 1;
+  });
+  
+  // Create central hub
+  const hubGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+  const hubMaterial = new THREE.MeshPhongMaterial({
+    color: 0x7289DA,
+    emissive: 0x4a5c9e,
+    transparent: true,
+    opacity: 0.8
   });
   
   const hub = new THREE.Mesh(hubGeometry, hubMaterial);
   group.add(hub);
   
-  // Add rim light effect
-  const rimGeometry = new THREE.OctahedronGeometry(1.05, 1);
-  const rimMaterial = new THREE.MeshBasicMaterial({
-    color: 0xaa66ff,
-    transparent: true,
-    opacity: 0.3,
-    wireframe: true
-  });
+  // Add light
+  const light = new THREE.PointLight(0x7289DA, 1, 10);
+  light.position.set(0, 0, 0);
+  group.add(light);
   
-  const rim = new THREE.Mesh(rimGeometry, rimMaterial);
-  group.add(rim);
+  // Create data nodes for reasons
+  const reasonKeys = Object.keys(reasonCounts);
+  const reasonNodes = [];
   
-  // Create orbit rings
-  const orbitMaterial = new THREE.MeshBasicMaterial({
-    color: 0x6633aa,
-    transparent: true,
-    opacity: 0.2
-  });
-  
-  const orbits = [];
-  const orbitCount = Math.min(3, Math.ceil(bans.length / 10));
-  
-  for (let i = 0; i < orbitCount; i++) {
-    const radius = 2 + i * 1.2;
-    const orbitGeometry = new THREE.TorusGeometry(radius, 0.02, 16, 100);
-    const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
-    orbit.rotation.x = Math.PI / 2;
-    orbit.userData.radius = radius;
-    orbit.userData.rotationSpeed = 0.1 - i * 0.02;
-    orbits.push(orbit);
-    group.add(orbit);
-  }
-  
-  // Add ban nodes in orbits
-  const banNodes = [];
-  const colors = [
-    new THREE.Color(0xaa3366), // Red for permanent bans
-    new THREE.Color(0x33aacc), // Blue for temporary bans
-    new THREE.Color(0xaacc33)  // Green for expired bans
-  ];
-  
-  bans.forEach((ban, index) => {
-    // Determine node color based on ban type
-    let colorIndex = 0; // Default to permanent (red)
-    if (ban.duration && !ban.permanent) {
-      colorIndex = 1; // Temporary (blue)
-      
-      // Check if expired (This is just a placeholder, you'd need actual logic to determine this)
-      const isExpired = false; // Example condition
-      if (isExpired) {
-        colorIndex = 2; // Expired (green)
-      }
-    }
+  reasonKeys.forEach((reason, i) => {
+    const count = reasonCounts[reason];
+    const angle = (i / reasonKeys.length) * Math.PI * 2;
+    const distance = 2 + Math.random() * 0.5;
+    
+    // Calculate position
+    const x = Math.cos(angle) * distance;
+    const y = Math.sin(angle) * distance;
+    const z = (Math.random() - 0.5) * 2;
     
     // Create node
-    const nodeSize = 0.15 + (ban.severity ? ban.severity * 0.05 : 0);
-    const nodeGeometry = new THREE.SphereGeometry(nodeSize, 16, 16);
-    const nodeMaterial = new THREE.MeshPhysicalMaterial({
-      color: colors[colorIndex],
-      emissive: colors[colorIndex],
-      emissiveIntensity: 0.3,
-      metalness: 0.7,
-      roughness: 0.3
+    const size = 0.1 + (count / totalBans) * 0.4;
+    const nodeGeometry = new THREE.SphereGeometry(size, 16, 16);
+    const nodeMaterial = new THREE.MeshPhongMaterial({
+      color: new THREE.Color().setHSL(i / reasonKeys.length, 0.7, 0.5),
+      transparent: true,
+      opacity: 0.7
     });
     
     const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-    
-    // Distribute nodes across available orbits
-    const orbitIndex = index % orbits.length;
-    const orbit = orbits[orbitIndex];
-    const radius = orbit.userData.radius;
-    
-    // Position node on orbit
-    const angle = (index / bans.length) * Math.PI * 2;
-    node.position.x = radius * Math.cos(angle);
-    node.position.z = radius * Math.sin(angle);
-    
-    // Store original position and orbit data
-    node.userData = {
-      ban: ban,
-      orbit: orbitIndex,
-      angle: angle,
-      radius: radius,
-      originalY: 0,
-      pulsePhase: Math.random() * Math.PI * 2
-    };
-    
-    banNodes.push(node);
+    node.position.set(x, y, z);
     group.add(node);
     
-    // Create connection line to hub
+    // Create connection line
     const lineMaterial = new THREE.LineBasicMaterial({
-      color: colors[colorIndex],
+      color: 0x7289DA,
       transparent: true,
       opacity: 0.3
     });
     
     const lineGeometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(node.position.x, node.position.y, node.position.z)
+      new THREE.Vector3(x, y, z)
     ]);
     
     const line = new THREE.Line(lineGeometry, lineMaterial);
-    line.userData = {
-      node: node,
-      baseOpacity: 0.3,
-      pulsePhase: Math.random() * Math.PI * 2
-    };
     group.add(line);
-  });
-  
-  // Create animated particles
-  const particleCount = 200;
-  const particleGeometry = new THREE.BufferGeometry();
-  const particlePositions = new Float32Array(particleCount * 3);
-  const particleSizes = new Float32Array(particleCount);
-  
-  for (let i = 0; i < particleCount; i++) {
-    // Position particles in a sphere around the center
-    const radius = 1 + Math.random() * 4;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI * 2;
     
-    particlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-    particlePositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-    particlePositions[i * 3 + 2] = radius * Math.cos(phi);
+    // Store node for animation
+    reasonNodes.push({
+      node,
+      line,
+      angle,
+      distance,
+      basePos: { x, y, z }
+    });
+  });
+  
+  // Create time-based data orbit
+  const timeKeys = Object.keys(dateGroups).sort();
+  const timeNodes = [];
+  
+  timeKeys.forEach((date, i) => {
+    const count = dateGroups[date];
+    const angle = (i / timeKeys.length) * Math.PI * 2;
+    const distance = 1.5;
     
-    // Random sizes
-    particleSizes[i] = 0.03 + Math.random() * 0.05;
-  }
-  
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-  particleGeometry.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
-  
-  const particleMaterial = new THREE.PointsMaterial({
-    color: 0x6633aa,
-    size: 0.1,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    opacity: 0.7,
-    sizeAttenuation: true
+    // Calculate position
+    const x = Math.cos(angle) * distance;
+    const y = Math.sin(angle) * distance;
+    const z = 0.5;
+    
+    // Create node
+    const size = 0.05 + (count / totalBans) * 0.2;
+    const nodeGeometry = new THREE.BoxGeometry(size, size, size);
+    const nodeMaterial = new THREE.MeshPhongMaterial({
+      color: 0x4a5c9e,
+      emissive: 0x293752,
+      transparent: true,
+      opacity: 0.7
+    });
+    
+    const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+    node.position.set(x, y, z);
+    group.add(node);
+    
+    // Store node for animation
+    timeNodes.push({
+      node,
+      angle,
+      distance,
+      basePos: { x, y, z }
+    });
   });
   
-  const particles = new THREE.Points(particleGeometry, particleMaterial);
-  group.add(particles);
-  
-  // Add central glow
-  const glowGeometry = new THREE.SphereGeometry(1.2, 32, 32);
-  const glowMaterial = new THREE.MeshBasicMaterial({
-    color: 0xaa66ff,
-    transparent: true,
-    opacity: 0.1,
-    side: THREE.BackSide
-  });
-  
-  const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-  group.add(glow);
-  
-  // Animate the visualization
-  const clock = new THREE.Clock();
-  
+  // Animate visualization
   function animateVisualization() {
-    const time = clock.getElapsedTime();
+    // Rotate hub
+    hub.rotation.y += 0.01;
+    hub.rotation.x += 0.005;
     
-    // Rotate rim differently than hub
-    rim.rotation.x = time * 0.2;
-    rim.rotation.z = time * 0.1;
-    
-    // Pulse glow
-    glowMaterial.opacity = 0.1 + Math.sin(time) * 0.05;
-    
-    // Rotate hub slowly
-    hub.rotation.y = time * 0.1;
-    
-    // Update orbits
-    orbits.forEach(orbit => {
-      orbit.rotation.z = time * orbit.userData.rotationSpeed;
+    // Animate reason nodes
+    reasonNodes.forEach((data, i) => {
+      const time = Date.now() * 0.001;
+      const { node, line, angle, distance, basePos } = data;
+      
+      // Orbital movement
+      const newAngle = angle + time * (0.1 + i * 0.01) % (Math.PI * 2);
+      const x = Math.cos(newAngle) * distance;
+      const y = Math.sin(newAngle) * distance;
+      const z = basePos.z + Math.sin(time * 0.5 + i) * 0.2;
+      
+      node.position.set(x, y, z);
+      
+      // Update line
+      line.geometry.dispose();
+      line.geometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(x, y, z)
+      ]);
+      
+      // Pulse effect
+      node.scale.set(
+        1 + Math.sin(time * 2 + i) * 0.1,
+        1 + Math.sin(time * 2 + i) * 0.1,
+        1 + Math.sin(time * 2 + i) * 0.1
+      );
     });
     
-    // Update ban nodes
-    banNodes.forEach(node => {
-      // Get orbit data
-      const orbitIndex = node.userData.orbit;
-      const orbit = orbits[orbitIndex];
-      const angle = node.userData.angle + time * orbit.userData.rotationSpeed;
-      const radius = node.userData.radius;
+    // Animate time nodes
+    timeNodes.forEach((data, i) => {
+      const time = Date.now() * 0.001;
+      const { node, angle, distance } = data;
       
-      // Update position based on orbit rotation
-      node.position.x = radius * Math.cos(angle);
-      node.position.z = radius * Math.sin(angle);
+      // Orbital movement
+      const newAngle = angle + time * 0.2 % (Math.PI * 2);
+      const x = Math.cos(newAngle) * distance;
+      const y = Math.sin(newAngle) * distance;
+      const z = data.basePos.z + Math.cos(time + i) * 0.1;
       
-      // Add subtle floating motion
-      node.position.y = node.userData.originalY + Math.sin(time + node.userData.pulsePhase) * 0.1;
+      node.position.set(x, y, z);
       
-      // Pulse node
-      const scale = 1 + Math.sin(time * 2 + node.userData.pulsePhase) * 0.1;
-      node.scale.set(scale, scale, scale);
+      // Rotation
+      node.rotation.x += 0.01;
+      node.rotation.y += 0.01;
     });
     
-    // Update connection lines
-    group.children.forEach(child => {
-      if (child instanceof THREE.Line && child.userData.node) {
-        const nodePos = child.userData.node.position;
-        
-        // Update line geometry to connect to moving node
-        const positions = [
-          new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(nodePos.x, nodePos.y, nodePos.z)
-        ];
-        
-        child.geometry.dispose();
-        child.geometry = new THREE.BufferGeometry().setFromPoints(positions);
-        
-        // Pulse opacity
-        child.material.opacity = child.userData.baseOpacity + 
-          Math.sin(time * 1.5 + child.userData.pulsePhase) * 0.2;
-      }
-    });
-    
-    // Animate particles
-    const positions = particles.geometry.attributes.position;
-    for (let i = 0; i < particleCount; i++) {
-      // Move particles in a subtle oscillating pattern
-      const px = positions.getX(i);
-      const py = positions.getY(i);
-      const pz = positions.getZ(i);
-      
-      // Distance from center
-      const dist = Math.sqrt(px * px + py * py + pz * pz);
-      
-      // Normalize direction
-      const nx = px / dist;
-      const ny = py / dist;
-      const nz = pz / dist;
-      
-      // Oscillate distance
-      const newDist = dist + Math.sin(time + i * 0.1) * 0.1;
-      
-      // Set new position
-      positions.setX(i, nx * newDist);
-      positions.setY(i, ny * newDist);
-      positions.setZ(i, nz * newDist);
-    }
-    positions.needsUpdate = true;
-    
-    // Only continue animation if this group is still in the scene
-    if (group.parent) {
-      requestAnimationFrame(animateVisualization);
-    }
+    requestAnimationFrame(animateVisualization);
   }
   
   animateVisualization();
@@ -1752,140 +1011,67 @@ function createPremiumBanVisualization(bans, group) {
  * @param {string} message - Message to display
  */
 function createPremiumEmptyStateVisualization(group, message) {
-  // Clear existing objects
-  while (group.children.length > 0) {
-    group.remove(group.children[0]);
-  }
-  
-  // Create floating holographic shield
-  const shieldGeometry = new THREE.CylinderGeometry(1.5, 1.5, 0.1, 32, 1, false);
-  const shieldMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x33aaff,
-    metalness: 0.9,
-    roughness: 0.2,
-    emissive: 0x1133ff,
-    emissiveIntensity: 0.2,
+  // Create empty state orb
+  const geometry = new THREE.SphereGeometry(1, 32, 32);
+  const material = new THREE.MeshPhongMaterial({
+    color: 0x555555,
+    emissive: 0x222222,
     transparent: true,
-    opacity: 0.7,
-    side: THREE.DoubleSide
+    opacity: 0.5,
+    wireframe: true
   });
   
-  const shield = new THREE.Mesh(shieldGeometry, shieldMaterial);
-  shield.rotation.x = Math.PI / 2;
-  group.add(shield);
-  
-  // Add shield rim
-  const rimGeometry = new THREE.TorusGeometry(1.5, 0.05, 16, 100);
-  const rimMaterial = new THREE.MeshPhongMaterial({
-    color: 0x33ccff,
-    emissive: 0x3366ff,
-    emissiveIntensity: 0.5,
-    shininess: 100
-  });
-  
-  const rim = new THREE.Mesh(rimGeometry, rimMaterial);
-  rim.rotation.x = Math.PI / 2;
-  group.add(rim);
-  
-  // Add center sphere
-  const sphereGeometry = new THREE.SphereGeometry(0.2, 32, 32);
-  const sphereMaterial = new THREE.MeshPhongMaterial({
-    color: 0xffffff,
-    emissive: 0x6699ff,
-    emissiveIntensity: 0.7,
-    shininess: 100
-  });
-  
-  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+  const sphere = new THREE.Mesh(geometry, material);
   group.add(sphere);
   
-  // Add pulsing rings
-  const ringCount = 3;
-  const rings = [];
-  
-  for (let i = 0; i < ringCount; i++) {
-    const ringGeometry = new THREE.TorusGeometry(0.3 + i * 0.1, 0.02, 16, 64);
-    const ringMaterial = new THREE.MeshBasicMaterial({
-      color: 0x33aaff,
-      transparent: true,
-      opacity: 0.7 - i * 0.2
-    });
-    
-    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-    ring.rotation.x = Math.PI / 2;
-    ring.userData = {
-      baseRadius: 0.3 + i * 0.1,
-      pulsePhase: i * Math.PI / ringCount
-    };
-    rings.push(ring);
-    group.add(ring);
-  }
-  
-  // Add particles
-  const particleCount = 100;
-  const particleGeometry = new THREE.BufferGeometry();
-  const particlePositions = new Float32Array(particleCount * 3);
+  // Create particles inside the sphere
+  const particleCount = 50;
+  const particles = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
   
   for (let i = 0; i < particleCount; i++) {
-    // Position particles in a disc shape
-    const radius = Math.random() * 1.4;
-    const angle = Math.random() * Math.PI * 2;
+    const i3 = i * 3;
+    const radius = 0.8;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI;
     
-    particlePositions[i * 3] = radius * Math.cos(angle);
-    particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 0.1;
-    particlePositions[i * 3 + 2] = radius * Math.sin(angle);
+    positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+    positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+    positions[i3 + 2] = radius * Math.cos(phi);
   }
   
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+  particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   
   const particleMaterial = new THREE.PointsMaterial({
-    color: 0x33ccff,
+    color: 0x7289DA,
     size: 0.05,
     transparent: true,
-    blending: THREE.AdditiveBlending,
-    opacity: 0.7
+    opacity: 0.7,
+    blending: THREE.AdditiveBlending
   });
   
-  const particles = new THREE.Points(particleGeometry, particleMaterial);
-  group.add(particles);
+  const particleSystem = new THREE.Points(particles, particleMaterial);
+  group.add(particleSystem);
   
-  // Animate the empty state visualization
-  const clock = new THREE.Clock();
+  // Add light
+  const light = new THREE.PointLight(0x7289DA, 0.5, 10);
+  light.position.set(2, 2, 2);
+  group.add(light);
   
+  // Animate
   function animateEmptyState() {
-    const time = clock.getElapsedTime();
+    sphere.rotation.y += 0.005;
+    sphere.rotation.x += 0.002;
     
-    // Float the shield up and down
-    shield.position.y = Math.sin(time * 0.5) * 0.1;
-    rim.position.y = shield.position.y;
+    // Pulse effect
+    const time = Date.now() * 0.001;
+    const scale = 1 + Math.sin(time) * 0.05;
+    sphere.scale.set(scale, scale, scale);
     
-    // Pulse the shield opacity
-    shieldMaterial.opacity = 0.5 + Math.sin(time) * 0.2;
+    // Pulse particles
+    particleMaterial.opacity = 0.5 + Math.sin(time * 2) * 0.2;
     
-    // Rotate the shield
-    shield.rotation.z = time * 0.2;
-    rim.rotation.z = time * 0.2;
-    
-    // Animate sphere
-    sphere.scale.setScalar(1 + Math.sin(time * 2) * 0.1);
-    
-    // Animate rings
-    rings.forEach(ring => {
-      const pulseTime = time + ring.userData.pulsePhase;
-      const scale = 1 + Math.sin(pulseTime * 3) * 0.2;
-      ring.scale.set(scale, scale, scale);
-      
-      // Rotate rings
-      ring.rotation.z = time * 0.3;
-    });
-    
-    // Fade particles
-    particleMaterial.opacity = 0.5 + Math.sin(time * 1.5) * 0.2;
-    
-    // Only continue animation if this group is still in the scene
-    if (group.parent) {
-      requestAnimationFrame(animateEmptyState);
-    }
+    requestAnimationFrame(animateEmptyState);
   }
   
   animateEmptyState();
@@ -1896,124 +1082,98 @@ function createPremiumEmptyStateVisualization(group, message) {
  * @param {THREE.Group} group - Three.js group to add visualization to
  */
 function createPremiumErrorStateVisualization(group) {
-  // Clear existing objects
-  while (group.children.length > 0) {
-    group.remove(group.children[0]);
-  }
-  
-  // Create central error icon
-  const iconGeometry = new THREE.OctahedronGeometry(1, 0);
-  const iconMaterial = new THREE.MeshPhongMaterial({
-    color: 0xcc3366,
-    emissive: 0xaa2255,
-    emissiveIntensity: 0.5,
-    shininess: 100,
-    flatShading: true
+  // Create glitchy error cube
+  const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+  const material = new THREE.MeshPhongMaterial({
+    color: 0xff3333,
+    emissive: 0x551111,
+    transparent: true,
+    opacity: 0.7,
+    wireframe: false
   });
   
-  const icon = new THREE.Mesh(iconGeometry, iconMaterial);
-  group.add(icon);
+  const cube = new THREE.Mesh(geometry, material);
+  group.add(cube);
   
-  // Create warning pulses
-  const warningRings = [];
-  const ringCount = 5;
-  
-  for (let i = 0; i < ringCount; i++) {
-    const ringGeometry = new THREE.TorusGeometry(1.5, 0.1, 16, 64);
-    const ringMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff3366,
-      transparent: true,
-      opacity: 0.8 - (i / ringCount) * 0.8,
-      side: THREE.DoubleSide
-    });
-    
-    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-    ring.userData = {
-      baseScale: 0.1 + (i / ringCount) * 2,
-      phase: i * 0.2
-    };
-    
-    ring.scale.set(
-      ring.userData.baseScale,
-      ring.userData.baseScale,
-      ring.userData.baseScale
-    );
-    
-    warningRings.push(ring);
-    group.add(ring);
-  }
-  
-  // Create flickering particles
-  const particleCount = 200;
-  const particleGeometry = new THREE.BufferGeometry();
-  const particlePositions = new Float32Array(particleCount * 3);
+  // Create glitch particles
+  const particleCount = 100;
+  const particles = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
+  const sizes = new Float32Array(particleCount);
   
   for (let i = 0; i < particleCount; i++) {
-    // Random positions in a sphere
-    const radius = 1 + Math.random() * 2;
+    const i3 = i * 3;
+    const radius = 2;
     const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI;
     
-    particlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-    particlePositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-    particlePositions[i * 3 + 2] = radius * Math.cos(phi);
+    positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+    positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+    positions[i3 + 2] = radius * Math.cos(phi);
+    
+    sizes[i] = Math.random() * 0.1 + 0.02;
   }
   
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+  particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
   
   const particleMaterial = new THREE.PointsMaterial({
-    color: 0xff3366,
-    size: 0.08,
+    color: 0xff5555,
+    size: 0.1,
     transparent: true,
-    blending: THREE.AdditiveBlending,
-    opacity: 0.7
+    opacity: 0.7,
+    blending: THREE.AdditiveBlending
   });
   
-  const particles = new THREE.Points(particleGeometry, particleMaterial);
-  group.add(particles);
+  const particleSystem = new THREE.Points(particles, particleMaterial);
+  group.add(particleSystem);
   
-  // Animate the error state
-  const clock = new THREE.Clock();
+  // Add light
+  const light = new THREE.PointLight(0xff0000, 1, 10);
+  light.position.set(2, 2, 2);
+  group.add(light);
   
+  // Animate
   function animateErrorState() {
-    const time = clock.getElapsedTime();
+    // Glitchy rotation
+    cube.rotation.y += 0.01 * (Math.random() * 0.5 + 0.75);
+    cube.rotation.x += 0.005 * (Math.random() * 0.5 + 0.75);
     
-    // Pulsate and rotate the icon
-    const pulse = 1 + Math.sin(time * 3) * 0.1;
-    icon.scale.set(pulse, pulse, pulse);
-    icon.rotation.y = time * 0.5;
-    icon.rotation.z = time * 0.3;
+    // Random scale glitches
+    if (Math.random() > 0.95) {
+      const glitchScale = 0.9 + Math.random() * 0.2;
+      cube.scale.set(glitchScale, glitchScale, glitchScale);
+    }
     
-    // Flicker the icon's emissive intensity
-    iconMaterial.emissiveIntensity = 0.5 + Math.random() * 0.5;
+    // Particle movement
+    const positions = particles.attributes.position.array;
     
-    // Animate warning rings
-    warningRings.forEach(ring => {
-      const t = (time + ring.userData.phase) % 2; // 2-second cycle
-      if (t < 1) {
-        // Expand ring during the first half of the cycle
-        const scale = ring.userData.baseScale + t * 2;
-        ring.scale.set(scale, scale, scale);
-        ring.material.opacity = 0.8 * (1 - t);
-      } else {
-        // Reset ring during the second half
-        ring.scale.set(ring.userData.baseScale, ring.userData.baseScale, ring.userData.baseScale);
-        ring.material.opacity = 0;
+    for (let i = 0; i < particleCount; i++) {
+      const i3 = i * 3;
+      
+      // Random movements
+      if (Math.random() > 0.95) {
+        positions[i3] += (Math.random() - 0.5) * 0.2;
+        positions[i3 + 1] += (Math.random() - 0.5) * 0.2;
+        positions[i3 + 2] += (Math.random() - 0.5) * 0.2;
       }
       
-      // Rotate rings
-      ring.rotation.x = time * 0.2;
-      ring.rotation.y = time * 0.3;
-    });
-    
-    // Flicker particles
-    particleMaterial.opacity = 0.5 + Math.random() * 0.5;
-    particleMaterial.size = 0.08 + Math.random() * 0.04;
-    
-    // Only continue animation if this group is still in the scene
-    if (group.parent) {
-      requestAnimationFrame(animateErrorState);
+      // Pull back to sphere
+      const x = positions[i3];
+      const y = positions[i3 + 1];
+      const z = positions[i3 + 2];
+      const length = Math.sqrt(x * x + y * y + z * z);
+      
+      if (length > 2.2 || length < 1.8) {
+        positions[i3] *= 2 / length;
+        positions[i3 + 1] *= 2 / length;
+        positions[i3 + 2] *= 2 / length;
+      }
     }
+    
+    particles.attributes.position.needsUpdate = true;
+    
+    requestAnimationFrame(animateErrorState);
   }
   
   animateErrorState();
@@ -2024,20 +1184,93 @@ function createPremiumErrorStateVisualization(group) {
  * @param {string} serverId - Discord server ID
  */
 function updatePremiumWarningVisualization(serverId) {
-  // Implementation would be similar to updatePremiumBanVisualization
-  // ... (Similar implementation with premium warning visualization)
+  if (!window.premiumVisualization) return;
   
-  // For now, use the default visualization
-  const viz = window.premium555kVisualization;
-  if (!viz) return;
+  const { warningGroup } = window.premiumVisualization;
+  warningGroup.clear();
   
-  createPremiumDefaultSphere(viz.visualizationGroups.warnings);
+  // Show loading state
+  createPremiumLoadingVisualization(warningGroup);
   
-  // Show the warnings visualization group
-  Object.values(viz.visualizationGroups).forEach(group => {
-    group.visible = false;
-  });
-  viz.visualizationGroups.warnings.visible = true;
+  // Fetch warning data
+  fetch(`/admin3d/api/warnings/${serverId}`)
+    .then(response => response.json())
+    .then(data => {
+      warningGroup.clear();
+      
+      if (data && data.warnings && data.warnings.length > 0) {
+        // Process warning data for visualization
+        const warnings = data.warnings;
+        
+        // Create visualization for the warnings
+        const warningsByUser = {};
+        warnings.forEach(warning => {
+          const userId = warning.userId;
+          if (!warningsByUser[userId]) {
+            warningsByUser[userId] = [];
+          }
+          warningsByUser[userId].push(warning);
+        });
+        
+        // Create central visualization
+        const users = Object.keys(warningsByUser);
+        const userCount = users.length;
+        
+        // Create user nodes
+        users.forEach((userId, i) => {
+          const userWarnings = warningsByUser[userId];
+          const angle = (i / userCount) * Math.PI * 2;
+          const distance = 2;
+          
+          // Calculate position
+          const x = Math.cos(angle) * distance;
+          const y = Math.sin(angle) * distance;
+          const z = (Math.random() - 0.5) * 2;
+          
+          // Create node
+          const size = 0.2 + (userWarnings.length / 10) * 0.3; // Scale by warning count
+          const nodeGeometry = new THREE.SphereGeometry(size, 16, 16);
+          const nodeMaterial = new THREE.MeshPhongMaterial({
+            color: 0xff9900,
+            emissive: 0x553300,
+            transparent: true,
+            opacity: 0.7
+          });
+          
+          const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+          node.position.set(x, y, z);
+          warningGroup.add(node);
+          
+          // Create connection to center
+          const lineMaterial = new THREE.LineBasicMaterial({
+            color: 0xff9900,
+            transparent: true,
+            opacity: 0.3
+          });
+          
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(x, y, z)
+          ]);
+          
+          const line = new THREE.Line(lineGeometry, lineMaterial);
+          warningGroup.add(line);
+        });
+      } else {
+        // Show empty state
+        createPremiumEmptyStateVisualization(warningGroup, 'No warnings found');
+      }
+      
+      // Load the warning list into the UI
+      if (typeof loadWarnings === 'function') {
+        loadWarnings(serverId);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching warnings:', error);
+      warningGroup.clear();
+      createPremiumErrorStateVisualization(warningGroup);
+    });
 }
 
 /**
@@ -2045,20 +1278,102 @@ function updatePremiumWarningVisualization(serverId) {
  * @param {string} serverId - Discord server ID
  */
 function updatePremiumAutomodVisualization(serverId) {
-  // Implementation would be similar to updatePremiumBanVisualization
-  // ... (Similar implementation with premium automod visualization)
+  if (!window.premiumVisualization) return;
   
-  // For now, use the default visualization
-  const viz = window.premium555kVisualization;
-  if (!viz) return;
+  const { automodGroup } = window.premiumVisualization;
+  automodGroup.clear();
   
-  createPremiumDefaultSphere(viz.visualizationGroups.automod);
+  // Show loading state
+  createPremiumLoadingVisualization(automodGroup);
   
-  // Show the automod visualization group
-  Object.values(viz.visualizationGroups).forEach(group => {
-    group.visible = false;
-  });
-  viz.visualizationGroups.automod.visible = true;
+  // Fetch automod settings & logs
+  fetch(`/admin3d/api/automod/${serverId}`)
+    .then(response => response.json())
+    .then(data => {
+      automodGroup.clear();
+      
+      if (data && data.enabled) {
+        // Create automod brain visualization
+        const brainGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+        const brainMaterial = new THREE.MeshPhongMaterial({
+          color: 0x64aaff,
+          emissive: 0x224466,
+          transparent: true,
+          opacity: 0.7,
+          wireframe: false
+        });
+        
+        const brain = new THREE.Mesh(brainGeometry, brainMaterial);
+        automodGroup.add(brain);
+        
+        // Create neural network lines
+        const lineCount = 20;
+        for (let i = 0; i < lineCount; i++) {
+          const points = [];
+          const segments = 10;
+          
+          // Create curved line
+          for (let j = 0; j <= segments; j++) {
+            const t = j / segments;
+            const angle = (i / lineCount) * Math.PI * 2;
+            const radius = 1.5 + Math.sin(t * Math.PI) * 1;
+            
+            const x = Math.cos(angle) * radius * t;
+            const y = Math.sin(angle) * radius * t;
+            const z = (Math.random() - 0.5) * t * 2;
+            
+            points.push(new THREE.Vector3(x, y, z));
+          }
+          
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+          const lineMaterial = new THREE.LineBasicMaterial({
+            color: 0x64aaff,
+            transparent: true,
+            opacity: 0.5
+          });
+          
+          const line = new THREE.Line(lineGeometry, lineMaterial);
+          automodGroup.add(line);
+        }
+        
+        // Create activity nodes
+        if (data.logs && data.logs.length > 0) {
+          data.logs.slice(0, 10).forEach((log, i) => {
+            const angle = (i / 10) * Math.PI * 2;
+            const distance = 2.5;
+            
+            // Calculate position
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            const z = (Math.random() - 0.5) * 2;
+            
+            // Create node
+            const nodeGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+            const color = log.action === 'delete' ? 0xff5050 : 
+                         log.action === 'warn' ? 0xffaa00 :
+                         log.action === 'mute' ? 0xaa00ff : 0x64aaff;
+            
+            const nodeMaterial = new THREE.MeshPhongMaterial({
+              color,
+              transparent: true,
+              opacity: 0.7
+            });
+            
+            const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+            node.position.set(x, y, z);
+            automodGroup.add(node);
+          });
+        }
+      } else {
+        // Show disabled state
+        createPremiumEmptyStateVisualization(automodGroup, 'AutoMod is disabled');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching automod data:', error);
+      automodGroup.clear();
+      createPremiumErrorStateVisualization(automodGroup);
+    });
 }
 
 /**
@@ -2066,20 +1381,84 @@ function updatePremiumAutomodVisualization(serverId) {
  * @param {string} serverId - Discord server ID
  */
 function updatePremiumFilterVisualization(serverId) {
-  // Implementation would be similar to updatePremiumBanVisualization
-  // ... (Similar implementation with premium filter visualization)
+  if (!window.premiumVisualization) return;
   
-  // For now, use the default visualization
-  const viz = window.premium555kVisualization;
-  if (!viz) return;
+  const { filterGroup } = window.premiumVisualization;
+  filterGroup.clear();
   
-  createPremiumDefaultSphere(viz.visualizationGroups.filters);
+  // Show loading state
+  createPremiumLoadingVisualization(filterGroup);
   
-  // Show the filters visualization group
-  Object.values(viz.visualizationGroups).forEach(group => {
-    group.visible = false;
-  });
-  viz.visualizationGroups.filters.visible = true;
+  // Fetch filter data
+  fetch(`/admin3d/api/filters/${serverId}`)
+    .then(response => response.json())
+    .then(data => {
+      filterGroup.clear();
+      
+      if (data && data.filters && data.filters.length > 0) {
+        // Create filter visualization
+        const filterCount = data.filters.length;
+        
+        // Create shield
+        const shieldGeometry = new THREE.CylinderGeometry(1.5, 1.8, 0.2, 32);
+        const shieldMaterial = new THREE.MeshPhongMaterial({
+          color: 0x9880ff,
+          emissive: 0x332266,
+          transparent: true,
+          opacity: 0.5
+        });
+        
+        const shield = new THREE.Mesh(shieldGeometry, shieldMaterial);
+        shield.rotation.x = Math.PI / 2;
+        filterGroup.add(shield);
+        
+        // Create filter nodes
+        data.filters.forEach((filter, i) => {
+          const angle = (i / filterCount) * Math.PI * 2;
+          const distance = 1.2;
+          
+          // Calculate position
+          const x = Math.cos(angle) * distance;
+          const y = Math.sin(angle) * distance;
+          const z = 0;
+          
+          // Create node
+          const nodeGeometry = new THREE.BoxGeometry(0.15, 0.15, 0.15);
+          const nodeMaterial = new THREE.MeshPhongMaterial({
+            color: 0x9880ff,
+            transparent: true,
+            opacity: 0.8
+          });
+          
+          const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+          node.position.set(x, y, z);
+          node.rotation.z = angle;
+          node.rotation.y = angle;
+          filterGroup.add(node);
+        });
+        
+        // Create outer ring
+        const ringGeometry = new THREE.RingGeometry(1.8, 2, 32);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+          color: 0x9880ff,
+          transparent: true,
+          opacity: 0.3,
+          side: THREE.DoubleSide
+        });
+        
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.rotation.x = Math.PI / 2;
+        filterGroup.add(ring);
+      } else {
+        // Show empty state
+        createPremiumEmptyStateVisualization(filterGroup, 'No filters configured');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching filter data:', error);
+      filterGroup.clear();
+      createPremiumErrorStateVisualization(filterGroup);
+    });
 }
 
 /**
@@ -2087,17 +1466,242 @@ function updatePremiumFilterVisualization(serverId) {
  * @param {string} serverId - Discord server ID
  */
 function updatePremiumDefaultVisualization(serverId) {
-  const viz = window.premium555kVisualization;
-  if (!viz) return;
+  if (!window.premiumVisualization) return;
   
-  createPremiumDefaultSphere(viz.visualizationGroups.default);
+  const { scene } = window.premiumVisualization;
   
-  // Show the default visualization group
-  Object.values(viz.visualizationGroups).forEach(group => {
-    group.visible = false;
-  });
-  viz.visualizationGroups.default.visible = true;
+  // Hide all groups
+  if (window.premiumVisualization.banGroup) window.premiumVisualization.banGroup.visible = false;
+  if (window.premiumVisualization.warningGroup) window.premiumVisualization.warningGroup.visible = false;
+  if (window.premiumVisualization.automodGroup) window.premiumVisualization.automodGroup.visible = false;
+  if (window.premiumVisualization.filterGroup) window.premiumVisualization.filterGroup.visible = false;
+  
+  // Create default sphere if not exists
+  if (!window.premiumVisualization.defaultGroup) {
+    const defaultGroup = new THREE.Group();
+    createPremiumDefaultSphere(defaultGroup);
+    scene.add(defaultGroup);
+    window.premiumVisualization.defaultGroup = defaultGroup;
+  } else {
+    window.premiumVisualization.defaultGroup.visible = true;
+  }
 }
 
-// Initialize the premium $555k interface
-console.log('$555K Premium Moderation Interface Loaded');
+// Add function to update ban list UI with premium styling
+function updateBanList(bans) {
+  const banListBody = document.getElementById('banListBody');
+  if (!banListBody) return;
+  
+  if (!bans || bans.length === 0) {
+    banListBody.innerHTML = `
+      <tr class="empty-state">
+        <td colspan="5">
+          <div class="premium-empty-state">
+            <i class="fas fa-info-circle"></i>
+            <p>No bans found for this server</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+  
+  let html = '';
+  
+  bans.forEach(ban => {
+    const date = new Date(ban.createdAt || Date.now()).toLocaleString();
+    
+    html += `
+      <tr class="premium-table-row" data-ban-id="${ban.id || ''}">
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar">
+              <img src="${ban.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="User Avatar">
+            </div>
+            <div class="user-info">
+              <div class="user-name">${ban.username || 'Unknown User'}</div>
+              <div class="user-id">${ban.userId || ''}</div>
+            </div>
+          </div>
+        </td>
+        <td>${ban.reason || 'No reason provided'}</td>
+        <td>${date}</td>
+        <td>${ban.duration === 'permanent' ? 'Permanent' : ban.duration || 'Permanent'}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="premium-action-btn unban-btn" data-ban-id="${ban.id || ''}" data-user-id="${ban.userId || ''}">
+              <i class="fas fa-undo"></i>
+            </button>
+            <button class="premium-action-btn details-btn" data-ban-id="${ban.id || ''}">
+              <i class="fas fa-info-circle"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+  
+  banListBody.innerHTML = html;
+  
+  // Add event listeners to buttons
+  document.querySelectorAll('.unban-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const userId = this.dataset.userId;
+      const serverId = document.getElementById('serverSelect').value;
+      
+      if (confirm(`Are you sure you want to unban this user?`)) {
+        fetch(`/admin3d/api/unban`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            serverId,
+            userId
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showPremiumNotification('success', 'User Unbanned', data.message || 'The user has been unbanned successfully.');
+            loadPremiumBans(serverId);
+          } else {
+            showPremiumNotification('error', 'Error', data.message || 'Failed to unban the user.');
+          }
+        })
+        .catch(error => {
+          console.error('Error unbanning user:', error);
+          showPremiumNotification('error', 'Error', 'An error occurred while unbanning the user.');
+        });
+      }
+    });
+  });
+  
+  document.querySelectorAll('.details-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const banId = this.dataset.banId;
+      const ban = bans.find(b => b.id === banId);
+      
+      if (ban) {
+        showBanDetailsModal(ban);
+      }
+    });
+  });
+}
+
+// Add ban details modal function
+function showBanDetailsModal(ban) {
+  // Create modal if not exists
+  let modal = document.getElementById('banDetailsModal');
+  
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'banDetailsModal';
+    modal.className = 'premium-modal';
+    
+    modal.innerHTML = `
+      <div class="premium-modal-content">
+        <div class="premium-modal-header">
+          <h3>Ban Details</h3>
+          <div class="premium-modal-close">&times;</div>
+        </div>
+        <div class="premium-modal-body">
+          <div class="ban-details-content"></div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add close handler
+    modal.querySelector('.premium-modal-close').addEventListener('click', function() {
+      modal.classList.remove('active');
+    });
+  }
+  
+  // Update modal content
+  const content = modal.querySelector('.ban-details-content');
+  const date = new Date(ban.createdAt || Date.now()).toLocaleString();
+  const expiresDate = ban.expiresAt ? new Date(ban.expiresAt).toLocaleString() : 'Never';
+  
+  content.innerHTML = `
+    <div class="ban-details-user">
+      <div class="ban-user-avatar">
+        <img src="${ban.avatarURL || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="User Avatar">
+      </div>
+      <div class="ban-user-info">
+        <h4>${ban.username || 'Unknown User'}</h4>
+        <div class="ban-user-id">${ban.userId || ''}</div>
+      </div>
+    </div>
+    
+    <div class="ban-details-info">
+      <div class="ban-detail-item">
+        <div class="ban-detail-label">Reason</div>
+        <div class="ban-detail-value">${ban.reason || 'No reason provided'}</div>
+      </div>
+      
+      <div class="ban-detail-item">
+        <div class="ban-detail-label">Banned By</div>
+        <div class="ban-detail-value">${ban.executor || 'Unknown'}</div>
+      </div>
+      
+      <div class="ban-detail-item">
+        <div class="ban-detail-label">Date</div>
+        <div class="ban-detail-value">${date}</div>
+      </div>
+      
+      <div class="ban-detail-item">
+        <div class="ban-detail-label">Duration</div>
+        <div class="ban-detail-value">${ban.duration === 'permanent' ? 'Permanent' : ban.duration || 'Permanent'}</div>
+      </div>
+      
+      <div class="ban-detail-item">
+        <div class="ban-detail-label">Expires</div>
+        <div class="ban-detail-value">${expiresDate}</div>
+      </div>
+    </div>
+    
+    <div class="ban-actions">
+      <button class="premium-btn unban-action" data-user-id="${ban.userId || ''}">
+        <i class="fas fa-undo"></i> Unban User
+      </button>
+    </div>
+  `;
+  
+  // Add unban handler
+  content.querySelector('.unban-action').addEventListener('click', function() {
+    const userId = this.dataset.userId;
+    const serverId = document.getElementById('serverSelect').value;
+    
+    if (confirm(`Are you sure you want to unban this user?`)) {
+      fetch(`/admin3d/api/unban`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          serverId,
+          userId
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showPremiumNotification('success', 'User Unbanned', data.message || 'The user has been unbanned successfully.');
+          modal.classList.remove('active');
+          loadPremiumBans(serverId);
+        } else {
+          showPremiumNotification('error', 'Error', data.message || 'Failed to unban the user.');
+        }
+      })
+      .catch(error => {
+        console.error('Error unbanning user:', error);
+        showPremiumNotification('error', 'Error', 'An error occurred while unbanning the user.');
+      });
+    }
+  });
+  
+  // Show modal
+  modal.classList.add('active');
+}
