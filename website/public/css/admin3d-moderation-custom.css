@@ -112,9 +112,20 @@ div[id="advanced-filters"] {
   background-color: #000000 !important;
 }
 
+/* Stats cards - all backgrounds must be pure black */
+.mod-stats-card {
+  background: #000000 !important;
+  border: 1px solid rgba(91, 77, 164, 0.3);
+}
+
 /* Member Count Icon */
 .member-icon {
   background: #4caf50;
+}
+
+/* All stat card icons (ban icon, warning icon, etc.) */
+.mod-stats-icon {
+  background: #000000 !important;
 }
 
 /* Advanced Filters Styling */
