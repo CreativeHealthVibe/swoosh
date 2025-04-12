@@ -81,7 +81,7 @@ router.get('/moderation', (req, res) => {
     user: req.user,
     client,
     servers,
-    customStyles: ['admin3d-moderation-custom.css', 'direct-access.css'], // Added direct access styles
+    customStyles: ['admin3d-moderation-custom.css', 'direct-access.css', 'admin3d-moderation-colors.css'], // Added modern color scheme
     layout: 'layouts/admin3d'
   });
 });
