@@ -1,5 +1,84 @@
 /* Admin3D - Custom Moderation Page Styles */
 
+/* Override all premium variables to ensure pure black backgrounds */
+.admin3d-moderation {
+  --premium-panel-border: rgba(91, 77, 164, 0.3);
+  --premium-panel-highlight: rgba(137, 54, 255, 0.3);
+  --premium-element-bg: #000000;
+  --premium-element-border: rgba(91, 77, 164, 0.3);
+  --premium-element-hover: #000000;
+  --premium-element-hover-border: rgba(137, 54, 255, 0.3);
+  --premium-primary: rgba(137, 54, 255, 1.0);
+  --premium-primary-light: rgba(183, 110, 255, 1.0);
+  --premium-primary-blue: rgba(137, 54, 255, 1.0);
+  --premium-text-primary: rgba(255, 255, 255, 0.95);
+  --premium-text-secondary: rgba(255, 255, 255, 0.7);
+}
+
+/* Additional background overrides for tab navigation */
+.mod-nav-btn.active {
+  background: #000000 !important;
+  background-image: none !important;
+}
+
+/* First tab is active by default - ensure it's black */
+.tab-btn[data-tab="ban-management"] {
+  background: #000000 !important;
+}
+
+/* Override any specific elements with inline styles */
+.mod-section-header,
+.mod-section-content,
+.tab-content-container,
+.tab-content,
+.tab-content.active,
+.mod-ban-user,
+.mod-current-bans,
+.mod-nav-btn,
+.mod-nav-btn.active,
+.mod-section,
+.mod-section-icon,
+div[id="ban-management"],
+div[id="warning-system"],
+div[id="auto-moderation"],
+div[id="advanced-filters"] {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+}
+
+/* Fix section backgrounds */
+.mod-ban-user, .mod-current-bans {
+  background: #000000 !important;
+  border: 1px solid rgba(91, 77, 164, 0.3);
+}
+
+/* Fix background on nav buttons */
+.mod-nav-btn {
+  background: #000000 !important;
+  border: 1px solid rgba(91, 77, 164, 0.3);
+}
+
+.mod-nav-btn:hover, .mod-nav-btn.active {
+  background: #000000 !important;
+  border: 1px solid rgba(137, 54, 255, 0.5);
+}
+
+/* Section icons */
+.mod-section-icon {
+  background: #000000 !important;
+  background-image: none !important;
+  border: 1px solid rgba(137, 54, 255, 0.5) !important;
+}
+
+/* Tab content background - must be pure black */
+#ban-management, 
+#warning-system,
+#auto-moderation,
+#advanced-filters {
+  background-color: #000000 !important;
+}
+
 /* Override form inputs to have pure black backgrounds */
 .admin3d-moderation .admin3d-form-input,
 .admin3d-moderation .admin3d-form-textarea,
