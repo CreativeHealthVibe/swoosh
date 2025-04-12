@@ -7,7 +7,7 @@
 
 /* Advanced Filters Styling */
 .filter-builder {
-  background: rgba(35, 34, 66, 0.4);
+  background: #000000;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -105,7 +105,7 @@
 }
 
 .premium-header {
-  background: linear-gradient(135deg, rgba(41, 36, 91, 0.7) 0%, rgba(65, 38, 122, 0.7) 100%);
+  background: #000000;
   border-bottom: 1px solid rgba(137, 54, 255, 0.3);
 }
 
@@ -135,14 +135,15 @@
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: 500;
-  background: rgba(35, 34, 66, 0.8);
+  background: #000000;
   color: #fff;
   margin-right: 0.5rem;
 }
 
 .admin3d-badge-action {
-  background: rgba(137, 54, 255, 0.2);
+  background: #000000;
   color: #c18fff;
+  border: 1px solid rgba(137, 54, 255, 0.4);
 }
 
 /* Severity badges */
@@ -154,23 +155,27 @@
 }
 
 .severity-low {
-  background-color: rgba(76, 175, 80, 0.15);
+  background-color: #000000;
   color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.5);
 }
 
 .severity-medium {
-  background-color: rgba(255, 152, 0, 0.15);
+  background-color: #000000;
   color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.5);
 }
 
 .severity-high {
-  background-color: rgba(244, 67, 54, 0.15);
+  background-color: #000000;
   color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.5);
 }
 
 .severity-critical {
-  background-color: rgba(183, 28, 28, 0.25);
+  background-color: #000000;
   color: #e53935;
+  border: 1px solid rgba(183, 28, 28, 0.6);
 }
 
 /* Status badges */
@@ -197,7 +202,7 @@
   max-width: 100%;
   margin-top: 1rem;
   border-radius: 0.5rem;
-  background: rgba(35, 34, 66, 0.3);
+  background: #000000;
   border: 1px solid rgba(91, 77, 164, 0.1);
 }
 
@@ -205,10 +210,11 @@
   width: 100%;
   border-collapse: collapse;
   color: rgba(255, 255, 255, 0.9);
+  background: #000000;
 }
 
 .admin3d-table th {
-  background: rgba(25, 24, 56, 0.6);
+  background: #000000;
   padding: 0.75rem 1rem;
   font-weight: 600;
   text-align: left;
@@ -219,6 +225,7 @@
 .admin3d-table td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid rgba(91, 77, 164, 0.1);
+  background: #000000;
 }
 
 .admin3d-table tr:last-child td {
@@ -226,7 +233,7 @@
 }
 
 .admin3d-table tr:hover td {
-  background: rgba(35, 34, 66, 0.6);
+  background: #000000;
 }
 
 .user-info {
@@ -309,7 +316,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(35, 34, 66, 0.7);
+  background-color: #000000;
   transition: .3s;
   border-radius: 24px;
   border: 1px solid rgba(91, 77, 164, 0.3);
@@ -328,7 +335,7 @@
 }
 
 .admin3d-toggle input:checked + .admin3d-toggle-slider {
-  background-color: rgba(137, 54, 255, 0.7);
+  background-color: #000000;
   border-color: rgba(137, 54, 255, 0.5);
 }
 
