@@ -112,6 +112,49 @@ div[id="advanced-filters"] {
   background-color: #000000 !important;
 }
 
+/* Search box input */
+.admin3d-search-box input {
+  background-color: #000000 !important;
+  border-color: rgba(137, 54, 255, 0.3) !important;
+}
+
+/* Warning section and moderation cards */
+.mod-ban-user, 
+.mod-current-bans, 
+.mod-warn-user, 
+.mod-warning-history,
+.mod-automod-settings,
+.mod-filter-create,
+.mod-filter-list,
+.mod-automod-logs {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border: 1px solid rgba(137, 54, 255, 0.2) !important;
+}
+
+/* Section headers */
+.mod-section-header {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border-bottom: 1px solid rgba(137, 54, 255, 0.2) !important;
+}
+
+.mod-section-header::before {
+  background: #000000 !important;
+}
+
+/* Form inputs and textareas */
+.form-field input[type="text"],
+.form-field textarea,
+.form-field select,
+.custom-duration-inputs,
+.form-options {
+  background-color: #000000 !important;
+  border-color: rgba(137, 54, 255, 0.3) !important;
+}
+
 /* Server dropdown - must be pure black */
 .admin3d-form-select,
 select.admin3d-form-select,
