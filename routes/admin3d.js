@@ -61,7 +61,7 @@ router.get('/commands', (req, res) => {
 
 /**
  * GET /admin3d/moderation
- * Moderation tools interface - Premium Edition
+ * Moderation tools interface - Ultra Premium Edition
  */
 router.get('/moderation', (req, res) => {
   const client = req.app.get('client');
@@ -77,12 +77,20 @@ router.get('/moderation', (req, res) => {
   }
   
   res.render('admin3d/moderation', {
-    title: 'Moderation Command Center | SWOOSH Bot',
+    title: 'Ultra Premium Moderation Command Center | SWOOSH Bot',
     user: req.user,
     client,
     servers,
-    customStyles: ['admin3d-moderation-custom.css', 'direct-access.css'], // Added direct access styles
-    layout: 'layouts/admin3d'
+    customStyles: [
+      'admin3d-moderation-custom.css', 
+      'direct-access.css',
+      'admin3d-moderation-premium-enhanced.css'
+    ],
+    customScripts: [
+      'admin3d-moderation-premium.js'
+    ],
+    layout: 'layouts/admin3d',
+    isPremium: true
   });
 });
 
