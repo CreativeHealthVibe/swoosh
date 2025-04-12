@@ -113,19 +113,41 @@ div[id="advanced-filters"] {
 }
 
 /* Stats cards - all backgrounds must be pure black */
-.mod-stats-card {
+.mod-stat-card {
   background: #000000 !important;
-  border: 1px solid rgba(91, 77, 164, 0.3);
+  background-color: #000000 !important;
+  border: 1px solid rgba(91, 77, 164, 0.3) !important;
 }
 
-/* Member Count Icon */
+/* Fix for stat card icons */
+.ban-icon, 
+.warning-icon, 
+.automod-icon, 
 .member-icon {
-  background: #4caf50;
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border: 1px solid rgba(137, 54, 255, 0.4) !important;
 }
 
-/* All stat card icons (ban icon, warning icon, etc.) */
-.mod-stats-icon {
-  background: #000000 !important;
+/* Member Count Icon color */
+.member-icon i {
+  color: #4caf50 !important;
+}
+
+/* Ban icon color */
+.ban-icon i {
+  color: #f44336 !important;
+}
+
+/* Warning icon color */
+.warning-icon i {
+  color: #ff9800 !important;
+}
+
+/* Automod icon color */
+.automod-icon i {
+  color: #2196f3 !important;
 }
 
 /* Advanced Filters Styling */
