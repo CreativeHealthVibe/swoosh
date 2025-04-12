@@ -112,18 +112,42 @@ div[id="advanced-filters"] {
   background-color: #000000 !important;
 }
 
+/* Server dropdown - must be pure black */
+.admin3d-form-select,
+select.admin3d-form-select,
+#serverSelect,
+.server-selector-wrapper select {
+  background-color: #000000 !important;
+  background: #000000 !important;
+  color: #fff !important;
+}
+
+.mod-server-selector {
+  background: #000000 !important;
+}
+
+select option {
+  background-color: #000000 !important;
+  color: #fff !important;
+}
+
 /* Stats cards - all backgrounds must be pure black */
-.mod-stat-card {
+.mod-stat-card,
+.mod-stats-card,
+div.mod-stat-card {
   background: #000000 !important;
   background-color: #000000 !important;
+  background-image: none !important;
   border: 1px solid rgba(91, 77, 164, 0.3) !important;
 }
 
 /* Fix for stat card icons */
 .ban-icon, 
 .warning-icon, 
+.shield-icon,
 .automod-icon, 
-.member-icon {
+.member-icon,
+.mod-stat-icon {
   background: #000000 !important;
   background-color: #000000 !important;
   background-image: none !important;
