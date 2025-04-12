@@ -1,5 +1,38 @@
 /* Admin3D - Moderation Page Styles */
 
+/* Table Styles */
+.admin3d-table-wrapper {
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  background: #000000;
+}
+
+.admin3d-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #000000;
+}
+
+.admin3d-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(91, 77, 164, 0.2);
+  background: #000000;
+}
+
+.admin3d-table td {
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  border-bottom: 1px solid rgba(91, 77, 164, 0.1);
+  background: #000000;
+}
+
+.admin3d-table tbody tr:hover td {
+  background: #000000;
+}
+
 /* Moderation Dashboard Structure */
 .admin3d-moderation {
   max-width: 100%;
@@ -371,6 +404,7 @@
 
 .mod-section-content {
   padding: 1.25rem;
+  background: #000000;
 }
 
 .mod-desc {
@@ -486,6 +520,11 @@
   height: 150px;
   color: #8f8f9d;
   font-size: 0.9rem;
+  background: #000000;
+}
+
+.empty-state-message {
+  background: #000000;
 }
 
 /* Stats Overview */
