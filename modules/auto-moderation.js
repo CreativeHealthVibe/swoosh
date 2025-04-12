@@ -49,8 +49,8 @@ class AutoModerationSystem {
       if (!settings || !settings.enabled) return false;
       
       // Check if user has admin or mod roles that bypass auto-mod
-      if (message.member.permissions.has('ADMINISTRATOR') || 
-          message.member.permissions.has('MODERATE_MEMBERS')) {
+      if (message.member.permissions.has('Administrator') || 
+          message.member.permissions.has('ModerateMembers')) {
         return false;
       }
       
@@ -302,9 +302,10 @@ class AutoModerationSystem {
    * Check if content contains profanity (basic implementation)
    */
   containsProfanity(content) {
-    // Basic list of profanity words - this would typically be more extensive
+    // Basic list of common profanity words
     const profanityList = [
-      'badword', // Example word - replace with actual list
+      'badword', 'asshole', 'bitch', 'fuck', 'shit', 'idiot', 'damn', 'crap', 'bastard', 'whore',
+      'dick', 'pussy', 'nigger', 'nigga', 'faggot', 'retard', 'slut', 'cunt', 'tits', 'cock'
     ];
     
     const contentLower = content.toLowerCase();
