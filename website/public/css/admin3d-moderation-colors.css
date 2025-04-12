@@ -9,7 +9,7 @@
 
 /* Header gradient */
 .mod-header {
-  background: linear-gradient(135deg, rgba(20, 20, 20, 0.8), rgba(10, 10, 10, 0.95));
+  background: #000000;
   box-shadow: 
     0 5px 25px rgba(0, 0, 0, 0.7),
     0 0 0 1px rgba(50, 50, 50, 0.8),
@@ -18,13 +18,11 @@
 }
 
 .mod-header::before {
-  background: 
-    radial-gradient(circle at top right, rgba(50, 50, 50, 0.2), transparent 70%),
-    linear-gradient(45deg, rgba(30, 30, 30, 0.1) 0%, transparent 100%);
+  background: transparent;
 }
 
 .mod-header::after {
-  background: radial-gradient(circle, rgba(40, 40, 40, 0.3) 0%, transparent 70%);
+  background: transparent;
 }
 
 /* Tab navigation */
@@ -51,13 +49,13 @@
 
 /* Stat cards */
 .mod-stat-card {
-  background: rgba(15, 15, 15, 0.7);
-  border: 1px solid rgba(50, 50, 50, 0.3);
+  background: #000000;
+  border: 1px solid rgba(40, 40, 40, 0.5);
 }
 
 .mod-stat-card:hover {
-  border-color: rgba(70, 70, 70, 0.5);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  border-color: rgba(60, 60, 60, 0.7);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
   transform: translateY(-2px);
 }
 
@@ -91,7 +89,7 @@
 .form-field select,
 .form-field textarea {
   border: 1px solid rgba(60, 60, 60, 0.4);
-  background: rgba(10, 10, 10, 0.6);
+  background: #000000;
   color: #ddd;
 }
 
@@ -129,34 +127,34 @@
 }
 
 .admin3d-table thead th {
-  background: rgba(20, 20, 20, 0.8);
+  background: #000000;
   border-bottom: 2px solid rgba(60, 60, 60, 0.4);
 }
 
 .admin3d-table tbody tr {
-  background: rgba(10, 10, 10, 0.6);
+  background: #000000;
   border-bottom: 1px solid rgba(40, 40, 40, 0.2);
 }
 
 .admin3d-table tbody tr:hover {
-  background: rgba(20, 20, 20, 0.7);
+  background: #0a0a0a;
 }
 
 /* Search box */
 .admin3d-search-box {
-  background: rgba(15, 15, 15, 0.7);
-  border: 1px solid rgba(50, 50, 50, 0.3);
+  background: #000000;
+  border: 1px solid rgba(40, 40, 40, 0.5);
 }
 
 .admin3d-search-box:focus-within {
-  border-color: rgba(70, 70, 70, 0.6);
+  border-color: rgba(60, 60, 60, 0.7);
   box-shadow: 0 0 0 2px rgba(40, 40, 40, 0.2);
 }
 
 /* Server selector */
 .mod-server-selector {
-  background: rgba(15, 15, 15, 0.7);
-  border: 1px solid rgba(50, 50, 50, 0.3);
+  background: #000000;
+  border: 1px solid rgba(40, 40, 40, 0.5);
 }
 
 /* Premium badge */
@@ -166,13 +164,13 @@
 
 /* Warning statistics items */
 .warning-stat-item {
-  background: rgba(15, 15, 15, 0.7);
-  border: 1px solid rgba(50, 50, 50, 0.3);
+  background: #000000;
+  border: 1px solid rgba(40, 40, 40, 0.5);
 }
 
 .warning-stat-item:hover {
-  border-color: rgba(70, 70, 70, 0.5);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border-color: rgba(60, 60, 60, 0.7);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
   transform: translateY(-2px);
 }
 
