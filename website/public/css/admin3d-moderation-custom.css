@@ -1,5 +1,38 @@
 /* Admin3D - Custom Moderation Page Styles */
 
+/* Override form inputs to have pure black backgrounds */
+.admin3d-moderation .admin3d-form-input,
+.admin3d-moderation .admin3d-form-textarea,
+.admin3d-moderation .admin3d-form-select {
+  background-color: #000000;
+  border: 1px solid rgba(91, 77, 164, 0.3);
+}
+
+.admin3d-moderation .admin3d-search-box input {
+  background-color: #000000;
+}
+
+/* Make sure search boxes have black backgrounds */
+.admin3d-moderation input[type="search"],
+.admin3d-moderation input[type="text"],
+.admin3d-moderation select {
+  background-color: #000000 !important;
+}
+
+/* Ban search input specific styles */
+#banSearchInput {
+  background-color: #000000 !important;
+  color: white;
+  border: 1px solid rgba(91, 77, 164, 0.3);
+  border-radius: 8px;
+  padding: 10px 15px;
+  width: 100%;
+}
+
+.admin3d-search-box {
+  background-color: #000000 !important;
+}
+
 /* Member Count Icon */
 .member-icon {
   background: #4caf50;
