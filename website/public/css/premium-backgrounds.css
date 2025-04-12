@@ -1,0 +1,287 @@
+/**
+ * Premium Background Effects
+ * Advanced animated background effects for premium sections
+ */
+
+/* Premium Particle Background */
+.premium-particles-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Premium Gradient Background */
+.premium-gradient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0a14 0%, #14101f 50%, #1e1532 100%);
+  z-index: -2;
+}
+
+/* Animated Gradient Orbs */
+.premium-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.4;
+  animation: orbFloat 20s ease-in-out infinite alternate;
+}
+
+.premium-orb:nth-child(1) {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle at center, rgba(137, 54, 255, 0.5), rgba(137, 54, 255, 0));
+  top: -10%;
+  left: -10%;
+  animation-duration: 25s;
+}
+
+.premium-orb:nth-child(2) {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle at center, rgba(0, 229, 255, 0.3), rgba(0, 229, 255, 0));
+  bottom: -20%;
+  right: -10%;
+  animation-duration: 30s;
+  animation-delay: 2s;
+}
+
+.premium-orb:nth-child(3) {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle at center, rgba(255, 107, 230, 0.2), rgba(255, 107, 230, 0));
+  top: 40%;
+  left: 10%;
+  animation-duration: 22s;
+  animation-delay: 1s;
+}
+
+.premium-orb:nth-child(4) {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle at center, rgba(255, 183, 77, 0.2), rgba(255, 183, 77, 0));
+  bottom: 10%;
+  left: 30%;
+  animation-duration: 18s;
+  animation-delay: 3s;
+}
+
+@keyframes orbFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(50px, 30px) scale(1.1);
+  }
+  100% {
+    transform: translate(-30px, -50px) scale(0.9);
+  }
+}
+
+/* Grid lines background */
+.premium-grid-lines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.05;
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(137, 54, 255, 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(137, 54, 255, 0.5) 1px, transparent 1px);
+  pointer-events: none;
+}
+
+/* Star field background */
+.premium-stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.premium-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background-color: #fff;
+  animation: twinkle var(--twinkle-duration) ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Premium pulse effect */
+.premium-pulse {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(137, 54, 255, 0.15);
+  transform: translate(-50%, -50%);
+  animation: pulse 5s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+/* Premium Glow Overlay */
+.premium-glow-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(137, 54, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 229, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Scanning effect */
+.premium-scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(137, 54, 255, 0.8), rgba(0, 229, 255, 0.8), transparent);
+  opacity: 0.4;
+  z-index: 0;
+  pointer-events: none;
+  animation: scanAnimation 10s ease-in-out infinite;
+}
+
+@keyframes scanAnimation {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.6;
+  }
+  45% {
+    opacity: 0.2;
+  }
+  50% {
+    top: 100%;
+    opacity: 0;
+  }
+  100% {
+    top: 0%;
+    opacity: 0;
+  }
+}
+
+/* Background noise texture */
+.premium-noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Premium animated card border */
+.premium-card.animated-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--premium-primary) 0%, var(--premium-primary-light) 25%, transparent 50%, var(--premium-primary-light) 75%, var(--premium-primary) 100%) border-box;
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderAnimation 4s linear infinite;
+}
+
+@keyframes borderAnimation {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 400% center;
+  }
+}
+
+/* Premium section highlight accent */
+.premium-section-accent {
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-section-accent::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle at top right, rgba(137, 54, 255, 0.3), transparent 70%);
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .premium-orb {
+    opacity: 0.2;
+  }
+  
+  .premium-orb:nth-child(1) {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .premium-orb:nth-child(2) {
+    width: 350px;
+    height: 350px;
+  }
+  
+  .premium-grid-lines {
+    opacity: 0.03;
+  }
+  
+  .premium-glow-overlay {
+    opacity: 0.5;
+  }
+}
