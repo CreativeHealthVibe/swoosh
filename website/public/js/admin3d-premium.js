@@ -1,598 +1,376 @@
 /**
- * SWOOSH Bot Premium Enhancement
- * 
- * JavaScript functionality for premium UI features and animations
+ * Premium Admin UI Enhancement
+ * Main JavaScript for premium admin interface upgrade
  */
 
-// Initialize premium theme features
 document.addEventListener('DOMContentLoaded', () => {
-  initPremiumTheme();
-  initPremiumAnimations();
-  enhanceUIComponents();
-  initPremiumNavPills();
-  initPremiumStatCards();
-  initPremium3DEffects();
+  initPremiumUI();
 });
 
-// Apply premium theme classes to body and containers
-function initPremiumTheme() {
-  // Add premium theme class to body
-  document.body.classList.add('premium-theme');
+// Initialize premium UI enhancements
+function initPremiumUI() {
+  // Apply enhanced styling to core UI elements
+  applyPremiumStyles();
   
-  // Convert standard containers to premium containers
-  document.querySelectorAll('.admin3d-dashboard, .admin3d-moderation').forEach(container => {
-    container.classList.add('premium-container');
-  });
+  // Setup interactive effects
+  setupInteractiveEffects();
   
-  // Convert standard cards to premium cards
-  document.querySelectorAll('.admin3d-card').forEach(card => {
-    card.classList.add('premium-card');
-    
-    // Convert card header
-    const header = card.querySelector('.admin3d-card-header');
-    if (header) header.classList.add('premium-card-header');
-    
-    // Convert card title
-    const title = card.querySelector('.admin3d-card-title');
-    if (title) title.classList.add('premium-card-title');
-    
-    // Convert card icon
-    const icon = card.querySelector('.admin3d-card-icon');
-    if (icon) icon.classList.add('premium-card-icon');
-    
-    // Convert card content
-    const content = card.querySelector('.admin3d-card-content');
-    if (content) content.classList.add('premium-card-body');
-    
-    // Convert buttons
-    card.querySelectorAll('.admin3d-btn').forEach(btn => {
-      btn.classList.add('premium-btn');
-      if (btn.classList.contains('admin3d-btn-primary')) {
-        btn.classList.add('premium-btn-primary');
-      }
-    });
-  });
+  // Initialize tooltips 
+  initPremiumTooltips();
   
-  // Apply premium styling to moderation page if present
-  const modPage = document.querySelector('.admin3d-moderation');
-  if (modPage) {
-    // Enhance the moderation header
-    const header = document.querySelector('.mod-header');
-    if (header) header.classList.add('premium-moderation-header');
-    
-    // Enhance the moderation title
-    const title = document.querySelector('.mod-title');
-    if (title) title.classList.add('premium-moderation-title');
-    
-    // Enhance the moderation subtitle
-    const subtitle = document.querySelector('.mod-subtitle');
-    if (subtitle) subtitle.classList.add('premium-moderation-subtitle');
-    
-    // Enhance the server selector
-    const serverSelector = document.querySelector('.mod-server-selector');
-    if (serverSelector) serverSelector.classList.add('premium-server-selector');
-    
-    // Enhance statistics cards
-    const statsCards = document.querySelector('.mod-stats-cards');
-    if (statsCards) {
-      statsCards.classList.add('premium-stats');
-      
-      // Enhance individual stat cards
-      statsCards.querySelectorAll('.mod-stat-card').forEach(card => {
-        card.classList.add('premium-stat-card');
-        
-        // Enhance stat icon
-        const icon = card.querySelector('.mod-stat-icon');
-        if (icon) icon.classList.add('premium-stat-icon');
-        
-        // Enhance stat content
-        const content = card.querySelector('.mod-stat-content');
-        if (content) {
-          // Enhance value
-          const value = content.querySelector('h3');
-          if (value) value.classList.add('premium-stat-value');
-        }
-      });
+  // Log premium UI initialization
+  console.log('Premium UI initialized successfully');
+}
+
+// Apply premium styles to existing elements
+function applyPremiumStyles() {
+  // Enhance all buttons with premium styling
+  enhanceButtons();
+  
+  // Enhance all badges with premium styling
+  enhanceBadges();
+  
+  // Enhance all alerts with premium styling
+  enhanceAlerts();
+  
+  // Enhance all cards with premium styling
+  enhanceCards();
+  
+  // Enhance section headers
+  enhanceSectionHeaders();
+  
+  // Enhance tab navigation
+  enhanceTabNavigation();
+}
+
+// Enhance all buttons with premium styling
+function enhanceButtons() {
+  const buttons = document.querySelectorAll('button, .btn, .action-btn');
+  
+  buttons.forEach(button => {
+    // Skip buttons that are already enhanced or are special components
+    if (button.classList.contains('premium-enhanced') || 
+        button.closest('.dropdown-toggle') ||
+        button.closest('.nav-link')) {
+      return;
     }
     
-    // Enhance tab navigation
-    const tabNav = document.querySelector('.mod-tab-navigation');
-    if (tabNav) {
-      tabNav.classList.add('premium-nav-pills');
-      
-      // Add indicator element
-      const indicator = document.createElement('span');
-      indicator.classList.add('premium-nav-pill-indicator');
-      tabNav.appendChild(indicator);
-      
-      // Enhance tab buttons
-      const tabButtons = tabNav.querySelectorAll('.mod-nav-btn');
-      tabButtons.forEach(btn => {
-        btn.classList.add('premium-nav-pill');
-        
-        // Position indicator on the active tab
-        if (btn.classList.contains('active')) {
-          positionIndicator(btn, indicator);
-        }
-        
-        // Update indicator position on click
-        btn.addEventListener('click', () => {
-          tabButtons.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          positionIndicator(btn, indicator);
-        });
-      });
+    // Mark as enhanced
+    button.classList.add('premium-enhanced');
+    
+    // Add hover effect if not present
+    if (!button.querySelector('.hover-effect')) {
+      const hoverEffect = document.createElement('span');
+      hoverEffect.className = 'hover-effect';
+      button.appendChild(hoverEffect);
     }
     
-    // Enhance tab content areas
-    document.querySelectorAll('.tab-content').forEach(content => {
-      content.classList.add('premium-tab-content');
-    });
-    
-    // Enhance section headers
-    document.querySelectorAll('.mod-section-header').forEach(header => {
-      header.classList.add('premium-card-header');
-    });
-    
-    // Enhance tables
-    document.querySelectorAll('.admin3d-table-wrapper').forEach(wrapper => {
-      wrapper.classList.add('premium-table-wrapper');
-      
-      const table = wrapper.querySelector('.admin3d-table');
-      if (table) table.classList.add('premium-table');
-    });
-    
-    // Enhance form elements
-    document.querySelectorAll('input[type="text"], input[type="number"], textarea, select').forEach(input => {
-      if (!input.classList.contains('premium-form-input')) {
-        if (input.tagName === 'SELECT') {
-          input.classList.add('premium-form-select');
-        } else if (input.tagName === 'TEXTAREA') {
-          input.classList.add('premium-form-textarea');
-        } else {
-          input.classList.add('premium-form-input');
-        }
-      }
-    });
-    
-    // Enhance buttons
-    document.querySelectorAll('.mod-btn').forEach(btn => {
-      btn.classList.add('premium-btn');
-      
-      if (btn.classList.contains('danger-btn')) {
-        btn.classList.add('premium-btn-danger');
-      } else {
-        btn.classList.add('premium-btn-primary');
-      }
-    });
-    
-    // Enhance premium badges
-    document.querySelectorAll('.mod-premium-badge').forEach(badge => {
-      badge.classList.add('premium-badge', 'premium-badge-gold');
-    });
-    
-    // Three.js container enhancement
-    const threeContainer = document.getElementById('moderation-three-container');
-    if (threeContainer) {
-      threeContainer.classList.add('premium-three-container');
-    }
-  }
-}
-
-// Initialize premium animations
-function initPremiumAnimations() {
-  // Add entrance animations to stat cards
-  const statCards = document.querySelectorAll('.premium-stat-card, .mod-stat-card');
-  if (statCards.length > 0) {
-    statCards.forEach((card, index) => {
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(20px)';
-      
-      setTimeout(() => {
-        card.style.transition = 'all 0.5s ease';
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-      }, 100 + (index * 100));
-    });
-  }
-  
-  // Add entrance animations to premium cards
-  const premiumCards = document.querySelectorAll('.premium-card, .admin3d-card');
-  if (premiumCards.length > 0) {
-    premiumCards.forEach((card, index) => {
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(20px) scale(0.98)';
-      
-      setTimeout(() => {
-        card.style.transition = 'all 0.5s ease';
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0) scale(1)';
-      }, 300 + (index * 100));
-    });
-  }
-  
-  // Add subtle hover animations to various elements
-  addHoverEffects();
-}
-
-// Add hover effects to interactive elements
-function addHoverEffects() {
-  // Add glow effect on hover for icons
-  document.querySelectorAll('.premium-card-icon, .premium-stat-icon, .mod-stat-icon').forEach(icon => {
-    icon.addEventListener('mouseenter', () => {
-      icon.style.transform = 'scale(1.1)';
-      icon.style.boxShadow = '0 0 20px rgba(137, 54, 255, 0.5)';
-    });
-    
-    icon.addEventListener('mouseleave', () => {
-      icon.style.transform = 'scale(1)';
-      icon.style.boxShadow = '0 0 15px rgba(137, 54, 255, 0.3)';
-    });
-  });
-  
-  // Add hover effects for table rows
-  document.querySelectorAll('.premium-table tr, .admin3d-table tr').forEach(row => {
-    if (!row.closest('thead') && !row.classList.contains('empty-state')) {
-      row.addEventListener('mouseenter', () => {
-        row.style.transform = 'translateX(5px)';
-        row.style.transition = 'transform 0.3s ease';
-      });
-      
-      row.addEventListener('mouseleave', () => {
-        row.style.transform = 'translateX(0)';
-      });
-    }
+    // Add click effect
+    button.addEventListener('click', createRippleEffect);
   });
 }
 
-// Enhance various UI components
-function enhanceUIComponents() {
-  // Add tooltip functionality
-  initTooltips();
+// Enhance all badges with premium styling
+function enhanceBadges() {
+  const badges = document.querySelectorAll('.badge, .status-badge');
   
-  // Add subtle parallax effects to cards
-  addParallaxEffects();
-  
-  // Add click effects to buttons
-  document.querySelectorAll('.premium-btn, .mod-btn, .admin3d-btn').forEach(btn => {
-    btn.addEventListener('mousedown', () => {
-      btn.style.transform = 'scale(0.98)';
-    });
+  badges.forEach(badge => {
+    if (badge.classList.contains('premium-enhanced')) return;
     
-    btn.addEventListener('mouseup', () => {
-      btn.style.transform = 'scale(1)';
-    });
+    badge.classList.add('premium-enhanced');
     
-    btn.addEventListener('mouseleave', () => {
-      btn.style.transform = 'scale(1)';
-    });
-  });
-}
-
-// Initialize tooltips
-function initTooltips() {
-  document.querySelectorAll('[data-tooltip]').forEach(element => {
-    const tooltipText = element.getAttribute('data-tooltip');
-    if (!tooltipText) return;
-    
-    element.addEventListener('mouseenter', (e) => {
-      const tooltip = document.createElement('div');
-      tooltip.className = 'premium-tooltip';
-      tooltip.textContent = tooltipText;
-      document.body.appendChild(tooltip);
-      
-      // Position the tooltip
-      const rect = element.getBoundingClientRect();
-      tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
-      tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
-      
-      // Add a class to show the tooltip with animation
-      setTimeout(() => tooltip.classList.add('show'), 10);
-      
-      // Store reference to the tooltip
-      element._tooltip = tooltip;
-    });
-    
-    element.addEventListener('mouseleave', () => {
-      if (element._tooltip) {
-        element._tooltip.classList.remove('show');
-        setTimeout(() => {
-          if (element._tooltip && element._tooltip.parentNode) {
-            element._tooltip.parentNode.removeChild(element._tooltip);
-          }
-          element._tooltip = null;
-        }, 300);
-      }
-    });
-  });
-}
-
-// Add subtle parallax effects to cards
-function addParallaxEffects() {
-  document.querySelectorAll('.premium-card, .admin3d-card').forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const cardRect = card.getBoundingClientRect();
-      const cardCenterX = cardRect.left + cardRect.width / 2;
-      const cardCenterY = cardRect.top + cardRect.height / 2;
-      
-      const moveX = (e.clientX - cardCenterX) / 20;
-      const moveY = (e.clientY - cardCenterY) / 20;
-      
-      card.style.transform = `perspective(1000px) rotateY(${moveX * -1}deg) rotateX(${moveY}deg) translateZ(10px)`;
-    });
-    
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = 'perspective(1000px) rotateY(0) rotateX(0) translateZ(0)';
-    });
-  });
-}
-
-// Initialize premium nav pills
-function initPremiumNavPills() {
-  const navPills = document.querySelectorAll('.premium-nav-pills');
-  navPills.forEach(nav => {
-    const buttons = nav.querySelectorAll('.premium-nav-pill');
-    const indicator = nav.querySelector('.premium-nav-pill-indicator');
-    
-    if (!indicator || buttons.length === 0) return;
-    
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        // Set active class
-        buttons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        
-        // Animate indicator
-        positionIndicator(button, indicator);
-        
-        // Handle tab content if available
-        const tabId = button.getAttribute('data-tab');
-        if (tabId) {
-          document.querySelectorAll('.premium-tab-content, .tab-content').forEach(content => {
-            content.classList.remove('active');
-          });
-          
-          const tabContent = document.getElementById(tabId);
-          if (tabContent) {
-            tabContent.classList.add('active');
-          }
-        }
-      });
-    });
-    
-    // Position indicator on initial active tab
-    const activeTab = nav.querySelector('.premium-nav-pill.active');
-    if (activeTab) {
-      positionIndicator(activeTab, indicator);
-    }
-  });
-}
-
-// Position the indicator element under a nav pill
-function positionIndicator(button, indicator) {
-  if (!button || !indicator) return;
-  
-  const buttonRect = button.getBoundingClientRect();
-  const navRect = button.parentElement.getBoundingClientRect();
-  
-  indicator.style.width = `${buttonRect.width}px`;
-  indicator.style.left = `${buttonRect.left - navRect.left}px`;
-}
-
-// Initialize premium stat cards
-function initPremiumStatCards() {
-  document.querySelectorAll('.premium-stat-card, .mod-stat-card').forEach(card => {
-    // Add hover animation
-    card.addEventListener('mouseenter', () => {
-      card.style.transform = 'translateY(-8px)';
-      card.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(137, 54, 255, 0.2)';
-    });
-    
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
-      card.style.boxShadow = '';
-    });
-    
-    // Animate stat value on visibility
-    const statValue = card.querySelector('.premium-stat-value');
-    if (statValue) {
-      // Observe when the card comes into view
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            animateCounter(statValue);
-            observer.unobserve(card);
-          }
-        });
-      }, { threshold: 0.1 });
-      
-      observer.observe(card);
-    }
-  });
-}
-
-// Animate counter from 0 to target number
-function animateCounter(element) {
-  if (!element) return;
-  
-  const targetValue = parseInt(element.textContent);
-  if (isNaN(targetValue)) return;
-  
-  const duration = 1500;
-  const startTime = performance.now();
-  
-  function updateCounter(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    // Ease-out cubic function for smooth deceleration
-    const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-    const currentValue = Math.floor(easeOutCubic * targetValue);
-    
-    element.textContent = currentValue;
-    
-    if (progress < 1) {
-      requestAnimationFrame(updateCounter);
+    // Apply premium class based on existing classes
+    if (badge.classList.contains('badge-primary')) {
+      badge.classList.add('badge-primary');
+    } else if (badge.classList.contains('badge-success') || 
+               badge.textContent.toLowerCase().includes('active') || 
+               badge.textContent.toLowerCase().includes('online') ||
+               badge.textContent.toLowerCase().includes('complete')) {
+      badge.classList.add('badge-success');
+    } else if (badge.classList.contains('badge-warning') || 
+               badge.textContent.toLowerCase().includes('pending') ||
+               badge.textContent.toLowerCase().includes('processing')) {
+      badge.classList.add('badge-warning');
+    } else if (badge.classList.contains('badge-danger') || 
+               badge.textContent.toLowerCase().includes('error') ||
+               badge.textContent.toLowerCase().includes('failed') ||
+               badge.textContent.toLowerCase().includes('offline')) {
+      badge.classList.add('badge-danger');
     } else {
-      element.textContent = targetValue;
+      badge.classList.add('badge-primary');
     }
-  }
-  
-  requestAnimationFrame(updateCounter);
+  });
 }
 
-// Initialize premium 3D effects
-function initPremium3DEffects() {
-  // Only add 3D effects if THREE.js is available
-  if (window.THREE) {
-    const threeDContainers = document.querySelectorAll('.premium-three-container, #moderation-three-container');
+// Enhance all alerts with premium styling
+function enhanceAlerts() {
+  const alerts = document.querySelectorAll('.alert, .message-box, .notification');
+  
+  alerts.forEach(alert => {
+    if (alert.classList.contains('premium-enhanced')) return;
     
-    threeDContainers.forEach(container => {
-      // Initialize abstract particles background
-      initAbstractParticlesBackground(container);
+    alert.classList.add('premium-enhanced');
+    
+    // Make sure alert has an icon
+    if (!alert.querySelector('.alert-icon, .message-icon, .fas, .far, .fa')) {
+      const iconContainer = document.createElement('div');
+      iconContainer.className = 'alert-icon';
+      
+      let icon;
+      if (alert.classList.contains('alert-success')) {
+        icon = 'fa-check-circle';
+      } else if (alert.classList.contains('alert-warning')) {
+        icon = 'fa-exclamation-triangle';
+      } else if (alert.classList.contains('alert-danger')) {
+        icon = 'fa-exclamation-circle';
+      } else if (alert.classList.contains('alert-info')) {
+        icon = 'fa-info-circle';
+      } else {
+        icon = 'fa-info-circle';
+      }
+      
+      const iconElement = document.createElement('i');
+      iconElement.className = `fas ${icon}`;
+      iconContainer.appendChild(iconElement);
+      
+      // Add icon to the beginning of the alert
+      alert.insertBefore(iconContainer, alert.firstChild);
+    }
+    
+    // Make sure alert content is wrapped
+    if (!alert.querySelector('.alert-content')) {
+      // Get all elements except the icon
+      const iconElement = alert.querySelector('.alert-icon, .message-icon, .fas, .far, .fa');
+      const contentElements = Array.from(alert.childNodes).filter(node => 
+        node !== iconElement && 
+        (node.nodeType !== 3 || node.textContent.trim() !== '')
+      );
+      
+      // Create content wrapper
+      const contentWrapper = document.createElement('div');
+      contentWrapper.className = 'alert-content';
+      
+      // Move all content into wrapper
+      contentElements.forEach(element => {
+        // If it's a text node, wrap it in a paragraph
+        if (element.nodeType === 3 && element.textContent.trim() !== '') {
+          const paragraph = document.createElement('p');
+          paragraph.className = 'alert-message';
+          paragraph.textContent = element.textContent;
+          contentWrapper.appendChild(paragraph);
+        } else {
+          contentWrapper.appendChild(element);
+        }
+      });
+      
+      // Clear alert and add back icon and content wrapper
+      if (iconElement) {
+        alert.innerHTML = '';
+        alert.appendChild(iconElement);
+        alert.appendChild(contentWrapper);
+      }
+    }
+  });
+}
+
+// Enhance all cards with premium styling
+function enhanceCards() {
+  const cards = document.querySelectorAll('.card, .stat-card, .admin3d-card');
+  
+  cards.forEach(card => {
+    if (card.classList.contains('premium-enhanced')) return;
+    
+    card.classList.add('premium-enhanced');
+    
+    // Add top border accent if not present
+    if (!card.querySelector('.card-accent')) {
+      const accent = document.createElement('div');
+      accent.className = 'card-accent';
+      card.insertBefore(accent, card.firstChild);
+    }
+  });
+}
+
+// Enhance section headers
+function enhanceSectionHeaders() {
+  const headers = document.querySelectorAll('.section-header, .mod-section-header, .admin3d-section-header');
+  
+  headers.forEach(header => {
+    if (header.classList.contains('premium-enhanced')) return;
+    
+    header.classList.add('premium-enhanced');
+    
+    // Make sure title has an icon
+    const title = header.querySelector('.section-title, .mod-section-title, .admin3d-section-title, h2, h3');
+    if (title && !title.querySelector('i.fas, i.far, i.fa')) {
+      // Try to determine appropriate icon
+      let iconClass = 'fa-th-large'; // Default icon
+      
+      // Check title text to choose appropriate icon
+      const titleText = title.textContent.toLowerCase();
+      if (titleText.includes('dashboard') || titleText.includes('overview')) {
+        iconClass = 'fa-tachometer-alt';
+      } else if (titleText.includes('user') || titleText.includes('member')) {
+        iconClass = 'fa-users';
+      } else if (titleText.includes('setting') || titleText.includes('config')) {
+        iconClass = 'fa-cogs';
+      } else if (titleText.includes('log') || titleText.includes('activity')) {
+        iconClass = 'fa-list';
+      } else if (titleText.includes('stat') || titleText.includes('analytic')) {
+        iconClass = 'fa-chart-line';
+      } else if (titleText.includes('ban') || titleText.includes('kick') || titleText.includes('moderation')) {
+        iconClass = 'fa-gavel';
+      } else if (titleText.includes('warn') || titleText.includes('infraction')) {
+        iconClass = 'fa-exclamation-triangle';
+      } else if (titleText.includes('automod') || titleText.includes('automatic')) {
+        iconClass = 'fa-shield-alt';
+      } else if (titleText.includes('escalation') || titleText.includes('tier')) {
+        iconClass = 'fa-level-up-alt';
+      }
+      
+      // Create and add the icon
+      const icon = document.createElement('i');
+      icon.className = `fas ${iconClass}`;
+      title.insertBefore(icon, title.firstChild);
+    }
+  });
+}
+
+// Enhance tab navigation
+function enhanceTabNavigation() {
+  const tabLists = document.querySelectorAll('.nav-tabs, .tab-nav, .admin3d-tabs');
+  
+  tabLists.forEach(tabList => {
+    if (tabList.classList.contains('premium-enhanced')) return;
+    
+    tabList.classList.add('premium-enhanced');
+    
+    // Get all tab links
+    const tabLinks = tabList.querySelectorAll('.nav-link, .tab-link, .admin3d-tab-link');
+    
+    // Add click handlers for tabs if they're not already set up
+    tabLinks.forEach(tabLink => {
+      if (!tabLink.hasAttribute('data-enhanced-tab')) {
+        tabLink.setAttribute('data-enhanced-tab', 'true');
+        
+        tabLink.addEventListener('click', function() {
+          // Get the target tab content
+          const targetId = this.getAttribute('href') || this.getAttribute('data-tab-target');
+          
+          if (targetId) {
+            // Remove active class from all tabs
+            tabLinks.forEach(link => link.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Hide all tab content
+            const tabContainer = document.querySelector('.tab-content, .admin3d-tab-content');
+            if (tabContainer) {
+              const tabPanes = tabContainer.querySelectorAll('.tab-pane, .admin3d-tab-pane');
+              tabPanes.forEach(pane => pane.classList.remove('active', 'show'));
+              
+              // Show the selected tab content
+              const targetPane = targetId.startsWith('#') 
+                ? document.querySelector(targetId)
+                : document.querySelector(`#${targetId}`);
+              
+              if (targetPane) {
+                targetPane.classList.add('active', 'show');
+                
+                // Add fade-in animation
+                targetPane.style.animation = 'none';
+                setTimeout(() => {
+                  targetPane.style.animation = 'fadeIn 0.3s forwards';
+                }, 10);
+              }
+            }
+          }
+        });
+      }
     });
-  }
+  });
 }
 
-// Create an abstract particles background with THREE.js
-function initAbstractParticlesBackground(container) {
-  if (!window.THREE) return;
+// Setup interactive effects
+function setupInteractiveEffects() {
+  // Add ripple effect to clickable elements
+  const clickables = document.querySelectorAll('.btn, button, .card, .stat-card, .admin3d-card, .nav-link, .admin3d-tab-link');
   
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-  
-  // Create scene, camera, and renderer
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  container.appendChild(renderer.domElement);
-  
-  // Add ambient light
-  const ambientLight = new THREE.AmbientLight(0x6928c5, 0.2);
-  scene.add(ambientLight);
-  
-  // Add point light
-  const pointLight = new THREE.PointLight(0x8936ff, 1);
-  pointLight.position.set(0, 0, 5);
-  scene.add(pointLight);
-  
-  // Create particles
-  const particlesGeometry = new THREE.BufferGeometry();
-  const particlesCount = 500;
-  
-  const posArray = new Float32Array(particlesCount * 3);
-  const scaleArray = new Float32Array(particlesCount);
-  
-  for (let i = 0; i < particlesCount * 3; i += 3) {
-    // Position particles in a sphere
-    const angle1 = Math.random() * Math.PI * 2;
-    const angle2 = Math.random() * Math.PI * 2;
-    const radius = 50 + Math.random() * 200;
-    
-    posArray[i] = Math.cos(angle1) * Math.sin(angle2) * radius;      // x
-    posArray[i + 1] = Math.sin(angle1) * Math.sin(angle2) * radius;  // y
-    posArray[i + 2] = Math.cos(angle2) * radius;                     // z
-    
-    // Set random particle scale
-    scaleArray[i / 3] = Math.random() * 2 + 0.5;
-  }
-  
-  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-  particlesGeometry.setAttribute('scale', new THREE.BufferAttribute(scaleArray, 1));
-  
-  // Add shader material
-  const particleMaterial = new THREE.PointsMaterial({
-    size: 2,
-    sizeAttenuation: true,
-    map: createParticleTexture(),
-    alphaTest: 0.5,
-    transparent: true,
-    color: 0xa264ff
-  });
-  
-  // Create particle system
-  const particleSystem = new THREE.Points(particlesGeometry, particleMaterial);
-  scene.add(particleSystem);
-  
-  // Position camera
-  camera.position.z = 300;
-  
-  // Animation loop
-  function animate() {
-    requestAnimationFrame(animate);
-    
-    // Rotate particle system
-    particleSystem.rotation.x += 0.0005;
-    particleSystem.rotation.y += 0.0008;
-    
-    // Add wave motion to particles
-    const positions = particlesGeometry.attributes.position.array;
-    const time = Date.now() * 0.0001;
-    
-    for (let i = 0; i < particlesCount * 3; i += 3) {
-      const px = positions[i];
-      const py = positions[i + 1];
-      const pz = positions[i + 2];
-      
-      // Apply wave motion
-      const distance = Math.sqrt(px * px + py * py + pz * pz);
-      const wave = Math.sin(distance * 0.03 + time) * 2;
-      
-      positions[i] += px / distance * wave * 0.2;
-      positions[i + 1] += py / distance * wave * 0.2;
-      positions[i + 2] += pz / distance * wave * 0.2;
+  clickables.forEach(element => {
+    if (!element.hasAttribute('data-ripple-attached')) {
+      element.setAttribute('data-ripple-attached', 'true');
+      element.addEventListener('click', createRippleEffect);
     }
-    
-    particlesGeometry.attributes.position.needsUpdate = true;
-    
-    renderer.render(scene, camera);
-  }
+  });
   
-  animate();
-  
-  // Handle window resize
-  window.addEventListener('resize', () => {
-    const newWidth = container.clientWidth;
-    const newHeight = container.clientHeight;
+  // Setup scrolling effects
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
     
-    camera.aspect = newWidth / newHeight;
-    camera.updateProjectionMatrix();
+    // Parallax effect for headers
+    const headers = document.querySelectorAll('.section-header, .admin3d-section-header, .mod-section-header');
+    headers.forEach(header => {
+      const distance = header.getBoundingClientRect().top;
+      if (distance > -500 && distance < window.innerHeight) {
+        header.style.transform = `translateY(${scrollY * 0.05}px)`;
+      }
+    });
     
-    renderer.setSize(newWidth, newHeight);
+    // Fade in elements as they scroll into view
+    const fadeElements = document.querySelectorAll('.card, .stat-card, .admin3d-card, .section-content');
+    fadeElements.forEach(element => {
+      const position = element.getBoundingClientRect().top;
+      
+      // If element is in viewport and doesn't have fade-in class
+      if (position < window.innerHeight - 100 && !element.classList.contains('has-faded-in')) {
+        element.classList.add('fade-in', 'has-faded-in');
+      }
+    });
   });
 }
 
-// Create a soft particle texture
-function createParticleTexture() {
-  const canvas = document.createElement('canvas');
-  const size = 128;
-  canvas.width = size;
-  canvas.height = size;
+// Initialize premium tooltips
+function initPremiumTooltips() {
+  // Find elements with title attributes and convert to data-tooltip attributes
+  const elements = document.querySelectorAll('[title]:not([data-tooltip])');
   
-  const context = canvas.getContext('2d');
+  elements.forEach(element => {
+    if (element.title && element.title.trim() !== '') {
+      // Create data-tooltip attribute from title
+      element.setAttribute('data-tooltip', element.title);
+      
+      // Remove title to prevent default browser tooltip
+      element.removeAttribute('title');
+    }
+  });
+}
+
+// Create ripple effect on click
+function createRippleEffect(event) {
+  const element = this;
   
-  // Create gradient
-  const gradient = context.createRadialGradient(
-    size / 2, size / 2, 0,
-    size / 2, size / 2, size / 2
-  );
+  // Skip if element already has active ripple
+  if (element.querySelectorAll('.ripple.active').length > 0) return;
   
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-  gradient.addColorStop(0.3, 'rgba(200, 200, 255, 0.8)');
-  gradient.addColorStop(0.8, 'rgba(137, 54, 255, 0.3)');
-  gradient.addColorStop(1, 'rgba(100, 50, 255, 0)');
+  // Create ripple element
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple';
+  element.appendChild(ripple);
   
-  // Draw particle
-  context.fillStyle = gradient;
-  context.beginPath();
-  context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-  context.fill();
+  // Set position of ripple
+  const rect = element.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
   
-  // Create texture
-  const texture = new THREE.Texture(canvas);
-  texture.needsUpdate = true;
-  return texture;
+  ripple.style.width = ripple.style.height = `${size}px`;
+  ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
+  ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
+  
+  // Activate ripple
+  ripple.classList.add('active');
+  
+  // Remove ripple after animation
+  setTimeout(() => {
+    ripple.remove();
+  }, 600);
 }
