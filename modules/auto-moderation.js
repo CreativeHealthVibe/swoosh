@@ -321,15 +321,28 @@ class AutoModerationSystem {
       }
       
       // Determine escalated action based on violation count
-      if (settings.escalation && Array.isArray(settings.escalation)) {
-        // Find the appropriate escalation level
-        for (const escalation of settings.escalation) {
-          if (userData.count >= escalation.violations) {
-            return escalation.action;
+      if (settings.escalateRepeated) {
+        // New tier-based escalation system
+        if (userData.count >= settings.maxViolations && settings.tier4Action) {
+          return settings.tier4Action;
+        } else if (userData.count >= 5 && settings.tier3Action) {
+          return settings.tier3Action;
+        } else if (userData.count >= 3 && settings.tier2Action) {
+          return settings.tier2Action;
+        } else if (settings.tier1Action) {
+          return settings.tier1Action;
+        }
+        
+        // Legacy array-based escalation (if configured)
+        if (settings.escalation && Array.isArray(settings.escalation)) {
+          for (const escalation of settings.escalation) {
+            if (userData.count >= escalation.violations) {
+              return escalation.action;
+            }
           }
         }
-      } else {
-        // Legacy escalation system - use maxViolations setting
+        
+        // Very legacy escalation system - use maxViolations setting
         if (userData.count >= settings.maxViolations) {
           return 'ban';
         } else if (userData.count >= Math.ceil(settings.maxViolations * 0.75)) {
