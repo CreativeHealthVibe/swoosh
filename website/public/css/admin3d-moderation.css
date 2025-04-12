@@ -311,7 +311,7 @@
 }
 
 .mod-section-header {
-  background: rgba(10, 10, 30, 0.8);
+  background: #000000;
   padding: 1rem 1.25rem;
   display: flex;
   align-items: center;
@@ -694,7 +694,7 @@
 }
 
 .admin3d-card-header {
-  background: rgba(23, 22, 50, 0.8);
+  background: #000000;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid rgba(91, 77, 164, 0.15);
   display: flex;
