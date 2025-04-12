@@ -459,20 +459,72 @@ class AutoModerationSystem {
   }
   
   /**
-   * Check if content contains profanity (basic implementation)
+   * Check if content contains profanity (enhanced implementation)
    */
   containsProfanity(content) {
-    // Basic list of common profanity words
+    // Enhanced list of common profanity words with variations
     const profanityList = [
-      'badword', 'asshole', 'bitch', 'fuck', 'shit', 'idiot', 'damn', 'crap', 'bastard', 'whore',
-      'dick', 'pussy', 'nigger', 'nigga', 'faggot', 'retard', 'slut', 'cunt', 'tits', 'cock'
+      // Common swear words
+      'asshole', 'a$$hole', 'a**hole', 'a-hole',
+      'bitch', 'b!tch', 'b*tch', 'b1tch', 'biatch',
+      'fuck', 'f*ck', 'f**k', 'fuk', 'fck', 'f***', 'fvck', 'f@ck', 'f#ck', 'fu*k',
+      'shit', 'sh*t', 'sh!t', 'sh1t', '$hit', 's**t', 's***',
+      'damn', 'crap', 
+      'bastard', 'b@stard',
+      'whore', 'wh*re', 'w*ore', 'h0e',
+      'dick', 'd*ck', 'd!ck', 'd1ck', 'dik',
+      'pussy', 'p*ssy', 'pu$$y', 'puss', 'p*ss',
+      'nigger', 'n!gger', 'n*gger', 'n1gger', 'negro',
+      'nigga', 'n!gga', 'n*gga', 'n1gga',
+      'faggot', 'f@ggot', 'f*ggot', 'f@g', 'f*g', 'fag',
+      'retard', 'r*tard', 'r3tard', 
+      'slut', 'sl*t', '$lut',
+      'cunt', 'c*nt', 'cvnt', 'c**t',
+      'cock', 'c*ck', 'c0ck', 'cok',
+
+      // Other offensive terms
+      'idiot', 'stupid', 'dumb',
+      'motherfucker', 'mofo', 'm0f0', 
+      'bullshit', 'bullsh*t', 'bs',
+      'jackass', 'j@ck@ss', 
+      'ass', '@ss', '@$$', 'a$$', 'a$$',
+      'tits', 't*ts', 't1ts', 'titties',
+      'moron', 'imbecile',
+      'stfu', 'gtfo', 'wtf', 'lmfao', 'lmao',
+      'anal', '@nal', 'cumshot', 'cum', 'jizz'
     ];
     
-    const contentLower = content.toLowerCase();
-    return profanityList.some(word => {
-      const regex = new RegExp(`\\b${word}\\b`, 'i');
-      return regex.test(contentLower);
-    });
+    // Check for exact matches using word boundaries
+    const contentLower = content.toLowerCase().replace(/\s+/g, ' ');
+    
+    // First check for exact matches
+    for (const word of profanityList) {
+      const regex = new RegExp(`\\b${this.escapeRegExp(word)}\\b`, 'i');
+      if (regex.test(contentLower)) {
+        return true;
+      }
+    }
+    
+    // Then check for intentional obfuscation: separated letters, dotted words
+    for (const word of profanityList) {
+      if (word.length <= 3) continue; // Skip short words to avoid false positives
+      
+      // Check for separated letters: "f u c k"
+      const separatedPattern = word.split('').join('[\\s.*_-]+');
+      const separatedRegex = new RegExp(`\\b${separatedPattern}\\b`, 'i');
+      if (separatedRegex.test(contentLower)) {
+        return true;
+      }
+      
+      // Check for dotted words: "f.u.c.k"
+      const dottedPattern = word.split('').join('\\.');
+      const dottedRegex = new RegExp(`\\b${dottedPattern}\\b`, 'i');
+      if (dottedRegex.test(contentLower)) {
+        return true;
+      }
+    }
+    
+    return false;
   }
   
   /**
@@ -579,7 +631,12 @@ class AutoModerationSystem {
       defaultAction: 'delete',
       muteTime: '10m',
       escalateRepeated: false,
-      maxViolations: 5
+      maxViolations: 7,
+      // New tier-based escalation system
+      tier1Action: 'warn',      // First offense
+      tier2Action: 'mute',      // After 3 violations
+      tier3Action: 'kick',      // After 5 violations
+      tier4Action: 'ban'        // After maxViolations violations
     };
   }
   
