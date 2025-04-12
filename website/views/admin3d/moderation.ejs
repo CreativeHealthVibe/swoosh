@@ -2837,6 +2837,27 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Please select a server first');
         return false;
       }
+      
+      // Add hidden fields for escalation tiers
+      const tier1Action = document.getElementById('tier1Action').value;
+      const tier2Action = document.getElementById('tier2Action').value;
+      const tier3Action = document.getElementById('tier3Action').value;
+      const tier4Action = document.getElementById('tier4Action').value;
+      
+      // Create hidden fields for these values
+      const createHiddenInput = (name, value) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        return input;
+      };
+      
+      // Append hidden fields to the form
+      this.appendChild(createHiddenInput('tier1Action', tier1Action));
+      this.appendChild(createHiddenInput('tier2Action', tier2Action));
+      this.appendChild(createHiddenInput('tier3Action', tier3Action));
+      this.appendChild(createHiddenInput('tier4Action', tier4Action));
     });
   }
   
@@ -2861,6 +2882,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('muteTimeUnit').value = 'm';
         document.getElementById('escalateRepeated').checked = false;
         document.getElementById('maxViolations').value = '5';
+        
+        // Reset escalation tiers
+        document.getElementById('tier1Action').value = 'delete';
+        document.getElementById('tier2Action').value = 'mute';
+        document.getElementById('tier3Action').value = 'kick';
+        document.getElementById('tier4Action').value = 'ban';
       }
     });
   }
@@ -2984,6 +3011,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (settings.maxViolations) {
           document.getElementById('maxViolations').value = settings.maxViolations;
+        }
+        
+        // Escalation tiers
+        if (settings.tier1Action) {
+          document.getElementById('tier1Action').value = settings.tier1Action;
+        }
+        
+        if (settings.tier2Action) {
+          document.getElementById('tier2Action').value = settings.tier2Action;
+        }
+        
+        if (settings.tier3Action) {
+          document.getElementById('tier3Action').value = settings.tier3Action;
+        }
+        
+        if (settings.tier4Action) {
+          document.getElementById('tier4Action').value = settings.tier4Action;
         }
       }
     })
