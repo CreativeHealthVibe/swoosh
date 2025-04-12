@@ -1,23 +1,17 @@
 /**
  * Premium Backgrounds
- * Dynamic, animated background styles for premium admin interface
+ * Dynamic, animated background styles to match admin3d/stats design
  */
 
 :root {
   --premium-primary: #8936ff;
   --premium-primary-light: #a354ff;
   --premium-primary-dark: #7626e3;
-  --premium-primary-glow: rgba(137, 54, 255, 0.4);
-  --premium-secondary: #2e2e56;
-  --premium-secondary-dark: #1a1a2f;
+  --premium-primary-blue: #4d9fff;
   --premium-success: #00e676;
-  --premium-success-glow: rgba(0, 230, 118, 0.4);
   --premium-warning: #ffb300;
-  --premium-warning-glow: rgba(255, 179, 0, 0.4);
   --premium-danger: #ff3d71;
-  --premium-danger-glow: rgba(255, 61, 113, 0.4);
-  --premium-info: #0095ff;
-  --premium-info-glow: rgba(0, 149, 255, 0.4);
+  --premium-info: #2980ff;
 }
 
 /* Main background layer */
@@ -29,7 +23,7 @@
   bottom: 0;
   z-index: -1;
   overflow: hidden;
-  background: linear-gradient(135deg, #141428 0%, #1a1a2f 100%);
+  background: linear-gradient(135deg, #0a0a1e 0%, #141428 100%);
 }
 
 /* Animated gradient blobs */
@@ -44,7 +38,7 @@
 .premium-bg-gradient.gradient-1 {
   width: 50vw;
   height: 50vw;
-  background: radial-gradient(circle, rgba(137, 54, 255, 0.4) 0%, rgba(137, 54, 255, 0) 70%);
+  background: radial-gradient(circle, rgba(137, 54, 255, 0.3) 0%, rgba(137, 54, 255, 0) 70%);
   top: -10%;
   right: -10%;
   animation: pulse 20s infinite alternate;
@@ -53,7 +47,7 @@
 .premium-bg-gradient.gradient-2 {
   width: 40vw;
   height: 40vw;
-  background: radial-gradient(circle, rgba(255, 61, 113, 0.3) 0%, rgba(255, 61, 113, 0) 70%);
+  background: radial-gradient(circle, rgba(255, 61, 113, 0.2) 0%, rgba(255, 61, 113, 0) 70%);
   bottom: -10%;
   left: -10%;
   animation: pulse 25s infinite alternate-reverse;
@@ -62,7 +56,7 @@
 .premium-bg-gradient.gradient-3 {
   width: 35vw;
   height: 35vw;
-  background: radial-gradient(circle, rgba(0, 230, 118, 0.2) 0%, rgba(0, 230, 118, 0) 70%);
+  background: radial-gradient(circle, rgba(0, 230, 118, 0.15) 0%, rgba(0, 230, 118, 0) 70%);
   top: 40%;
   left: 10%;
   animation: pulse 30s infinite alternate;
@@ -71,7 +65,7 @@
 .premium-bg-gradient.gradient-4 {
   width: 45vw;
   height: 45vw;
-  background: radial-gradient(circle, rgba(0, 149, 255, 0.25) 0%, rgba(0, 149, 255, 0) 70%);
+  background: radial-gradient(circle, rgba(77, 159, 255, 0.2) 0%, rgba(77, 159, 255, 0) 70%);
   bottom: 20%;
   right: 5%;
   animation: pulse 35s infinite alternate-reverse;
@@ -85,8 +79,8 @@
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(rgba(137, 54, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(137, 54, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(100, 100, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 100, 255, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
   background-position: center center;
   opacity: 0.4;
@@ -104,7 +98,7 @@
 
 .premium-particle {
   position: absolute;
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   animation: float 30s infinite linear;
   transition: transform 0.8s ease-out;
@@ -125,7 +119,7 @@
   width: 100%;
   height: 300px;
   transform: translateY(-50%);
-  background: radial-gradient(ellipse at center, rgba(137, 54, 255, 0.15) 0%, rgba(137, 54, 255, 0) 70%);
+  background: radial-gradient(ellipse at center, rgba(137, 54, 255, 0.1) 0%, rgba(137, 54, 255, 0) 70%);
   z-index: -1;
   opacity: 0.8;
   pointer-events: none;
@@ -138,7 +132,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(26, 26, 47, 0.5) 0%, rgba(46, 46, 86, 0.3) 100%);
+  background: linear-gradient(135deg, rgba(10, 10, 30, 0.6) 0%, rgba(30, 30, 60, 0.4) 100%);
   border-radius: inherit;
   z-index: -1;
   pointer-events: none;
@@ -163,7 +157,7 @@
     transform: scale(1);
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.4;
     transform: scale(1.05);
   }
   100% {
@@ -198,16 +192,77 @@
 
 /* Override for sections with premium backgrounds */
 .premium-section-bg {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background: rgba(26, 26, 47, 0.4);
-  border-radius: 16px;
-  border: 1px solid rgba(137, 54, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(10, 10, 30, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(100, 100, 255, 0.18);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
 .premium-section-bg:hover {
-  border-color: rgba(137, 54, 255, 0.25);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 15px rgba(137, 54, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(80, 80, 255, 0.3);
+  transform: translateY(-2px);
+  border-color: rgba(136, 54, 255, 0.5);
+}
+
+/* Admin3D page containers and headers */
+.admin3d-page-container {
+  padding: 1rem;
+}
+
+.admin3d-page-header {
+  margin-bottom: 2rem;
+}
+
+.admin3d-page-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin3d-page-header h1 i {
+  color: #8936ff;
+}
+
+.admin3d-page-header p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+/* Visualization mode switcher */
+.visualization-mode-switcher {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.visualization-mode-switcher .mode-btn {
+  background: rgba(30, 30, 50, 0.6);
+  color: white;
+  border: 1px solid rgba(100, 100, 255, 0.2);
+  border-radius: 20px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.visualization-mode-switcher .mode-btn:hover {
+  background: rgba(40, 40, 80, 0.8);
+  border-color: rgba(100, 100, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.visualization-mode-switcher .mode-btn.active {
+  background: linear-gradient(135deg, #8936ff, #4d9fff);
+  border-color: rgba(255, 255, 255, 0.2);
 }

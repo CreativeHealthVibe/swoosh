@@ -1,29 +1,47 @@
 /**
  * Premium Admin UI Enhancement
- * Core styles for the premium admin interface upgrade
+ * Core styles for the premium admin interface upgrade styled to match admin3d/stats
  */
 
 :root {
+  /* Main Colors */
   --premium-primary: #8936ff;
   --premium-primary-light: #a354ff;
   --premium-primary-dark: #7626e3;
-  --premium-primary-glow: rgba(137, 54, 255, 0.4);
-  --premium-secondary: #2e2e56;
-  --premium-secondary-dark: #1a1a2f;
+  --premium-primary-blue: #4d9fff;
+  
+  /* Status Colors */
   --premium-success: #00e676;
-  --premium-success-glow: rgba(0, 230, 118, 0.4);
   --premium-warning: #ffb300;
-  --premium-warning-glow: rgba(255, 179, 0, 0.4);
   --premium-danger: #ff3d71;
-  --premium-danger-glow: rgba(255, 61, 113, 0.4);
-  --premium-info: #0095ff;
-  --premium-info-glow: rgba(0, 149, 255, 0.4);
+  --premium-info: #2980ff;
+  
+  /* Background Colors */
+  --premium-bg-dark: #0a0a1e;
+  --premium-bg-medium: #141428;
+  --premium-bg-light: #1e1e3c;
+  
+  /* Panel Colors */
+  --premium-panel-bg: rgba(10, 10, 30, 0.7);
+  --premium-panel-border: rgba(100, 100, 255, 0.18);
+  --premium-panel-highlight: rgba(136, 54, 255, 0.5);
+  
+  /* Element Colors */
+  --premium-element-bg: rgba(30, 30, 60, 0.5);
+  --premium-element-border: rgba(100, 100, 255, 0.1);
+  --premium-element-hover: rgba(40, 40, 80, 0.5);
+  --premium-element-hover-border: rgba(136, 54, 255, 0.3);
+  
+  /* Text Colors */
+  --premium-text-primary: #ffffff;
+  --premium-text-secondary: rgba(255, 255, 255, 0.7);
+  --premium-text-muted: rgba(255, 255, 255, 0.5);
 }
 
 /* Global Enhancements */
 body {
-  background-color: #141428;
-  color: #fff;
+  background-color: var(--premium-bg-dark);
+  color: var(--premium-text-primary);
 }
 
 .admin-wrapper {
@@ -33,50 +51,50 @@ body {
 
 /* Enhanced Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(26, 26, 47, 0.5);
+  background: var(--premium-bg-light);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(137, 54, 255, 0.3);
-  border-radius: 10px;
-  border: 2px solid rgba(26, 26, 47, 0.5);
+  background: rgba(100, 100, 255, 0.2);
+  border-radius: 4px;
   transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(137, 54, 255, 0.5);
+  background: rgba(137, 54, 255, 0.3);
 }
 
 /* Page Section Enhanced Styles */
 .page-section, .admin3d-section, .mod-section {
-  padding: 2rem;
-  margin-bottom: 2rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
   position: relative;
   overflow: hidden;
-  border-radius: 16px;
-  background: rgba(26, 26, 47, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(137, 54, 255, 0.15);
+  border-radius: 12px;
+  background: var(--premium-panel-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--premium-panel-border);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
 .page-section:hover, .admin3d-section:hover, .mod-section:hover {
-  border-color: rgba(137, 54, 255, 0.25);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 15px rgba(137, 54, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(80, 80, 255, 0.3);
+  transform: translateY(-2px);
+  border-color: var(--premium-panel-highlight);
 }
 
 /* Section Headers */
 .section-header, .admin3d-section-header, .mod-section-header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(137, 54, 255, 0.15);
+  border-bottom: 1px solid var(--premium-element-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -85,18 +103,17 @@ body {
 }
 
 .section-title, .admin3d-section-title, .mod-section-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--premium-text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 8px;
 }
 
 .section-title i, .admin3d-section-title i, .mod-section-title i {
-  color: var(--premium-primary-light);
-  font-size: 1.25rem;
+  color: var(--premium-primary);
 }
 
 .section-actions, .admin3d-section-actions, .mod-section-actions {
