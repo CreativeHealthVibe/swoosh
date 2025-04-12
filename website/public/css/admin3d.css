@@ -16,13 +16,13 @@
   --primary-light: #a264ff;
   --primary-glow: rgba(137, 54, 255, 0.6);
   
-  /* UI Colors - Enforcing black theme */
+  /* UI Colors */
   --background: #000000;
-  --background-light: #000000;
-  --background-lighter: #000000;
+  --background-light: #090909;
+  --background-lighter: #111111;
   --text: #ffffff;
   --text-muted: #9b9eca;
-  --border: #111111;
+  --border: #222222;
   
   /* Status Colors */
   --success: #00e676;
