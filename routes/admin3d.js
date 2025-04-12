@@ -76,13 +76,12 @@ router.get('/moderation', (req, res) => {
     })).sort((a, b) => a.name.localeCompare(b.name));
   }
   
-  res.render('admin3d/moderation-redesign', {
+  res.render('admin3d/moderation', {
     title: 'Moderation Command Center | SWOOSH Bot',
     user: req.user,
     client,
     servers,
-    customStyles: ['admin3d-moderation-redesign.css', 'admin3d-toast.css', 'direct-access.css'], // Using completely new redesign styles with toast notifications
-    customScripts: ['admin3d-moderation-redesign.js'], // Custom JS for the redesigned interface
+    customStyles: ['admin3d-moderation-custom.css', 'direct-access.css'], // Added direct access styles
     layout: 'layouts/admin3d'
   });
 });
