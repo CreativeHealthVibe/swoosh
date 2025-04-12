@@ -11,6 +11,7 @@ class AutoModerationSystem {
     this.settings = new Map();
     this.filters = new Map();
     this.logs = new Map();
+    this.userViolations = new Map(); // Track user violations for escalation
     this.initialized = false;
   }
   
@@ -54,6 +55,16 @@ class AutoModerationSystem {
             if (Array.isArray(autoModLogs[serverId])) {
               this.logs.set(serverId, autoModLogs[serverId]);
             }
+          }
+        }
+        
+        // Get user violations from database
+        const autoModViolations = this.client.discordDB.getCollection('automod-violations');
+        
+        // Load user violations into memory
+        if (autoModViolations) {
+          for (const key in autoModViolations) {
+            this.userViolations.set(key, autoModViolations[key]);
           }
         }
       }
@@ -200,6 +211,11 @@ class AutoModerationSystem {
    */
   async takeAction(message, action, violation, settings) {
     try {
+      // Check for escalation if enabled
+      if (settings.escalateRepeated) {
+        action = await this.handleEscalation(message.guild.id, message.author.id, action, violation, settings);
+      }
+      
       // Always delete the message unless action is 'warn' only
       if (action !== 'warn') {
         await message.delete().catch(err => console.error('Error deleting message:', err));
@@ -245,6 +261,91 @@ class AutoModerationSystem {
     } catch (error) {
       console.error('Error taking auto-mod action:', error);
       return false;
+    }
+  }
+  
+  /**
+   * Handle escalation of repeated violations
+   * @param {string} serverId - Server ID
+   * @param {string} userId - User ID
+   * @param {string} baseAction - Base action without escalation
+   * @param {Object} violation - Violation details
+   * @param {Object} settings - Server settings
+   * @returns {string} - Final action to take
+   */
+  async handleEscalation(serverId, userId, baseAction, violation, settings) {
+    try {
+      // Create server-user violation tracking if not exists
+      const key = `${serverId}-${userId}`;
+      if (!this.userViolations.has(key)) {
+        this.userViolations.set(key, { 
+          count: 0, 
+          lastViolation: 0,
+          violations: []
+        });
+      }
+      
+      const userData = this.userViolations.get(key);
+      const now = Date.now();
+      
+      // Reset count if last violation was more than 24 hours ago
+      if (now - userData.lastViolation > 24 * 60 * 60 * 1000) {
+        userData.count = 0;
+        userData.violations = [];
+      }
+      
+      // Increment counter
+      userData.count++;
+      userData.lastViolation = now;
+      
+      // Add violation to history
+      userData.violations.push({
+        type: violation.type,
+        timestamp: now,
+        action: baseAction
+      });
+      
+      // Keep only last 10 violations in history
+      if (userData.violations.length > 10) {
+        userData.violations = userData.violations.slice(-10);
+      }
+      
+      // Update the map
+      this.userViolations.set(key, userData);
+      
+      // Save to database if available
+      if (this.client.discordDB && this.client.discordDB.initialized) {
+        // Save to Discord database (async, don't await to avoid blocking)
+        this.client.discordDB.setDocument('automod-violations', key, userData)
+          .catch(err => console.error('Error saving user violations to database:', err));
+      }
+      
+      // Determine escalated action based on violation count
+      if (settings.escalation && Array.isArray(settings.escalation)) {
+        // Find the appropriate escalation level
+        for (const escalation of settings.escalation) {
+          if (userData.count >= escalation.violations) {
+            return escalation.action;
+          }
+        }
+      } else {
+        // Legacy escalation system - use maxViolations setting
+        if (userData.count >= settings.maxViolations) {
+          return 'ban';
+        } else if (userData.count >= Math.ceil(settings.maxViolations * 0.75)) {
+          return 'kick';
+        } else if (userData.count >= Math.ceil(settings.maxViolations * 0.5)) {
+          return 'mute';
+        } else if (userData.count >= Math.ceil(settings.maxViolations * 0.25)) {
+          return 'warn';
+        }
+      }
+      
+      // If no escalation rule matched, return the original action
+      return baseAction;
+    } catch (error) {
+      console.error('Error handling escalation:', error);
+      return baseAction;
     }
   }
   
