@@ -103,13 +103,7 @@
     <!-- Moderation Admin Scripts (Order matters) -->
     <script src="/js/admin3d-moderation.js" defer></script>
     <script src="/js/admin3d-moderation-scene.js" defer></script>
-    
-    <!-- Custom scripts defined in route -->
-    <% if (typeof customScripts !== 'undefined' && customScripts) { %>
-      <% customScripts.forEach(script => { %>
-        <script src="/js/<%= script %>" defer></script>
-      <% }); %>
-    <% } %>
+    <script src="/js/admin3d-moderation-premium.js" defer></script>
   <% } %>
 </head>
 <body class="admin3d-body <%= title.includes('Message') ? 'no-three-js' : '' %>">
