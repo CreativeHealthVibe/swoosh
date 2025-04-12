@@ -762,23 +762,23 @@
                   <form id="customFilterForm" action="/admin3d/moderation/save-filter" method="POST">
                     <input type="hidden" id="filterServerId" name="serverId">
                     
-                    <div class="form-field">
-                      <label for="filterType">Filter Type</label>
-                      <select id="filterType" name="filterType">
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="filterType">Filter Type</label>
+                      <select class="admin3d-form-select" id="filterType" name="filterType">
                         <option value="word">Word/Phrase</option>
                         <option value="regex">Regex Pattern</option>
                         <option value="domain">Domain</option>
                       </select>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="filterContent">Content to Filter</label>
-                      <input type="text" id="filterContent" name="filterContent" placeholder="Enter word, pattern, or domain to filter" required>
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="filterContent">Content to Filter</label>
+                      <input class="admin3d-form-input" type="text" id="filterContent" name="filterContent" placeholder="Enter word, pattern, or domain to filter" required>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="filterAction">Action</label>
-                      <select id="filterAction" name="filterAction">
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="filterAction">Action</label>
+                      <select class="admin3d-form-select" id="filterAction" name="filterAction">
                         <option value="delete">Delete Message</option>
                         <option value="warn">Warn User</option>
                         <option value="mute">Timeout User</option>
@@ -787,8 +787,8 @@
                       </select>
                     </div>
                     
-                    <div class="form-actions">
-                      <button type="submit" class="mod-btn primary-btn">
+                    <div class="admin3d-form-actions">
+                      <button type="submit" class="admin3d-btn admin3d-btn-primary">
                         <i class="fas fa-plus"></i>
                         <span>Add Filter</span>
                       </button>
