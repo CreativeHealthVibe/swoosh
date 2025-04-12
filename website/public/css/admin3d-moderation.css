@@ -151,7 +151,7 @@
 }
 
 .mod-stat-card {
-  background: var(--premium-panel-bg);
+  background: #000000;
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
@@ -306,7 +306,7 @@
 
 /* Content Container - Styled like admin3d/stats */
 .mod-content-container {
-  background: var(--premium-panel-bg);
+  background: #000000;
   border-radius: 12px;
   padding: 1.5rem;
   border: 1px solid var(--premium-panel-border);
@@ -430,7 +430,7 @@
 .form-field textarea,
 .form-field select {
   width: 100%;
-  background: rgba(20, 20, 38, 0.6);
+  background: #000000;
   border: 1px solid rgba(91, 77, 164, 0.3);
   border-radius: 6px;
   padding: 0.75rem;
@@ -536,7 +536,7 @@
 }
 
 .stats-card {
-  background: linear-gradient(135deg, rgba(30, 30, 60, 0.7), rgba(35, 35, 70, 0.7));
+  background: #000000;
   border-radius: 0.75rem;
   border: 1px solid rgba(91, 77, 164, 0.2);
   padding: 1.25rem;
@@ -716,7 +716,7 @@
 
 /* Card Styles */
 .admin3d-card {
-  background: rgba(30, 30, 60, 0.6);
+  background: #000000;
   border-radius: 1rem;
   border: 1px solid rgba(91, 77, 164, 0.2);
   overflow: hidden;
@@ -772,6 +772,7 @@
   padding: 1.5rem;
   flex: 1;
   overflow: auto;
+  background: #000000;
 }
 
 .admin3d-card-description {
@@ -936,7 +937,7 @@
 .admin3d-search-box input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  background: rgba(30, 30, 60, 0.4);
+  background: #000000;
   border: 1px solid rgba(91, 77, 164, 0.2);
   border-radius: 0.5rem;
   color: var(--text);
@@ -967,6 +968,7 @@
   padding: 3rem 1rem;
   color: var(--text-muted);
   text-align: center;
+  background: #000000;
 }
 
 .admin3d-empty-state i {
@@ -981,7 +983,7 @@
 }
 
 .admin3d-list-item {
-  background: rgba(35, 34, 66, 0.4);
+  background: #000000;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -991,7 +993,7 @@
 }
 
 .admin3d-list-item:hover {
-  background: rgba(35, 34, 66, 0.6);
+  background: #000000;
   border-color: rgba(91, 77, 164, 0.2);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -1206,6 +1208,7 @@ input:checked + .admin3d-toggle-slider:before {
   justify-content: center;
   padding: 3rem 1rem;
   color: var(--text-muted);
+  background: #000000;
 }
 
 .admin3d-spinner {
