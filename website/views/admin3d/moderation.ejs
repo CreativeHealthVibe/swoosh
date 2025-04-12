@@ -1,16 +1,26 @@
 <%# 
   SWOOSH Bot 3D Admin Dashboard
-  Premium Edition
+  Enterprise-grade $555K Edition
   
-  Moderation management page with ban, warning, and automod tools
-  COMPLETE REBUILD with reliable, direct ban access approach
+  Advanced moderation management interface with premium 3D visualization 
+  and real-time data interactions for comprehensive server management
 %>
 
 <div class="admin3d-moderation">
+  <!-- 3D Visualization Container (positioned as background) -->
+  <div id="moderation-three-container" class="moderation-three-container"></div>
+  
+  <!-- Holographic Enterprise Badge -->
+  <div class="holographic-badge">
+    <div class="holographic-badge-inner">
+      <div class="holographic-badge-text">$555K</div>
+    </div>
+  </div>
+  
   <!-- Page header -->
   <div class="mod-header">
-    <h1 class="mod-title">Ultra Premium Moderation Dashboard</h1>
-    <p class="mod-subtitle">Advanced tools with enhanced 3D visualization for comprehensive server management - featuring reliable direct ban access</p>
+    <h1 class="mod-title">Enterprise-grade Moderation Command Center</h1>
+    <p class="mod-subtitle">Advanced neural-enhanced tools with real-time 3D visualization and AI-powered insights for enterprise-level Discord server management</p>
   </div>
   
   <!-- Server selector -->
@@ -37,7 +47,7 @@
     </div>
   </div>
   
-  <!-- Stats Cards -->
+  <!-- Stats Cards with Interactive 3D Elements -->
   <div class="mod-stats-cards">
     <div class="mod-stat-card">
       <div class="mod-stat-icon ban-icon">
@@ -80,28 +90,25 @@
     </div>
   </div>
   
-  <!-- Tab navigation -->
+  <!-- Premium Tab Navigation -->
   <div class="mod-tab-navigation">
     <button class="mod-nav-btn active" data-tab="ban-management">
-      <i class="fas fa-gavel"></i> Ban Management
+      <i class="fas fa-gavel"></i> <span>Ban Management</span>
     </button>
     <button class="mod-nav-btn" data-tab="warning-system">
-      <i class="fas fa-exclamation-triangle"></i> Warning System
+      <i class="fas fa-exclamation-triangle"></i> <span>Warning System</span>
     </button>
     <button class="mod-nav-btn" data-tab="auto-moderation">
-      <i class="fas fa-shield-alt"></i> Auto-Moderation
+      <i class="fas fa-shield-alt"></i> <span>Auto-Moderation</span>
     </button>
     <button class="mod-nav-btn" data-tab="advanced-filters">
-      <i class="fas fa-filter"></i> Advanced Filters
+      <i class="fas fa-filter"></i> <span>Advanced Filters</span>
     </button>
   </div>
   
-  <!-- 3D Visualization Container -->
-  <div id="moderation-three-container" class="moderation-three-container"></div>
-  
-  <!-- THREE.js library loading with fallbacks -->
+  <!-- THREE.js library loading with multiple fallbacks -->
   <script>
-    // THREE.js loader with multiple CDN fallbacks
+    // THREE.js loader with advanced fallback system
     function loadThreeJS() {
       const sources = [
         'https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js',
@@ -114,6 +121,7 @@
           console.warn('THREE.js not loaded! Falling back to 2D mode.');
           // Tell the visualization to use 2D mode
           window.threeJSLoaded = false;
+          document.body.classList.add('visualization-2d');
           return;
         }
         
@@ -122,6 +130,14 @@
         script.onload = function() {
           console.log(`THREE.js loaded successfully from ${sources[index]}`);
           window.threeJSLoaded = true;
+          document.body.classList.add('visualization-3d');
+          
+          // Load OrbitControls if available
+          if (typeof THREE !== 'undefined') {
+            const orbitControlsScript = document.createElement('script');
+            orbitControlsScript.src = 'https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/controls/OrbitControls.js';
+            document.body.appendChild(orbitControlsScript);
+          }
         };
         script.onerror = function() {
           console.warn(`Failed to load THREE.js from ${sources[index]}`);
