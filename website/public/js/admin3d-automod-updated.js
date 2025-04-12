@@ -190,6 +190,17 @@ function toggleAllSettings(enabled) {
     
     if (maxViolationsInput && escalateRepeatedCheckbox) {
       maxViolationsInput.disabled = !escalateRepeatedCheckbox.checked;
+      
+      // Toggle tier action selects
+      if (tier1ActionSelect) tier1ActionSelect.disabled = !escalateRepeatedCheckbox.checked;
+      if (tier2ActionSelect) tier2ActionSelect.disabled = !escalateRepeatedCheckbox.checked;
+      if (tier3ActionSelect) tier3ActionSelect.disabled = !escalateRepeatedCheckbox.checked;
+      if (tier4ActionSelect) tier4ActionSelect.disabled = !escalateRepeatedCheckbox.checked;
+      
+      // Toggle escalation tiers container visibility
+      if (escalationTiersContainer) {
+        escalationTiersContainer.style.display = escalateRepeatedCheckbox.checked ? 'block' : 'none';
+      }
     }
   }
   
@@ -380,6 +391,28 @@ function updateSettingsForm(settings) {
   
   if (maxViolationsInput) {
     maxViolationsInput.value = settings.maxViolations || 5;
+  }
+  
+  // Set tier action selects
+  if (tier1ActionSelect) {
+    tier1ActionSelect.value = settings.tier1Action || 'warn';
+  }
+  
+  if (tier2ActionSelect) {
+    tier2ActionSelect.value = settings.tier2Action || 'mute';
+  }
+  
+  if (tier3ActionSelect) {
+    tier3ActionSelect.value = settings.tier3Action || 'kick';
+  }
+  
+  if (tier4ActionSelect) {
+    tier4ActionSelect.value = settings.tier4Action || 'ban';
+  }
+  
+  // Set initial visibility of escalation tiers container
+  if (escalationTiersContainer) {
+    escalationTiersContainer.style.display = settings.escalateRepeated ? 'block' : 'none';
   }
   
   // Toggle visibility based on enabled status
@@ -613,7 +646,12 @@ function resetSettings() {
     defaultAction: 'delete',
     muteTime: '10m',
     escalateRepeated: false,
-    maxViolations: 5
+    maxViolations: 7,
+    // New tier-based escalation system defaults
+    tier1Action: 'warn',
+    tier2Action: 'mute',
+    tier3Action: 'kick',
+    tier4Action: 'ban'
   });
 }
 
