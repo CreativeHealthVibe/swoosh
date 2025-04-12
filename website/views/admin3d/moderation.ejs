@@ -1,29 +1,16 @@
 <%# 
   SWOOSH Bot 3D Admin Dashboard
-  Enterprise-grade $555K Edition
+  Premium Edition
   
-  Advanced moderation management interface with premium 3D visualization 
-  and real-time data interactions for comprehensive server management
+  Moderation management page with ban, warning, and automod tools
+  COMPLETE REBUILD with reliable, direct ban access approach
 %>
 
 <div class="admin3d-moderation">
-  <!-- 3D Visualization Container (positioned as background) -->
-  <div id="moderation-three-container" class="moderation-three-container"></div>
-  
-  <!-- Premium $555K 3D Visualization Container -->
-  <div id="moderationVisualization" class="premium-visualization-container"></div>
-  
-  <!-- Holographic Enterprise Badge -->
-  <div class="holographic-badge">
-    <div class="holographic-badge-inner">
-      <div class="holographic-badge-text">$555K</div>
-    </div>
-  </div>
-  
   <!-- Page header -->
   <div class="mod-header">
-    <h1 class="mod-title">Enterprise-grade Moderation Command Center</h1>
-    <p class="mod-subtitle">Advanced neural-enhanced tools with real-time 3D visualization and AI-powered insights for enterprise-level Discord server management</p>
+    <h1 class="mod-title">Ultra Premium Moderation Dashboard</h1>
+    <p class="mod-subtitle">Advanced tools with enhanced 3D visualization for comprehensive server management - featuring reliable direct ban access</p>
   </div>
   
   <!-- Server selector -->
@@ -50,92 +37,71 @@
     </div>
   </div>
   
-  <!-- Stats Cards with Interactive 3D Elements - Premium $555k Edition -->
-  <div class="mod-stats-cards premium-moderation-stats">
-    <div class="mod-stat-card premium-card stat-card premium-gradient-bg">
-      <div class="mod-stat-icon ban-icon premium-icon-container">
+  <!-- Stats Cards -->
+  <div class="mod-stats-cards">
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon ban-icon">
         <i class="fas fa-gavel"></i>
-        <div class="premium-icon-pulse"></div>
       </div>
       <div class="mod-stat-content">
-        <h3 id="totalBans" class="premium-stat-value">0</h3>
-        <span class="premium-stat-label">Active Bans</span>
+        <h3 id="totalBans">0</h3>
+        <span>Active Bans</span>
       </div>
-      <div class="stat-glow-effect"></div>
     </div>
     
-    <div class="mod-stat-card premium-card stat-card premium-gradient-bg">
-      <div class="mod-stat-icon warning-icon premium-icon-container">
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon warning-icon">
         <i class="fas fa-exclamation-triangle"></i>
-        <div class="premium-icon-pulse"></div>
       </div>
       <div class="mod-stat-content">
-        <h3 id="totalWarnings" class="premium-stat-value">0</h3>
-        <span class="premium-stat-label">Active Warnings</span>
+        <h3 id="totalWarnings">0</h3>
+        <span>Active Warnings</span>
       </div>
-      <div class="stat-glow-effect"></div>
     </div>
     
-    <div class="mod-stat-card premium-card stat-card premium-gradient-bg">
-      <div class="mod-stat-icon shield-icon premium-icon-container">
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon shield-icon">
         <i class="fas fa-shield-alt"></i>
-        <div class="premium-icon-pulse"></div>
       </div>
       <div class="mod-stat-content">
-        <h3 id="automodActions" class="premium-stat-value">0</h3>
-        <span class="premium-stat-label">AutoMod Actions</span>
+        <h3 id="automodActions">0</h3>
+        <span>AutoMod Actions</span>
       </div>
-      <div class="stat-glow-effect"></div>
     </div>
     
-    <div class="mod-stat-card premium-card stat-card premium-gradient-bg">
-      <div class="mod-stat-icon member-icon premium-icon-container">
+    <div class="mod-stat-card">
+      <div class="mod-stat-icon member-icon">
         <i class="fas fa-users"></i>
-        <div class="premium-icon-pulse"></div>
       </div>
       <div class="mod-stat-content">
-        <h3 id="memberCount" class="premium-stat-value">0</h3>
-        <span class="premium-stat-label">Total Members</span>
+        <h3 id="memberCount">0</h3>
+        <span>Total Members</span>
       </div>
-      <div class="stat-glow-effect"></div>
     </div>
   </div>
   
-  <!-- Premium $555K Tab Navigation -->
-  <div class="mod-tab-navigation premium-tab-nav">
-    <button class="mod-nav-btn premium-tab-btn active" data-tab="bansTab">
-      <div class="premium-tab-icon">
-        <i class="fas fa-gavel"></i>
-      </div>
-      <span>Ban Management</span>
-      <div class="premium-tab-highlight"></div>
+  <!-- Tab navigation -->
+  <div class="mod-tab-navigation">
+    <button class="mod-nav-btn active" data-tab="ban-management">
+      <i class="fas fa-gavel"></i> Ban Management
     </button>
-    <button class="mod-nav-btn premium-tab-btn" data-tab="warningsTab">
-      <div class="premium-tab-icon">
-        <i class="fas fa-exclamation-triangle"></i>
-      </div>
-      <span>Warning System</span>
-      <div class="premium-tab-highlight"></div>
+    <button class="mod-nav-btn" data-tab="warning-system">
+      <i class="fas fa-exclamation-triangle"></i> Warning System
     </button>
-    <button class="mod-nav-btn premium-tab-btn" data-tab="automodTab">
-      <div class="premium-tab-icon">
-        <i class="fas fa-shield-alt"></i>
-      </div>
-      <span>Auto-Moderation</span>
-      <div class="premium-tab-highlight"></div>
+    <button class="mod-nav-btn" data-tab="auto-moderation">
+      <i class="fas fa-shield-alt"></i> Auto-Moderation
     </button>
-    <button class="mod-nav-btn premium-tab-btn" data-tab="filtersTab">
-      <div class="premium-tab-icon">
-        <i class="fas fa-filter"></i>
-      </div>
-      <span>Advanced Filters</span>
-      <div class="premium-tab-highlight"></div>
+    <button class="mod-nav-btn" data-tab="advanced-filters">
+      <i class="fas fa-filter"></i> Advanced Filters
     </button>
   </div>
   
-  <!-- THREE.js library loading with multiple fallbacks -->
+  <!-- 3D Visualization Container -->
+  <div id="moderation-three-container" class="moderation-three-container"></div>
+  
+  <!-- THREE.js library loading with fallbacks -->
   <script>
-    // THREE.js loader with advanced fallback system
+    // THREE.js loader with multiple CDN fallbacks
     function loadThreeJS() {
       const sources = [
         'https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js',
@@ -148,7 +114,6 @@
           console.warn('THREE.js not loaded! Falling back to 2D mode.');
           // Tell the visualization to use 2D mode
           window.threeJSLoaded = false;
-          document.body.classList.add('visualization-2d');
           return;
         }
         
@@ -157,14 +122,6 @@
         script.onload = function() {
           console.log(`THREE.js loaded successfully from ${sources[index]}`);
           window.threeJSLoaded = true;
-          document.body.classList.add('visualization-3d');
-          
-          // Load OrbitControls if available
-          if (typeof THREE !== 'undefined') {
-            const orbitControlsScript = document.createElement('script');
-            orbitControlsScript.src = 'https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/controls/OrbitControls.js';
-            document.body.appendChild(orbitControlsScript);
-          }
         };
         script.onerror = function() {
           console.warn(`Failed to load THREE.js from ${sources[index]}`);
@@ -187,7 +144,7 @@
     <!-- Tab Content -->
     <div class="tab-content-container">
       <!-- Ban Management Tab -->
-      <div id="bansTab" class="tab-content active">
+      <div id="ban-management" class="tab-content active">
         <div class="mod-section mod-ban-section">
           <!-- Left section: Ban User -->
           <div class="mod-ban-user">
@@ -317,7 +274,7 @@
       </div>
       
       <!-- Warning System Tab -->
-      <div id="warningsTab" class="tab-content">
+      <div id="warning-system" class="tab-content">
         <div class="mod-warning-section">
           <!-- Warning System Header -->
           <div class="mod-section-header-wrapper">
@@ -484,7 +441,7 @@
       </div>
       
       <!-- Auto-Moderation Tab -->
-      <div id="automodTab" class="tab-content">
+      <div id="auto-moderation" class="tab-content">
         <div class="mod-automod-section">
           <!-- Auto-Moderation Header -->
           <div class="mod-section-header-wrapper">
@@ -832,7 +789,7 @@
       </div>
       
       <!-- Advanced Filters Tab -->
-      <div id="filtersTab" class="tab-content">
+      <div id="advanced-filters" class="tab-content">
         <div class="filters-placeholder">
           <i class="fas fa-filter"></i>
           <h3>Advanced Filters</h3>

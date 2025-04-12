@@ -77,18 +77,11 @@ router.get('/moderation', (req, res) => {
   }
   
   res.render('admin3d/moderation', {
-    title: 'Enterprise-grade Moderation Command Center | SWOOSH Bot',
+    title: 'Moderation Command Center | SWOOSH Bot',
     user: req.user,
     client,
     servers,
-    customStyles: [
-      'admin3d-moderation-custom.css', 
-      'admin3d-moderation-premium-555k.css', 
-      'direct-access.css'
-    ],
-    customScripts: [
-      'admin3d-moderation-premium-555k.js'
-    ],
+    customStyles: ['admin3d-moderation-custom.css', 'direct-access.css'], // Added direct access styles
     layout: 'layouts/admin3d'
   });
 });

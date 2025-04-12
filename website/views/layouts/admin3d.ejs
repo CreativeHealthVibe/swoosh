@@ -67,7 +67,6 @@
   <% if (title.includes('Moderation')) { %>
     <link rel="stylesheet" href="/css/admin3d-moderation.css">
     <link rel="stylesheet" href="/css/admin3d-moderation-premium.css">
-    <link rel="stylesheet" href="/css/admin3d-moderation-premium-555k.css">
     <% if (typeof customStyles !== 'undefined' && customStyles) { %>
       <% customStyles.forEach(style => { %>
         <link rel="stylesheet" href="/css/<%= style %>">
@@ -105,7 +104,6 @@
     <script src="/js/admin3d-moderation.js" defer></script>
     <script src="/js/admin3d-moderation-scene.js" defer></script>
     <script src="/js/admin3d-moderation-premium.js" defer></script>
-    <script src="/js/admin3d-moderation-premium-555k.js" defer></script>
   <% } %>
 </head>
 <body class="admin3d-body <%= title.includes('Message') ? 'no-three-js' : '' %>">
@@ -433,12 +431,5 @@
       }, 1000);
     });
   </script>
-  
-  <!-- Custom Page-specific scripts -->
-  <% if (typeof customScripts !== 'undefined' && customScripts) { %>
-    <% customScripts.forEach(script => { %>
-      <script src="/js/<%= script %>" defer></script>
-    <% }); %>
-  <% } %>
 </body>
 </html>
