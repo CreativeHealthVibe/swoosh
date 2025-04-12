@@ -416,7 +416,7 @@
 .form-field textarea,
 .form-field select {
   width: 100%;
-  background: #000000;
+  background: #171730;
   border: 1px solid rgba(91, 77, 164, 0.3);
   border-radius: 6px;
   padding: 0.75rem;
@@ -924,7 +924,7 @@
 .admin3d-search-box input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  background: #000000;
+  background: #171730;
   border: 1px solid rgba(91, 77, 164, 0.2);
   border-radius: 0.5rem;
   color: var(--text);
