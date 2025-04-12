@@ -322,14 +322,27 @@ class AutoModerationSystem {
       
       // Determine escalated action based on violation count
       if (settings.escalateRepeated) {
-        // New tier-based escalation system
-        if (userData.count >= settings.maxViolations && settings.tier4Action) {
+        // Calculate tier thresholds based on maxViolations setting
+        const maxViolations = parseInt(settings.maxViolations) || 7;
+        const tier4Threshold = maxViolations;
+        const tier3Threshold = Math.max(Math.floor(maxViolations * 0.75), 1);
+        const tier2Threshold = Math.max(Math.floor(maxViolations * 0.5), 1);
+        const tier1Threshold = 1; // First violation
+
+        console.log(`[AutoMod] User ${userId} has ${userData.count} violations. Thresholds: T1=${tier1Threshold}, T2=${tier2Threshold}, T3=${tier3Threshold}, T4=${tier4Threshold}`);
+        
+        // Apply appropriate tier action based on violation count
+        if (userData.count >= tier4Threshold && settings.tier4Action) {
+          console.log(`[AutoMod] Applying tier 4 action: ${settings.tier4Action}`);
           return settings.tier4Action;
-        } else if (userData.count >= 5 && settings.tier3Action) {
+        } else if (userData.count >= tier3Threshold && settings.tier3Action) {
+          console.log(`[AutoMod] Applying tier 3 action: ${settings.tier3Action}`);
           return settings.tier3Action;
-        } else if (userData.count >= 3 && settings.tier2Action) {
+        } else if (userData.count >= tier2Threshold && settings.tier2Action) {
+          console.log(`[AutoMod] Applying tier 2 action: ${settings.tier2Action}`);
           return settings.tier2Action;
-        } else if (settings.tier1Action) {
+        } else if (userData.count >= tier1Threshold && settings.tier1Action) {
+          console.log(`[AutoMod] Applying tier 1 action: ${settings.tier1Action}`);
           return settings.tier1Action;
         }
         
@@ -342,12 +355,12 @@ class AutoModerationSystem {
           }
         }
         
-        // Very legacy escalation system - use maxViolations setting
-        if (userData.count >= settings.maxViolations) {
+        // Fallback to legacy escalation system if tier actions aren't set
+        if (userData.count >= maxViolations) {
           return 'ban';
-        } else if (userData.count >= Math.ceil(settings.maxViolations * 0.75)) {
+        } else if (userData.count >= Math.ceil(maxViolations * 0.75)) {
           return 'kick';
-        } else if (userData.count >= Math.ceil(settings.maxViolations * 0.5)) {
+        } else if (userData.count >= Math.ceil(maxViolations * 0.5)) {
           return 'mute';
         } else if (userData.count >= Math.ceil(settings.maxViolations * 0.25)) {
           return 'warn';
