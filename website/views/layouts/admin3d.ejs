@@ -66,6 +66,7 @@
   <% } %>
   <% if (title.includes('Moderation')) { %>
     <link rel="stylesheet" href="/css/admin3d-moderation.css">
+    <link rel="stylesheet" href="/css/admin3d-moderation-premium.css">
     <% if (typeof customStyles !== 'undefined' && customStyles) { %>
       <% customStyles.forEach(style => { %>
         <link rel="stylesheet" href="/css/<%= style %>">
@@ -90,8 +91,19 @@
   <% } else if (title.includes('Stats')) { %>
     <script src="/js/admin3d-stats.js" defer></script>
   <% } else if (title.includes('Moderation')) { %>
+    <!-- Three.js Post-Processing Dependencies (Premium Effects) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/EffectComposer.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/RenderPass.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/ShaderPass.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/UnrealBloomPass.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/shaders/CopyShader.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/shaders/LuminosityHighPassShader.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/shaders/OutputShader.js" defer></script>
+    
+    <!-- Moderation Admin Scripts (Order matters) -->
     <script src="/js/admin3d-moderation.js" defer></script>
     <script src="/js/admin3d-moderation-scene.js" defer></script>
+    <script src="/js/admin3d-moderation-premium.js" defer></script>
   <% } %>
 </head>
 <body class="admin3d-body <%= title.includes('Message') ? 'no-three-js' : '' %>">
