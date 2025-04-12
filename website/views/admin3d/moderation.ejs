@@ -603,10 +603,51 @@
                       </label>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="maxViolations">Violations Before Ban</label>
-                      <input type="number" id="maxViolations" name="maxViolations" min="3" max="20" value="5">
-                      <div class="field-hint">Number of violations before a permanent ban</div>
+                    <div class="form-field escalation-field">
+                      <label for="maxViolations">Progressive Violation Actions</label>
+                      <div class="escalation-tiers">
+                        <div class="escalation-tier">
+                          <span class="tier-label">First Offense</span>
+                          <select class="tier-action" id="tier1Action" name="tier1Action">
+                            <option value="delete">Delete Message</option>
+                            <option value="warn">Warn User</option>
+                            <option value="mute">Timeout</option>
+                            <option value="kick">Kick</option>
+                            <option value="ban">Ban</option>
+                          </select>
+                        </div>
+                        <div class="escalation-tier">
+                          <span class="tier-label">After 3 Violations</span>
+                          <select class="tier-action" id="tier2Action" name="tier2Action">
+                            <option value="delete">Delete Message</option>
+                            <option value="warn">Warn User</option>
+                            <option value="mute" selected>Timeout</option>
+                            <option value="kick">Kick</option>
+                            <option value="ban">Ban</option>
+                          </select>
+                        </div>
+                        <div class="escalation-tier">
+                          <span class="tier-label">After 5 Violations</span>
+                          <select class="tier-action" id="tier3Action" name="tier3Action">
+                            <option value="delete">Delete Message</option>
+                            <option value="warn">Warn User</option>
+                            <option value="mute">Timeout</option>
+                            <option value="kick" selected>Kick</option>
+                            <option value="ban">Ban</option>
+                          </select>
+                        </div>
+                        <div class="escalation-tier">
+                          <span class="tier-label">After <input type="number" id="maxViolations" name="maxViolations" min="3" max="20" value="5" style="width: 50px; display: inline-block;"> Violations</span>
+                          <select class="tier-action" id="tier4Action" name="tier4Action">
+                            <option value="delete">Delete Message</option>
+                            <option value="warn">Warn User</option>
+                            <option value="mute">Timeout</option>
+                            <option value="kick">Kick</option>
+                            <option value="ban" selected>Ban</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="field-hint">Customize actions for different violation counts</div>
                     </div>
                   </div>
                   
