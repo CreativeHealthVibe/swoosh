@@ -8,16 +8,16 @@
 
 <div class="admin3d-moderation">
   <!-- Page header -->
-  <div class="mod-header">
-    <h1 class="mod-title">Ultra Premium Moderation Dashboard</h1>
-    <p class="mod-subtitle">Advanced tools with enhanced 3D visualization for comprehensive server management - featuring reliable direct ban access</p>
+  <div class="moderation-header">
+    <h1 class="moderation-title">Ultra Premium Moderation Dashboard</h1>
+    <p class="moderation-subtitle">Advanced tools with enhanced 3D visualization for comprehensive server management - featuring reliable direct ban access</p>
   </div>
   
   <!-- Server selector -->
   <div class="mod-server-selector">
     <span>Server:</span>
     <div class="server-selector-wrapper">
-      <select id="serverSelect">
+      <select id="serverSelect" class="admin3d-form-select">
         <option value="">Select a server</option>
         <% if (servers && servers.length > 0) { %>
           <% servers.forEach(server => { %>
@@ -31,7 +31,7 @@
     
     <!-- Emergency button -->
     <div class="emergency-tools">
-      <a href="/admin3d/moderation-emergency" class="emergency-link">
+      <a href="/admin3d/moderation-emergency" class="admin3d-btn admin3d-btn-danger emergency-link">
         <i class="fas fa-exclamation-triangle"></i> Emergency Tools
       </a>
     </div>
@@ -80,21 +80,54 @@
     </div>
   </div>
   
-  <!-- Tab navigation -->
-  <div class="mod-tab-navigation">
-    <button class="mod-nav-btn active" data-tab="ban-management">
-      <i class="fas fa-gavel"></i> Ban Management
-    </button>
-    <button class="mod-nav-btn" data-tab="warning-system">
-      <i class="fas fa-exclamation-triangle"></i> Warning System
-    </button>
-    <button class="mod-nav-btn" data-tab="auto-moderation">
-      <i class="fas fa-shield-alt"></i> Auto-Moderation
-    </button>
-    <button class="mod-nav-btn" data-tab="advanced-filters">
-      <i class="fas fa-filter"></i> Advanced Filters
-    </button>
-  </div>
+  <!-- Tabs Container -->
+  <div class="tabs-container">
+    <div class="admin3d-tabs">
+      <button class="tab-btn active" data-tab="ban-management">
+        <i class="fas fa-gavel"></i> Ban Management
+      </button>
+      <button class="tab-btn" data-tab="warning-system">
+        <i class="fas fa-exclamation-triangle"></i> Warning System
+      </button>
+      <button class="tab-btn" data-tab="auto-moderation">
+        <i class="fas fa-shield-alt"></i> Auto-Moderation
+      </button>
+      <button class="tab-btn" data-tab="advanced-filters">
+        <i class="fas fa-filter"></i> Advanced Filters
+      </button>
+    </div>
+    
+    <!-- Fix for form interaction issues -->
+    <style>
+      /* Fix input interaction issues */
+      .admin3d-form-input,
+      .admin3d-form-textarea,
+      .admin3d-form-select,
+      .admin3d-btn {
+        position: relative;
+        z-index: 100 !important;
+        pointer-events: auto !important;
+      }
+      
+      /* Make sure forms are above the THREE.js canvas */
+      .tab-content {
+        position: relative;
+        z-index: 50;
+      }
+      
+      /* Ensure inputs can be interacted with */
+      .admin3d-form-group,
+      .form-field {
+        position: relative;
+        z-index: 100;
+      }
+      
+      /* Ensure THREE.js doesn't block */
+      #moderation-three-container {
+        pointer-events: none !important;
+        z-index: -1 !important;
+      }
+    </style>
   
   <!-- 3D Visualization Container -->
   <div id="moderation-three-container" class="moderation-three-container"></div>
@@ -136,11 +169,57 @@
     }
     
     // Load THREE.js when the page loads
-    document.addEventListener('DOMContentLoaded', loadThreeJS);
+    document.addEventListener('DOMContentLoaded', function() {
+      loadThreeJS();
+      initializeTabs();
+    });
+    
+    // Initialize tab functionality
+    function initializeTabs() {
+      console.log('Initializing tabs...');
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      // Debug which tabs exist
+      tabButtons.forEach(btn => {
+        console.log('Found tab button:', btn.getAttribute('data-tab'));
+      });
+      
+      tabContents.forEach(content => {
+        console.log('Found tab content ID:', content.id);
+      });
+      
+      // Tab click event
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const tabId = this.getAttribute('data-tab');
+          console.log('Tab clicked:', tabId);
+          
+          // Remove active class from all tabs
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => {
+            content.classList.remove('active');
+            content.style.display = 'none';
+          });
+          
+          // Add active class to clicked tab
+          this.classList.add('active');
+          const activeTab = document.getElementById(tabId);
+          if (activeTab) {
+            activeTab.classList.add('active');
+            activeTab.style.display = 'block';
+          } else {
+            console.error('Could not find tab with id:', tabId);
+          }
+        });
+      });
+    }
   </script>
   
   <!-- Content Container -->
-  <div class="mod-content-container" id="moderation-tabs">
+  <div class="tab-content-container">
     <!-- Tab Content -->
     <div class="tab-content-container">
       <!-- Ban Management Tab -->
@@ -164,20 +243,20 @@
               <form action="/admin3d/direct-bans/ban-user" method="POST" id="banUserForm">
                 <input type="hidden" id="banServerId" name="serverId" value="">
                 
-                <div class="form-field">
-                  <label for="userId">User ID or @Mention</label>
-                  <input type="text" id="userId" name="userId" placeholder="Enter user ID or @mention" required>
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="userId">User ID or @Mention</label>
+                  <input class="admin3d-form-input" type="text" id="userId" name="userId" placeholder="Enter user ID or @mention" required>
                 </div>
                 
-                <div class="form-field">
-                  <label for="banReason">Reason</label>
-                  <textarea id="banReason" name="reason" placeholder="Explain the reason for this ban..." required rows="3"></textarea>
+                <div class="admin3d-form-group">
+                  <label class="admin3d-form-label" for="banReason">Reason</label>
+                  <textarea class="admin3d-form-textarea" id="banReason" name="reason" placeholder="Explain the reason for this ban..." required rows="3"></textarea>
                 </div>
                 
-                <div class="form-row">
-                  <div class="form-field">
-                    <label for="banDuration">Duration</label>
-                    <select id="banDuration" name="duration">
+                <div class="admin3d-form-row">
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="banDuration">Duration</label>
+                    <select class="admin3d-form-select" id="banDuration" name="duration">
                       <option value="permanent">Permanent</option>
                       <option value="1d">1 Day</option>
                       <option value="3d">3 Days</option>
@@ -190,11 +269,11 @@
                 </div>
                 
                 <!-- Custom Duration Input (hidden by default) -->
-                <div id="customDurationGroup" class="form-field" style="display: none;">
-                  <label for="customDuration">Custom Duration</label>
+                <div id="customDurationGroup" class="admin3d-form-group" style="display: none;">
+                  <label class="admin3d-form-label" for="customDuration">Custom Duration</label>
                   <div class="custom-duration-inputs">
-                    <input type="number" id="customDuration" name="customDuration" min="1" value="1">
-                    <select id="customDurationUnit" name="customDurationUnit">
+                    <input class="admin3d-form-input" type="number" id="customDuration" name="customDuration" min="1" value="1">
+                    <select class="admin3d-form-select" id="customDurationUnit" name="customDurationUnit">
                       <option value="h">Hours</option>
                       <option value="d" selected>Days</option>
                       <option value="w">Weeks</option>
@@ -203,21 +282,21 @@
                   </div>
                 </div>
                 
-                <div class="form-options">
-                  <div class="form-check">
+                <div class="admin3d-form-options">
+                  <div class="admin3d-form-check">
                     <input type="checkbox" id="deleteMessages" name="deleteMessages" value="true">
                     <label for="deleteMessages">Delete recent messages</label>
                   </div>
                   
-                  <div class="form-check">
+                  <div class="admin3d-form-check">
                     <input type="checkbox" id="addToBlacklist" name="addToBlacklist" value="true">
                     <label for="addToBlacklist">Add to blacklist</label>
                   </div>
                 </div>
                 
-                <div class="form-actions">
-                  <button type="submit" class="mod-btn danger-btn" id="banUserBtn">
-                    <i class="fas fa-gavel"></i> Ban User
+                <div class="admin3d-form-actions">
+                  <button type="submit" class="admin3d-btn admin3d-btn-danger" id="banUserBtn">
+                    <i class="fas fa-gavel"></i> <span>Ban User</span>
                   </button>
                 </div>
               </form>
@@ -299,25 +378,25 @@
                 <form id="warnUserForm" action="/admin3d/warnings/add" method="POST">
                   <input type="hidden" id="warnServerId" name="serverId">
                   
-                  <div class="form-field">
-                    <label for="warnUserId">User ID or @mention</label>
-                    <input type="text" id="warnUserId" name="userId" placeholder="Enter user ID or @mention" required>
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="warnUserId">User ID or @mention</label>
+                    <input class="admin3d-form-input" type="text" id="warnUserId" name="userId" placeholder="Enter user ID or @mention" required>
                   </div>
                   
-                  <div class="form-field">
-                    <label for="warnReason">Warning Reason</label>
-                    <textarea id="warnReason" name="reason" placeholder="Explain the reason for this warning..." required rows="3"></textarea>
+                  <div class="admin3d-form-group">
+                    <label class="admin3d-form-label" for="warnReason">Warning Reason</label>
+                    <textarea class="admin3d-form-textarea" id="warnReason" name="reason" placeholder="Explain the reason for this warning..." required rows="3"></textarea>
                   </div>
                   
-                  <div class="form-options">
-                    <div class="form-check">
+                  <div class="admin3d-form-options">
+                    <div class="admin3d-form-check">
                       <input type="checkbox" id="notifyUser" name="notifyUser" checked>
                       <label for="notifyUser">Notify user via DM</label>
                     </div>
                   </div>
                   
-                  <div class="form-actions">
-                    <button type="submit" class="mod-btn danger-btn">
+                  <div class="admin3d-form-actions">
+                    <button type="submit" class="admin3d-btn admin3d-btn-warning">
                       <i class="fas fa-exclamation-triangle"></i>
                       <span>Issue Warning</span>
                     </button>
