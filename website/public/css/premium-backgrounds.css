@@ -23,7 +23,7 @@
   bottom: 0;
   z-index: -1;
   overflow: hidden;
-  background: linear-gradient(135deg, #0a0a1e 0%, #141428 100%);
+  background: #000000;
 }
 
 /* Animated gradient blobs */
@@ -132,7 +132,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(10, 10, 30, 0.6) 0%, rgba(30, 30, 60, 0.4) 100%);
+  background: #000000;
   border-radius: inherit;
   z-index: -1;
   pointer-events: none;
@@ -194,7 +194,7 @@
 .premium-section-bg {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: rgba(10, 10, 30, 0.7);
+  background: #000000;
   border-radius: 12px;
   border: 1px solid rgba(100, 100, 255, 0.18);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -243,7 +243,7 @@
 }
 
 .visualization-mode-switcher .mode-btn {
-  background: rgba(30, 30, 50, 0.6);
+  background: #000000;
   color: white;
   border: 1px solid rgba(100, 100, 255, 0.2);
   border-radius: 20px;
@@ -257,12 +257,12 @@
 }
 
 .visualization-mode-switcher .mode-btn:hover {
-  background: rgba(40, 40, 80, 0.8);
+  background: #000000;
   border-color: rgba(100, 100, 255, 0.5);
   transform: translateY(-2px);
 }
 
 .visualization-mode-switcher .mode-btn.active {
-  background: linear-gradient(135deg, #8936ff, #4d9fff);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #000000;
+  border-color: rgba(137, 54, 255, 0.6);
 }
