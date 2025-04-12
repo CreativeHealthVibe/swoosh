@@ -1,6 +1,6 @@
 /**
- * Premium Background Effects
- * Advanced animated background effects for premium sections
+ * Premium Backgrounds
+ * Dynamic, interactive background effects for premium admin sections
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,137 +9,178 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize premium background effects
 function initPremiumBackgrounds() {
-  // Create premium background container
-  const container = document.createElement('div');
-  container.className = 'premium-backgrounds';
-  container.style.position = 'fixed';
-  container.style.top = '0';
-  container.style.left = '0';
-  container.style.width = '100%';
-  container.style.height = '100%';
-  container.style.zIndex = '-10';
-  container.style.pointerEvents = 'none';
-  container.style.overflow = 'hidden';
-  
-  // Add base gradient background
-  const gradientBg = document.createElement('div');
-  gradientBg.className = 'premium-gradient-bg';
-  container.appendChild(gradientBg);
-  
-  // Add animated orbs
-  const orbsContainer = document.createElement('div');
-  orbsContainer.className = 'premium-orbs-container';
-  
-  for (let i = 0; i < 4; i++) {
-    const orb = document.createElement('div');
-    orb.className = 'premium-orb';
-    orbsContainer.appendChild(orb);
+  // Apply dynamic background to admin wrapper if not already applied
+  const adminWrapper = document.querySelector('.admin-wrapper');
+  if (adminWrapper && !adminWrapper.classList.contains('premium-bg-applied')) {
+    // Add dynamic background layer
+    const bgLayer = document.createElement('div');
+    bgLayer.className = 'premium-bg-layer';
+    
+    // Add animated gradient elements
+    for (let i = 0; i < 4; i++) {
+      const gradient = document.createElement('div');
+      gradient.className = `premium-bg-gradient gradient-${i + 1}`;
+      bgLayer.appendChild(gradient);
+    }
+    
+    // Add grid pattern overlay
+    const gridPattern = document.createElement('div');
+    gridPattern.className = 'premium-bg-grid';
+    bgLayer.appendChild(gridPattern);
+    
+    // Add particles container
+    const particles = document.createElement('div');
+    particles.className = 'premium-bg-particles';
+    
+    // Create particles
+    for (let i = 0; i < 30; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'premium-particle';
+      
+      // Random position
+      const posX = Math.random() * 100;
+      const posY = Math.random() * 100;
+      
+      // Random size
+      const size = 1 + Math.random() * 4;
+      
+      // Random opacity
+      const opacity = 0.2 + Math.random() * 0.5;
+      
+      // Random animation duration
+      const duration = 20 + Math.random() * 40;
+      
+      // Apply styles
+      particle.style.left = `${posX}%`;
+      particle.style.top = `${posY}%`;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.opacity = opacity;
+      particle.style.animationDuration = `${duration}s`;
+      
+      particles.appendChild(particle);
+    }
+    
+    bgLayer.appendChild(particles);
+    
+    // Add to admin wrapper before any other children
+    adminWrapper.insertBefore(bgLayer, adminWrapper.firstChild);
+    adminWrapper.classList.add('premium-bg-applied');
+    
+    // Create mouse parallax effect
+    createParallaxEffect();
   }
   
-  container.appendChild(orbsContainer);
+  // Check for specific dashboard sections that need enhanced backgrounds
+  const admin3dSections = document.querySelectorAll('.admin3d-section, .mod-section, .stats-section');
   
-  // Add grid lines
-  const gridLines = document.createElement('div');
-  gridLines.className = 'premium-grid-lines';
-  container.appendChild(gridLines);
-  
-  // Add stars
-  const starsContainer = document.createElement('div');
-  starsContainer.className = 'premium-stars';
-  
-  // Create stars
-  for (let i = 0; i < 100; i++) {
-    createStar(starsContainer);
-  }
-  
-  container.appendChild(starsContainer);
-  
-  // Add noise texture
-  const noiseTexture = document.createElement('div');
-  noiseTexture.className = 'premium-noise';
-  container.appendChild(noiseTexture);
-  
-  // Add glow overlay
-  const glowOverlay = document.createElement('div');
-  glowOverlay.className = 'premium-glow-overlay';
-  container.appendChild(glowOverlay);
-  
-  // Add scanning effect
-  const scanLine = document.createElement('div');
-  scanLine.className = 'premium-scan-line';
-  container.appendChild(scanLine);
-  
-  // Add to document
-  document.body.prepend(container);
-  
-  // Add pulse effects on mouse move
-  document.addEventListener('mousemove', debounce((e) => {
-    createPulseEffect(e.clientX, e.clientY, container);
-  }, 1000));
-  
-  // Add premium card animated borders
-  document.querySelectorAll('.premium-card, .admin3d-card').forEach(card => {
-    card.classList.add('animated-border');
-  });
-  
-  // Add section accents
-  document.querySelectorAll('.mod-section-header-wrapper, .dashboard-header').forEach(section => {
-    section.classList.add('premium-section-accent');
+  admin3dSections.forEach((section, index) => {
+    // Don't apply to all sections to avoid performance issues
+    // Only apply to key sections like stats or highlighted modules
+    const shouldEnhance = section.classList.contains('stats-section') || 
+                          section.classList.contains('featured') || 
+                          section.classList.contains('highlight') ||
+                          section.classList.contains('tier-section') ||
+                          index === 0; // First section
+    
+    if (shouldEnhance && !section.classList.contains('premium-section-bg')) {
+      section.classList.add('premium-section-bg');
+      
+      // Add light burst effect to section
+      const lightBurst = document.createElement('div');
+      lightBurst.className = 'premium-light-burst';
+      section.appendChild(lightBurst);
+      
+      // Add section background gradient
+      const sectionBg = document.createElement('div');
+      sectionBg.className = 'premium-section-bg-gradient';
+      section.appendChild(sectionBg);
+    }
   });
 }
 
-// Create a star element with random properties
-function createStar(container) {
-  const star = document.createElement('div');
-  star.className = 'premium-star';
+// Create parallax effect for background elements
+function createParallaxEffect() {
+  const bgLayer = document.querySelector('.premium-bg-layer');
+  if (!bgLayer) return;
   
-  // Random position
-  star.style.left = `${Math.random() * 100}%`;
-  star.style.top = `${Math.random() * 100}%`;
+  const gradients = bgLayer.querySelectorAll('.premium-bg-gradient');
+  const particles = bgLayer.querySelectorAll('.premium-particle');
   
-  // Random size
-  const size = Math.random() * 2 + 1;
-  star.style.width = `${size}px`;
-  star.style.height = `${size}px`;
-  
-  // Random brightness
-  const brightness = Math.random() * 0.7 + 0.3;
-  star.style.opacity = brightness.toString();
-  
-  // Random twinkling
-  const twinkleDuration = Math.random() * 5 + 3;
-  star.style.setProperty('--twinkle-duration', `${twinkleDuration}s`);
-  
-  // Random delay
-  star.style.animationDelay = `${Math.random() * 5}s`;
-  
-  container.appendChild(star);
+  // Track mouse movement
+  document.addEventListener('mousemove', (e) => {
+    // Calculate mouse position as percentage of window
+    const mouseX = e.clientX / window.innerWidth;
+    const mouseY = e.clientY / window.innerHeight;
+    
+    // Move gradients slightly based on mouse position
+    gradients.forEach((gradient, index) => {
+      const factorX = (index + 1) * 2;
+      const factorY = (index + 1) * 2;
+      
+      const translateX = (mouseX - 0.5) * factorX;
+      const translateY = (mouseY - 0.5) * factorY;
+      
+      gradient.style.transform = `translate(${translateX}%, ${translateY}%)`;
+    });
+    
+    // Subtle movement for particles
+    particles.forEach((particle) => {
+      const translateX = (mouseX - 0.5) * 5;
+      const translateY = (mouseY - 0.5) * 5;
+      
+      particle.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    });
+  });
 }
 
-// Create pulse effect at cursor position
-function createPulseEffect(x, y, container) {
-  const pulse = document.createElement('div');
-  pulse.className = 'premium-pulse';
-  pulse.style.left = `${x}px`;
-  pulse.style.top = `${y}px`;
+// Function to add dynamic cards that respond to cursor movement
+function enhanceCardElements() {
+  const cards = document.querySelectorAll('.stat-card, .admin3d-card, .feature-card');
   
-  container.appendChild(pulse);
-  
-  // Remove after animation completes
-  setTimeout(() => {
-    pulse.remove();
-  }, 5000);
+  cards.forEach(card => {
+    // Skip already enhanced cards
+    if (card.classList.contains('premium-card-enhanced')) return;
+    
+    // Mark as enhanced
+    card.classList.add('premium-card-enhanced');
+    
+    // Add shine effect layer
+    const shine = document.createElement('div');
+    shine.className = 'premium-card-shine';
+    card.appendChild(shine);
+    
+    // Add tilt effect on mouse move
+    card.addEventListener('mousemove', (e) => {
+      // Get position of cursor within card
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left; // X position within card
+      const y = e.clientY - rect.top; // Y position within card
+      
+      // Calculate rotation based on cursor position
+      // Convert to percentage and then to degrees (-10 to 10)
+      const rotateX = ((y / rect.height) - 0.5) * -10;
+      const rotateY = ((x / rect.width) - 0.5) * 10;
+      
+      // Apply the rotation
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      
+      // Update shine effect
+      const percentX = x / rect.width * 100;
+      const percentY = y / rect.height * 100;
+      shine.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%)`;
+    });
+    
+    // Reset on mouse leave
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+      shine.style.background = 'none';
+    });
+  });
 }
 
-// Debounce function to limit function calls
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
+// Periodically check for new card elements to enhance
+setInterval(enhanceCardElements, 2000);
+
+// Initial call to enhance existing cards
+setTimeout(enhanceCardElements, 1000);
