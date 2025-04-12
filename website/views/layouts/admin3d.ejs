@@ -431,5 +431,12 @@
       }, 1000);
     });
   </script>
+  
+  <!-- Custom Page-specific scripts -->
+  <% if (typeof customScripts !== 'undefined' && customScripts) { %>
+    <% customScripts.forEach(script => { %>
+      <script src="/js/<%= script %>" defer></script>
+    <% }); %>
+  <% } %>
 </body>
 </html>

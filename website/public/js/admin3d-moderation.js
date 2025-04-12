@@ -1,17 +1,28 @@
 /**
  * SWOOSH Bot 3D Admin Dashboard
- * Ultra Premium Edition - $555k
+ * Legacy Version - Compatible with $555K Edition
  * 
- * Admin3D Moderation JS - Advanced visualization with holographic effects
- * Cutting-edge moderation interface with immersive 3D visualizations
+ * This version provides compatibility with the new $555K premium edition
+ * Only initializes if the premium version is not detected
  */
+
+// Check if we're running alongside the $555K premium version
+let isPremiumVersionLoaded = false;
 
 // Initialize Three.js visualizations once the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  initializeModeration3D();
-  setupTabNavigation();
-  initializeFormHandlers();
-  initializeServerSelector();
+  // Check for the premium version (will be set by the premium JS file if loaded)
+  window.setTimeout(() => {
+    if (!window.premium555kLoaded) {
+      console.log('Premium $555K version not detected, loading legacy version');
+      initializeModeration3D();
+      setupTabNavigation();
+      initializeFormHandlers();
+      initializeServerSelector();
+    } else {
+      console.log('Premium $555K version detected, deferring to premium initialization');
+    }
+  }, 100); // Small delay to ensure premium JS has time to load if present
 });
 
 /**
