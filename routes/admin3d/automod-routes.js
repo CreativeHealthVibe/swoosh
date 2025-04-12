@@ -94,7 +94,12 @@ router.post('/settings', async (req, res) => {
       muteTime,
       muteTimeUnit,
       escalateRepeated,
-      maxViolations
+      maxViolations,
+      // New tier-based escalation system
+      tier1Action,
+      tier2Action,
+      tier3Action,
+      tier4Action
     } = req.body;
     
     // Format settings
@@ -119,7 +124,12 @@ router.post('/settings', async (req, res) => {
       defaultAction: defaultAction || 'delete',
       muteTime: `${muteTime || 10}${muteTimeUnit || 'm'}`,
       escalateRepeated: escalateRepeated === 'on' || escalateRepeated === true,
-      maxViolations: parseInt(maxViolations) || 5
+      maxViolations: parseInt(maxViolations) || 7,
+      // New tier-based escalation system
+      tier1Action: tier1Action || 'warn',
+      tier2Action: tier2Action || 'mute',
+      tier3Action: tier3Action || 'kick',
+      tier4Action: tier4Action || 'ban'
     };
     
     // Save settings
