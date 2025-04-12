@@ -562,9 +562,9 @@
                       </label>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="logChannel">Log Channel</label>
-                      <select id="logChannel" name="logChannel">
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="logChannel">Log Channel</label>
+                      <select class="admin3d-form-select" id="logChannel" name="logChannel">
                         <option value="">Select a channel</option>
                         <!-- Channels will be populated by JavaScript -->
                       </select>
@@ -605,10 +605,10 @@
                       </label>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="mentionThreshold">Mention Threshold</label>
-                      <input type="number" id="mentionThreshold" name="mentionThreshold" min="3" max="20" value="5">
-                      <div class="field-hint">Number of mentions that triggers moderation</div>
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="mentionThreshold">Mention Threshold</label>
+                      <input class="admin3d-form-input" type="number" id="mentionThreshold" name="mentionThreshold" min="3" max="20" value="5">
+                      <div class="admin3d-form-hint">Number of mentions that triggers moderation</div>
                     </div>
                   </div>
                   
@@ -622,16 +622,16 @@
                       </label>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="spamThreshold">Message Threshold</label>
-                      <input type="number" id="spamThreshold" name="spamThreshold" min="3" max="15" value="5">
-                      <div class="field-hint">Number of messages in time window</div>
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="spamThreshold">Message Threshold</label>
+                      <input class="admin3d-form-input" type="number" id="spamThreshold" name="spamThreshold" min="3" max="15" value="5">
+                      <div class="admin3d-form-hint">Number of messages in time window</div>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="spamTimeWindow">Time Window (seconds)</label>
-                      <input type="number" id="spamTimeWindow" name="spamTimeWindow" min="3" max="30" value="5">
-                      <div class="field-hint">Time window for spam detection</div>
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="spamTimeWindow">Time Window (seconds)</label>
+                      <input class="admin3d-form-input" type="number" id="spamTimeWindow" name="spamTimeWindow" min="3" max="30" value="5">
+                      <div class="admin3d-form-hint">Time window for spam detection</div>
                     </div>
                     
                     <div class="form-check automod-toggle">
@@ -642,18 +642,18 @@
                       </label>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="capsThreshold">Caps Threshold (%)</label>
-                      <input type="number" id="capsThreshold" name="capsThreshold" min="50" max="100" value="70">
-                      <div class="field-hint">Percentage of caps that triggers moderation</div>
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="capsThreshold">Caps Threshold (%)</label>
+                      <input class="admin3d-form-input" type="number" id="capsThreshold" name="capsThreshold" min="50" max="100" value="70">
+                      <div class="admin3d-form-hint">Percentage of caps that triggers moderation</div>
                     </div>
                   </div>
                   
                   <div class="automod-setting-group">
                     <h4>Automated Actions</h4>
-                    <div class="form-field">
-                      <label for="defaultAction">Default Action</label>
-                      <select id="defaultAction" name="defaultAction">
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="defaultAction">Default Action</label>
+                      <select class="admin3d-form-select" id="defaultAction" name="defaultAction">
                         <option value="delete">Delete Message</option>
                         <option value="warn">Warn User</option>
                         <option value="mute">Timeout User</option>
@@ -662,11 +662,11 @@
                       </select>
                     </div>
                     
-                    <div class="form-field">
-                      <label for="muteTime">Default Timeout Duration</label>
-                      <div class="duration-inputs">
-                        <input type="number" id="muteTime" name="muteTime" min="1" max="1440" value="10">
-                        <select id="muteTimeUnit" name="muteTimeUnit">
+                    <div class="admin3d-form-group">
+                      <label class="admin3d-form-label" for="muteTime">Default Timeout Duration</label>
+                      <div class="admin3d-duration-inputs">
+                        <input class="admin3d-form-input" type="number" id="muteTime" name="muteTime" min="1" max="1440" value="10">
+                        <select class="admin3d-form-select" id="muteTimeUnit" name="muteTimeUnit">
                           <option value="m">Minutes</option>
                           <option value="h">Hours</option>
                           <option value="d">Days</option>
@@ -730,12 +730,12 @@
                     </div>
                   </div>
                   
-                  <div class="form-actions">
-                    <button type="submit" class="mod-btn primary-btn">
+                  <div class="admin3d-form-actions">
+                    <button type="submit" class="admin3d-btn admin3d-btn-primary">
                       <i class="fas fa-save"></i>
                       <span>Save Settings</span>
                     </button>
-                    <button type="button" id="resetAutomodSettings" class="mod-btn secondary-btn">
+                    <button type="button" id="resetAutomodSettings" class="admin3d-btn admin3d-btn-secondary">
                       <i class="fas fa-undo"></i>
                       <span>Reset to Default</span>
                     </button>
@@ -1559,6 +1559,21 @@
     border-radius: 4px;
     color: #fff;
     font-size: 14px;
+  }
+  
+  /* Admin3D form styles for duration inputs */
+  .admin3d-duration-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .admin3d-duration-inputs input {
+    flex: 1;
+  }
+  
+  .admin3d-duration-inputs select {
+    width: 120px;
   }
   
   /* Table styles */
