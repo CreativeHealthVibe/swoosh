@@ -23,8 +23,8 @@ class AutoModerationSystem {
       this.initialized = true;
       console.log('✅ Auto-Moderation System initialized');
       
-      // Set up message handler for content filtering (commented out for initial implementation)
-      // this.client.on('messageCreate', this.handleMessage.bind(this));
+      // Set up message handler for content filtering
+      this.client.on('messageCreate', this.handleMessage.bind(this));
       
       return true;
     } catch (error) {
@@ -34,11 +34,360 @@ class AutoModerationSystem {
   }
   
   /**
-   * Handle message for auto-moderation (simplified)
+   * Handle message for auto-moderation
    */
   async handleMessage(message) {
-    // Basic implementation for now
-    return false;
+    try {
+      // Skip messages from bots or system
+      if (message.author.bot || !message.guild) return false;
+      
+      // Get server settings
+      const serverId = message.guild.id;
+      const settings = this.getServerSettings(serverId);
+      
+      // Skip if auto-mod is disabled for this server
+      if (!settings || !settings.enabled) return false;
+      
+      // Check if user has admin or mod roles that bypass auto-mod
+      if (message.member.permissions.has('ADMINISTRATOR') || 
+          message.member.permissions.has('MODERATE_MEMBERS')) {
+        return false;
+      }
+      
+      let violation = null;
+      
+      // Check for spam if enabled
+      if (settings.antiSpam && settings.antiSpam.enabled) {
+        // Simple implementation for now
+        // TODO: Add more sophisticated spam detection
+      }
+      
+      // Check filters if enabled
+      if (settings.filters) {
+        // Check for invite links
+        if (settings.filters.invites && this.containsInviteLink(message.content)) {
+          violation = {
+            type: 'invite_link',
+            description: 'Discord invite link detected'
+          };
+        }
+        
+        // Check for links
+        if (!violation && settings.filters.links && this.containsLinks(message.content)) {
+          violation = {
+            type: 'external_link',
+            description: 'External link detected'
+          };
+        }
+        
+        // Check for mass mentions
+        if (!violation && settings.filters.massMentions) {
+          const mentionCount = (message.content.match(/<@!?\d+>/g) || []).length;
+          if (mentionCount >= settings.mentionThreshold) {
+            violation = {
+              type: 'mass_mentions',
+              description: `Mass mentions detected (${mentionCount})`
+            };
+          }
+        }
+        
+        // Check for excessive caps
+        if (!violation && settings.filters.caps) {
+          const capsPercentage = this.calculateCapsPercentage(message.content);
+          if (capsPercentage >= settings.capsThreshold) {
+            violation = {
+              type: 'excessive_caps',
+              description: `Excessive caps detected (${Math.round(capsPercentage)}%)`
+            };
+          }
+        }
+        
+        // Check for profanity
+        if (!violation && settings.filters.profanity && this.containsProfanity(message.content)) {
+          violation = {
+            type: 'profanity',
+            description: 'Profanity detected'
+          };
+        }
+      }
+      
+      // Check custom filters
+      if (!violation) {
+        const customFilters = this.getServerFilters(serverId);
+        for (const filter of customFilters) {
+          if (this.matchesFilter(message.content, filter)) {
+            violation = {
+              type: 'custom_filter',
+              description: `Matched custom filter: ${filter.type}`,
+              filter: filter
+            };
+            break;
+          }
+        }
+      }
+      
+      // Take action if violation found
+      if (violation) {
+        console.log(`Auto-mod violation in ${serverId}: ${violation.type} by ${message.author.tag}`);
+        
+        // Determine action to take
+        let action = settings.defaultAction || 'delete';
+        if (violation.filter && violation.filter.action) {
+          action = violation.filter.action;
+        }
+        
+        // Take appropriate action
+        await this.takeAction(message, action, violation, settings);
+        
+        // Log the violation
+        this.logViolation(serverId, message.author, violation, action);
+        
+        // Send log message if enabled
+        if (settings.logActions && settings.logChannel) {
+          await this.sendLogMessage(message, violation, action, settings.logChannel);
+        }
+        
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error in auto-moderation message handler:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Take action based on violation
+   */
+  async takeAction(message, action, violation, settings) {
+    try {
+      // Always delete the message unless action is 'warn' only
+      if (action !== 'warn') {
+        await message.delete().catch(err => console.error('Error deleting message:', err));
+      }
+      
+      // Take additional action if needed
+      switch (action) {
+        case 'warn':
+          // Send warning message to user
+          await message.author.send({
+            content: `⚠️ **Warning:** Your message in ${message.guild.name} contained ${violation.description}. Please review the server rules.`
+          }).catch(() => {
+            // DMs might be closed
+            message.channel.send({
+              content: `⚠️ **Warning @${message.author.tag}:** Your message contained ${violation.description}. Please review the server rules.`
+            }).catch(err => console.error('Error sending warning in channel:', err));
+          });
+          break;
+          
+        case 'mute':
+          // Timeout the user
+          const duration = this.parseMuteTime(settings.muteTime || '10m');
+          await message.member.timeout(duration, `Auto-mod: ${violation.description}`)
+            .catch(err => console.error('Error timing out member:', err));
+          break;
+          
+        case 'kick':
+          // Kick the user
+          await message.member.kick(`Auto-mod: ${violation.description}`)
+            .catch(err => console.error('Error kicking member:', err));
+          break;
+          
+        case 'ban':
+          // Ban the user
+          await message.member.ban({
+            reason: `Auto-mod: ${violation.description}`,
+            deleteMessageSeconds: 86400 // Delete last 24h of messages
+          }).catch(err => console.error('Error banning member:', err));
+          break;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error taking auto-mod action:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Log violation to database
+   */
+  logViolation(serverId, user, violation, action) {
+    try {
+      if (!this.logs.has(serverId)) {
+        this.logs.set(serverId, []);
+      }
+      
+      const log = {
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        userId: user.id,
+        username: user.tag || user.username,
+        violation: violation.description,
+        type: violation.type,
+        action: action,
+        serverId: serverId
+      };
+      
+      // Add to in-memory logs (most recent first)
+      this.logs.get(serverId).unshift(log);
+      
+      // Trim logs if needed
+      if (this.logs.get(serverId).length > 1000) {
+        this.logs.get(serverId).length = 1000;
+      }
+      
+      return log;
+    } catch (error) {
+      console.error('Error logging violation:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * Send log message to Discord channel
+   */
+  async sendLogMessage(message, violation, action, logChannelId) {
+    try {
+      const logChannel = await this.client.channels.fetch(logChannelId).catch(() => null);
+      if (!logChannel) return false;
+      
+      const actionEmoji = {
+        'delete': '🗑️',
+        'warn': '⚠️',
+        'mute': '🔇',
+        'kick': '👢',
+        'ban': '🔨'
+      };
+      
+      const embed = {
+        title: `${actionEmoji[action] || '🛡️'} Auto-Moderation Action`,
+        color: 0xff0000,
+        description: `**User:** ${message.author.tag} (${message.author.id})\n**Channel:** ${message.channel.name}\n**Action:** ${this.capitalizeFirstLetter(action)}\n**Violation:** ${violation.description}`,
+        timestamp: new Date().toISOString(),
+        footer: {
+          text: `Message ID: ${message.id}`
+        }
+      };
+      
+      await logChannel.send({ embeds: [embed] }).catch(err => {
+        console.error('Error sending log message:', err);
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error sending log message:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Check if content contains Discord invite links
+   */
+  containsInviteLink(content) {
+    const inviteRegex = /(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/[a-zA-Z0-9]+/i;
+    return inviteRegex.test(content);
+  }
+  
+  /**
+   * Check if content contains external links
+   */
+  containsLinks(content) {
+    const linkRegex = /(https?:\/\/[^\s]+)/gi;
+    return linkRegex.test(content);
+  }
+  
+  /**
+   * Check if content contains profanity (basic implementation)
+   */
+  containsProfanity(content) {
+    // Basic list of profanity words - this would typically be more extensive
+    const profanityList = [
+      'badword', // Example word - replace with actual list
+    ];
+    
+    const contentLower = content.toLowerCase();
+    return profanityList.some(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'i');
+      return regex.test(contentLower);
+    });
+  }
+  
+  /**
+   * Calculate percentage of capital letters in content
+   */
+  calculateCapsPercentage(content) {
+    if (!content || content.length < 8) return 0;
+    
+    const letters = content.replace(/[^a-zA-Z]/g, '');
+    if (letters.length === 0) return 0;
+    
+    const capsCount = letters.replace(/[^A-Z]/g, '').length;
+    return (capsCount / letters.length) * 100;
+  }
+  
+  /**
+   * Check if content matches a custom filter
+   */
+  matchesFilter(content, filter) {
+    try {
+      switch (filter.type) {
+        case 'word':
+          const wordRegex = new RegExp(`\\b${this.escapeRegExp(filter.content)}\\b`, 'i');
+          return wordRegex.test(content);
+          
+        case 'regex':
+          try {
+            const customRegex = new RegExp(filter.content, 'i');
+            return customRegex.test(content);
+          } catch {
+            return false; // Invalid regex
+          }
+          
+        case 'domain':
+          const domainRegex = new RegExp(`https?:\\/\\/([^\\s]+\\.)?${this.escapeRegExp(filter.content)}(\\/|\\s|$)`, 'i');
+          return domainRegex.test(content);
+          
+        default:
+          return false;
+      }
+    } catch (error) {
+      console.error('Error matching filter:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Parse mute time string to milliseconds
+   */
+  parseMuteTime(timeString) {
+    const match = timeString.match(/^(\d+)([hmd])$/);
+    if (!match) return 10 * 60 * 1000; // Default 10 minutes
+    
+    const value = parseInt(match[1]);
+    const unit = match[2];
+    
+    switch (unit) {
+      case 'm': return value * 60 * 1000; // minutes
+      case 'h': return value * 60 * 60 * 1000; // hours
+      case 'd': return value * 24 * 60 * 60 * 1000; // days
+      default: return 10 * 60 * 1000; // Default 10 minutes
+    }
+  }
+  
+  /**
+   * Escape string for use in regex
+   */
+  escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  
+  /**
+   * Capitalize first letter of string
+   */
+  capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
   
   /**
