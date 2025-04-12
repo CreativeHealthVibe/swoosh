@@ -16,45 +16,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Three.js Library with multi-CDN fallback -->
+  <!-- Three.js disabled as requested -->
   <script>
-    // Add THREE.js from multiple CDNs with fallback
-    (function loadThreeJs() {
-      // List of CDN URLs to try
-      const threeJsCdns = [
-        'https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js',
-        'https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js',
-        'https://unpkg.com/three@0.151.0/build/three.min.js'
-      ];
-      
-      // Try loading from each CDN sequentially
-      function loadFromNextCdn(index) {
-        if (index >= threeJsCdns.length) {
-          console.warn('Failed to load THREE.js from all CDNs');
-          // Set a flag in case we need to check
-          window.threeJsLoadFailed = true;
-          return;
-        }
-        
-        const script = document.createElement('script');
-        script.src = threeJsCdns[index];
-        script.async = true;
-        
-        script.onload = function() {
-          console.log('THREE.js loaded successfully from ' + threeJsCdns[index]);
-        };
-        
-        script.onerror = function() {
-          console.warn('Failed to load THREE.js from ' + threeJsCdns[index]);
-          loadFromNextCdn(index + 1);
-        };
-        
-        document.head.appendChild(script);
-      }
-      
-      // Start loading from the first CDN
-      loadFromNextCdn(0);
-    })();
+    // Set the flag to indicate THREE.js is disabled
+    window.threeJsLoadFailed = true;
+    console.log('THREE.js loading disabled as requested');
   </script>
   
   <!-- Custom Styles -->
@@ -77,38 +43,79 @@
   <link rel="stylesheet" href="/css/admin3d-notifications.css">
   <link rel="stylesheet" href="/css/admin3d-modal.css">
   
-  <!-- Custom JS -->
-  <script src="/js/admin3d-scene.js" defer></script>
+  <!-- Custom JS - 3D elements removed -->
+  <!-- Only load core admin functionality, 3D scripts are disabled -->
   <script src="/js/admin3d.js" defer></script>
   
-  <!-- Page-specific scripts - only load what's needed -->
+  <!-- Page-specific scripts - only load what's needed and non-3D related -->
   <% if (title.includes('Ticket')) { %>
     <script src="/js/admin3d-tickets.js" defer></script>
   <% } else if (title.includes('Role')) { %>
     <script src="/js/admin3d-roles.js" defer></script>
   <% } else if (title.includes('Blacklist')) { %>
     <script src="/js/admin3d-blacklist.js" defer></script>
-  <% } else if (title.includes('Stats')) { %>
-    <script src="/js/admin3d-stats.js" defer></script>
-  <% } else if (title.includes('Moderation')) { %>
-    <!-- Three.js Post-Processing Dependencies (Premium Effects) -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/EffectComposer.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/RenderPass.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/ShaderPass.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/UnrealBloomPass.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/shaders/CopyShader.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/shaders/LuminosityHighPassShader.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/shaders/OutputShader.js" defer></script>
-    
-    <!-- Moderation Admin Scripts (Order matters) -->
-    <script src="/js/admin3d-moderation.js" defer></script>
-    <script src="/js/admin3d-moderation-scene.js" defer></script>
-    <script src="/js/admin3d-moderation-premium.js" defer></script>
   <% } %>
+  
+  <!-- Add script to ensure all 3D functionality is disabled -->
+  <script>
+    // Disable any potential THREE.js elements or initialization
+    window.addEventListener('DOMContentLoaded', function() {
+      // Ensure THREE is not used
+      window.THREE = null;
+      
+      // Remove any 3D canvases that might get created
+      document.querySelectorAll('canvas').forEach(function(canvas) {
+        canvas.style.display = 'none';
+        canvas.remove();
+      });
+      
+      console.log('All 3D functionality disabled as requested');
+    });
+  </script>
 </head>
-<body class="admin3d-body <%= title.includes('Message') ? 'no-three-js' : '' %>">
-  <!-- 3D Canvas Container (hidden on message page) -->
-  <div id="three-container" class="<%= title.includes('Message') ? 'three-js-disabled' : '' %>"></div>
+<body class="admin3d-body no-three-js">
+  <!-- 3D Canvas Container (disabled) -->
+  <div id="three-container" class="three-js-disabled" style="display: none !important;"></div>
+  
+  <!-- Global styles to ensure black theme and disable 3D effects -->
+  <style>
+    /* Force black background throughout the application */
+    body, html, .admin3d-main, .admin3d-sidebar, .admin3d-header, .admin3d-footer,
+    .admin3d-card, .modal-content, .dropdown-menu, .notification, .panel, .card {
+      background-color: #000000 !important;
+      background-image: none !important;
+      border-color: #111111 !important;
+    }
+    
+    /* Remove all 3D transformations and perspective effects */
+    * {
+      transform-style: flat !important;
+      perspective: none !important;
+      -webkit-transform-style: flat !important;
+      -webkit-perspective: none !important;
+    }
+    
+    /* Hide any 3D canvas elements */
+    canvas, #three-container, .three-container, [id*="three"], [class*="three"] {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      width: 0 !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    
+    /* Ensure text remains visible on black background */
+    body, p, h1, h2, h3, h4, h5, h6, a, span, div, li {
+      color: #ffffff !important;
+    }
+    
+    /* Add a slight border for UI elements to maintain visibility */
+    .card, .panel, .admin3d-card, .admin3d-sidebar, .dropdown-menu, .modal-content {
+      border: 1px solid #333333 !important;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+    }
+  </style>
   
   <!-- Special fix for form inputs on pages with forms -->
   <% if (title.includes('Message') || title.includes('Moderation')) { %>
