@@ -19,7 +19,45 @@ class AutoModerationSystem {
    */
   async init() {
     try {
-      // Load default settings
+      console.log('Initializing Auto-Moderation System...');
+      
+      // Load settings from Discord database if available
+      if (this.client.discordDB && this.client.discordDB.initialized) {
+        // Get auto-mod settings from database
+        const autoModSettings = this.client.discordDB.getCollection('automod-settings');
+        
+        // Load settings into memory
+        if (autoModSettings) {
+          for (const serverId in autoModSettings) {
+            this.settings.set(serverId, autoModSettings[serverId]);
+          }
+        }
+        
+        // Get custom filters from database
+        const autoModFilters = this.client.discordDB.getCollection('automod-filters');
+        
+        // Load filters into memory
+        if (autoModFilters) {
+          for (const serverId in autoModFilters) {
+            if (Array.isArray(autoModFilters[serverId])) {
+              this.filters.set(serverId, autoModFilters[serverId]);
+            }
+          }
+        }
+        
+        // Get logs from database
+        const autoModLogs = this.client.discordDB.getCollection('automod-logs');
+        
+        // Load logs into memory
+        if (autoModLogs) {
+          for (const serverId in autoModLogs) {
+            if (Array.isArray(autoModLogs[serverId])) {
+              this.logs.set(serverId, autoModLogs[serverId]);
+            }
+          }
+        }
+      }
+      
       this.initialized = true;
       console.log('✅ Auto-Moderation System initialized');
       
@@ -238,6 +276,14 @@ class AutoModerationSystem {
         this.logs.get(serverId).length = 1000;
       }
       
+      // Save to database if available
+      if (this.client.discordDB && this.client.discordDB.initialized) {
+        // Save logs to database (async, don't await to avoid blocking message handler)
+        this.client.discordDB.setDocument('automod-logs', serverId, this.logs.get(serverId))
+          .then(() => console.log(`Auto-mod logs saved to database for server ${serverId}`))
+          .catch(err => console.error('Error saving auto-mod logs to database:', err));
+      }
+      
       return log;
     } catch (error) {
       console.error('Error logging violation:', error);
@@ -449,6 +495,19 @@ class AutoModerationSystem {
         this.filters.set(serverId, []);
       }
       
+      // Save to database if available
+      if (this.client.discordDB && this.client.discordDB.initialized) {
+        // Collect all server settings
+        const allSettings = {};
+        for (const [sid, sSettings] of this.settings.entries()) {
+          allSettings[sid] = sSettings;
+        }
+        
+        // Save to Discord database
+        await this.client.discordDB.setDocument('automod-settings', serverId, serverSettings);
+        console.log(`Auto-mod settings saved to database for server ${serverId}`);
+      }
+      
       return serverSettings;
     } catch (error) {
       console.error('Error saving auto-moderation settings:', error);
@@ -484,6 +543,13 @@ class AutoModerationSystem {
       }
       this.filters.get(serverId).push(newFilter);
       
+      // Save to database if available
+      if (this.client.discordDB && this.client.discordDB.initialized) {
+        // Save the updated filters list to database
+        await this.client.discordDB.setDocument('automod-filters', serverId, this.filters.get(serverId));
+        console.log(`Auto-mod filters saved to database for server ${serverId}`);
+      }
+      
       return newFilter;
     } catch (error) {
       console.error('Error adding auto-moderation filter:', error);
@@ -503,6 +569,13 @@ class AutoModerationSystem {
         const serverFilters = this.filters.get(serverId);
         const updatedFilters = serverFilters.filter(filter => filter.id !== filterId);
         this.filters.set(serverId, updatedFilters);
+        
+        // Save to database if available
+        if (this.client.discordDB && this.client.discordDB.initialized) {
+          // Save the updated filters list to database
+          await this.client.discordDB.setDocument('automod-filters', serverId, updatedFilters);
+          console.log(`Auto-mod filters updated in database for server ${serverId}`);
+        }
       }
       
       return true;
