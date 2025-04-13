@@ -482,7 +482,7 @@ router.post('/servers/:serverId/ticket-config', async (req, res) => {
     
     // Set ticket configuration
     const config = req.body;
-    const result = await ticketManager.setConfig(serverId, config);
+    const result = await ticketManager.setConfig(serverId, config, client);
     
     if (!result || !result.success) {
       return res.status(400).json({
