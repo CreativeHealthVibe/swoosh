@@ -1340,6 +1340,7 @@
       <button class="modal-close"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
+      <!-- User Information and Status -->
       <div class="ticket-info-header">
         <div class="ticket-info-user">
           <div class="ticket-info-avatar" id="ticket-info-avatar">
@@ -1353,6 +1354,7 @@
         <div class="ticket-info-status status-open" id="ticket-info-status">Open</div>
       </div>
       
+      <!-- Ticket Details -->
       <div class="ticket-info-grid">
         <div class="ticket-info-item">
           <div class="ticket-info-label">Ticket ID</div>
@@ -1375,23 +1377,28 @@
         </div>
       </div>
       
+      <!-- Conversation Messages -->
       <h4 class="ticket-messages-title"><i class="fas fa-comments"></i> Conversation</h4>
       <div class="ticket-messages-container" id="ticket-messages">
         <div class="loading-container">
           <div class="spinner"></div>
-          <p>Loading messages...</p>
+          <p>Loading conversation messages...</p>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
+    
+    <!-- Modal Footer with Action Buttons -->
+    <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button class="btn btn-secondary" data-action="close-modal" style="margin-right: auto;">
+        <i class="fas fa-arrow-left"></i> Go Back
+      </button>
+      
       <button class="btn btn-info" data-action="download-transcript">
         <i class="fas fa-file-download"></i> Download Transcript
       </button>
+      
       <button class="btn btn-danger" data-action="close-ticket">
         <i class="fas fa-times-circle"></i> Close Ticket
-      </button>
-      <button class="btn btn-secondary" data-action="close-modal">
-        <i class="fas fa-arrow-left"></i> Back
       </button>
     </div>
   </div>
@@ -1401,14 +1408,25 @@
 <div class="modal-overlay" id="close-ticket-modal">
   <div class="modal-container">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fas fa-times-circle"></i> Close Ticket</h3>
+      <h3 class="modal-title"><i class="fas fa-times-circle"></i> Close Support Ticket</h3>
       <button class="modal-close"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <p>Are you sure you want to close this ticket? This action cannot be undone.</p>
+      <div style="background: rgba(137, 54, 255, 0.1); border-radius: 8px; padding: 15px; margin-bottom: 20px; border-left: 4px solid rgba(137, 54, 255, 0.7);">
+        <h4 style="margin-top: 0; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-info-circle" style="color: rgba(137, 54, 255, 0.9);"></i> About Closing Tickets
+        </h4>
+        <p style="margin-bottom: 5px;">When you close a ticket, the user will no longer be able to send messages in it.</p>
+        <p style="margin-bottom: 0;">Please provide a reason for closing. This will be shared with the user.</p>
+      </div>
+      
+      <p style="text-align: center; color: #ff6b6b; font-weight: 500; margin: 15px 0;">
+        <i class="fas fa-exclamation-triangle"></i> This action cannot be undone
+      </p>
+      
       <form id="close-ticket-form">
         <div class="form-group">
-          <label class="form-label" for="close-reason">Reason for closing</label>
+          <label class="form-label" for="close-reason">Closing Reason</label>
           <textarea class="form-textarea" id="close-reason" name="reason" placeholder="Example: Issue resolved - Fixed server permissions"></textarea>
           <span class="form-hint">This message will be sent in the ticket when closing it</span>
         </div>
@@ -1419,7 +1437,7 @@
         <i class="fas fa-times"></i> Cancel
       </button>
       <button class="btn btn-danger" data-action="confirm-close">
-        <i class="fas fa-check"></i> Close Ticket
+        <i class="fas fa-check"></i> Yes, Close This Ticket
       </button>
     </div>
   </div>
