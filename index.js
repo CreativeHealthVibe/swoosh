@@ -1132,7 +1132,7 @@ const apiLeaderboardRoutes = require('./routes/api/leaderboard');
 const apiModerationRoutes = require('./routes/api/moderation');
 const leaderboardRoutes = require('./routes/leaderboard');
 const admin3dRoutes = require('./routes/admin3d');
-const apiV2Routes = require('./routes/api/index');
+const apiV2Routes = require('./routes/api/v2/index');
 
 // Admin path now redirects to 3D Admin
 app.get('/admin', (req, res) => {

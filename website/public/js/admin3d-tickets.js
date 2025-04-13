@@ -110,46 +110,23 @@ function initTicketsPage() {
 }
 
 /**
- * Load server list into server select dropdown
+ * Initialize the server select dropdown
+ * The server list is already populated through EJS in the HTML template
  */
-async function loadServerList() {
-  console.log('Loading server list...');
+function loadServerList() {
+  console.log('Initializing server select dropdown...');
   
-  // Show loading state
+  // Check if dropdown has options and is properly populated
   if (serverSelect) {
-    serverSelect.innerHTML = '<option value="" disabled selected>Loading servers...</option>';
-  
-    try {
-      // Fetch servers from API
-      const response = await fetch('/api/v2/servers');
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to load servers');
-      }
-      
-      const servers = data.servers || [];
-      
-      if (servers.length === 0) {
-        serverSelect.innerHTML = '<option value="" disabled selected>No servers found</option>';
-        return;
-      }
-      
-      // Populate dropdown
-      serverSelect.innerHTML = '<option value="" disabled selected>Select a server</option>';
-      
-      servers.forEach(server => {
-        const option = document.createElement('option');
-        option.value = server.id;
-        option.textContent = server.name;
-        serverSelect.appendChild(option);
-      });
-      
-      console.log(`Loaded ${servers.length} servers`);
-    } catch (error) {
-      console.error('Error loading servers:', error);
-      serverSelect.innerHTML = '<option value="" disabled selected>Error loading servers</option>';
-      createNotification('error', 'Error', `Failed to load servers: ${error.message}`);
+    // Get number of options
+    const optionCount = serverSelect.options.length;
+    console.log(`Server select has ${optionCount} options`);
+    
+    // If we only have the default "Select a server" option, show error
+    if (optionCount <= 1) {
+      console.error('No servers found in server select dropdown');
+      serverSelect.innerHTML = '<option value="" disabled selected>No servers found</option>';
+      createNotification('warning', 'No Servers', 'No Discord servers were found. Make sure the bot is invited to your servers.');
     }
   } else {
     console.error('Server select element not found');
