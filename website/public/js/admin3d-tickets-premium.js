@@ -126,13 +126,93 @@
   }
 
   // Create tooltip element for hovering over tickets
+  // Create premium tooltip element for interactive ticket information
   function createTooltip() {
     tooltip = document.createElement('div');
-    tooltip.className = 'ticket3d-tooltip';
+    tooltip.className = 'ticket3d-tooltip premium-tooltip';
     tooltip.style.opacity = '0';
     tooltip.style.position = 'fixed';
     tooltip.style.pointerEvents = 'none';
     tooltip.style.zIndex = '9999';
+    tooltip.style.background = 'rgba(10, 14, 30, 0.85)';
+    tooltip.style.borderRadius = '6px';
+    tooltip.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)';
+    tooltip.style.backdropFilter = 'blur(10px)';
+    tooltip.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    tooltip.style.padding = '12px 16px';
+    tooltip.style.color = '#ffffff';
+    tooltip.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    tooltip.style.transform = 'scale(0.95)';
+    tooltip.style.minWidth = '220px';
+    
+    // Add custom style element for tooltip classes
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      .premium-tooltip h4 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        color: #fff;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 8px;
+      }
+      .premium-tooltip p {
+        margin: 5px 0;
+        font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .premium-tooltip span.label {
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        margin-right: 12px;
+      }
+      .premium-tooltip span.value {
+        text-align: right;
+        font-weight: 600;
+      }
+      .premium-tooltip .priority {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .premium-tooltip .priority-high {
+        background: rgba(255, 82, 82, 0.2);
+        color: #ff5252;
+        border: 1px solid rgba(255, 82, 82, 0.3);
+      }
+      .premium-tooltip .priority-medium {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+      }
+      .premium-tooltip .priority-normal {
+        background: rgba(79, 195, 247, 0.2);
+        color: #4fc3f7;
+        border: 1px solid rgba(79, 195, 247, 0.3);
+      }
+      .premium-tooltip .status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .premium-tooltip .status-open {
+        background: rgba(0, 191, 154, 0.2);
+        color: #00bf9a;
+        border: 1px solid rgba(0, 191, 154, 0.3);
+      }
+      .premium-tooltip .status-closed {
+        background: rgba(108, 117, 125, 0.2);
+        color: #d6d6d6;
+        border: 1px solid rgba(108, 117, 125, 0.3);
+      }
+    `;
+    document.head.appendChild(styleElement);
     document.body.appendChild(tooltip);
   }
 
@@ -753,7 +833,8 @@
     tooltip.style.top = event.clientY + 'px';
   }
 
-  // Show ticket information in tooltip
+
+  // Show ticket information in premium styled tooltip
   function showTicketInfo(ticketData) {
     if (!tooltip || !ticketData) return;
     
@@ -762,54 +843,116 @@
                     new Date(ticketData.createdAt).toLocaleDateString() : 
                     'Unknown';
     
-    // Set tooltip content
+    // Analyze priority (re-use the same function from ticket creation)
+    const priority = ticketData.priority || analyzePriority(ticketData);
+    
+    // Determine priority class
+    const priorityClass = `priority priority-${priority}`;
+    
+    // Determine status class
+    const statusClass = `status status-${ticketData.status?.toLowerCase() || 'unknown'}`;
+    
+    // Format time since creation (if date is available)
+    let timeSince = 'Unknown';
+    if (ticketData.createdAt) {
+      const createdDate = new Date(ticketData.createdAt);
+      const now = new Date();
+      const diffMs = now - createdDate;
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      
+      if (diffDays > 0) {
+        timeSince = `${diffDays}d ${diffHours}h ago`;
+      } else {
+        timeSince = `${diffHours}h ago`;
+      }
+    }
+    
+    // Set premium tooltip content with enhanced formatting
     tooltip.innerHTML = `
-      <h4>#${ticketData.id}</h4>
-      <p><span>User:</span> ${ticketData.username || 'Unknown'}</p>
-      <p><span>Type:</span> ${ticketData.type || 'General'}</p>
-      <p><span>Status:</span> ${ticketData.status || 'Unknown'}</p>
-      <p><span>Created:</span> ${created}</p>
+      <h4>Ticket #${ticketData.id}</h4>
+      <p>
+        <span class="label">Priority:</span>
+        <span class="value"><span class="${priorityClass}">${priority}</span></span>
+      </p>
+      <p>
+        <span class="label">Status:</span>
+        <span class="value"><span class="${statusClass}">${ticketData.status || 'Unknown'}</span></span>
+      </p>
+      <p>
+        <span class="label">User:</span>
+        <span class="value">${ticketData.username || 'Unknown'}</span>
+      </p>
+      <p>
+        <span class="label">Type:</span>
+        <span class="value">${ticketData.type || 'General'}</span>
+      </p>
+      <p>
+        <span class="label">Created:</span>
+        <span class="value" title="${created}">${timeSince}</span>
+      </p>
     `;
     
-    // Show tooltip with fade in
+    // Show tooltip with premium animation
     tooltip.style.opacity = '1';
+    tooltip.style.transform = 'scale(1)';
   }
 
   // Hide ticket information tooltip
+  // Hide ticket information tooltip with premium animation
   function hideTicketInfo() {
     if (!tooltip) return;
     tooltip.style.opacity = '0';
+    tooltip.style.transform = 'scale(0.95)';
   }
 
-  // Animation loop
+  // Enterprise-grade animation loop with premium effects
   function animate() {
     requestAnimationFrame(animate);
     
-    // Calculate elapsed time for animation
+    // Calculate elapsed time for animation with precision timing
     const now = Date.now();
     const elapsedTime = (now - animationStartTimestamp) / 1000;
     
-    // Rotate orbital ring
+    // Rotate orbital ring with premium wobble effect
     if (orbitalRing) {
       orbitalRing.rotation.y = elapsedTime * 0.05;
+      // Add subtle wobble to ring for premium organic feel
+      orbitalRing.position.y = Math.sin(elapsedTime * 0.2) * 0.03;
     }
     
-    // Animate ticket positions
+    // Auto-rotate camera if enabled for cinematic view
+    if (CONFIG.CAMERA.AUTO_ROTATE) {
+      const cameraAngle = elapsedTime * CONFIG.CAMERA.ROTATE_SPEED * 0.05;
+      const cameraDistance = Math.sqrt(
+        camera.position.x * camera.position.x + 
+        camera.position.z * camera.position.z
+      );
+      
+      camera.position.x = Math.sin(cameraAngle) * cameraDistance;
+      camera.position.z = Math.cos(cameraAngle) * cameraDistance;
+      
+      // Keep camera looking at center point
+      camera.lookAt(
+        CONFIG.CAMERA.LOOK_AT.X || 0,
+        CONFIG.CAMERA.LOOK_AT.Y || 0.5,
+        CONFIG.CAMERA.LOOK_AT.Z || 0
+      );
+    }
+    
+    // Animate all objects including tickets, glows and particles
     ticketObjects.forEach(obj => {
-      // Skip objects without userData (like text labels)
-      if (!obj.userData || !obj.userData.originalAngle) return;
-      
-      // Calculate new position based on original angle and elapsed time
-      const angle = obj.userData.originalAngle + (elapsedTime * CONFIG.ROTATION_SPEED);
-      obj.position.x = Math.cos(angle) * CONFIG.ORBITAL_RADIUS;
-      obj.position.z = Math.sin(angle) * CONFIG.ORBITAL_RADIUS;
-      
-      // Add subtle floating animation
-      obj.position.y = obj.userData.originalHeight + 
-                      (Math.sin(elapsedTime + obj.userData.originalAngle * 3) * 0.1);
-      
-      // Face center
-      obj.lookAt(new THREE.Vector3(0, obj.position.y, 0));
+      // Handle different object types
+      if (obj.userData.isParticleSystem) {
+        // Animate particle system
+        animateParticles(obj, elapsedTime);
+      } else if (obj.userData.isGlow) {
+        // Animate glow effect
+        animateGlowEffect(obj, elapsedTime);
+      } else if (obj.userData && obj.userData.originalAngle) {
+        // Animate main ticket objects
+        animateTicket(obj, elapsedTime);
+      }
     });
     
     // Handle raycasting for interactive effects
@@ -820,6 +963,115 @@
       composer.render();
     } else {
       renderer.render(scene, camera);
+    }
+  }
+  
+  // Premium animation for particle system
+  function animateParticles(particleSystem, elapsedTime) {
+    if (!particleSystem.geometry || !particleSystem.geometry.attributes.position) return;
+    
+    const positions = particleSystem.geometry.attributes.position.array;
+    const count = positions.length / 3;
+    
+    // Apply dynamic animation to particle positions
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      const x = positions[i3];
+      const y = positions[i3 + 1];
+      const z = positions[i3 + 2];
+      
+      // Calculate distance from center
+      const dist = Math.sqrt(x*x + z*z);
+      
+      // Calculate angle from position
+      const angle = Math.atan2(z, x);
+      
+      // Add slight orbit movement
+      const newAngle = angle + (0.05 * elapsedTime) / (dist * 2);
+      
+      // Adjust positions with slight random movement for organic feel
+      positions[i3] = Math.cos(newAngle) * dist;
+      positions[i3 + 1] = y + Math.sin(elapsedTime * 0.5 + i * 0.2) * 0.02;
+      positions[i3 + 2] = Math.sin(newAngle) * dist;
+    }
+    
+    // Update geometry
+    particleSystem.geometry.attributes.position.needsUpdate = true;
+  }
+  
+  // Premium animation for glow effects
+  function animateGlowEffect(glowObj, elapsedTime) {
+    // Skip if no parent reference
+    if (!glowObj.userData || !glowObj.userData.parent) return;
+    
+    // Get parent ticket for reference
+    const parentTicket = glowObj.userData.parent;
+    
+    // Match parent position
+    glowObj.position.copy(parentTicket.position);
+    glowObj.quaternion.copy(parentTicket.quaternion);
+    
+    // Add scale pulsing for high priority tickets
+    if (glowObj.userData.priority === 'high') {
+      const pulseSpeed = CONFIG.ANIMATION.PULSE_SPEED || 1.5;
+      const pulseFactor = 1 + Math.sin(elapsedTime * pulseSpeed) * 0.1;
+      glowObj.scale.set(pulseFactor, pulseFactor, pulseFactor);
+      
+      // Adjust opacity for breathing effect
+      if (glowObj.material) {
+        glowObj.material.opacity = glowObj.userData.originalOpacity * 
+                                  (0.8 + Math.sin(elapsedTime * pulseSpeed) * 0.2);
+      }
+    }
+  }
+  
+  // Premium animation for ticket objects
+  function animateTicket(ticketObj, elapsedTime) {
+    // Skip objects without proper userData
+    if (!ticketObj.userData || !ticketObj.userData.originalAngle) return;
+    
+    // Get animation configuration
+    const floatSpeed = CONFIG.ANIMATION.FLOAT_SPEED || 0.8;
+    const floatIntensity = CONFIG.ANIMATION.FLOAT_INTENSITY || 0.12;
+    const wobbleIntensity = CONFIG.ANIMATION.ROTATION_WOBBLE || 0.02;
+    
+    // Get ticket priority for premium effects
+    const priority = ticketObj.userData.priority || 'normal';
+    const priorityMultiplier = priority === 'high' ? 1.5 : 
+                              (priority === 'medium' ? 1.2 : 1.0);
+    
+    // Calculate new position based on original angle and elapsed time
+    const speed = CONFIG.ROTATION_SPEED * 
+                 (ticketObj.userData.ticket.status === 'OPEN' ? 1 : 0.7); // Slower for closed tickets
+    
+    const angle = ticketObj.userData.originalAngle + (elapsedTime * speed);
+    ticketObj.position.x = Math.cos(angle) * CONFIG.ORBITAL_RADIUS;
+    ticketObj.position.z = Math.sin(angle) * CONFIG.ORBITAL_RADIUS;
+    
+    // Add enhanced floating animation with ticket-specific phase
+    const phase = ticketObj.userData.pulsePhase || 0;
+    ticketObj.position.y = ticketObj.userData.originalHeight + 
+                          (Math.sin(elapsedTime * floatSpeed + phase) * 
+                           floatIntensity * priorityMultiplier);
+    
+    // Add subtle wobble to rotation based on priority
+    if (priority !== 'normal' && ticketObj.userData.wobblePhase) {
+      const wobblePhase = ticketObj.userData.wobblePhase;
+      ticketObj.rotation.z = Math.sin(elapsedTime * floatSpeed * 0.5 + wobblePhase) * 
+                            wobbleIntensity * priorityMultiplier;
+    }
+    
+    // Face center with adjustment for wobble
+    ticketObj.lookAt(new THREE.Vector3(0, ticketObj.position.y, 0));
+    
+    // Enhance material based on status for premium look
+    if (ticketObj.material && ticketObj.material.emissive) {
+      // Add subtle emissive animation for premium materials
+      if (priority === 'high') {
+        // Pulse emissive intensity for high priority
+        ticketObj.material.emissiveIntensity = 0.4 + 
+          Math.sin(elapsedTime * 2 + phase) * 0.15;
+      }
     }
   }
 
