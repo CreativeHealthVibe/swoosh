@@ -23,10 +23,14 @@ router.use('/', moderationRoutes); // Moderation routes use server paths like /s
 
 // API Status check
 router.get('/status', (req, res) => {
+  const ticketManager = req.app.get('ticketManager');
+  
   res.json({
     success: true,
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
+    ticketManagerAvailable: !!ticketManager,
+    ticketMethods: ticketManager ? Object.keys(ticketManager) : []
   });
 });
 
