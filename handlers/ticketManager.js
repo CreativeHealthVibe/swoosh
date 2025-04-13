@@ -308,21 +308,8 @@ module.exports = {
       console.log(`Description: ${options.description}`);
       console.log(`Ticket Types:`, options.ticketTypes);
       
-      // DEBUGGING STEP 1: Verify Discord.js classes are available
-      if (typeof EmbedBuilder !== 'function') {
-        console.error('EmbedBuilder is not available!');
-        return false;
-      }
-      
-      if (typeof StringSelectMenuBuilder !== 'function') {
-        console.error('StringSelectMenuBuilder is not available!');
-        return false;
-      }
-      
-      if (typeof ActionRowBuilder !== 'function') {
-        console.error('ActionRowBuilder is not available!');
-        return false;
-      }
+      // Import Discord.js components directly to ensure they're available
+      const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
       
       // Get the guild and channel
       const guild = await client.guilds.fetch(serverId).catch(err => {
@@ -462,6 +449,9 @@ module.exports = {
    */
   setupTicketPanel: async (channel, author) => {
     try {
+      // Import Discord.js components directly to ensure they're available
+      const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+      
       // Create ticket embed
       const embed = new EmbedBuilder()
         .setTitle('🎫 SWOOSH Support Tickets')
@@ -802,6 +792,9 @@ module.exports = {
    */
   sendTicketPanel: async (channel, options) => {
     try {
+      // Import Discord.js components directly to ensure they're available
+      const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+      
       // Create ticket embed
       const embed = new EmbedBuilder()
         .setTitle(options.title || '🎫 Support Tickets')
@@ -846,6 +839,9 @@ module.exports = {
  */
 async function handleTicketButton(interaction) {
   await interaction.deferReply({ ephemeral: true });
+  
+  // Import Discord.js components directly to ensure they're available
+  const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
   
   // Create dropdown for ticket types
   const select = new StringSelectMenuBuilder()
@@ -903,6 +899,8 @@ async function handleTicketCreation(interaction, ticketType, client) {
   await interaction.deferReply({ ephemeral: true });
   
   try {
+    // Import Discord.js components directly to ensure they're available
+    const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField } = require('discord.js');
     // Find or create ticket category
     let category = await ensureTicketCategory(interaction.guild);
     
@@ -1004,6 +1002,8 @@ async function closeTicket(interaction, client) {
   await interaction.deferReply();
   
   try {
+    // Import Discord.js components directly to ensure they're available
+    const { EmbedBuilder } = require('discord.js');
     // Check if this is a ticket channel
     if (!interaction.channel.name.startsWith('ticket-')) {
       return interaction.editReply('This command can only be used in ticket channels.');
@@ -1121,6 +1121,9 @@ async function generateChannelTranscript(interaction) {
  * @returns {Object} - Ticket category
  */
 async function ensureTicketCategory(guild) {
+  // Import Discord.js components directly to ensure they're available
+  const { ChannelType, PermissionsBitField } = require('discord.js');
+  
   // Find existing category
   let category = guild.channels.cache.find(c => 
     c.type === ChannelType.GuildCategory && 
@@ -1152,6 +1155,9 @@ async function ensureTicketCategory(guild) {
  * @returns {Array} - Permission overwrites
  */
 async function getTicketPermissions(guild, userId, botId) {
+  // Import Discord.js components directly to ensure they're available
+  const { PermissionsBitField } = require('discord.js');
+  
   const permissionOverwrites = [
     {
       id: guild.id,
