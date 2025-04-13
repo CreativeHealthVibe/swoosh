@@ -920,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function() {
       channelId: panelChannelId ? panelChannelId.value : '',
       panelTitle: panelTitle ? panelTitle.value : 'Support Tickets',
       panelDescription: panelDescription ? panelDescription.value : '',
-      panelColor: panelColor ? panelColor.value : '#9b59b6',
+      panelColor: panelColor ? panelColor.value : '#000000',
       panelImage: panelImage ? panelImage.value : '',
       ticketTypes: JSON.stringify(ticketTypes)
     };

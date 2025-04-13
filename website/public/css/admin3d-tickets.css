@@ -101,7 +101,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #9b59b6, #6f42c1);
+  background: linear-gradient(90deg, #000000, #333333);
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }

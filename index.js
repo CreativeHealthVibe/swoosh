@@ -76,7 +76,7 @@ client.once('ready', async () => {
   console.log(`🚀 ${client.user.tag} is online!`);
   console.log(`Bot client ID: ${client.user.id}`);
   
-  // Define function to set the streaming status with purple indicator
+  // Define function to set the streaming status with black indicator
   function setStreamingStatus() {
     // Use setPresence for maximum control over status
     client.user.setPresence({
@@ -85,13 +85,13 @@ client.once('ready', async () => {
         type: 1, // 0 is "Playing", 1 is "Streaming", 2 is "Listening", 3 is "Watching", 5 is "Competing"
         url: 'https://www.twitch.tv/gh_sman', // Using exact Twitch URL as specified
       }],
-      status: 'dnd' // 'online' (green), 'idle' (yellow), 'dnd' (red/purple), or 'invisible'
+      status: 'dnd' // 'online' (green), 'idle' (yellow), 'dnd' (red/black), or 'invisible'
     });
   }
   
   // Set initial status
   setStreamingStatus();
-  console.log('✅ Set custom status: Streaming .gg/swoosh (purple)');
+  console.log('✅ Set custom status: Streaming .gg/swoosh (black)');
   
   // Set up interval to refresh status every 5 minutes (to prevent reverting to idle)
   setInterval(() => {
