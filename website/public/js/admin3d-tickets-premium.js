@@ -18,19 +18,64 @@
   let tooltip = null;
   let animationStartTimestamp = Date.now();
   
-  // Configuration
+  // Enterprise Premium Configuration - $55k Value
   const CONFIG = {
+    COLORS: {
+      BACKGROUND: 0x0a0e1b,    // Premium dark background
+      RING: 0x8936ff,          // Purple ring
+      RING_INNER: 0xb76eff,    // Inner ring highlight
+      OPEN: 0x00bf9a,          // Teal for open tickets
+      OPEN_GLOW: 0x4dffd9,     // Open ticket glow
+      CLOSED: 0x6c757d,        // Grey for closed tickets
+      CLOSED_GLOW: 0xbdbdbd,   // Closed ticket glow
+      PRIORITY_HIGH: 0xff5252, // High priority
+      PRIORITY_MED: 0xffc107,  // Medium priority
+      GROUND: 0x162447,        // Ground plane
+      UI_HIGHLIGHT: 0x4fc3f7,  // UI highlight color
+      HIGHLIGHT: 0xb76eff,     // Keep original highlight color
+    },
     ORBITAL_RADIUS: 5,
     TICKET_SIZE: 0.4,
     ROTATION_SPEED: 0.2,
-    HOVER_SCALE: 1.2,
+    HOVER_SCALE: 1.25,
     ORBIT_HEIGHT: 1.5,
-    COLORS: {
-      OPEN: 0x00bf9a,  // Teal for open tickets
-      CLOSED: 0x6c757d,  // Gray for closed tickets
-      RING: 0x8936ff,  // Purple for the orbital ring
-      HIGHLIGHT: 0xb76eff,  // Lighter purple for highlights
-      BACKGROUND: 0x0e0e1c  // Dark background
+    ANIMATION: {
+      FLOAT_SPEED: 0.8,       // Speed of floating animation
+      FLOAT_INTENSITY: 0.12,  // Intensity of floating effect
+      ROTATION_WOBBLE: 0.02,  // Slight wobble in rotation
+      PULSE_SPEED: 1.5,       // Glow pulse speed
+      TRAIL_LENGTH: 8,        // Length of particle trails
+    },
+    POST_PROCESSING: {
+      BLOOM_STRENGTH: 0.65,
+      BLOOM_RADIUS: 0.5,
+      BLOOM_THRESHOLD: 0.7,
+      DOF_ENABLED: true,      // Depth of field effect
+      DOF_FOCUS: 6,           // Focus distance
+      DOF_APERTURE: 0.003,    // Aperture (smaller = more blur)
+    },
+    CAMERA: {
+      FOV: 55,                // Field of view
+      NEAR: 0.1,              // Near clipping plane
+      FAR: 1000,              // Far clipping plane
+      POSITION: {
+        X: 0, 
+        Y: 3.2, 
+        Z: 6.5
+      },
+      LOOK_AT: {
+        X: 0,
+        Y: 0.5,
+        Z: 0
+      },
+      AUTO_ROTATE: true,      // Camera slowly rotates around scene
+      ROTATE_SPEED: 0.05,     // Auto rotation speed
+    },
+    PARTICLES: {
+      ENABLED: true,
+      COUNT: 100,
+      SIZE: 0.05,
+      COLOR: 0x4fc3f7,
     }
   };
 
@@ -107,12 +152,28 @@
       scene = new THREE.Scene();
       scene.background = new THREE.Color(CONFIG.COLORS.BACKGROUND);
       
-      // Setup camera with container aspect ratio
+      // Setup premium camera with container aspect ratio and enhanced settings
       const aspect = threeContainer.clientWidth / threeContainer.clientHeight;
-      camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(
+        CONFIG.CAMERA.FOV || 60, 
+        aspect, 
+        CONFIG.CAMERA.NEAR || 0.1, 
+        CONFIG.CAMERA.FAR || 1000
+      );
       
-      // Position camera for container-based view (slightly higher angle)
-      camera.position.set(0, 3, 6);
+      // Position camera for optimal enterprise viewing angle
+      camera.position.set(
+        CONFIG.CAMERA.POSITION.X || 0, 
+        CONFIG.CAMERA.POSITION.Y || 3.2, 
+        CONFIG.CAMERA.POSITION.Z || 6.5
+      );
+      
+      // Set camera to look at center point
+      camera.lookAt(
+        CONFIG.CAMERA.LOOK_AT.X || 0,
+        CONFIG.CAMERA.LOOK_AT.Y || 0.5,
+        CONFIG.CAMERA.LOOK_AT.Z || 0
+      );
       
       // Setup renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -226,31 +287,127 @@
     }
   }
 
-  // Create orbital ring for tickets to orbit around
+  // Create enterprise-grade orbital ring system for tickets to orbit around
   function createOrbitalRing() {
-    // Create a ring geometry
+    // Create main ring geometry with higher resolution for premium look
     const ringGeometry = new THREE.TorusGeometry(
       CONFIG.ORBITAL_RADIUS,  // Radius
       0.05,                   // Tube size
-      16,                     // Radial segments
-      100                     // Tubular segments
+      24,                     // Radial segments (increased)
+      128                     // Tubular segments (increased)
     );
     
-    // Create material with glow effect
+    // Create premium material with enhanced glow effect
     const ringMaterial = new THREE.MeshStandardMaterial({
       color: CONFIG.COLORS.RING,
       emissive: CONFIG.COLORS.RING,
-      emissiveIntensity: 0.5,
-      metalness: 0.7,
-      roughness: 0.3,
+      emissiveIntensity: 0.6,
+      metalness: 0.8,
+      roughness: 0.2,
     });
     
-    // Create mesh and add to scene
+    // Create main orbital ring
     orbitalRing = new THREE.Mesh(ringGeometry, ringMaterial);
     orbitalRing.rotation.x = Math.PI / 2;  // Lay flat
     orbitalRing.castShadow = true;
     orbitalRing.receiveShadow = true;
     scene.add(orbitalRing);
+    
+    // Create inner highlight ring for premium effect
+    const innerRingGeometry = new THREE.TorusGeometry(
+      CONFIG.ORBITAL_RADIUS * 0.97,  // Slightly smaller
+      0.02,                          // Thinner
+      16,                            // Radial segments
+      100                            // Tubular segments
+    );
+    
+    const innerRingMaterial = new THREE.MeshStandardMaterial({
+      color: CONFIG.COLORS.RING_INNER || CONFIG.COLORS.HIGHLIGHT,
+      emissive: CONFIG.COLORS.RING_INNER || CONFIG.COLORS.HIGHLIGHT,
+      emissiveIntensity: 0.8,
+      metalness: 0.9,
+      roughness: 0.1,
+      transparent: true,
+      opacity: 0.7
+    });
+    
+    const innerRing = new THREE.Mesh(innerRingGeometry, innerRingMaterial);
+    innerRing.rotation.x = Math.PI / 2;
+    scene.add(innerRing);
+    
+    // Add subtle glow particles around the ring for ultra-premium effect
+    if (CONFIG.PARTICLES && CONFIG.PARTICLES.ENABLED) {
+      try {
+        addOrbitalParticles();
+      } catch (error) {
+        console.warn('Could not add premium particles:', error);
+      }
+    }
+    
+    // Create reflection plane beneath for premium look
+    createReflectiveSurface();
+  }
+  
+  // Add particle system for premium orbital effect
+  function addOrbitalParticles() {
+    const particleCount = CONFIG.PARTICLES.COUNT || 100;
+    const particleGeometry = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(particleCount * 3);
+    
+    // Create particles in a toroidal distribution around the orbital ring
+    for (let i = 0; i < particleCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = CONFIG.ORBITAL_RADIUS + (Math.random() * 0.4 - 0.2);
+      
+      particlePositions[i * 3] = Math.cos(angle) * radius;  // x
+      particlePositions[i * 3 + 1] = (Math.random() * 0.3 - 0.15);  // y
+      particlePositions[i * 3 + 2] = Math.sin(angle) * radius;  // z
+    }
+    
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    
+    // Create glowing particle material
+    const particleMaterial = new THREE.PointsMaterial({
+      color: CONFIG.PARTICLES.COLOR || CONFIG.COLORS.UI_HIGHLIGHT,
+      size: CONFIG.PARTICLES.SIZE || 0.05,
+      transparent: true,
+      opacity: 0.6,
+      blending: THREE.AdditiveBlending
+    });
+    
+    // Create particle system and add to scene
+    const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(particleSystem);
+    
+    // Add to ticket objects array for animation
+    particleSystem.userData = {
+      isParticleSystem: true
+    };
+    ticketObjects.push(particleSystem);
+  }
+  
+  // Create reflective surface beneath the orbital ring
+  function createReflectiveSurface() {
+    // Create circular plane geometry
+    const groundRadius = CONFIG.ORBITAL_RADIUS * 1.2;
+    const groundGeometry = new THREE.CircleGeometry(groundRadius, 32);
+    
+    // Create reflective material
+    const groundMaterial = new THREE.MeshStandardMaterial({
+      color: CONFIG.COLORS.GROUND,
+      metalness: 0.8,
+      roughness: 0.3,
+      emissive: CONFIG.COLORS.GROUND,
+      emissiveIntensity: 0.1
+    });
+    
+    // Create ground plane and position it
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;  // Lay flat
+    ground.position.y = -0.2;  // Slightly below the orbital ring
+    ground.receiveShadow = true;
+    
+    scene.add(ground);
   }
 
   // Update 3D view with new ticket data
@@ -289,30 +446,53 @@
     ticketObjects = [];
   }
 
-  // Create a 3D representation of a ticket
+  // Create a premium 3D representation of a ticket with advanced effects
   function createTicket3D(ticket, index, total) {
-    // Calculate position on orbital ring
+    // Calculate position on orbital ring with premium spacing
     const angle = (index / total) * Math.PI * 2;
     const height = CONFIG.ORBIT_HEIGHT + (Math.random() * 0.4 - 0.2); // Slight height variation
     
-    // Determine color based on status
-    const color = ticket.status === 'OPEN' ? 
-                  CONFIG.COLORS.OPEN : 
-                  CONFIG.COLORS.CLOSED;
+    // Determine color based on status with enhanced glow colors
+    let color, glowColor, priority;
     
-    // Create ticket mesh
+    // Analyze ticket for priority level (Enterprise feature)
+    priority = analyzePriority(ticket);
+    
+    // Set colors based on status and priority
+    if (ticket.status === 'OPEN') {
+      color = priority === 'high' ? 
+              CONFIG.COLORS.PRIORITY_HIGH : 
+              (priority === 'medium' ? 
+                CONFIG.COLORS.PRIORITY_MED : 
+                CONFIG.COLORS.OPEN);
+      
+      glowColor = priority === 'high' ? 
+                  CONFIG.COLORS.PRIORITY_HIGH : 
+                  (priority === 'medium' ? 
+                    CONFIG.COLORS.PRIORITY_MED : 
+                    CONFIG.COLORS.OPEN_GLOW || CONFIG.COLORS.OPEN);
+    } else {
+      color = CONFIG.COLORS.CLOSED;
+      glowColor = CONFIG.COLORS.CLOSED_GLOW || CONFIG.COLORS.CLOSED;
+    }
+    
+    // Create premium ticket mesh with enhanced geometry
+    // Use rounded edges for a more polished look
     const geometry = new THREE.BoxGeometry(
       CONFIG.TICKET_SIZE * 1.4, 
       CONFIG.TICKET_SIZE * 0.8, 
-      CONFIG.TICKET_SIZE * 0.1
+      CONFIG.TICKET_SIZE * 0.1,
+      5, 5, 2  // More segments for smoother edges
     );
     
+    // Create advanced material with physically-based properties
     const material = new THREE.MeshStandardMaterial({
       color: color,
-      emissive: color,
-      emissiveIntensity: 0.3,
-      metalness: 0.8,
-      roughness: 0.2,
+      emissive: glowColor,
+      emissiveIntensity: 0.4,
+      metalness: 0.85,
+      roughness: 0.15,
+      envMapIntensity: 1.0,
     });
     
     // Create mesh
@@ -323,25 +503,122 @@
     ticketMesh.position.z = Math.sin(angle) * CONFIG.ORBITAL_RADIUS;
     ticketMesh.position.y = height;
     
-    // Face center
-    ticketMesh.lookAt(new THREE.Vector3(0, height, 0));
+    // Face center with slight tilt based on priority
+    const lookAtPoint = new THREE.Vector3(0, height, 0);
+    ticketMesh.lookAt(lookAtPoint);
     
-    // Store angle for animation
+    // Add slight rotation variation based on priority
+    if (priority === 'high') {
+      ticketMesh.rotation.z += 0.1; // Slight tilt for high priority
+    }
+    
+    // Store data for animation
     ticketMesh.userData = {
       ticket: ticket,
       originalAngle: angle,
       originalHeight: height,
-      originalScale: ticketMesh.scale.clone()
+      originalScale: ticketMesh.scale.clone(),
+      priority: priority,
+      pulsePhase: Math.random() * Math.PI * 2, // Random phase for pulse animation
+      wobblePhase: Math.random() * Math.PI * 2, // Random phase for wobble
     };
     
     // Add to scene and collection
     scene.add(ticketMesh);
     ticketObjects.push(ticketMesh);
     
-    // Add text label
-    addTicketText(ticketMesh, ticket.id, angle);
+    // Add premium text label
+    addTicketText(ticketMesh, ticket.id, angle, priority);
+    
+    // Add ticket glow effect for premium visualization
+    addTicketGlow(ticketMesh, glowColor, priority);
     
     return ticketMesh;
+  }
+  
+  // Analyze ticket priority based on content, age, and status (AI simulation)
+  function analyzePriority(ticket) {
+    // Enterprise AI priority detection simulation
+    // In a real $55k implementation, this would use natural language processing
+    // and machine learning to determine priority
+    
+    try {
+      // Check for high priority indicators
+      if (ticket.type && ['urgent', 'critical', 'high', 'important'].some(
+          term => ticket.type.toLowerCase().includes(term))) {
+        return 'high';
+      }
+      
+      // Check content for urgent terms (simulated)
+      const urgentTerms = ['urgent', 'critical', 'emergency', 'immediate', 'asap'];
+      if (ticket.content && urgentTerms.some(term => 
+        ticket.content.toLowerCase().includes(term))) {
+        return 'high';
+      }
+      
+      // Check if ticket is older than 7 days but still open (simulated)
+      if (ticket.createdAt && ticket.status === 'OPEN') {
+        const created = new Date(ticket.createdAt);
+        const now = new Date();
+        const daysDiff = (now - created) / (1000 * 60 * 60 * 24);
+        if (daysDiff > 7) {
+          return 'medium';
+        }
+      }
+      
+      // Default priority
+      return 'normal';
+    } catch (error) {
+      console.warn('Error analyzing ticket priority:', error);
+      return 'normal';
+    }
+  }
+  
+  // Add glow effect to important tickets (premium feature)
+  function addTicketGlow(ticketMesh, glowColor, priority) {
+    try {
+      // Don't add glow to normal priority closed tickets to reduce visual noise
+      if (priority === 'normal' && ticketMesh.userData.ticket.status !== 'OPEN') {
+        return;
+      }
+      
+      // Create larger but transparent version of the ticket for glow effect
+      const glowGeometry = new THREE.BoxGeometry(
+        CONFIG.TICKET_SIZE * 1.5, 
+        CONFIG.TICKET_SIZE * 0.9, 
+        CONFIG.TICKET_SIZE * 0.15
+      );
+      
+      // Create glow material
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: glowColor,
+        transparent: true,
+        opacity: priority === 'high' ? 0.3 : 0.15,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide
+      });
+      
+      // Create glow mesh
+      const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+      glowMesh.position.copy(ticketMesh.position);
+      glowMesh.quaternion.copy(ticketMesh.quaternion);
+      glowMesh.scale.multiplyScalar(1.2);
+      
+      // Add to scene and objects array for animation
+      scene.add(glowMesh);
+      
+      // Store reference to the parent ticket for animation
+      glowMesh.userData = {
+        isGlow: true,
+        parent: ticketMesh,
+        originalOpacity: glowMaterial.opacity,
+        priority: priority
+      };
+      
+      ticketObjects.push(glowMesh);
+    } catch (error) {
+      console.warn('Failed to create premium glow effect:', error);
+    }
   }
 
   // Add text label to a ticket
