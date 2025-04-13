@@ -1,0 +1,115 @@
+/* Premium Ticket Navigation Styling */
+
+.tabs .nav-tabs {
+  border-bottom: none;
+  display: flex;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(20,20,26,0.8) 0%, rgba(30,30,40,0.7) 100%);
+  padding: 5px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.tabs .nav-tabs .nav-item {
+  margin-bottom: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.tabs .nav-tabs .nav-link {
+  font-weight: 600;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  margin: 2px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+/* Add icons to tabs */
+.tabs .nav-tabs #tickets-tab::before {
+  content: "\f3ff";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  margin-right: 7px;
+}
+
+.tabs .nav-tabs #settings-tab::before {
+  content: "\f013";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  margin-right: 7px;
+}
+
+.tabs .nav-tabs #panels-tab::before {
+  content: "\f3fd";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  margin-right: 7px;
+}
+
+.tabs .nav-tabs .nav-link:hover {
+  color: #ffffff;
+  background: rgba(70, 70, 90, 0.3);
+}
+
+.tabs .nav-tabs .nav-link.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #7289da 0%, #4e62b3 100%);
+  box-shadow: 0 2px 10px rgba(114, 137, 218, 0.5);
+  transform: scale(1.05);
+}
+
+/* Active tab indicator */
+.tabs .nav-tabs .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #7289da, #4e62b3);
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+
+.tabs .nav-tabs .nav-link.active::after {
+  width: 40px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tabs .nav-tabs {
+    padding: 3px;
+  }
+  
+  .tabs .nav-tabs .nav-link {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  
+  .tabs .nav-tabs .nav-link::before {
+    margin-right: 4px;
+  }
+}
+
+/* For smaller screens, make text even smaller */
+@media (max-width: 480px) {
+  .tabs .nav-tabs .nav-link {
+    font-size: 11px;
+    padding: 7px 5px;
+  }
+  
+  .tabs .nav-tabs .nav-link::before {
+    margin-right: 3px;
+  }
+}
