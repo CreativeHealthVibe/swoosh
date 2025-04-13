@@ -1,0 +1,400 @@
+/**
+ * Admin3D Ticket Management Styles
+ * Consistent dark theme for ticket management interface
+ */
+
+.tickets-container {
+  padding: 20px;
+  color: #fff;
+  background-color: #1a1a1a; /* Consistent dark background */
+}
+
+.tickets-header {
+  margin-bottom: 30px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 15px;
+}
+
+.tickets-header h1 {
+  font-size: 2rem;
+  color: #9b59b6;
+  margin-bottom: 8px;
+}
+
+.tickets-header p {
+  color: #ccc;
+  font-size: 1.1rem;
+}
+
+.server-selector {
+  margin-bottom: 25px;
+}
+
+.server-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ddd;
+}
+
+.server-selector select {
+  width: 100%;
+  padding: 10px;
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+}
+
+/* Tab Navigation */
+.tabs .nav-tabs {
+  border-color: #444;
+}
+
+.tabs .nav-link {
+  color: #aaa;
+  background-color: #2a2a2a;
+  border-color: #444;
+  margin-right: 5px;
+  padding: 10px 20px;
+  border-radius: 4px 4px 0 0;
+}
+
+.tabs .nav-link:hover {
+  color: #fff;
+  background-color: #333;
+  border-color: #555;
+}
+
+.tabs .nav-link.active {
+  color: #fff;
+  background-color: #9b59b6;
+  border-color: #9b59b6;
+}
+
+/* Tab Content */
+.tab-content {
+  padding: 25px;
+  background-color: #222;
+  border: 1px solid #444;
+  border-radius: 0 4px 4px 4px;
+  margin-top: -1px;
+}
+
+/* Stats Row */
+.stats-row {
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  padding: 20px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.stat-icon {
+  background-color: #9b59b6;
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-right: 15px;
+}
+
+.stat-content h3 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: #fff;
+}
+
+.stat-content p {
+  margin: 0;
+  color: #ccc;
+}
+
+/* Ticket List */
+.ticket-list-container {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.ticket-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.ticket-list-header h3 {
+  margin: 0;
+  color: #fff;
+}
+
+.ticket-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.ticket-filters select,
+.ticket-filters input {
+  padding: 8px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+}
+
+.ticket-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ticket-list th {
+  background-color: #333;
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #444;
+}
+
+.ticket-list td {
+  padding: 12px;
+  border-bottom: 1px solid #444;
+  color: #ddd;
+}
+
+.ticket-list tr:hover {
+  background-color: #333;
+}
+
+.no-tickets-row td {
+  padding: 30px;
+  text-align: center;
+  color: #999;
+}
+
+.ticket-status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.status-open {
+  background-color: #2ecc71;
+  color: #fff;
+}
+
+.status-closed {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.ticket-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.ticket-actions button {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-view {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.btn-close {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.btn-transcript {
+  background-color: #f1c40f;
+  color: #333;
+}
+
+/* Settings Tab */
+.settings-container {
+  padding: 20px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+}
+
+.settings-container h3 {
+  margin-top: 0;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.settings-container p {
+  color: #ccc;
+  margin-bottom: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  color: #ddd;
+}
+
+.form-control {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.form-control:focus {
+  background-color: #444;
+  color: #fff;
+  border-color: #9b59b6;
+  box-shadow: 0 0 0 0.2rem rgba(155, 89, 182, 0.25);
+}
+
+.form-text {
+  color: #999;
+}
+
+.form-check-label {
+  color: #ddd;
+}
+
+.form-buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Panels Tab */
+.panels-container {
+  padding: 20px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+}
+
+.panels-container h3 {
+  margin-top: 0;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.panels-container p {
+  color: #ccc;
+  margin-bottom: 25px;
+}
+
+.ticket-type-row {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #333;
+  border-radius: 4px;
+}
+
+/* Modal Styling */
+.dark-theme.modal .modal-content {
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.dark-theme.modal .modal-header {
+  border-bottom: 1px solid #444;
+}
+
+.dark-theme.modal .modal-footer {
+  border-top: 1px solid #444;
+}
+
+.dark-theme.modal .close {
+  color: #fff;
+}
+
+.ticket-details p {
+  margin-bottom: 10px;
+}
+
+.ticket-content, .ticket-transcript-section {
+  margin-top: 20px;
+}
+
+#modal-ticket-content, #modal-transcript-preview {
+  background-color: #333;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #9b59b6;
+  border-color: #9b59b6;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #8e44ad;
+  border-color: #8e44ad;
+}
+
+.btn-secondary {
+  background-color: #7f8c8d;
+  border-color: #7f8c8d;
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+  background-color: #6c7a7a;
+  border-color: #6c7a7a;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.btn-danger:hover, .btn-danger:focus {
+  background-color: #c0392b;
+  border-color: #c0392b;
+}
+
+.btn-info {
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+.btn-info:hover, .btn-info:focus {
+  background-color: #2980b9;
+  border-color: #2980b9;
+}
+
+/* Always use dark theme */
+.dark-theme {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+/* Additional styles to ensure consistency */
+:root {
+  --primary-color: #9b59b6;
+  --bg-dark: #1a1a1a;
+  --bg-darker: #0d0d0d;
+  --bg-panel: #2a2a2a;
+  --text-light: #fff;
+  --text-muted: #ccc;
+  --border-color: #444;
+}
