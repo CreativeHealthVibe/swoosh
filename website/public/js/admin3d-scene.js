@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
       new THREE.Color(0x4d9fff), // Blue
       new THREE.Color(0xff3d71), // Red
       new THREE.Color(0x00e676), // Green
-      new THREE.Color(0xb76eff)  // Purple
+      new THREE.Color(0x000000)  // Black (replacing purple)
     ];
     
     // Generate random particles
