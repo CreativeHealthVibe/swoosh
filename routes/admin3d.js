@@ -12,6 +12,7 @@ const path = require('path');
 const directBanRoutes = require('./admin3d/direct-ban-routes');
 const warningRoutes = require('./admin3d/warning-routes');
 const automodRoutes = require('./admin3d/automod-routes');
+const ticketRoutes = require('./admin3d/ticket-routes');
 
 // Apply admin authentication middleware to all routes
 router.use(isAdmin);
@@ -546,13 +547,13 @@ router.delete('/moderation/delete-filter/:serverId/:filterId', async (req, res) 
 
 /**
  * GET /admin3d/tickets
- * Empty ticket page as requested by user
+ * Ticket management interface
  */
 router.get('/tickets', (req, res) => {
   const client = req.app.get('client');
   
-  // Render completely empty page
-  res.render('admin3d/tickets-empty', {
+  // Render ticket management page
+  res.render('admin3d/tickets', {
     title: 'Ticket Management | SWOOSH Bot',
     user: req.user,
     client,
