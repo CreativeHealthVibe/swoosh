@@ -47,7 +47,7 @@ router.get('/servers/:serverId/tickets', async (req, res) => {
     }
     
     // Get tickets for the server
-    const tickets = await ticketManager.getTickets(serverId);
+    const tickets = await ticketManager.getTickets(serverId, client);
     
     // Get ticket statistics
     const stats = {

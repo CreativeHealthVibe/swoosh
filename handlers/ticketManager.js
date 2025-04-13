@@ -252,26 +252,29 @@ module.exports = {
   /**
    * Get tickets for a server
    * @param {string} serverId - Discord server ID
+   * @param {Object} [client] - Discord client (optional)
    * @returns {Array} - Array of tickets
    */
-  getTickets: async (serverId) => {
+  getTickets: async (serverId, client) => {
     try {
       // For now, we'll return tickets from the activeTickets map that match the server ID
       // In a future update, this could be expanded to load tickets from a database
       const serverTickets = [];
       
+      // Use the provided client or try to get it from global
+      const discordClient = client || global.client;
+      
       // Iterate through active tickets
       for (const [channelId, ticket] of activeTickets.entries()) {
         // If the channel belongs to this server, add it to the list
-        const client = global.client; // Assuming client is stored globally
-        if (client) {
-          const channel = client.channels.cache.get(channelId);
+        if (discordClient) {
+          const channel = discordClient.channels.cache.get(channelId);
           if (channel && channel.guild.id === serverId) {
             // Get creator user if possible
             let user = null;
             if (ticket.userId) {
               try {
-                user = await client.users.fetch(ticket.userId);
+                user = await discordClient.users.fetch(ticket.userId);
               } catch (error) {
                 console.error('Error fetching ticket creator:', error);
               }
@@ -309,9 +312,10 @@ module.exports = {
    * Get a specific ticket by ID
    * @param {string} serverId - Discord server ID
    * @param {string} ticketId - Ticket channel ID
+   * @param {Object} [client] - Discord client (optional)
    * @returns {Object} - Ticket data
    */
-  getTicketById: async (serverId, ticketId) => {
+  getTicketById: async (serverId, ticketId, client) => {
     try {
       // Check if ticket exists in active tickets
       const ticket = activeTickets.get(ticketId);
@@ -319,13 +323,13 @@ module.exports = {
         return null;
       }
       
-      // Check if ticket belongs to the specified server
-      const client = global.client; // Assuming client is stored globally
-      if (!client) {
+      // Use the provided client or try to get it from global
+      const discordClient = client || global.client;
+      if (!discordClient) {
         return null;
       }
       
-      const channel = client.channels.cache.get(ticketId);
+      const channel = discordClient.channels.cache.get(ticketId);
       if (!channel || channel.guild.id !== serverId) {
         return null;
       }
@@ -334,7 +338,7 @@ module.exports = {
       let user = null;
       if (ticket.userId) {
         try {
-          user = await client.users.fetch(ticket.userId);
+          user = await discordClient.users.fetch(ticket.userId);
         } catch (error) {
           console.error('Error fetching ticket creator:', error);
         }
