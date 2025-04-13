@@ -269,24 +269,44 @@ document.addEventListener('DOMContentLoaded', function() {
       // Status class
       const statusClass = ticket.status === 'OPEN' ? 'badge-success' : 'badge-secondary';
       
+      // Calculate time since creation for premium display
+      let timeSince = '';
+      if (ticket.createdAt) {
+        const now = new Date();
+        const diffMs = now - created;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        
+        if (diffDays > 0) {
+          timeSince = `${diffDays}d ${diffHours}h ago`;
+        } else {
+          timeSince = `${diffHours}h ago`;
+        }
+      }
+      
+      // Status pill class - premium style
+      const statusPillClass = ticket.status === 'OPEN' ? 'status-pill-open' : 'status-pill-closed';
+      
       row.innerHTML = `
-        <td>${ticket.id}</td>
+        <td><strong>#${ticket.id}</strong></td>
         <td>${escapeHtml(ticket.username || 'Unknown User')}</td>
         <td>${escapeHtml(ticket.type || 'General')}</td>
-        <td>${formattedDate}</td>
-        <td><span class="badge ${statusClass}">${ticket.status || 'UNKNOWN'}</span></td>
-        <td>
-          <button class="btn btn-sm btn-info view-ticket" data-ticket-id="${ticket.id}">
-            <i class="fas fa-eye"></i>
-          </button>
-          ${ticket.status === 'OPEN' ? `
-            <button class="btn btn-sm btn-warning close-ticket" data-ticket-id="${ticket.id}">
-              <i class="fas fa-times"></i>
+        <td title="${formattedDate}">${timeSince || formattedDate}</td>
+        <td><span class="status-pill ${statusPillClass}">${ticket.status || 'UNKNOWN'}</span></td>
+        <td class="premium-action-cell">
+          <div class="premium-button-group">
+            <button class="premium-btn premium-sm premium-info view-ticket" data-ticket-id="${ticket.id}" title="View Details">
+              <i class="fas fa-eye"></i>
             </button>
-          ` : ''}
-          <button class="btn btn-sm btn-secondary download-transcript" data-ticket-id="${ticket.id}">
-            <i class="fas fa-download"></i>
-          </button>
+            ${ticket.status === 'OPEN' ? `
+              <button class="premium-btn premium-sm premium-warning close-ticket" data-ticket-id="${ticket.id}" title="Close Ticket">
+                <i class="fas fa-times"></i>
+              </button>
+            ` : ''}
+            <button class="premium-btn premium-sm premium-secondary download-transcript" data-ticket-id="${ticket.id}" title="Download Transcript">
+              <i class="fas fa-download"></i>
+            </button>
+          </div>
         </td>
       `;
       
