@@ -52,7 +52,21 @@
   function checkRequirements() {
     // Check for THREE.js
     if (typeof THREE === 'undefined') {
-      console.warn('Premium 3D Tickets: THREE.js not available');
+      console.warn('THREE.js not loaded! Falling back to 2D mode.');
+      
+      // Try to load THREE.js dynamically if not available
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js';
+      script.onload = function() {
+        console.log('THREE.js loaded successfully from ' + script.src);
+        // Re-initialize once loaded
+        initScene();
+      };
+      script.onerror = function() {
+        console.warn('Failed to load THREE.js from ' + script.src);
+      };
+      document.head.appendChild(script);
+      
       return false;
     }
     
@@ -162,7 +176,10 @@
       if (typeof THREE.EffectComposer === 'undefined' || 
           typeof THREE.RenderPass === 'undefined' || 
           typeof THREE.UnrealBloomPass === 'undefined') {
-        console.warn('Post-processing libraries not available, skipping bloom effect');
+        console.warn('Post-processing libraries not available, using basic rendering');
+        
+        // We'll continue without post-processing effects
+        // but will still have the basic 3D visualization
         return;
       }
       
@@ -185,6 +202,7 @@
       console.log('Post-processing effects enabled');
     } catch (error) {
       console.warn('Failed to setup post-processing:', error);
+      // Continue without post-processing
     }
   }
 
