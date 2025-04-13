@@ -107,9 +107,12 @@
       scene = new THREE.Scene();
       scene.background = new THREE.Color(CONFIG.COLORS.BACKGROUND);
       
-      // Setup camera
-      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 2, 7);
+      // Setup camera with container aspect ratio
+      const aspect = threeContainer.clientWidth / threeContainer.clientHeight;
+      camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+      
+      // Position camera for container-based view (slightly higher angle)
+      camera.position.set(0, 3, 6);
       
       // Setup renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -203,12 +206,16 @@
       const renderPass = new THREE.RenderPass(scene, camera);
       composer.addPass(renderPass);
       
-      // Add bloom pass
+      // Add bloom pass with container dimensions
+      const threeContainer = document.getElementById('three-container');
       const bloomPass = new THREE.UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.7,   // strength
-        0.6,   // radius
-        0.75   // threshold
+        new THREE.Vector2(
+          threeContainer ? threeContainer.clientWidth : window.innerWidth, 
+          threeContainer ? threeContainer.clientHeight : window.innerHeight
+        ),
+        0.6,   // strength
+        0.5,   // radius
+        0.7    // threshold
       );
       composer.addPass(bloomPass);
       
@@ -421,9 +428,39 @@
 
   // Handle mouse movement for interactive hover effect
   function onMouseMove(event) {
+    // Get container element and its bounds
+    const threeContainer = document.getElementById('three-container');
+    if (!threeContainer) return;
+    
+    const rect = threeContainer.getBoundingClientRect();
+    
+    // Check if mouse is inside container
+    if (
+      event.clientX < rect.left || 
+      event.clientX > rect.right || 
+      event.clientY < rect.top || 
+      event.clientY > rect.bottom
+    ) {
+      // Mouse is outside container
+      if (currentlyIntersected) {
+        // Reset and hide tooltip
+        currentlyIntersected.scale.copy(currentlyIntersected.userData.originalScale);
+        if (currentlyIntersected.material) {
+          currentlyIntersected.material.emissiveIntensity = 0.3;
+        }
+        currentlyIntersected = null;
+        hideTicketInfo();
+      }
+      return;
+    }
+    
     // Calculate mouse position in normalized device coordinates
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    // relative to the container
+    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    
+    mouse.x = x;
+    mouse.y = y;
     
     // Update tooltip position
     updateTooltipPosition(event);
