@@ -5,6 +5,40 @@
   Ticket Management Page
 %>
 
+<!-- Custom CSS for ticket page dropdowns -->
+<style>
+  /* Fix for server select dropdown */
+  #server-select {
+    position: relative !important;
+    z-index: 1000 !important;
+    pointer-events: auto !important;
+    appearance: auto !important;
+    -webkit-appearance: auto !important;
+    -moz-appearance: auto !important;
+  }
+  
+  /* Style dropdown box to match theme */
+  #server-select option {
+    background-color: #111;
+    color: white;
+    padding: 8px;
+    font-size: 14px;
+  }
+  
+  /* Fix dropdown options visibility */
+  #server-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+  }
+  
+  /* Fix form styling to ensure all inputs are clickable */
+  .admin3d-form-group {
+    position: relative;
+    z-index: 100;
+  }
+</style>
+
 <div class="admin3d-tickets">
   <div class="dashboard-header">
     <h1 class="section-title">Ticket Management</h1>

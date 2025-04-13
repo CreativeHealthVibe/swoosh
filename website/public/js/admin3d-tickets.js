@@ -122,6 +122,21 @@ function loadServerList() {
     const optionCount = serverSelect.options.length;
     console.log(`Server select has ${optionCount} options`);
     
+    // Make sure the dropdown is visible and properly styled for interaction
+    serverSelect.style.position = 'relative';
+    serverSelect.style.zIndex = '1000';
+    serverSelect.style.pointerEvents = 'auto';
+    
+    // Force the appearance property to ensure dropdown works
+    serverSelect.style.appearance = 'auto';
+    serverSelect.style.webkitAppearance = 'auto';
+    serverSelect.style.MozAppearance = 'auto';
+    
+    // Log option values for debugging
+    Array.from(serverSelect.options).forEach((option, index) => {
+      console.log(`Option ${index}: ${option.value} - ${option.text}`);
+    });
+    
     // If we only have the default "Select a server" option, show error
     if (optionCount <= 1) {
       console.error('No servers found in server select dropdown');
