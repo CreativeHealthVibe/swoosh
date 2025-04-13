@@ -43,7 +43,7 @@ function setupWebSocket() {
   
   // Create WebSocket connection
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
+  const wsUrl = `${protocol}//${window.location.host}/stats-ws`;
   
   console.log('Connecting WebSocket to:', wsUrl);
   
