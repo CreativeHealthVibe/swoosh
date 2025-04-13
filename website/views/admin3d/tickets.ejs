@@ -271,81 +271,140 @@
 
     <!-- Panels Tab -->
     <div class="tab-pane fade" id="panels-content">
-      <div class="panels-container">
-        <h3>Ticket Panels</h3>
-        <p>Create and manage ticket panels in your server</p>
+      <div class="panels-container" style="background: linear-gradient(135deg, rgba(12,12,12,0.9) 0%, rgba(0,0,0,0.95) 100%);">
+        <div class="premium-header">
+          <div class="premium-header-icon">
+            <i class="fas fa-layer-group"></i>
+          </div>
+          <div class="premium-header-text">
+            <h3>Ticket Panels</h3>
+            <p>Create and manage premium support ticket panels</p>
+          </div>
+        </div>
+        
+        <div class="premium-panels-preview">
+          <div class="preview-container">
+            <div class="preview-header">
+              <i class="fas fa-eye"></i> Live Preview
+            </div>
+            <div class="preview-content">
+              <div class="preview-embed" id="panel-preview">
+                <div class="preview-embed-title" id="preview-title">Support Tickets</div>
+                <div class="preview-embed-description" id="preview-description">Select an option below to create a support ticket. Our team will assist you as soon as possible.</div>
+                <div class="preview-embed-image" id="preview-image" style="display:none;"></div>
+                <div class="preview-embed-buttons">
+                  <button class="preview-button" disabled>
+                    <span class="preview-emoji">🔧</span> General Support
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <form id="panel-form">
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Channel</label>
-            <div class="col-sm-9">
-              <select id="panel-channel-id" name="channelId" class="form-control" required>
-                <option value="">- Select Channel -</option>
-                <!-- Will be populated via JavaScript -->
-              </select>
-              <small class="form-text text-muted">Channel where the ticket panel will be sent</small>
+          <div class="form-row">
+            <div class="col-md-6">
+              <div class="form-group form-group-premium">
+                <label>
+                  <i class="fas fa-hashtag"></i> Channel
+                </label>
+                <select id="panel-channel-id" name="channelId" class="form-control" required>
+                  <option value="">- Select Channel -</option>
+                  <!-- Will be populated via JavaScript -->
+                </select>
+                <small class="form-text">Channel where the ticket panel will be sent</small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group form-group-premium">
+                <label>
+                  <i class="fas fa-palette"></i> Panel Color
+                </label>
+                <div class="color-picker-container">
+                  <input type="color" id="panel-color" name="panelColor" class="form-control color-input" value="#000000">
+                  <div class="color-presets">
+                    <span class="color-preset" style="background-color: #5865F2;" data-color="#5865F2"></span>
+                    <span class="color-preset" style="background-color: #57F287;" data-color="#57F287"></span>
+                    <span class="color-preset" style="background-color: #EB459E;" data-color="#EB459E"></span>
+                    <span class="color-preset" style="background-color: #ED4245;" data-color="#ED4245"></span>
+                    <span class="color-preset" style="background-color: #000000;" data-color="#000000"></span>
+                  </div>
+                </div>
+                <small class="form-text">Color for the ticket panel embed</small>
+              </div>
             </div>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Panel Title</label>
-            <div class="col-sm-9">
-              <input type="text" id="panel-title" name="panelTitle" class="form-control" value="Support Tickets" required>
-              <small class="form-text text-muted">Title of the ticket panel embed</small>
-            </div>
+          <div class="form-group form-group-premium">
+            <label>
+              <i class="fas fa-heading"></i> Panel Title
+            </label>
+            <input type="text" id="panel-title" name="panelTitle" class="form-control" value="Support Tickets" required>
+            <small class="form-text">Title of the ticket panel embed</small>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Panel Description</label>
-            <div class="col-sm-9">
-              <textarea id="panel-description" name="panelDescription" class="form-control" rows="3" required>Select an option below to create a support ticket. Our team will assist you as soon as possible.</textarea>
-              <small class="form-text text-muted">Description text for the ticket panel</small>
-            </div>
+          <div class="form-group form-group-premium">
+            <label>
+              <i class="fas fa-align-left"></i> Panel Description
+            </label>
+            <textarea id="panel-description" name="panelDescription" class="form-control" rows="3" required>Select an option below to create a support ticket. Our team will assist you as soon as possible.</textarea>
+            <small class="form-text">Description text for the ticket panel</small>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Panel Color</label>
-            <div class="col-sm-9">
-              <input type="color" id="panel-color" name="panelColor" class="form-control" value="#000000">
-              <small class="form-text text-muted">Color for the ticket panel embed</small>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Panel Image (Optional)</label>
-            <div class="col-sm-9">
+          <div class="form-group form-group-premium">
+            <label>
+              <i class="fas fa-image"></i> Panel Image <span class="optional-tag">Optional</span>
+            </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-link"></i></span>
+              </div>
               <input type="url" id="panel-image" name="panelImage" class="form-control" placeholder="https://example.com/image.png">
-              <small class="form-text text-muted">Optional image URL for the panel</small>
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="test-image-btn">Test</button>
+              </div>
             </div>
+            <small class="form-text">Image URL to display in the panel (recommended: 800×200px)</small>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Ticket Types</label>
-            <div class="col-sm-9">
-              <button type="button" id="add-ticket-type" class="premium-btn premium-secondary premium-sm mb-2">
+          <div class="form-group form-group-premium">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <label class="mb-0">
+                <i class="fas fa-ticket-alt"></i> Ticket Types
+              </label>
+              <button type="button" id="add-ticket-type" class="premium-btn premium-secondary premium-sm">
                 <i class="fas fa-plus"></i> Add Ticket Type
               </button>
-              
-              <div id="ticket-types-container">
-                <!-- First ticket type (default) -->
-                <div class="ticket-type-row" data-index="0">
-                  <div class="row">
-                    <div class="col-4">
-                      <input type="text" class="form-control type-label" 
-                             name="ticketTypes[0][label]" placeholder="Label" value="General Support" required>
-                    </div>
-                    <div class="col-2">
-                      <input type="text" class="form-control type-emoji" 
-                             name="ticketTypes[0][emoji]" placeholder="Emoji" value="🔧" required>
-                    </div>
-                    <div class="col-5">
-                      <input type="text" class="form-control type-description" 
-                             name="ticketTypes[0][description]" placeholder="Description" value="General questions and support">
-                    </div>
-                    <div class="col-1">
+            </div>
+            
+            <div id="ticket-types-container" class="ticket-types-premium">
+              <!-- First ticket type (default) -->
+              <div class="ticket-type-row" data-index="0">
+                <div class="ticket-type-card">
+                  <div class="ticket-type-header">
+                    <div class="type-emoji-display">🔧</div>
+                    <div class="ticket-type-actions">
                       <button type="button" class="premium-btn premium-danger premium-sm remove-ticket-type">
                         <i class="fas fa-times"></i>
                       </button>
+                    </div>
+                  </div>
+                  <div class="ticket-type-body">
+                    <div class="form-group">
+                      <label>Label</label>
+                      <input type="text" class="form-control type-label" 
+                             name="ticketTypes[0][label]" placeholder="Label" value="General Support" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Emoji</label>
+                      <input type="text" class="form-control type-emoji" 
+                             name="ticketTypes[0][emoji]" placeholder="Emoji" value="🔧" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Description</label>
+                      <input type="text" class="form-control type-description" 
+                             name="ticketTypes[0][description]" placeholder="Description" value="General questions and support">
                     </div>
                   </div>
                 </div>
@@ -353,12 +412,23 @@
             </div>
           </div>
 
-          <div class="form-buttons">
-            <button type="submit" class="premium-btn premium-primary">
-              <i class="fas fa-plus-circle"></i> Create Panel
+          <div class="form-buttons text-center">
+            <button type="submit" class="premium-btn premium-primary premium-lg">
+              <i class="fas fa-broadcast-tower"></i> Deploy Panel
             </button>
           </div>
         </form>
+      </div>
+      
+      <div class="existing-panels-container">
+        <h3><i class="fas fa-list"></i> Your Existing Panels</h3>
+        <div class="existing-panels-list" id="existing-panels">
+          <div class="panel-empty-state">
+            <i class="fas fa-info-circle"></i>
+            <p>No panels have been created yet for this server</p>
+          </div>
+          <!-- Will be populated via JavaScript -->
+        </div>
       </div>
     </div>
   </div>
