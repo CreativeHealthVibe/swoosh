@@ -1,0 +1,32 @@
+tickets:48 Failed to load THREE.js from https://cdnjs.cloudflare.com/ajax/libs/three.js/r151/three.min.js
+script.onerror @ tickets:48Understand this warning
+three.min.js:1 Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation
+(anonymous) @ three.min.js:1Understand this warning
+tickets:44 THREE.js loaded successfully from https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js
+admin.js:48 Connecting WebSocket to: wss://3e439d2b-09e7-4adc-aa00-babee1fc8ab7-00-ndcbsk0q1ui9.janeway.replit.dev/stats-ws
+admin.js:592 Initializing tabs...
+admin.js:605 Found 0 regular tab buttons
+admin3d-tickets.js:41 Initializing tickets page...
+admin3d-tickets.js:117 Initializing server select dropdown...
+admin3d-tickets.js:123 Server select has 11 options
+admin.js:52 WebSocket connection to 'wss://3e439d2b-09e7-4adc-aa00-babee1fc8ab7-00-ndcbsk0q1ui9.janeway.replit.dev/stats-ws' failed: 
+setupWebSocket @ admin.js:52Understand this error
+admin.js:101 WebSocket error: Event
+ws.onerror @ admin.js:101Understand this error
+admin.js:84 WebSocket connection closed: 1006 
+admin.js:95 Attempting to reconnect WebSocket...
+admin.js:48 Connecting WebSocket to: wss://3e439d2b-09e7-4adc-aa00-babee1fc8ab7-00-ndcbsk0q1ui9.janeway.replit.dev/stats-ws
+admin.js:52 WebSocket connection to 'wss://3e439d2b-09e7-4adc-aa00-babee1fc8ab7-00-ndcbsk0q1ui9.janeway.replit.dev/stats-ws' failed: 
+setupWebSocket @ admin.js:52
+(anonymous) @ admin.js:96Understand this error
+admin.js:101 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+ws.onerror @ admin.js:101Understand this error
+admin.js:84 WebSocket connection closed: 1006 
+admin.js:95 Attempting to reconnect WebSocket...
+admin.js:48 Connecting WebSocket to: wss://3e439d2b-09e7-4adc-aa00-babee1fc8ab7-00-ndcbsk0q1ui9.janeway.replit.dev/stats-ws
+admin.js:52 WebSocket connection to 'wss://3e439d2b-09e7-4adc-aa00-babee1fc8ab7-00-ndcbsk0q1ui9.janeway.replit.dev/stats-ws' failed: 
+setupWebSocket @ admin.js:52
+(anonymous) @ admin.js:96Understand this error
+admin.js:101 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+ws.onerror @ admin.js:101Understand this error
+admin.js:84 WebSocket connection closed: 1006 
