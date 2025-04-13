@@ -817,26 +817,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const index = ticketTypesContainer.children.length;
     const row = document.createElement('div');
-    row.className = 'ticket-type-row admin3d-form-group';
+    row.className = 'ticket-type-row';
     row.dataset.index = index;
     row.style.setProperty('--row-index', index);
     
     row.innerHTML = `
-      <div class="admin3d-form-row">
-        <div class="admin3d-form-group">
-          <input type="text" class="admin3d-form-input type-label" 
+      <div class="row">
+        <div class="col-4">
+          <input type="text" class="form-control type-label" 
                  name="ticketTypes[${index}][label]" placeholder="Label" required>
         </div>
-        <div class="admin3d-form-group">
-          <input type="text" class="admin3d-form-input type-emoji" 
+        <div class="col-2">
+          <input type="text" class="form-control type-emoji" 
                  name="ticketTypes[${index}][emoji]" placeholder="Emoji" required>
         </div>
-        <div class="admin3d-form-group">
-          <input type="text" class="admin3d-form-input type-description" 
+        <div class="col-5">
+          <input type="text" class="form-control type-description" 
                  name="ticketTypes[${index}][description]" placeholder="Description">
         </div>
-        <div class="admin3d-form-group" style="max-width: 50px;">
-          <button type="button" class="admin3d-btn remove-ticket-type" style="padding: 0.5rem; background-color: #e74c3c;">
+        <div class="col-1">
+          <button type="button" class="btn btn-danger btn-sm remove-ticket-type">
             <i class="fas fa-times"></i>
           </button>
         </div>
