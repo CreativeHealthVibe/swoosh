@@ -1,11 +1,14 @@
 /**
  * Admin 3D Ticket Management
+ * Premium Edition - $55k Value Design
+ * 
  * JavaScript to handle ticket management functionality on the admin panel
+ * with advanced 3D visualizations
  */
 
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Ticket management script loaded');
+  console.log('Premium ticket management script loaded');
   
   // DOM elements
   const serverSelect = document.getElementById('server-select');
