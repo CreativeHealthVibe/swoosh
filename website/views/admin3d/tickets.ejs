@@ -138,130 +138,141 @@
 
     <!-- Settings Tab -->
     <div class="tab-pane fade" id="settings-content">
-      <div class="settings-container">
-        <h3>Ticket System Configuration</h3>
-        <p>Configure how tickets work in your server</p>
+      <div class="ticket-config-container premium-3d-hover fluid-animation">
+        <div class="premium-config-badge">PREMIUM</div>
+        <div class="ticket-config-title">
+          <div class="ticket-config-title-icon float-animation">
+            <i class="fas fa-cog"></i>
+          </div>
+          <div class="ticket-config-title-text">
+            <h3>Ticket System Configuration</h3>
+            <p>Configure how tickets work in your server</p>
+          </div>
+        </div>
 
-        <form id="ticket-settings-form">
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Ticket Category</label>
-            <div class="col-sm-9">
+        <form id="ticket-settings-form" class="ticket-config-form">
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-folder"></i> Ticket Category</label>
+            <div class="enhanced-select-container">
               <select id="category-id" name="categoryId" class="form-control">
                 <option value="">- Select Category -</option>
                 <!-- Will be populated via JavaScript -->
               </select>
-              <small class="form-text text-muted">The category where ticket channels will be created</small>
             </div>
+            <small class="form-text">The category where ticket channels will be created</small>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Support Role</label>
-            <div class="col-sm-9">
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-user-shield"></i> Support Role</label>
+            <div class="enhanced-select-container">
               <select id="support-role-id" name="supportRoleId" class="form-control">
                 <option value="">- Select Role -</option>
                 <!-- Will be populated via JavaScript -->
               </select>
-              <small class="form-text text-muted">Role that will automatically have access to all tickets</small>
             </div>
+            <small class="form-text">Role that will automatically have access to all tickets</small>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Log Channel</label>
-            <div class="col-sm-9">
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-history"></i> Log Channel</label>
+            <div class="enhanced-select-container">
               <select id="log-channel-id" name="logChannelId" class="form-control">
                 <option value="">- Select Channel -</option>
                 <!-- Will be populated via JavaScript -->
               </select>
-              <small class="form-text text-muted">Channel where ticket activity will be logged</small>
+            </div>
+            <small class="form-text">Channel where ticket activity will be logged</small>
+          </div>
+
+          <div class="form-row">
+            <div class="col-md-6">
+              <div class="form-group form-group-premium">
+                <label><i class="fas fa-ticket-alt"></i> Maximum Tickets Per User</label>
+                <div class="number-input-container">
+                  <input type="number" id="max-tickets" name="maxTickets" class="form-control" value="1" min="1" max="5">
+                </div>
+                <small class="form-text">Maximum number of open tickets a user can have</small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group form-group-premium">
+                <label><i class="fas fa-clock"></i> Ticket Cooldown (seconds)</label>
+                <div class="number-input-container">
+                  <input type="number" id="cooldown" name="cooldown" class="form-control" value="60" min="0">
+                </div>
+                <small class="form-text">Time users must wait between creating tickets</small>
+              </div>
             </div>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Maximum Tickets Per User</label>
-            <div class="col-sm-9">
-              <input type="number" id="max-tickets" name="maxTickets" class="form-control" value="1" min="1" max="5">
-              <small class="form-text text-muted">Maximum number of open tickets a user can have</small>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Ticket Cooldown (seconds)</label>
-            <div class="col-sm-9">
-              <input type="number" id="cooldown" name="cooldown" class="form-control" value="60" min="0">
-              <small class="form-text text-muted">Time users must wait between creating tickets</small>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Options</label>
-            <div class="col-sm-9">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="auto-transcript" name="autoTranscript">
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-sliders-h"></i> Options</label>
+            <div class="premium-options-container">
+              <div class="form-check premium-check">
+                <input class="form-check-input" type="checkbox" id="auto-transcript" name="autoTranscript" value="true">
                 <label class="form-check-label" for="auto-transcript">
-                  Automatically save transcript when closing tickets
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Automatically save transcript when closing tickets</span>
                 </label>
               </div>
               
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="auto-close" name="autoClose">
+              <div class="form-check premium-check">
+                <input class="form-check-input" type="checkbox" id="auto-close" name="autoClose" value="true">
                 <label class="form-check-label" for="auto-close">
-                  Automatically close inactive tickets
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Automatically close inactive tickets</span>
                 </label>
               </div>
               
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="require-topic" name="requireTopic">
+              <div class="form-check premium-check">
+                <input class="form-check-input" type="checkbox" id="require-topic" name="requireTopic" value="true">
                 <label class="form-check-label" for="require-topic">
-                  Require users to specify a topic
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Require users to specify a topic</span>
                 </label>
               </div>
               
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="use-threads" name="useThreads">
+              <div class="form-check premium-check">
+                <input class="form-check-input" type="checkbox" id="use-threads" name="useThreads" value="true">
                 <label class="form-check-label" for="use-threads">
-                  Use threads instead of channels for tickets
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-label">Use threads instead of channels for tickets</span>
                 </label>
               </div>
             </div>
           </div>
 
-          <div class="form-group row auto-close-settings" style="display:none;">
-            <label class="col-sm-3 col-form-label">Inactive Hours</label>
-            <div class="col-sm-9">
+          <div class="form-group form-group-premium auto-close-settings" style="display:none;">
+            <label><i class="fas fa-hourglass-half"></i> Inactive Hours</label>
+            <div class="number-input-container">
               <input type="number" id="inactive-hours" name="inactiveHours" class="form-control" value="24" min="1">
-              <small class="form-text text-muted">Hours of inactivity before auto-closing a ticket</small>
             </div>
+            <small class="form-text">Hours of inactivity before auto-closing a ticket</small>
           </div>
 
-          <div class="form-group row auto-close-settings" style="display:none;">
-            <label class="col-sm-3 col-form-label">Auto-Close Message</label>
-            <div class="col-sm-9">
-              <textarea id="auto-close-message" name="autoCloseMessage" class="form-control" rows="2">This ticket has been automatically closed due to inactivity.</textarea>
-              <small class="form-text text-muted">Message sent when auto-closing a ticket</small>
-            </div>
+          <div class="form-group form-group-premium auto-close-settings" style="display:none;">
+            <label><i class="fas fa-comment-slash"></i> Auto-Close Message</label>
+            <textarea id="auto-close-message" name="autoCloseMessage" class="form-control" rows="2">This ticket has been automatically closed due to inactivity.</textarea>
+            <small class="form-text">Message sent when auto-closing a ticket</small>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Welcome Message</label>
-            <div class="col-sm-9">
-              <textarea id="welcome-message" name="welcomeMessage" class="form-control" rows="3">Thanks for creating a ticket! The support team will assist you shortly. Please describe your issue in detail.</textarea>
-              <small class="form-text text-muted">Message sent when a new ticket is created</small>
-            </div>
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-comment-dots"></i> Welcome Message</label>
+            <textarea id="welcome-message" name="welcomeMessage" class="form-control" rows="3">Thanks for creating a ticket! The support team will assist you shortly. Please describe your issue in detail.</textarea>
+            <small class="form-text">Message sent when a new ticket is created</small>
           </div>
 
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Close Message</label>
-            <div class="col-sm-9">
-              <textarea id="close-message" name="closeMessage" class="form-control" rows="3">This ticket is now closed. If you need further assistance, please open a new ticket.</textarea>
-              <small class="form-text text-muted">Message sent when a ticket is closed</small>
-            </div>
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-door-closed"></i> Close Message</label>
+            <textarea id="close-message" name="closeMessage" class="form-control" rows="3">This ticket is now closed. If you need further assistance, please open a new ticket.</textarea>
+            <small class="form-text">Message sent when a ticket is closed</small>
           </div>
 
-          <div class="form-buttons">
-            <button type="submit" class="premium-btn premium-primary">
+          <div class="ticket-config-save">
+            <button type="submit" class="premium-btn premium-primary premium-lg premium-glow">
               <i class="fas fa-save"></i> Save Configuration
             </button>
-            <button type="button" id="reset-settings" class="premium-btn premium-secondary">
+            <button type="button" id="reset-settings" class="premium-btn premium-secondary premium-lg premium-glow" style="margin-left: 15px;">
               <i class="fas fa-undo"></i> Reset to Defaults
             </button>
           </div>

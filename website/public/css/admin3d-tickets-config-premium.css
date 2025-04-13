@@ -1,20 +1,16 @@
-/**
- * SWOOSH Bot 3D Ticket Configuration
- * Premium Edition - Enhanced Styling for Ticket Config
- */
+/* Premium Ticket Configuration Styling */
 
-/* Premium Config Container */
 .ticket-config-container {
-  background: linear-gradient(135deg, rgba(10,10,10,0.9) 0%, rgba(0,0,0,0.95) 100%);
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  margin-bottom: 25px;
   position: relative;
+  background: linear-gradient(135deg, rgba(18,18,24,0.97) 0%, rgba(28,28,35,0.95) 100%);
+  border-radius: 12px;
+  padding: 20px 25px 35px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  border: 1px solid #222;
-  backdrop-filter: blur(10px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
 .ticket-config-container::before {
@@ -22,162 +18,168 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at top right, rgba(88, 101, 242, 0.1), transparent 40%),
-              radial-gradient(circle at bottom left, rgba(235, 69, 158, 0.1), transparent 40%);
-  pointer-events: none;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(255,255,255,0.4) 50%, 
+    rgba(255,255,255,0) 100%);
+  z-index: 1;
 }
 
-.ticket-config-container:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+.premium-config-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: linear-gradient(135deg, #a67c00 0%, #f0b800 50%, #ffed4a 100%);
+  color: #000;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  animation: pulse 2s infinite;
 }
 
-/* Config Title */
 .ticket-config-title {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   padding-bottom: 15px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ticket-config-title-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #5865F2 0%, #EB459E 100%);
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  background: linear-gradient(135deg, #2a2a35 0%, #1c1c24 100%);
+  border-radius: 50%;
   margin-right: 15px;
-  box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3);
-}
-
-.ticket-config-title-icon i {
-  color: white;
-  font-size: 1.3rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .ticket-config-title-text h3 {
   margin: 0;
-  padding: 0;
-  font-size: 1.4rem;
-  color: white;
+  font-size: 22px;
+  color: #fff;
   font-weight: 600;
-  background: linear-gradient(to right, #ffffff, #a3a3ff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
 }
 
 .ticket-config-title-text p {
-  margin: 0;
-  padding: 0;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
+  margin: 5px 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
 }
 
-/* Form Elements */
-.ticket-config-form .form-group {
-  margin-bottom: 20px;
+.ticket-config-form .form-group-premium {
+  margin-bottom: 25px;
   position: relative;
   transition: all 0.3s ease;
 }
 
-.ticket-config-form .form-group:hover {
-  transform: translateX(3px);
-}
-
-.ticket-config-form .form-group label {
+.ticket-config-form .form-group-premium label {
   display: block;
-  font-weight: 600;
   margin-bottom: 8px;
-  color: white;
-  font-size: 0.95rem;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  font-size: 15px;
 }
 
-.ticket-config-form .form-group label i {
+.ticket-config-form .form-group-premium label i {
   margin-right: 8px;
-  color: #5865F2;
-  text-shadow: 0 0 5px rgba(88, 101, 242, 0.5);
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.ticket-config-form .form-control {
-  background-color: rgba(30, 30, 30, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  border-radius: 8px;
-  padding: 12px 15px;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  width: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) inset;
-}
-
-.ticket-config-form .form-control:focus {
-  background-color: rgba(40, 40, 40, 0.9);
-  border-color: #5865F2;
-  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.25), 0 4px 8px rgba(0, 0, 0, 0.2) inset;
-  outline: none;
-  transform: scale(1.01);
-}
-
-.ticket-config-form select.form-control {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-  padding-right: 40px;
-}
-
-.ticket-config-form .form-text {
+.ticket-config-form .form-group-premium small {
   display: block;
-  font-size: 0.8rem;
+  margin-top: 6px;
   color: rgba(255, 255, 255, 0.5);
-  margin-top: 5px;
-  font-style: italic;
-  padding-left: 5px;
-  transition: color 0.2s ease;
+  font-size: 12px;
 }
 
-.ticket-config-form .form-group:hover .form-text {
-  color: rgba(255, 255, 255, 0.7);
+/* Enhanced Select Inputs */
+.enhanced-select-container {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.enhanced-select-container select {
+  width: 100%;
+  padding: 12px 15px;
+  background: rgba(30, 30, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  transition: all 0.3s ease;
+  appearance: none;
+}
+
+.enhanced-select-container::after {
+  content: '\f107';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+.enhanced-select-container select:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+/* Number Inputs */
+.number-input-container {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.number-input-container input {
+  width: 100%;
+  padding: 12px 15px;
+  background: rgba(30, 30, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.number-input-container input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  outline: none;
 }
 
 /* Checkbox Styling */
-.ticket-config-form .form-check {
-  padding-left: 35px;
-  margin-bottom: 15px;
+.premium-options-container {
+  margin-top: 10px;
+}
+
+.form-check.premium-check {
   position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 
-.ticket-config-form .form-check:hover {
-  transform: translateX(3px);
-}
-
-.ticket-config-form .form-check-input {
+.form-check.premium-check input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
   height: 0;
   width: 0;
-}
-
-.ticket-config-form .form-check-label {
-  position: relative;
-  padding-top: 2px;
-  display: inline-block;
-  color: white;
-  font-size: 0.95rem;
-  cursor: pointer;
-  user-select: none;
 }
 
 .checkbox-custom {
@@ -186,195 +188,186 @@
   left: 0;
   height: 22px;
   width: 22px;
-  background-color: rgba(30, 30, 30, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  background: rgba(30, 30, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) inset;
 }
 
-.ticket-config-form .form-check:hover .checkbox-custom {
-  background-color: rgba(40, 40, 40, 0.9);
-  border-color: rgba(255, 255, 255, 0.2);
+.form-check.premium-check:hover input ~ .checkbox-custom {
+  background: rgba(40, 40, 50, 0.7);
 }
 
-.ticket-config-form .form-check-input:checked ~ .checkbox-custom {
-  background-color: #5865F2;
-  border-color: #5865F2;
-  box-shadow: 0 0 8px rgba(88, 101, 242, 0.5);
+.form-check.premium-check input:checked ~ .checkbox-custom {
+  background: linear-gradient(135deg, #7289da 0%, #4e62b3 100%);
+  border-color: transparent;
 }
 
 .checkbox-custom:after {
-  content: "";
+  content: '';
   position: absolute;
   display: none;
-  left: 8px;
-  top: 4px;
-  width: 5px;
-  height: 10px;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 11px;
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
 
-.ticket-config-form .form-check-input:checked ~ .checkbox-custom:after {
+.form-check.premium-check input:checked ~ .checkbox-custom:after {
   display: block;
 }
 
-/* Input Number Styling */
-.ticket-config-form input[type="number"] {
-  -moz-appearance: textfield;
-  text-align: center;
-  font-weight: bold;
+.checkbox-label {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+  font-size: 14px;
 }
 
-.ticket-config-form input[type="number"]::-webkit-inner-spin-button, 
-.ticket-config-form input[type="number"]::-webkit-outer-spin-button { 
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.number-input-container {
-  position: relative;
-  width: 120px;
-}
-
-.number-controls {
-  position: absolute;
-  right: 12px;
-  top: 7px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.number-control-btn {
-  background: rgba(50, 50, 50, 0.8);
-  border: none;
-  color: white;
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: all 0.2s ease;
-}
-
-.number-control-btn:hover {
-  opacity: 1;
-  background: rgba(88, 101, 242, 0.8);
-}
-
-/* Textarea Styling */
-.ticket-config-form textarea.form-control {
-  min-height: 100px;
+/* Textarea styling */
+.ticket-config-form textarea {
+  width: 100%;
+  padding: 12px 15px;
+  background: rgba(30, 30, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
   resize: vertical;
+  transition: all 0.3s ease;
 }
 
-/* Save Button */
+.ticket-config-form textarea:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+/* Button container */
 .ticket-config-save {
   margin-top: 30px;
   text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Premium save button */
 .premium-save-btn {
-  background: linear-gradient(135deg, #5865F2 0%, #EB459E 100%);
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #7289da 0%, #4e62b3 100%);
   border: none;
+  border-radius: 30px;
   color: white;
-  padding: 12px 35px;
-  font-size: 1rem;
   font-weight: 600;
-  border-radius: 8px;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(74, 98, 179, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .premium-save-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 98, 179, 0.6);
 }
 
 .premium-save-btn:active {
   transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(74, 98, 179, 0.4);
 }
 
-.premium-save-btn::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
-  opacity: 0;
-  transform: scale(0.5);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.premium-save-btn:hover::before {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.premium-save-btn i {
-  margin-right: 8px;
-}
-
-/* Animations */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-  100% { transform: translateY(0px); }
-}
-
+/* Float animation */
 .float-animation {
   animation: float 3s ease-in-out infinite;
 }
 
-/* Premium badge */
-.premium-config-badge {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background: linear-gradient(135deg, #5865F2 0%, #EB459E 100%);
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 5px 8px;
-  border-radius: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transform: rotate(15deg);
-  z-index: 10;
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
-/* Enhanced dropdown styling */
-.enhanced-select-container {
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(240, 184, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(240, 184, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(240, 184, 0, 0);
+  }
+}
+
+/* Fluid background animation */
+.fluid-animation {
   position: relative;
+  overflow: hidden;
 }
 
-.enhanced-select-container::after {
+.fluid-animation::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  pointer-events: none;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
-  transition: box-shadow 0.3s ease;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at center, rgba(116, 116, 191, 0.05) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: fluid 15s ease-in-out infinite alternate;
+  z-index: -1;
 }
 
-.enhanced-select-container:hover::after {
-  box-shadow: 0 0 0 1px rgba(88, 101, 242, 0.5), 0 0 8px rgba(88, 101, 242, 0.3);
+@keyframes fluid {
+  0% {
+    transform: translate(-25%, -25%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-25%, -25%) rotate(360deg);
+  }
+}
+
+/* 3D hover effect */
+.premium-3d-hover {
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.premium-3d-hover:hover {
+  transform: translateZ(10px) rotateX(2deg) rotateY(2deg);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ticket-config-container {
+    padding: 15px 20px 25px;
+  }
+  
+  .ticket-config-title-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  .ticket-config-title-text h3 {
+    font-size: 18px;
+  }
+  
+  .ticket-config-form .form-group-premium label {
+    font-size: 14px;
+  }
+  
+  .premium-save-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+  }
 }
