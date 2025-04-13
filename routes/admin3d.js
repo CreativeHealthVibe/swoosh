@@ -546,27 +546,16 @@ router.delete('/moderation/delete-filter/:serverId/:filterId', async (req, res) 
 
 /**
  * GET /admin3d/tickets
- * Ticket management and support interface
+ * Empty ticket page as requested by user
  */
 router.get('/tickets', (req, res) => {
   const client = req.app.get('client');
   
-  // Get available servers if client is available
-  let servers = [];
-  if (client) {
-    servers = client.guilds.cache.map(guild => ({
-      id: guild.id,
-      name: guild.name + ' (' + guild.memberCount + ')',
-      memberCount: guild.memberCount
-    })).sort((a, b) => a.name.localeCompare(b.name));
-  }
-  
-  // Use the new redesigned tickets page
-  res.render('admin3d/tickets-new', {
+  // Render completely empty page
+  res.render('admin3d/tickets-empty', {
     title: 'Ticket Management | SWOOSH Bot',
     user: req.user,
     client,
-    servers,
     layout: 'layouts/admin3d'
   });
 });
