@@ -8,12 +8,14 @@ const { isAdmin, isAuthenticated } = require('../../../middlewares/auth');
 
 // Import route handlers
 const serverRoutes = require('./servers');
+const ticketRoutes = require('./ticket-routes');
 
 // Middleware for all API routes
 router.use(isAuthenticated);
 
 // Register routes
 router.use('/servers', serverRoutes);
+router.use('/', ticketRoutes);
 
 // API Status check
 router.get('/status', (req, res) => {
