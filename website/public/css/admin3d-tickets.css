@@ -140,12 +140,12 @@
   margin-right: 15px;
   width: 60px;
   height: 60px;
-  background-color: #32325d;
+  background-color: #1e1e1e;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9b59b6;
+  color: #ffffff;
 }
 
 .stat-content h3 {
@@ -199,9 +199,9 @@
 }
 
 .ticket-filters .form-control:focus {
-  background-color: #32325d;
-  border-color: #6f42c1;
-  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+  background-color: #232323;
+  border-color: #444444;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25);
 }
 
 .ticket-list table {
@@ -286,8 +286,8 @@
 
 .form-control:focus {
   background-color: #1a1a2e;
-  border-color: #6f42c1;
-  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+  border-color: #444444;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25);
   color: #fff;
 }
 
@@ -333,8 +333,8 @@ textarea.form-control {
 
 /* Button styling */
 .btn-primary {
-  background-color: #9b59b6;
-  border-color: #9b59b6;
+  background-color: #000000;
+  border-color: #333333;
   font-weight: 500;
   padding: 8px 24px;
   border-radius: 30px;
@@ -342,9 +342,9 @@ textarea.form-control {
 }
 
 .btn-primary:hover, .btn-primary:focus {
-  background-color: #8e44ad;
-  border-color: #8e44ad;
-  box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+  background-color: #1a1a1a;
+  border-color: #444444;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
 .btn-secondary {
@@ -471,7 +471,7 @@ textarea.form-control {
 
 .message-author {
   font-weight: 500;
-  color: #9b59b6;
+  color: #ffffff;
 }
 
 .message-time {
