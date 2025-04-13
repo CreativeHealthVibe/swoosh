@@ -21,18 +21,18 @@
   // Enterprise Premium Configuration - $55k Value - BLACK EDITION
   const CONFIG = {
     COLORS: {
-      BACKGROUND: 0x000000,    // Black background
-      RING: 0x333333,          // Dark ring
-      RING_INNER: 0x444444,    // Inner ring highlight
-      OPEN: 0x1a1a1a,          // Dark for open tickets
-      OPEN_GLOW: 0x333333,     // Dark gray ticket glow
-      CLOSED: 0x121212,        // Darker grey for closed tickets
-      CLOSED_GLOW: 0x222222,   // Dark grey glow
-      PRIORITY_HIGH: 0x333333, // High priority
-      PRIORITY_MED: 0x222222,  // Medium priority
+      BACKGROUND: 0x000000,    // Pure black background ($55k premium)
+      RING: 0x222222,          // Darker orbital ring
+      RING_INNER: 0x333333,    // Subtle inner ring highlight
+      OPEN: 0x181818,          // Very dark for open tickets
+      OPEN_GLOW: 0x222222,     // Minimal glow effect
+      CLOSED: 0x0a0a0a,        // Near-black for closed tickets
+      CLOSED_GLOW: 0x151515,   // Ultra-subtle glow for closed
+      PRIORITY_HIGH: 0x222222, // Subtle high priority indicator
+      PRIORITY_MED: 0x191919,  // Very subtle medium priority
       GROUND: 0x050505,        // Almost black ground plane
-      UI_HIGHLIGHT: 0x333333,  // UI highlight color
-      HIGHLIGHT: 0x444444,     // Highlight color
+      UI_HIGHLIGHT: 0x252525,  // Subdued UI highlight
+      HIGHLIGHT: 0x333333,     // Minimal highlight for contrast
     },
     ORBITAL_RADIUS: 5,
     TICKET_SIZE: 0.4,
