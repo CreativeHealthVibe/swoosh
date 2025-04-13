@@ -108,22 +108,35 @@ function initTicketsPage() {
  * Handle server selection change
  */
 async function handleServerChange() {
+  console.log('Server selection changed!');
   const serverId = serverSelect.value;
   
+  console.log('Selected server ID:', serverId);
+  
   if (!serverId) {
+    console.log('No server selected, hiding ticket section');
     ticketSection.style.display = 'none';
     return;
   }
   
   currentServerId = serverId;
+  console.log('Current server ID set to:', currentServerId);
   ticketSection.style.display = 'block';
   
-  // Load server data
-  await Promise.all([
-    loadServerData(),
-    loadTickets(),
-    loadTicketConfig()
-  ]);
+  console.log('Loading server data, tickets, and ticket configuration...');
+  
+  try {
+    // Load server data
+    await Promise.all([
+      loadServerData(),
+      loadTickets(),
+      loadTicketConfig()
+    ]);
+    console.log('Server data loaded successfully');
+  } catch (error) {
+    console.error('Error loading server data:', error);
+    createNotification('error', 'Error', 'Failed to load server data: ' + error.message);
+  }
 }
 
 /**
