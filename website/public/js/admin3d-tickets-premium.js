@@ -47,12 +47,12 @@
       TRAIL_LENGTH: 8,        // Length of particle trails
     },
     POST_PROCESSING: {
-      BLOOM_STRENGTH: 0.65,
-      BLOOM_RADIUS: 0.5,
-      BLOOM_THRESHOLD: 0.7,
-      DOF_ENABLED: true,      // Depth of field effect
-      DOF_FOCUS: 6,           // Focus distance
-      DOF_APERTURE: 0.003,    // Aperture (smaller = more blur)
+      BLOOM_STRENGTH: 0.2,     // More subtle bloom for dark theme
+      BLOOM_RADIUS: 0.3,       // Smaller radius for sharper edges
+      BLOOM_THRESHOLD: 0.8,    // Higher threshold to only bloom bright spots
+      DOF_ENABLED: true,       // Depth of field effect
+      DOF_FOCUS: 6,            // Focus distance
+      DOF_APERTURE: 0.002,     // Reduced blur for sharper visuals
     },
     CAMERA: {
       FOV: 55,                // Field of view
@@ -179,19 +179,22 @@
         text-transform: uppercase;
       }
       .premium-tooltip .priority-high {
-        background: rgba(255, 82, 82, 0.2);
-        color: #ff5252;
-        border: 1px solid rgba(255, 82, 82, 0.3);
+        background: rgba(40, 40, 40, 0.9);
+        color: #ffffff;
+        border: 1px solid rgba(100, 100, 100, 0.5);
+        box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.1);
       }
       .premium-tooltip .priority-medium {
-        background: rgba(255, 193, 7, 0.2);
-        color: #ffc107;
-        border: 1px solid rgba(255, 193, 7, 0.3);
+        background: rgba(35, 35, 35, 0.9);
+        color: #f0f0f0;
+        border: 1px solid rgba(80, 80, 80, 0.5);
+        box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.1);
       }
       .premium-tooltip .priority-normal {
-        background: rgba(79, 195, 247, 0.2);
-        color: #4fc3f7;
-        border: 1px solid rgba(79, 195, 247, 0.3);
+        background: rgba(30, 30, 30, 0.9);
+        color: #e0e0e0;
+        border: 1px solid rgba(70, 70, 70, 0.5);
+        box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.1);
       }
       .premium-tooltip .status {
         display: inline-block;
@@ -202,14 +205,16 @@
         text-transform: uppercase;
       }
       .premium-tooltip .status-open {
-        background: rgba(0, 191, 154, 0.2);
-        color: #00bf9a;
-        border: 1px solid rgba(0, 191, 154, 0.3);
+        background: rgba(30, 30, 30, 0.9);
+        color: #ffffff;
+        border: 1px solid rgba(80, 80, 80, 0.5);
+        box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.1);
       }
       .premium-tooltip .status-closed {
-        background: rgba(108, 117, 125, 0.2);
-        color: #d6d6d6;
-        border: 1px solid rgba(108, 117, 125, 0.3);
+        background: rgba(20, 20, 20, 0.9);
+        color: #d0d0d0;
+        border: 1px solid rgba(60, 60, 60, 0.5);
+        box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.1);
       }
     `;
     document.head.appendChild(styleElement);
@@ -354,9 +359,9 @@
           threeContainer ? threeContainer.clientWidth : window.innerWidth, 
           threeContainer ? threeContainer.clientHeight : window.innerHeight
         ),
-        0.6,   // strength
-        0.5,   // radius
-        0.7    // threshold
+        CONFIG.POST_PROCESSING.BLOOM_STRENGTH || 0.2,   // strength (more subtle)
+        CONFIG.POST_PROCESSING.BLOOM_RADIUS || 0.3,     // radius (sharper edges)
+        CONFIG.POST_PROCESSING.BLOOM_THRESHOLD || 0.8   // threshold (only bloom bright spots)
       );
       composer.addPass(bloomPass);
       
