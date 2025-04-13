@@ -204,7 +204,14 @@
   <!-- Ticket Management Section - Only visible after server selection -->
   <div id="ticket-section" class="ticket-section" style="display: none;">
     <!-- Ticket Analytics -->
-    <h2 class="section-subtitle">Ticket Analytics</h2>
+    <h2 class="section-subtitle">Support Ticket Statistics</h2>
+    
+    <!-- Help Card for Analytics -->
+    <div class="help-card">
+      <h4><i class="fas fa-chart-bar"></i> Understanding Your Server's Ticket Data</h4>
+      <p>These cards show you important statistics about your server's support tickets. This helps you understand how busy your support team is.</p>
+    </div>
+    
     <div class="ticket-analytics">
       <div class="analytics-card" >
         <div class="analytics-card-header">
@@ -212,7 +219,7 @@
           <h3>Total Tickets</h3>
         </div>
         <div class="analytics-card-value" id="total-tickets">0</div>
-        <div class="analytics-card-description">All-time tickets</div>
+        <div class="analytics-card-description">All-time support requests</div>
       </div>
       
       <div class="analytics-card">
@@ -221,7 +228,7 @@
           <h3>Open Tickets</h3>
         </div>
         <div class="analytics-card-value" id="open-tickets">0</div>
-        <div class="analytics-card-description">Currently active</div>
+        <div class="analytics-card-description">Currently active tickets</div>
       </div>
       
       <div class="analytics-card">
@@ -230,7 +237,7 @@
           <h3>Closed Tickets</h3>
         </div>
         <div class="analytics-card-value" id="closed-tickets">0</div>
-        <div class="analytics-card-description">Resolved tickets</div>
+        <div class="analytics-card-description">Successfully resolved tickets</div>
       </div>
       
       <div class="analytics-card" >
@@ -239,7 +246,7 @@
           <h3>Avg. Response Time</h3>
         </div>
         <div class="analytics-card-value" id="avg-response-time">--</div>
-        <div class="analytics-card-description">Time to first reply</div>
+        <div class="analytics-card-description">Average time to first reply</div>
       </div>
     </div>
     
@@ -490,11 +497,18 @@
 <div class="modal-overlay" id="ticket-info-modal">
   <div class="modal-container modal-large">
     <div class="modal-header">
-      <h3 class="modal-title">Ticket Information</h3>
+      <h3 class="modal-title"><i class="fas fa-ticket-alt"></i> Ticket Details</h3>
       <button class="modal-close"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
       <div class="ticket-info">
+        <!-- Help Card for Ticket Info -->
+        <div class="help-card">
+          <h4><i class="fas fa-info-circle"></i> What You're Looking At</h4>
+          <p>This is the detailed view of a support ticket. You can see who created it, when it was created, and read the conversation.</p>
+          <p>You can download a complete transcript or close the ticket using the buttons at the bottom.</p>
+        </div>
+        
         <div class="ticket-user-header">
           <div class="ticket-user-avatar" id="ticket-info-avatar">
             <i class="fas fa-user"></i>
@@ -518,33 +532,33 @@
           </div>
           
           <div class="ticket-detail-item">
-            <div class="ticket-detail-label">Topic</div>
+            <div class="ticket-detail-label">Support Topic</div>
             <div class="ticket-detail-value" id="ticket-info-topic">Support request</div>
           </div>
           
           <div class="ticket-detail-item">
-            <div class="ticket-detail-label">Channel</div>
+            <div class="ticket-detail-label">Discord Channel</div>
             <div class="ticket-detail-value" id="ticket-info-channel">#ticket-0000</div>
           </div>
         </div>
         
-        <h4>Recent Messages</h4>
+        <h4>Ticket Conversation</h4>
         <div id="ticket-messages" class="ticket-messages">
           <div class="ticket-messages-loading">
             <div class="spinner"></div>
-            <p>Loading messages...</p>
+            <p>Loading conversation messages...</p>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="admin3d-btn admin3d-btn-info" data-action="download-transcript">
-        <i class="fas fa-file-download"></i> Download Transcript
+        <i class="fas fa-file-download"></i> Download Complete Transcript
       </button>
       <button class="admin3d-btn admin3d-btn-danger" data-action="close-ticket">
-        <i class="fas fa-times-circle"></i> Close Ticket
+        <i class="fas fa-times-circle"></i> Close This Ticket
       </button>
-      <button class="admin3d-btn admin3d-btn-secondary" data-action="close-modal">Close</button>
+      <button class="admin3d-btn admin3d-btn-secondary" data-action="close-modal">Go Back</button>
     </div>
   </div>
 </div>
@@ -553,21 +567,36 @@
 <div class="modal-overlay" id="close-ticket-modal">
   <div class="modal-container">
     <div class="modal-header">
-      <h3 class="modal-title">Close Ticket</h3>
+      <h3 class="modal-title"><i class="fas fa-ticket-alt"></i> Close Support Ticket</h3>
       <button class="modal-close"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <p>Are you sure you want to close this ticket?</p>
+      <!-- Help Card for Closing a Ticket -->
+      <div class="help-card">
+        <h4><i class="fas fa-info-circle"></i> About Closing Tickets</h4>
+        <p>When you close a ticket, the user will no longer be able to send messages in it.</p>
+        <p>Please provide a reason for closing the ticket. This will be shared with the user.</p>
+      </div>
+      
+      <p class="highlight-text" style="text-align: center; font-size: 16px; margin: 15px 0;">
+        <i class="fas fa-exclamation-circle"></i> This action cannot be undone
+      </p>
+      
       <form id="close-ticket-form">
         <div class="admin3d-form-group">
-          <label class="admin3d-form-label" for="close-reason">Reason</label>
-          <textarea class="admin3d-form-textarea" id="close-reason" name="reason" rows="3" placeholder="Reason for closing the ticket"></textarea>
+          <label class="admin3d-form-label" for="close-reason">Closing Reason</label>
+          <textarea class="admin3d-form-textarea" id="close-reason" name="reason" rows="3" placeholder="Example: Issue resolved - Fixed server permissions"></textarea>
+          <span class="admin3d-form-hint">This message will be sent in the ticket when closing it</span>
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">Cancel</button>
-      <button class="admin3d-btn admin3d-btn-danger" data-action="confirm-close">Close Ticket</button>
+      <button class="admin3d-btn admin3d-btn-secondary" data-action="cancel">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button class="admin3d-btn admin3d-btn-danger" data-action="confirm-close">
+        <i class="fas fa-check"></i> Yes, Close This Ticket
+      </button>
     </div>
   </div>
 </div>
