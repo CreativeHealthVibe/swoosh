@@ -151,6 +151,8 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(data => {
         if (data.success) {
           allTickets = data.tickets || [];
+          // Store allTickets globally for other scripts to access
+          window.allTickets = allTickets;
           
           // Update stats
           updateTicketStats(data.stats);
@@ -160,6 +162,11 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // Display tickets
           displayTickets(allTickets);
+          
+          // Update 3D tickets if the premium feature is available
+          if (window.update3DTickets) {
+            window.update3DTickets(allTickets);
+          }
         } else {
           showError('Failed to load tickets: ' + data.message);
         }
@@ -341,6 +348,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     displayTickets(filteredTickets);
+    
+    // Update 3D view with filtered tickets if premium feature is available
+    if (window.update3DTickets) {
+      window.update3DTickets(filteredTickets);
+    }
   }
   
   /**
