@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Check if server select exists
   if (!serverSelect) {
-    console.error('Server select element not found!');
+    console.warn('Server select element not found - this is expected on pages other than tickets.');
     return;
   }
   
