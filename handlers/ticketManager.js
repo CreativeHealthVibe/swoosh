@@ -305,7 +305,24 @@ module.exports = {
       
       console.log(`Creating ticket panel in server ${serverId}, channel ${options.channelId}`);
       console.log(`Title: ${options.title}`);
-      console.log(`Ticket Types: ${JSON.stringify(options.ticketTypes)}`);
+      console.log(`Description: ${options.description}`);
+      console.log(`Ticket Types:`, options.ticketTypes);
+      
+      // DEBUGGING STEP 1: Verify Discord.js classes are available
+      if (typeof EmbedBuilder !== 'function') {
+        console.error('EmbedBuilder is not available!');
+        return false;
+      }
+      
+      if (typeof StringSelectMenuBuilder !== 'function') {
+        console.error('StringSelectMenuBuilder is not available!');
+        return false;
+      }
+      
+      if (typeof ActionRowBuilder !== 'function') {
+        console.error('ActionRowBuilder is not available!');
+        return false;
+      }
       
       // Get the guild and channel
       const guild = await client.guilds.fetch(serverId).catch(err => {

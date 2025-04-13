@@ -424,14 +424,26 @@ router.post('/servers/:serverId/ticket-panel', isAuthenticated, isAdmin, async (
     }
     
     // Create panel
-    await client.ticketManager.createPanel(serverId, {
-      channelId,
-      title: panelTitle,
-      description: panelDescription,
-      color: panelColor ? parseInt(panelColor.replace('#', ''), 16) : 0x9b59b6,
-      image: panelImage,
-      ticketTypes: parsedTicketTypes
-    });
+    try {
+      console.log('Ticket Manager:', typeof client.ticketManager);
+      console.log('createPanel Method:', typeof client.ticketManager.createPanel);
+      console.log('Attempting to create panel in server:', serverId);
+      console.log('Channel ID:', channelId);
+      
+      const result = await client.ticketManager.createPanel(serverId, {
+        channelId,
+        title: panelTitle,
+        description: panelDescription,
+        color: panelColor ? panelColor : '#9b59b6',
+        image: panelImage,
+        ticketTypes: parsedTicketTypes
+      });
+      
+      console.log('Panel creation result:', result);
+    } catch (err) {
+      console.error('Error in createPanel route:', err);
+      throw err;
+    }
     
     return res.json({
       success: true,
