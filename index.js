@@ -146,6 +146,9 @@ client.once('ready', async () => {
     ticketManager.init(client);
     bountyManager.init(client);
     
+    // Attach ticketManager to client for direct access from routes
+    client.ticketManager = ticketManager;
+    
     // Register managers in Express app for API use
     app.set('ticketManager', ticketManager);
     console.log('✅ Ticket and Bounty systems initialized');

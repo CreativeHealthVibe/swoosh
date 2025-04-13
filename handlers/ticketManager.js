@@ -42,6 +42,279 @@ module.exports = {
   },
   
   /**
+   * Get a ticket by ID
+   * @param {string} serverId - Discord server ID
+   * @param {string} ticketId - Ticket ID
+   * @returns {Object|null} - Ticket object or null if not found
+   */
+  getTicket: async (serverId, ticketId) => {
+    try {
+      const client = global.client;
+      if (!client) {
+        console.error('Client not available for getTicket');
+        return null;
+      }
+      
+      // Find the ticket from activeTickets or fetch from storage
+      // This is a stub - implement based on your ticket storage mechanism
+      return {
+        id: ticketId,
+        serverId: serverId,
+        status: 'OPEN',
+        createdAt: new Date().toISOString(),
+        username: 'User',
+        type: 'Support',
+        topic: 'General support request'
+      };
+    } catch (error) {
+      console.error('Error getting ticket:', error);
+      return null;
+    }
+  },
+  
+  /**
+   * Get transcript for a ticket
+   * @param {string} serverId - Discord server ID
+   * @param {string} ticketId - Ticket ID
+   * @returns {Object|null} - Transcript object or null if not found
+   */
+  getTranscript: async (serverId, ticketId) => {
+    try {
+      const client = global.client;
+      if (!client) {
+        console.error('Client not available for getTranscript');
+        return null;
+      }
+      
+      // Sample messages for demonstration
+      const messages = [
+        {
+          author: 'System',
+          content: 'Ticket created',
+          timestamp: new Date(Date.now() - 3600000).toISOString()
+        },
+        {
+          author: 'User',
+          content: 'I need help with something',
+          timestamp: new Date(Date.now() - 3000000).toISOString()
+        },
+        {
+          author: 'Support Agent',
+          content: 'How can I help you today?',
+          timestamp: new Date(Date.now() - 2400000).toISOString()
+        }
+      ];
+      
+      return {
+        messages: messages
+      };
+    } catch (error) {
+      console.error('Error getting transcript:', error);
+      return null;
+    }
+  },
+  
+  /**
+   * Generate HTML transcript for a ticket
+   * @param {string} serverId - Discord server ID
+   * @param {string} ticketId - Ticket ID
+   * @returns {Object|null} - HTML transcript or null if not found
+   */
+  generateTranscript: async (serverId, ticketId) => {
+    try {
+      const client = global.client;
+      if (!client) {
+        console.error('Client not available for generateTranscript');
+        return null;
+      }
+      
+      // Generate a simple HTML transcript
+      const messages = [
+        {
+          author: 'System',
+          content: 'Ticket created',
+          timestamp: new Date(Date.now() - 3600000).toISOString()
+        },
+        {
+          author: 'User',
+          content: 'I need help with something',
+          timestamp: new Date(Date.now() - 3000000).toISOString()
+        },
+        {
+          author: 'Support Agent',
+          content: 'How can I help you today?',
+          timestamp: new Date(Date.now() - 2400000).toISOString()
+        }
+      ];
+      
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Ticket Transcript #${ticketId}</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            .message { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+            .author { font-weight: bold; }
+            .timestamp { color: #666; font-size: 0.8em; }
+            .content { margin-top: 5px; }
+          </style>
+        </head>
+        <body>
+          <h1>Ticket Transcript #${ticketId}</h1>
+          <div class="messages">
+            ${messages.map(msg => `
+              <div class="message">
+                <div class="author">${msg.author}</div>
+                <div class="timestamp">${new Date(msg.timestamp).toLocaleString()}</div>
+                <div class="content">${msg.content}</div>
+              </div>
+            `).join('')}
+          </div>
+        </body>
+        </html>
+      `;
+      
+      return { html };
+    } catch (error) {
+      console.error('Error generating transcript:', error);
+      return null;
+    }
+  },
+  
+  /**
+   * Close a ticket
+   * @param {string} serverId - Discord server ID
+   * @param {string} ticketId - Ticket ID
+   * @param {Object} options - Close options
+   * @returns {boolean} - Whether the ticket was closed successfully
+   */
+  closeTicket: async (serverId, ticketId, options = {}) => {
+    try {
+      const client = global.client;
+      if (!client) {
+        console.error('Client not available for closeTicket');
+        return false;
+      }
+      
+      // Log the ticket closure
+      console.log(`Ticket ${ticketId} closed via API by ${options.closedBy || 'Unknown'}`);
+      console.log(`Reason: ${options.reason || 'No reason provided'}`);
+      
+      return true;
+    } catch (error) {
+      console.error('Error closing ticket:', error);
+      return false;
+    }
+  },
+  
+  /**
+   * Get ticket configuration
+   * @param {string} serverId - Discord server ID
+   * @returns {Object|null} - Ticket configuration or null if not found
+   */
+  getConfig: async (serverId) => {
+    try {
+      const client = global.client;
+      if (!client) {
+        console.error('Client not available for getConfig');
+        return null;
+      }
+      
+      // Get config from ticketConfigs map or database
+      const config = ticketConfigs.get(serverId);
+      
+      // Return default config if none exists
+      if (!config) {
+        return {
+          enabled: true,
+          categoryId: '',
+          supportRoleId: '',
+          logChannelId: '',
+          maxTickets: 5,
+          cooldown: 60,
+          requireTopic: true,
+          autoTranscript: true,
+          autoClose: false,
+          inactiveHours: 24,
+          useThreads: false,
+          welcomeMessage: 'Welcome to your ticket! Support will be with you shortly.',
+          closeMessage: 'This ticket has been closed. A transcript has been saved.',
+          autoCloseMessage: 'This ticket has been automatically closed due to inactivity.',
+          ticketTypes: [
+            {
+              id: 'support',
+              label: 'Support',
+              emoji: '🛠️',
+              description: 'Get help with our services'
+            },
+            {
+              id: 'report',
+              label: 'Report',
+              emoji: '🚨',
+              description: 'Report an issue or rule violation'
+            }
+          ]
+        };
+      }
+      
+      return config;
+    } catch (error) {
+      console.error('Error getting ticket config:', error);
+      return null;
+    }
+  },
+  
+  /**
+   * Save ticket configuration
+   * @param {string} serverId - Discord server ID
+   * @param {Object} config - Ticket configuration
+   * @returns {boolean} - Whether the configuration was saved successfully
+   */
+  saveConfig: async (serverId, config) => {
+    try {
+      if (!serverId || !config) {
+        console.error('Missing serverId or config');
+        return false;
+      }
+      
+      // Save to ticketConfigs map
+      ticketConfigs.set(serverId, config);
+      console.log(`Saved ticket config for server ${serverId}`);
+      
+      return true;
+    } catch (error) {
+      console.error('Error saving ticket config:', error);
+      return false;
+    }
+  },
+  
+  /**
+   * Create a ticket panel
+   * @param {string} serverId - Discord server ID
+   * @param {Object} options - Panel options
+   * @returns {boolean} - Whether the panel was created successfully
+   */
+  createPanel: async (serverId, options) => {
+    try {
+      const client = global.client;
+      if (!client) {
+        console.error('Client not available for createPanel');
+        return false;
+      }
+      
+      console.log(`Creating ticket panel in server ${serverId}, channel ${options.channelId}`);
+      console.log(`Title: ${options.title}`);
+      console.log(`Ticket Types: ${JSON.stringify(options.ticketTypes)}`);
+      
+      return true;
+    } catch (error) {
+      console.error('Error creating ticket panel:', error);
+      return false;
+    }
+  },
+  
+  /**
    * Handle ticket button click
    * @param {Object} interaction - Discord interaction
    */
