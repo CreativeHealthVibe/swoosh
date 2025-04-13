@@ -204,12 +204,14 @@ module.exports = {
    * Generate transcript for a ticket
    * @param {Object} channel - Ticket channel
    * @param {Object} executor - Command executor
+   * @returns {Promise<string|null>} - Path to the transcript file or null on error
    */
   generateTranscript: async (channel, executor) => {
     try {
       // Check if channel is a ticket
       if (!channel.name.startsWith('ticket-')) {
-        return { success: false, message: 'This command can only be used in ticket channels.' };
+        console.error('Cannot generate transcript: Not a ticket channel');
+        return null;
       }
       
       // Generate transcript
@@ -218,26 +220,38 @@ module.exports = {
         fileName: `${channel.name}-transcript.html`
       });
       
-      // Save transcript
+      // Save transcript to temporary file
+      const fs = require('fs');
+      const path = require('path');
+      const tempDir = path.join(__dirname, '../temp');
+      
+      // Create temp directory if it doesn't exist
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+      
+      // Create a temporary file path
+      const tempFilePath = path.join(tempDir, `${channel.name}-${Date.now()}.html`);
+      
+      // Write transcript to file
+      fs.writeFileSync(tempFilePath, transcript.attachment);
+      
+      // Save transcript to logs
       logging.saveTranscript(transcript, channel.name);
       
       // Log action
-      await logging.logAction('Transcript Created', null, executor, {
-        channel: channel,
-        attachment: transcript
-      });
+      if (executor) {
+        await logging.logAction('Transcript Created', null, executor, {
+          channel: channel,
+          attachment: transcript
+        });
+      }
       
-      return { 
-        success: true, 
-        transcript,
-        message: 'Transcript generated successfully.' 
-      };
+      // Return the path to the temporary file
+      return tempFilePath;
     } catch (error) {
       console.error('Transcript Generation Error:', error);
-      return { 
-        success: false, 
-        message: 'An error occurred while generating the transcript.' 
-      };
+      return null;
     }
   },
   
