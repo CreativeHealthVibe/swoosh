@@ -561,7 +561,8 @@ router.get('/tickets', (req, res) => {
     })).sort((a, b) => a.name.localeCompare(b.name));
   }
   
-  res.render('admin3d/tickets', {
+  // Use the new redesigned tickets page
+  res.render('admin3d/tickets-new', {
     title: 'Ticket Management | SWOOSH Bot',
     user: req.user,
     client,
