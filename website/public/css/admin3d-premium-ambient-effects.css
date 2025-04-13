@@ -1,0 +1,227 @@
+/* Premium Ambient Effects for Admin 3D Interface */
+
+/* Global ambient glow effect for premium elements */
+.premium-glow-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient background particles */
+.ambient-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  mix-blend-mode: screen;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(114, 137, 218, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(114, 137, 218, 0.8), 0 0 20px rgba(114, 137, 218, 0.4);
+  opacity: 0;
+  animation-name: float-particle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100px) translateX(20px);
+    opacity: 0;
+  }
+}
+
+/* Premium hover card glow effect */
+.premium-card {
+  position: relative;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(20,20,26,0.9) 0%, rgba(30,30,40,0.8) 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(114, 137, 218, 0.15);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.premium-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 50%, 
+                              rgba(114, 137, 218, 0.08) 0%, 
+                              rgba(0, 0, 0, 0) 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.premium-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 15px rgba(114, 137, 218, 0.2);
+}
+
+.premium-card:hover::before {
+  opacity: 1;
+}
+
+/* Premium pulse effect for highlights */
+.premium-pulse {
+  position: relative;
+}
+
+.premium-pulse::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(114, 137, 218, 0.3);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transform: scale(1.2);
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+
+/* Premium animated border */
+.premium-border {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.premium-border::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  z-index: -1;
+  background: linear-gradient(
+    45deg,
+    #7289da,
+    #4e62b3,
+    #7289da,
+    #4e62b3
+  );
+  background-size: 400% 400%;
+  animation: border-shine 4s ease infinite;
+  border-radius: inherit;
+}
+
+@keyframes border-shine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Premium section title effect */
+.premium-title {
+  position: relative;
+  display: inline-block;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.premium-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+                             rgba(114, 137, 218, 0.2), 
+                             rgba(114, 137, 218, 1),
+                             rgba(114, 137, 218, 0.2));
+  transform: translateX(-100%);
+  animation: title-shine 3s ease-in-out infinite;
+}
+
+@keyframes title-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Initialize particles with JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+  const containers = document.querySelectorAll('.premium-glow-container');
+  
+  containers.forEach(container => {
+    const particlesContainer = document.createElement('div');
+    particlesContainer.className = 'ambient-particles';
+    
+    // Create particles
+    for(let i = 0; i < 15; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      
+      // Random positions
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.top = Math.random() * 100 + '%';
+      
+      // Random sizes
+      const size = Math.random() * 4 + 1;
+      particle.style.width = size + 'px';
+      particle.style.height = size + 'px';
+      
+      // Random animation durations
+      const duration = Math.random() * 10 + 10;
+      particle.style.animationDuration = duration + 's';
+      
+      // Random delays
+      const delay = Math.random() * 5;
+      particle.style.animationDelay = delay + 's';
+      
+      particlesContainer.appendChild(particle);
+    }
+    
+    container.appendChild(particlesContainer);
+  });
+});
+*/
