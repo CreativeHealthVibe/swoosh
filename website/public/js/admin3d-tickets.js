@@ -1,1073 +1,1175 @@
 /**
- * Admin 3D Dashboard - Ticket Management
- * Premium edition with advanced ticket features
+ * Admin 3D - Ticket Management
+ * Client-side JavaScript for the ticket management page
  */
-
-/**
- * Update the step indicator to show which step the user is on
- * @param {number} step - The step number (1, 2, or 3)
- */
-function updateStepIndicator(step) {
-  // Get all step elements
-  const steps = document.querySelectorAll('.step');
-  
-  // Remove active class from all steps
-  steps.forEach((stepEl, index) => {
-    if (index + 1 <= step) {
-      stepEl.classList.add('active');
-    } else {
-      stepEl.classList.remove('active');
-    }
-  });
-}
-
-// Store the currently selected server and data
-let currentServerId = '';
-let serverChannels = [];
-let serverCategories = [];
-let serverRoles = [];
-let tickets = [];
-let ticketConfig = null;
-
-// DOM Elements
-const serverSelect = document.getElementById('server-select');
-const ticketSection = document.getElementById('ticket-section');
-const totalTicketsEl = document.getElementById('total-tickets');
-const openTicketsEl = document.getElementById('open-tickets');
-const closedTicketsEl = document.getElementById('closed-tickets');
-const avgResponseTimeEl = document.getElementById('avg-response-time');
-const ticketsList = document.getElementById('tickets-list');
-const ticketStatusFilter = document.getElementById('ticket-status-filter');
-const refreshTicketsButton = document.getElementById('refresh-tickets');
-const categoryIdSelect = document.getElementById('category-id');
-const supportRoleIdSelect = document.getElementById('support-role-id');
-const logChannelIdSelect = document.getElementById('log-channel-id');
-const panelChannelSelect = document.getElementById('panel-channel');
-const ticketConfigForm = document.getElementById('ticket-config-form');
-const ticketPanelForm = document.getElementById('ticket-panel-form');
-const autoCloseCheckbox = document.getElementById('auto-close');
-const autoCloseOptions = document.getElementById('auto-close-options');
-
-// Modals
-const ticketInfoModal = document.getElementById('ticket-info-modal');
-const closeTicketModal = document.getElementById('close-ticket-modal');
-
-/**
- * Initialize the tickets page
- */
-function initTicketsPage() {
+document.addEventListener('DOMContentLoaded', function() {
   console.log('Initializing tickets page...');
   
-  // Load server list first
-  loadServerList();
+  // Initialize server select dropdown
+  initServerSelect();
   
-  // Set up server selection
-  if (serverSelect) {
-    serverSelect.addEventListener('change', handleServerChange);
+  // Initialize event listeners
+  initEventListeners();
+  
+  // Initialize tabs if they exist
+  initTabs();
+  
+  // Handle auto-close checkbox
+  handleAutoCloseToggle();
+});
+
+/**
+ * Initialize the server select dropdown
+ */
+function initServerSelect() {
+  const serverSelect = document.getElementById('server-select');
+  
+  if (!serverSelect) {
+    console.error('Server select element not found!');
+    return;
   }
   
-  // Set up ticket status filter
-  if (ticketStatusFilter) {
-    ticketStatusFilter.addEventListener('change', filterTickets);
+  console.log('Initializing server select dropdown...');
+  
+  // Count options for debugging
+  if (serverSelect.options) {
+    console.log(`Server select has ${serverSelect.options.length} options`);
+    
+    // Log options for debugging
+    for (let i = 0; i < serverSelect.options.length; i++) {
+      const option = serverSelect.options[i];
+      console.log(`Option ${i}: ${option.value} - ${option.text}`);
+    }
   }
   
-  // Set up refresh button
-  if (refreshTicketsButton) {
-    refreshTicketsButton.addEventListener('click', () => loadTickets());
-  }
-  
-  // Set up auto-close checkbox
-  if (autoCloseCheckbox) {
-    autoCloseCheckbox.addEventListener('change', () => {
-      autoCloseOptions.style.display = autoCloseCheckbox.checked ? 'block' : 'none';
+  // Apply select2 if available
+  if (typeof $.fn.select2 === 'function') {
+    $(serverSelect).select2({
+      placeholder: 'Select a server',
+      allowClear: true,
+      theme: 'dark'
     });
   }
   
-  // Set up ticket config form
-  if (ticketConfigForm) {
-    ticketConfigForm.addEventListener('submit', handleSaveConfig);
-  }
-  
-  // Set up ticket panel form
-  if (ticketPanelForm) {
-    ticketPanelForm.addEventListener('submit', handleSendPanel);
-  }
-  
-  // Set up modal close buttons
-  document.querySelectorAll('.modal-close, [data-action="close-modal"], [data-action="cancel"]').forEach(button => {
-    button.addEventListener('click', closeAllModals);
+  // Add change event listener
+  serverSelect.addEventListener('change', function() {
+    const serverId = this.value;
+    if (serverId) {
+      loadServerData(serverId);
+    }
   });
   
-  // Set up close ticket button
-  const closeTicketButton = document.querySelector('[data-action="close-ticket"]');
-  if (closeTicketButton) {
-    closeTicketButton.addEventListener('click', () => {
-      const ticketId = ticketInfoModal.getAttribute('data-ticket-id');
-      if (ticketId) {
-        openCloseTicketModal(ticketId);
+  // Fix select dropdown styling
+  console.log('Server select element found, applying fix');
+  fixSelect(serverSelect);
+  
+  if (serverSelect.options) {
+    console.log(`Server select has ${serverSelect.options.length} options after fix`);
+  }
+}
+
+/**
+ * Initialize all event listeners
+ */
+function initEventListeners() {
+  // Settings form submission
+  const settingsForm = document.getElementById('ticket-settings-form');
+  if (settingsForm) {
+    settingsForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      saveTicketSettings();
+    });
+  }
+  
+  // Panel form submission
+  const panelForm = document.getElementById('panel-form');
+  if (panelForm) {
+    panelForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      createTicketPanel();
+    });
+  }
+  
+  // Auto-close checkbox toggle
+  const autoCloseCheckbox = document.getElementById('auto-close');
+  if (autoCloseCheckbox) {
+    autoCloseCheckbox.addEventListener('change', handleAutoCloseToggle);
+  }
+  
+  // Add ticket type button
+  const addTicketTypeBtn = document.getElementById('add-ticket-type');
+  if (addTicketTypeBtn) {
+    addTicketTypeBtn.addEventListener('click', addTicketType);
+  }
+  
+  // Remove ticket type buttons (using event delegation)
+  const ticketTypesContainer = document.getElementById('ticket-types-container');
+  if (ticketTypesContainer) {
+    ticketTypesContainer.addEventListener('click', function(e) {
+      if (e.target.closest('.remove-ticket-type')) {
+        const row = e.target.closest('.ticket-type-row');
+        if (row && ticketTypesContainer.querySelectorAll('.ticket-type-row').length > 1) {
+          row.remove();
+          // Update indices
+          updateTicketTypeIndices();
+        }
       }
     });
   }
   
-  // Set up download transcript button
-  const downloadTranscriptButton = document.querySelector('[data-action="download-transcript"]');
-  if (downloadTranscriptButton) {
-    downloadTranscriptButton.addEventListener('click', () => {
-      const ticketId = ticketInfoModal.getAttribute('data-ticket-id');
+  // Reset settings button
+  const resetBtn = document.getElementById('reset-settings');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', resetTicketSettings);
+  }
+  
+  // Ticket view buttons (using event delegation)
+  const ticketListBody = document.getElementById('ticket-list-body');
+  if (ticketListBody) {
+    ticketListBody.addEventListener('click', function(e) {
+      const viewBtn = e.target.closest('.btn-view');
+      if (viewBtn) {
+        const ticketId = viewBtn.dataset.ticketId;
+        if (ticketId) {
+          viewTicketDetails(ticketId);
+        }
+      }
+      
+      const closeBtn = e.target.closest('.btn-close');
+      if (closeBtn) {
+        const ticketId = closeBtn.dataset.ticketId;
+        if (ticketId) {
+          showCloseTicketModal(ticketId);
+        }
+      }
+      
+      const transcriptBtn = e.target.closest('.btn-transcript');
+      if (transcriptBtn) {
+        const ticketId = transcriptBtn.dataset.ticketId;
+        if (ticketId) {
+          downloadTranscript(ticketId);
+        }
+      }
+    });
+  }
+  
+  // Close ticket confirmation button
+  const confirmCloseBtn = document.getElementById('confirm-close-ticket');
+  if (confirmCloseBtn) {
+    confirmCloseBtn.addEventListener('click', closeTicket);
+  }
+  
+  // Download transcript button in modal
+  const downloadTranscriptBtn = document.getElementById('download-transcript');
+  if (downloadTranscriptBtn) {
+    downloadTranscriptBtn.addEventListener('click', function() {
+      const ticketId = this.dataset.ticketId;
       if (ticketId) {
         downloadTranscript(ticketId);
       }
     });
   }
   
-  // Set up confirm close button
-  const confirmCloseButton = document.querySelector('[data-action="confirm-close"]');
-  if (confirmCloseButton) {
-    confirmCloseButton.addEventListener('click', handleCloseTicket);
-  }
-}
-
-/**
- * Initialize the server select dropdown
- * The server list is already populated through EJS in the HTML template
- */
-function loadServerList() {
-  console.log('Initializing server select dropdown...');
-  
-  // Check if dropdown has options and is properly populated
-  if (serverSelect) {
-    // Get number of options
-    const optionCount = serverSelect.options.length;
-    console.log(`Server select has ${optionCount} options`);
-    
-    // Make sure the dropdown is visible and properly styled for interaction
-    serverSelect.style.position = 'relative';
-    serverSelect.style.zIndex = '1000';
-    serverSelect.style.pointerEvents = 'auto';
-    
-    // Force the appearance property to ensure dropdown works
-    serverSelect.style.appearance = 'auto';
-    serverSelect.style.webkitAppearance = 'auto';
-    serverSelect.style.MozAppearance = 'auto';
-    
-    // Log option values for debugging
-    Array.from(serverSelect.options).forEach((option, index) => {
-      console.log(`Option ${index}: ${option.value} - ${option.text}`);
+  // Close ticket button in modal
+  const closeTicketBtn = document.getElementById('close-ticket');
+  if (closeTicketBtn) {
+    closeTicketBtn.addEventListener('click', function() {
+      const ticketId = this.dataset.ticketId;
+      if (ticketId) {
+        showCloseTicketModal(ticketId);
+      }
     });
-    
-    // If we only have the default "Select a server" option, show error
-    if (optionCount <= 1) {
-      console.error('No servers found in server select dropdown');
-      serverSelect.innerHTML = '<option value="" disabled selected>No servers found</option>';
-      createNotification('warning', 'No Servers', 'No Discord servers were found. Make sure the bot is invited to your servers.');
-    }
-  } else {
-    console.error('Server select element not found');
+  }
+  
+  // Ticket filters
+  const statusFilter = document.getElementById('status-filter');
+  const typeFilter = document.getElementById('type-filter');
+  const searchInput = document.getElementById('search-tickets');
+  
+  if (statusFilter) {
+    statusFilter.addEventListener('change', filterTickets);
+  }
+  
+  if (typeFilter) {
+    typeFilter.addEventListener('change', filterTickets);
+  }
+  
+  if (searchInput) {
+    searchInput.addEventListener('input', filterTickets);
   }
 }
 
 /**
- * Handle server selection change
+ * Initialize tabs functionality
  */
-async function handleServerChange() {
-  console.log('Server selection changed!');
-  const serverId = serverSelect.value;
+function initTabs() {
+  const tabButtons = document.querySelectorAll('.nav-link[data-toggle="tab"]');
+  const tabContents = document.querySelectorAll('.tab-pane');
   
-  console.log('Selected server ID:', serverId);
+  console.log('Initializing tabs...');
+  console.log(`Found ${tabButtons.length} regular tab buttons`);
   
-  if (!serverId) {
-    console.log('No server selected, hiding ticket section');
-    ticketSection.style.display = 'none';
-    // Reset step indicators
-    updateStepIndicator(1);
-    return;
-  }
+  // For regular tabs
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Get the target tab content
+      const targetId = this.getAttribute('href');
+      const targetContent = document.querySelector(targetId);
+      
+      // Remove active class from all buttons and contents
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => {
+        content.classList.remove('show', 'active');
+      });
+      
+      // Add active class to current button and content
+      this.classList.add('active');
+      if (targetContent) {
+        targetContent.classList.add('show', 'active');
+      }
+    });
+  });
   
-  currentServerId = serverId;
-  console.log('Current server ID set to:', currentServerId);
-  ticketSection.style.display = 'block';
-  // Update step indicator to show we're on step 2
-  updateStepIndicator(2);
-  
-  console.log('Loading server data, tickets, and ticket configuration...');
-  
-  try {
-    // Load server data
-    await Promise.all([
-      loadServerData(),
-      loadTickets(),
-      loadTicketConfig()
-    ]);
-    console.log('Server data loaded successfully');
-  } catch (error) {
-    console.error('Error loading server data:', error);
-    createNotification('error', 'Error', 'Failed to load server data: ' + error.message);
-  }
-}
-
-/**
- * Load server data (channels, categories, roles)
- */
-async function loadServerData() {
-  if (!currentServerId) return;
-  
-  try {
-    // Fetch channels and categories
-    const channelsResponse = await fetch(`/api/v2/servers/${currentServerId}/channels`);
-    const channelsData = await channelsResponse.json();
-    
-    if (!channelsData.success) {
-      throw new Error(channelsData.message || 'Failed to load channels');
-    }
-    
-    // Store channels and categories
-    serverChannels = channelsData.channels || [];
-    serverCategories = channelsData.categories || [];
-    
-    // Fetch roles
-    const rolesResponse = await fetch(`/api/v2/servers/${currentServerId}/roles`);
-    const rolesData = await rolesResponse.json();
-    
-    if (!rolesData.success) {
-      throw new Error(rolesData.message || 'Failed to load roles');
-    }
-    
-    // Store roles
-    serverRoles = rolesData.roles || [];
-    
-    // Populate dropdowns
-    populateChannelSelect(logChannelIdSelect, serverChannels);
-    populateChannelSelect(panelChannelSelect, serverChannels);
-    populateCategorySelect(categoryIdSelect, serverCategories);
-    populateRoleSelect(supportRoleIdSelect, serverRoles);
-  } catch (error) {
-    console.error('Error loading server data:', error);
-    createNotification('error', 'Error', `Failed to load server data: ${error.message}`);
+  // Support for Bootstrap tabs if available
+  if (typeof $ === 'function' && typeof $('.nav-tabs a').tab === 'function') {
+    $('.nav-tabs a').on('click', function (e) {
+      e.preventDefault();
+      $(this).tab('show');
+    });
   }
 }
 
 /**
- * Load tickets for the selected server
+ * Handle auto-close checkbox toggle
  */
-async function loadTickets() {
-  if (!currentServerId) return;
+function handleAutoCloseToggle() {
+  const autoCloseCheckbox = document.getElementById('auto-close');
+  const autoCloseSettings = document.querySelectorAll('.auto-close-settings');
+  
+  if (autoCloseCheckbox && autoCloseSettings.length) {
+    const isChecked = autoCloseCheckbox.checked;
+    
+    autoCloseSettings.forEach(setting => {
+      setting.style.display = isChecked ? 'flex' : 'none';
+    });
+  }
+}
+
+/**
+ * Add a new ticket type row
+ */
+function addTicketType() {
+  const container = document.getElementById('ticket-types-container');
+  if (!container) return;
+  
+  // Get current count of ticket types
+  const currentCount = container.querySelectorAll('.ticket-type-row').length;
+  const index = currentCount;
+  
+  // Create new row
+  const newRow = document.createElement('div');
+  newRow.className = 'ticket-type-row';
+  newRow.dataset.index = index;
+  newRow.innerHTML = `
+    <div class="row">
+      <div class="col-4">
+        <input type="text" class="form-control type-label" 
+               name="ticketTypes[${index}][label]" placeholder="Label" required>
+      </div>
+      <div class="col-2">
+        <input type="text" class="form-control type-emoji" 
+               name="ticketTypes[${index}][emoji]" placeholder="Emoji" required>
+      </div>
+      <div class="col-5">
+        <input type="text" class="form-control type-description" 
+               name="ticketTypes[${index}][description]" placeholder="Description">
+      </div>
+      <div class="col-1">
+        <button type="button" class="btn btn-danger btn-sm remove-ticket-type">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  `;
+  
+  container.appendChild(newRow);
+}
+
+/**
+ * Update ticket type indices after removing a row
+ */
+function updateTicketTypeIndices() {
+  const container = document.getElementById('ticket-types-container');
+  if (!container) return;
+  
+  const rows = container.querySelectorAll('.ticket-type-row');
+  
+  rows.forEach((row, index) => {
+    row.dataset.index = index;
+    
+    const labelInput = row.querySelector('.type-label');
+    const emojiInput = row.querySelector('.type-emoji');
+    const descInput = row.querySelector('.type-description');
+    
+    if (labelInput) labelInput.name = `ticketTypes[${index}][label]`;
+    if (emojiInput) emojiInput.name = `ticketTypes[${index}][emoji]`;
+    if (descInput) descInput.name = `ticketTypes[${index}][description]`;
+  });
+}
+
+/**
+ * Fix select element styles
+ */
+function fixSelect(selectElement) {
+  if (!selectElement) return;
+  
+  // Add custom styling
+  selectElement.style.backgroundColor = '#2a2a2a';
+  selectElement.style.color = '#fff';
+  selectElement.style.border = '1px solid #444';
+  selectElement.style.borderRadius = '4px';
+  selectElement.style.padding = '8px';
+  selectElement.style.width = '100%';
+  
+  // Set option styling
+  for (let i = 0; i < selectElement.options.length; i++) {
+    selectElement.options[i].style.backgroundColor = '#2a2a2a';
+    selectElement.options[i].style.color = '#fff';
+  }
+}
+
+/**
+ * Load data for the selected server
+ */
+function loadServerData(serverId) {
+  if (!serverId) return;
   
   // Show loading state
-  ticketsList.innerHTML = `
-    <div class="tickets-loading">
-      <div class="spinner"></div>
-      <p>Loading tickets...</p>
-    </div>
-  `;
+  setLoadingState(true);
   
-  // Reset analytics
-  totalTicketsEl.textContent = '0';
-  openTicketsEl.textContent = '0';
-  closedTicketsEl.textContent = '0';
-  avgResponseTimeEl.textContent = '--';
-  
-  try {
-    // Fetch tickets from API
-    const response = await fetch(`/api/v2/servers/${currentServerId}/tickets`);
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to load tickets');
-    }
-    
-    // Store tickets
-    tickets = data.tickets || [];
-    
-    // Update analytics
-    if (data.stats) {
-      totalTicketsEl.textContent = data.stats.total || '0';
-      openTicketsEl.textContent = data.stats.open || '0';
-      closedTicketsEl.textContent = data.stats.closed || '0';
-      
-      if (data.stats.avgResponseTime) {
-        avgResponseTimeEl.textContent = formatDuration(data.stats.avgResponseTime);
+  // Load tickets
+  loadTickets(serverId)
+    .then(() => loadTicketConfig(serverId))
+    .then(() => loadServerChannels(serverId))
+    .then(() => loadServerRoles(serverId))
+    .then(() => setLoadingState(false))
+    .catch(error => {
+      console.error('Error loading server data:', error);
+      setLoadingState(false);
+      showError('Failed to load server data. Please try again.');
+    });
+}
+
+/**
+ * Load tickets for a server
+ */
+function loadTickets(serverId) {
+  return fetch(`/api/v2/servers/${serverId}/tickets`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        displayTickets(data.tickets, data.stats);
       } else {
-        avgResponseTimeEl.textContent = '--';
+        console.error('Error loading tickets:', data.message);
+        showError('Failed to load tickets: ' + data.message);
       }
-    }
-    
-    // Render tickets
-    renderTickets();
-  } catch (error) {
-    console.error('Error loading tickets:', error);
-    ticketsList.innerHTML = `
-      <div class="error-message">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p>Error loading tickets: ${error.message}</p>
-      </div>
-    `;
-    createNotification('error', 'Error', `Failed to load tickets: ${error.message}`);
-  }
+      return data;
+    });
 }
 
 /**
- * Load ticket configuration for the selected server
+ * Load ticket configuration for a server
  */
-async function loadTicketConfig() {
-  if (!currentServerId) return;
-  
-  try {
-    // Fetch ticket config from API
-    const response = await fetch(`/api/v2/servers/${currentServerId}/ticket-config`);
-    const data = await response.json();
-    
-    if (!data.success) {
-      // If no config found, don't show error
-      if (data.code === 'CONFIG_NOT_FOUND') {
-        ticketConfig = null;
-        resetConfigForm();
-        return;
+function loadTicketConfig(serverId) {
+  return fetch(`/api/v2/servers/${serverId}/ticket-config`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        populateTicketConfig(data.config);
+      } else {
+        // If no config found, it's not necessarily an error
+        if (data.code === 'CONFIG_NOT_FOUND') {
+          resetTicketSettings();
+        } else {
+          console.error('Error loading ticket config:', data.message);
+          showError('Failed to load ticket configuration: ' + data.message);
+        }
       }
-      
-      throw new Error(data.message || 'Failed to load ticket configuration');
-    }
-    
-    // Store config
-    ticketConfig = data.config || null;
-    
-    // Update form
-    if (ticketConfig) {
-      updateConfigForm(ticketConfig);
+      return data;
+    });
+}
+
+/**
+ * Load channels for a server
+ */
+function loadServerChannels(serverId) {
+  return fetch(`/api/v2/servers/${serverId}/channels`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        populateChannelDropdowns(data.channels, data.categories);
+      } else {
+        console.error('Error loading channels:', data.message);
+        showError('Failed to load channels: ' + data.message);
+      }
+      return data;
+    });
+}
+
+/**
+ * Load roles for a server
+ */
+function loadServerRoles(serverId) {
+  return fetch(`/api/v2/servers/${serverId}/roles`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        populateRoleDropdown(data.roles);
+      } else {
+        console.error('Error loading roles:', data.message);
+        showError('Failed to load roles: ' + data.message);
+      }
+      return data;
+    });
+}
+
+/**
+ * Display tickets in the table
+ */
+function displayTickets(tickets, stats) {
+  const ticketListBody = document.getElementById('ticket-list-body');
+  const totalTicketsEl = document.getElementById('total-tickets');
+  const openTicketsEl = document.getElementById('open-tickets');
+  const closedTicketsEl = document.getElementById('closed-tickets');
+  const avgResponseTimeEl = document.getElementById('avg-response-time');
+  
+  // Update stats
+  if (totalTicketsEl) totalTicketsEl.textContent = stats.total;
+  if (openTicketsEl) openTicketsEl.textContent = stats.open;
+  if (closedTicketsEl) closedTicketsEl.textContent = stats.closed;
+  
+  // Format average response time
+  if (avgResponseTimeEl) {
+    if (stats.avgResponseTime) {
+      const minutes = Math.floor(stats.avgResponseTime / 60);
+      avgResponseTimeEl.textContent = `${minutes} min`;
     } else {
-      resetConfigForm();
+      avgResponseTimeEl.textContent = 'N/A';
     }
-  } catch (error) {
-    console.error('Error loading ticket configuration:', error);
-    createNotification('error', 'Error', `Failed to load ticket configuration: ${error.message}`);
-  }
-}
-
-/**
- * Render tickets list
- */
-function renderTickets() {
-  if (!tickets || tickets.length === 0) {
-    ticketsList.innerHTML = '<p class="empty-message">No tickets found for this server</p>';
-    return;
   }
   
-  // Apply current filter
-  filterTickets();
+  // Clear existing tickets
+  if (ticketListBody) {
+    ticketListBody.innerHTML = '';
+    
+    // If no tickets, show message
+    if (!tickets || tickets.length === 0) {
+      ticketListBody.innerHTML = `
+        <tr class="no-tickets-row">
+          <td colspan="6" class="text-center">No tickets found for this server.</td>
+        </tr>
+      `;
+      return;
+    }
+    
+    // Populate ticket list
+    tickets.forEach(ticket => {
+      const row = document.createElement('tr');
+      row.dataset.ticketId = ticket.id;
+      row.dataset.status = ticket.status.toLowerCase();
+      row.dataset.type = ticket.type || 'unknown';
+      row.dataset.creator = ticket.creator ? ticket.creator.username : 'Unknown';
+      
+      // Format creation date
+      const createdDate = new Date(ticket.createdAt);
+      const formattedDate = `${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString()}`;
+      
+      row.innerHTML = `
+        <td>${ticket.number || ticket.id.substring(0, 8)}</td>
+        <td>${ticket.creator ? ticket.creator.username : 'Unknown'}</td>
+        <td>${ticket.type || 'General'}</td>
+        <td>${formattedDate}</td>
+        <td>
+          <span class="ticket-status status-${ticket.status.toLowerCase()}">
+            ${ticket.status}
+          </span>
+        </td>
+        <td class="ticket-actions">
+          <button class="btn btn-view" data-ticket-id="${ticket.id}">
+            <i class="fas fa-eye"></i> View
+          </button>
+          ${ticket.status.toLowerCase() === 'open' ? `
+            <button class="btn btn-close" data-ticket-id="${ticket.id}">
+              <i class="fas fa-lock"></i> Close
+            </button>
+          ` : ''}
+          <button class="btn btn-transcript" data-ticket-id="${ticket.id}">
+            <i class="fas fa-file-alt"></i> Transcript
+          </button>
+        </td>
+      `;
+      
+      ticketListBody.appendChild(row);
+    });
+    
+    // Populate type filter
+    populateTypeFilter(tickets);
+  }
 }
 
 /**
- * Filter tickets based on status
+ * Populate ticket type filter dropdown
+ */
+function populateTypeFilter(tickets) {
+  const typeFilter = document.getElementById('type-filter');
+  if (!typeFilter) return;
+  
+  // Clear existing options (except the first one)
+  while (typeFilter.options.length > 1) {
+    typeFilter.remove(1);
+  }
+  
+  // Get unique ticket types
+  const types = new Set();
+  tickets.forEach(ticket => {
+    if (ticket.type) types.add(ticket.type);
+  });
+  
+  // Add options for each type
+  types.forEach(type => {
+    const option = document.createElement('option');
+    option.value = type;
+    option.textContent = type;
+    typeFilter.appendChild(option);
+  });
+}
+
+/**
+ * Filter tickets based on status, type, and search
  */
 function filterTickets() {
-  const filterValue = ticketStatusFilter.value;
+  const statusFilter = document.getElementById('status-filter');
+  const typeFilter = document.getElementById('type-filter');
+  const searchInput = document.getElementById('search-tickets');
+  const ticketRows = document.querySelectorAll('#ticket-list-body tr:not(.no-tickets-row)');
   
-  // Clear the list
-  ticketsList.innerHTML = '';
+  if (!ticketRows.length) return;
   
-  // Filter tickets
-  let filteredTickets = tickets;
-  if (filterValue !== 'all') {
-    filteredTickets = tickets.filter(ticket => ticket.status.toLowerCase() === filterValue.toLowerCase());
-  }
+  const status = statusFilter ? statusFilter.value : 'all';
+  const type = typeFilter ? typeFilter.value : 'all';
+  const search = searchInput ? searchInput.value.toLowerCase() : '';
   
-  if (filteredTickets.length === 0) {
-    ticketsList.innerHTML = '<p class="empty-message">No tickets match the selected filter</p>';
-    return;
-  }
-  
-  // Sort tickets (newest first)
-  filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  
-  // Render each ticket
-  filteredTickets.forEach(ticket => {
-    const ticketItem = document.createElement('div');
-    ticketItem.className = 'ticket-item';
+  ticketRows.forEach(row => {
+    let visible = true;
     
-    // Format date
-    const date = new Date(ticket.createdAt);
-    const dateFormatted = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-    
-    // Create avatar element
-    const avatar = ticket.user && ticket.user.avatar ? 
-      `<img src="${ticket.user.avatar}" alt="${escapeHTML(ticket.user.username)}">` : 
-      `<i class="fas fa-user"></i>`;
-    
-    ticketItem.innerHTML = `
-      <div class="ticket-id">${escapeHTML(ticket.id || `#${ticket.number}`)}</div>
-      <div class="ticket-user">
-        <div class="ticket-user-avatar">
-          ${avatar}
-        </div>
-        <div class="ticket-user-details">
-          <div class="ticket-user-name">${escapeHTML(ticket.user ? ticket.user.username : 'Unknown User')}</div>
-          <div class="ticket-user-id">${ticket.user ? ticket.user.id : 'Unknown'}</div>
-        </div>
-      </div>
-      <div class="ticket-topic">${escapeHTML(ticket.topic || 'No topic')}</div>
-      <div class="ticket-status ${ticket.status.toLowerCase()}">${ticket.status}</div>
-      <div class="ticket-created">${dateFormatted}</div>
-      <div class="ticket-actions">
-        <button class="admin3d-btn admin3d-btn-sm admin3d-btn-info" data-action="view-ticket" data-ticket-id="${ticket.id}">
-          <i class="fas fa-eye"></i>
-        </button>
-        ${ticket.status.toLowerCase() === 'open' ? `
-          <button class="admin3d-btn admin3d-btn-sm admin3d-btn-danger" data-action="close-ticket" data-ticket-id="${ticket.id}">
-            <i class="fas fa-times"></i>
-          </button>
-        ` : ''}
-      </div>
-    `;
-    
-    // Add event listeners
-    const viewButton = ticketItem.querySelector('[data-action="view-ticket"]');
-    if (viewButton) {
-      viewButton.addEventListener('click', () => {
-        const ticketId = viewButton.getAttribute('data-ticket-id');
-        openTicketInfoModal(ticketId);
-      });
+    // Filter by status
+    if (status !== 'all' && row.dataset.status !== status) {
+      visible = false;
     }
     
-    const closeButton = ticketItem.querySelector('[data-action="close-ticket"]');
-    if (closeButton) {
-      closeButton.addEventListener('click', () => {
-        const ticketId = closeButton.getAttribute('data-ticket-id');
-        openCloseTicketModal(ticketId);
-      });
+    // Filter by type
+    if (type !== 'all' && row.dataset.type !== type) {
+      visible = false;
     }
     
-    ticketsList.appendChild(ticketItem);
-  });
-}
-
-/**
- * Update config form with values from config
- * @param {Object} config - Ticket configuration
- */
-function updateConfigForm(config) {
-  if (!config) return;
-  
-  // Basic settings
-  if (config.categoryId) {
-    document.getElementById('category-id').value = config.categoryId;
-  }
-  
-  if (config.supportRoleId) {
-    document.getElementById('support-role-id').value = config.supportRoleId;
-  }
-  
-  if (config.logChannelId) {
-    document.getElementById('log-channel-id').value = config.logChannelId;
-  }
-  
-  if (config.maxTickets) {
-    document.getElementById('max-tickets').value = config.maxTickets;
-  }
-  
-  if (config.cooldown !== undefined) {
-    document.getElementById('cooldown').value = config.cooldown;
-  }
-  
-  // Advanced settings
-  document.getElementById('auto-transcript').checked = config.autoTranscript !== false;
-  document.getElementById('auto-close').checked = !!config.autoClose;
-  document.getElementById('require-topic').checked = config.requireTopic !== false;
-  document.getElementById('use-threads').checked = !!config.useThreads;
-  
-  autoCloseOptions.style.display = !!config.autoClose ? 'block' : 'none';
-  
-  if (config.inactiveHours) {
-    document.getElementById('inactive-hours').value = config.inactiveHours;
-  }
-  
-  if (config.autoCloseMessage) {
-    document.getElementById('auto-close-message').value = config.autoCloseMessage;
-  }
-  
-  // Messages
-  if (config.welcomeMessage) {
-    document.getElementById('welcome-message').value = config.welcomeMessage;
-  }
-  
-  if (config.closeMessage) {
-    document.getElementById('close-message').value = config.closeMessage;
-  }
-}
-
-/**
- * Reset config form to default values
- */
-function resetConfigForm() {
-  // Reset dropdowns
-  document.getElementById('category-id').value = '';
-  document.getElementById('support-role-id').value = '';
-  document.getElementById('log-channel-id').value = '';
-  
-  // Reset inputs
-  document.getElementById('max-tickets').value = '1';
-  document.getElementById('cooldown').value = '5';
-  
-  // Reset checkboxes
-  document.getElementById('auto-transcript').checked = true;
-  document.getElementById('auto-close').checked = false;
-  document.getElementById('require-topic').checked = true;
-  document.getElementById('use-threads').checked = false;
-  
-  // Hide auto-close options
-  autoCloseOptions.style.display = 'none';
-  
-  // Reset auto-close options
-  document.getElementById('inactive-hours').value = '24';
-  document.getElementById('auto-close-message').value = '';
-  
-  // Reset messages
-  document.getElementById('welcome-message').value = '';
-  document.getElementById('close-message').value = '';
-}
-
-/**
- * Open ticket info modal
- * @param {string} ticketId - Ticket ID
- */
-async function openTicketInfoModal(ticketId) {
-  // Find ticket in list
-  const ticket = tickets.find(t => t.id === ticketId);
-  
-  if (!ticket) {
-    createNotification('error', 'Error', 'Ticket not found');
-    return;
-  }
-  
-  // Set ticket ID
-  ticketInfoModal.setAttribute('data-ticket-id', ticketId);
-  
-  // Update modal content
-  const avatar = ticket.user && ticket.user.avatar ? 
-    `<img src="${ticket.user.avatar}" alt="${escapeHTML(ticket.user.username)}">` : 
-    `<i class="fas fa-user"></i>`;
-  
-  document.getElementById('ticket-info-avatar').innerHTML = avatar;
-  document.getElementById('ticket-info-name').textContent = ticket.user ? ticket.user.username : 'Unknown User';
-  document.getElementById('ticket-info-id').textContent = ticket.user ? ticket.user.id : 'Unknown';
-  
-  const statusEl = document.getElementById('ticket-info-status');
-  statusEl.textContent = ticket.status;
-  statusEl.className = `ticket-status-badge ${ticket.status.toLowerCase()}`;
-  
-  document.getElementById('ticket-info-ticket-id').textContent = ticket.id || `#${ticket.number}`;
-  
-  // Format date
-  const date = new Date(ticket.createdAt);
-  const dateFormatted = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-  document.getElementById('ticket-info-created').textContent = dateFormatted;
-  
-  document.getElementById('ticket-info-topic').textContent = ticket.topic || 'No topic';
-  document.getElementById('ticket-info-channel').textContent = ticket.channelName ? `#${ticket.channelName}` : ticket.channelId || 'Unknown';
-  
-  // Load messages
-  const messagesContainer = document.getElementById('ticket-messages');
-  messagesContainer.innerHTML = `
-    <div class="ticket-messages-loading">
-      <div class="spinner"></div>
-      <p>Loading messages...</p>
-    </div>
-  `;
-  
-  try {
-    const response = await fetch(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/transcript-preview`);
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to load messages');
+    // Filter by search term
+    if (search && !row.textContent.toLowerCase().includes(search)) {
+      visible = false;
     }
     
-    const messages = data.messages || [];
-    
-    if (messages.length === 0) {
-      messagesContainer.innerHTML = '<p class="empty-message">No messages found</p>';
-    } else {
-      messagesContainer.innerHTML = '';
-      
-      // Render each message
-      messages.forEach(message => {
-        const messageEl = document.createElement('div');
-        messageEl.className = `ticket-message ${message.author.isBot ? 'ticket-message-bot' : ''}`;
-        
-        // Format date
-        const date = new Date(message.timestamp);
-        const timeFormatted = date.toLocaleTimeString();
-        
-        // Create avatar element
-        const avatar = message.author.avatar ? 
-          `<img src="${message.author.avatar}" alt="${escapeHTML(message.author.username)}">` : 
-          `<i class="fas fa-user"></i>`;
-        
-        messageEl.innerHTML = `
-          <div class="ticket-message-avatar">
-            ${avatar}
-          </div>
-          <div class="ticket-message-content">
-            <div class="ticket-message-header">
-              <span class="ticket-message-author">${escapeHTML(message.author.username)}</span>
-              <span class="ticket-message-time">${timeFormatted}</span>
-            </div>
-            <div class="ticket-message-text">${escapeHTML(message.content)}</div>
-          </div>
-        `;
-        
-        messagesContainer.appendChild(messageEl);
-      });
-    }
-  } catch (error) {
-    console.error('Error loading messages:', error);
-    messagesContainer.innerHTML = `
-      <div class="error-message">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p>Error loading messages: ${error.message}</p>
-      </div>
-    `;
-  }
-  
-  // Show modal
-  ticketInfoModal.classList.add('active');
-}
-
-/**
- * Open close ticket modal
- * @param {string} ticketId - Ticket ID
- */
-function openCloseTicketModal(ticketId) {
-  // Find ticket in list
-  const ticket = tickets.find(t => t.id === ticketId);
-  
-  if (!ticket) {
-    createNotification('error', 'Error', 'Ticket not found');
-    return;
-  }
-  
-  // Set ticket ID
-  closeTicketModal.setAttribute('data-ticket-id', ticketId);
-  
-  // Update modal content
-  document.getElementById('close-ticket-name').textContent = ticket.user ? ticket.user.username : 'Unknown User';
-  document.getElementById('close-ticket-id').textContent = ticket.id || `#${ticket.number}`;
-  
-  // Show modal
-  closeTicketModal.classList.add('active');
-}
-
-/**
- * Handle close ticket confirmation
- */
-async function handleCloseTicket() {
-  const ticketId = closeTicketModal.getAttribute('data-ticket-id');
-  
-  if (!ticketId) {
-    createNotification('error', 'Error', 'Invalid ticket ID');
-    return;
-  }
-  
-  // Get reason
-  const reason = document.getElementById('close-reason').value;
-  
-  // Disable button to prevent multiple submissions
-  const confirmButton = document.querySelector('[data-action="confirm-close"]');
-  confirmButton.disabled = true;
-  confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Closing...';
-  
-  try {
-    // Submit close request
-    const response = await fetch(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/close`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ reason })
-    });
-    
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to close ticket');
-    }
-    
-    // Show success notification
-    createNotification('success', 'Success', 'Ticket closed successfully');
-    
-    // Close modal
-    closeAllModals();
-    
-    // Reload tickets
-    loadTickets();
-  } catch (error) {
-    console.error('Error closing ticket:', error);
-    createNotification('error', 'Error', `Failed to close ticket: ${error.message}`);
-  } finally {
-    // Re-enable button
-    confirmButton.disabled = false;
-    confirmButton.innerHTML = 'Close Ticket';
-  }
-}
-
-/**
- * Handle save ticket configuration
- * @param {Event} event - Form submit event
- */
-async function handleSaveConfig(event) {
-  event.preventDefault();
-  
-  if (!currentServerId) {
-    createNotification('error', 'Error', 'No server selected');
-    return;
-  }
-  
-  // Disable submit button
-  const submitButton = event.target.querySelector('button[type="submit"]');
-  submitButton.disabled = true;
-  submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-  
-  try {
-    // Gather form data
-    const formData = new FormData(event.target);
-    const config = {
-      categoryId: formData.get('category-id'),
-      supportRoleId: formData.get('support-role-id'),
-      logChannelId: formData.get('log-channel-id'),
-      maxTickets: parseInt(formData.get('max-tickets'), 10),
-      cooldown: parseInt(formData.get('cooldown'), 10),
-      autoTranscript: formData.get('auto-transcript') === 'on',
-      autoClose: formData.get('auto-close') === 'on',
-      requireTopic: formData.get('require-topic') === 'on',
-      useThreads: formData.get('use-threads') === 'on',
-      inactiveHours: parseInt(formData.get('inactive-hours'), 10),
-      autoCloseMessage: formData.get('auto-close-message'),
-      welcomeMessage: formData.get('welcome-message'),
-      closeMessage: formData.get('close-message')
-    };
-    
-    // Submit config
-    const response = await fetch(`/api/v2/servers/${currentServerId}/ticket-config`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(config)
-    });
-    
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to save ticket configuration');
-    }
-    
-    // Update stored config
-    ticketConfig = data.config;
-    
-    // Show success notification
-    createNotification('success', 'Success', 'Ticket configuration saved successfully');
-  } catch (error) {
-    console.error('Error saving ticket configuration:', error);
-    createNotification('error', 'Error', `Failed to save ticket configuration: ${error.message}`);
-  } finally {
-    // Re-enable submit button
-    submitButton.disabled = false;
-    submitButton.innerHTML = 'Save Configuration';
-  }
-}
-
-/**
- * Handle send ticket panel
- * @param {Event} event - Form submit event
- */
-async function handleSendPanel(event) {
-  event.preventDefault();
-  
-  if (!currentServerId) {
-    createNotification('error', 'Error', 'No server selected');
-    return;
-  }
-  
-  // Disable submit button
-  const submitButton = event.target.querySelector('button[type="submit"]');
-  submitButton.disabled = true;
-  submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-  
-  try {
-    // Gather form data
-    const formData = new FormData(event.target);
-    const panelData = {
-      channelId: formData.get('panel-channel'),
-      title: formData.get('panel-title'),
-      description: formData.get('panel-description'),
-      buttonLabel: formData.get('panel-button-label')
-    };
-    
-    // Submit panel
-    const response = await fetch(`/api/v2/servers/${currentServerId}/ticket-panel`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(panelData)
-    });
-    
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to send ticket panel');
-    }
-    
-    // Show success notification
-    createNotification('success', 'Success', 'Ticket panel sent successfully');
-    
-    // Reset form
-    event.target.reset();
-  } catch (error) {
-    console.error('Error sending ticket panel:', error);
-    createNotification('error', 'Error', `Failed to send ticket panel: ${error.message}`);
-  } finally {
-    // Re-enable submit button
-    submitButton.disabled = false;
-    submitButton.innerHTML = 'Send Panel';
-  }
-}
-
-/**
- * Download ticket transcript
- * @param {string} ticketId - Ticket ID
- */
-function downloadTranscript(ticketId) {
-  if (!currentServerId || !ticketId) {
-    createNotification('error', 'Error', 'Invalid server or ticket ID');
-    return;
-  }
-  
-  // Create link and click it
-  const link = document.createElement('a');
-  link.href = `/api/v2/servers/${currentServerId}/tickets/${ticketId}/transcript-download`;
-  link.download = `ticket-${ticketId}.html`;
-  link.click();
-}
-
-/**
- * Close all open modals
- */
-function closeAllModals() {
-  document.querySelectorAll('.modal-overlay').forEach(modal => {
-    modal.classList.remove('active');
-  });
-}
-
-/**
- * Populate channel select dropdown
- * @param {HTMLElement} selectEl - Select element
- * @param {Array} channels - Channels list
- */
-function populateChannelSelect(selectEl, channels) {
-  if (!selectEl) return;
-  
-  // Clear dropdown
-  selectEl.innerHTML = '<option value="" disabled selected>Select a channel</option>';
-  
-  // Sort channels
-  const sortedChannels = [...channels].sort((a, b) => {
-    // Sort by category first
-    if (a.parentId !== b.parentId) {
-      return a.parentId ? (b.parentId ? 0 : -1) : 1;
-    }
-    
-    // Then sort by position
-    if (a.position !== b.position) {
-      return a.position - b.position;
-    }
-    
-    // Finally sort by name
-    return a.name.localeCompare(b.name);
+    // Toggle visibility
+    row.style.display = visible ? '' : 'none';
   });
   
-  // Add channels to dropdown
-  sortedChannels.forEach(channel => {
-    if (channel.type === 0) { // Text channel
+  // Show "no results" message if all rows are hidden
+  const visibleRows = Array.from(ticketRows).filter(row => row.style.display !== 'none');
+  const noTicketsRow = document.querySelector('.no-tickets-row');
+  
+  if (visibleRows.length === 0 && !noTicketsRow) {
+    const ticketListBody = document.getElementById('ticket-list-body');
+    if (ticketListBody) {
+      const noResultsRow = document.createElement('tr');
+      noResultsRow.className = 'no-tickets-row';
+      noResultsRow.innerHTML = `
+        <td colspan="6" class="text-center">No tickets match your filters.</td>
+      `;
+      ticketListBody.appendChild(noResultsRow);
+    }
+  } else if (visibleRows.length > 0 && noTicketsRow) {
+    noTicketsRow.remove();
+  }
+}
+
+/**
+ * Populate channel dropdowns
+ */
+function populateChannelDropdowns(channels, categories) {
+  // Populate category dropdown
+  const categorySelect = document.getElementById('category-id');
+  if (categorySelect) {
+    // Clear options (except the first one)
+    while (categorySelect.options.length > 1) {
+      categorySelect.remove(1);
+    }
+    
+    // Add categories
+    categories.forEach(category => {
+      const option = document.createElement('option');
+      option.value = category.id;
+      option.textContent = category.name;
+      categorySelect.appendChild(option);
+    });
+  }
+  
+  // Populate log channel dropdown
+  const logChannelSelect = document.getElementById('log-channel-id');
+  if (logChannelSelect) {
+    // Clear options (except the first one)
+    while (logChannelSelect.options.length > 1) {
+      logChannelSelect.remove(1);
+    }
+    
+    // Add channels
+    channels.forEach(channel => {
       const option = document.createElement('option');
       option.value = channel.id;
-      
-      // Add category name if available
-      const category = serverCategories.find(c => c.id === channel.parentId);
-      option.textContent = category ? `${category.name} / #${channel.name}` : `#${channel.name}`;
-      
-      selectEl.appendChild(option);
+      option.textContent = channel.name;
+      logChannelSelect.appendChild(option);
+    });
+  }
+  
+  // Populate panel channel dropdown
+  const panelChannelSelect = document.getElementById('panel-channel-id');
+  if (panelChannelSelect) {
+    // Clear options (except the first one)
+    while (panelChannelSelect.options.length > 1) {
+      panelChannelSelect.remove(1);
     }
-  });
+    
+    // Add channels
+    channels.forEach(channel => {
+      const option = document.createElement('option');
+      option.value = channel.id;
+      option.textContent = channel.name;
+      panelChannelSelect.appendChild(option);
+    });
+  }
 }
 
 /**
- * Populate category select dropdown
- * @param {HTMLElement} selectEl - Select element
- * @param {Array} categories - Categories list
+ * Populate role dropdown
  */
-function populateCategorySelect(selectEl, categories) {
-  if (!selectEl) return;
-  
-  // Clear dropdown
-  selectEl.innerHTML = '<option value="" disabled selected>Select a category</option>';
-  
-  // Sort categories by position
-  const sortedCategories = [...categories].sort((a, b) => a.position - b.position);
-  
-  // Add categories to dropdown
-  sortedCategories.forEach(category => {
-    const option = document.createElement('option');
-    option.value = category.id;
-    option.textContent = category.name;
-    selectEl.appendChild(option);
-  });
-}
-
-/**
- * Populate role select dropdown
- * @param {HTMLElement} selectEl - Select element
- * @param {Array} roles - Roles list
- */
-function populateRoleSelect(selectEl, roles) {
-  if (!selectEl) return;
-  
-  // Clear dropdown
-  selectEl.innerHTML = '<option value="" disabled selected>Select a role</option>';
-  
-  // Sort roles by position (highest first)
-  const sortedRoles = [...roles].sort((a, b) => b.position - a.position);
-  
-  // Add roles to dropdown
-  sortedRoles.forEach(role => {
-    if (!role.managed && role.id !== currentServerId) { // Skip managed roles and @everyone
+function populateRoleDropdown(roles) {
+  // Populate support role dropdown
+  const roleSelect = document.getElementById('support-role-id');
+  if (roleSelect) {
+    // Clear options (except the first one)
+    while (roleSelect.options.length > 1) {
+      roleSelect.remove(1);
+    }
+    
+    // Add roles
+    roles.forEach(role => {
       const option = document.createElement('option');
       option.value = role.id;
       option.textContent = role.name;
-      
-      // Add color indicator
-      if (role.color) {
-        const colorHex = role.color.toString(16).padStart(6, '0');
-        option.style.backgroundColor = `#${colorHex}20`; // 20 = 12.5% opacity
-        option.style.color = `#${colorHex}`;
-        option.style.fontWeight = 'bold';
+      option.style.color = role.color;
+      roleSelect.appendChild(option);
+    });
+  }
+}
+
+/**
+ * Populate ticket configuration form
+ */
+function populateTicketConfig(config) {
+  if (!config) return;
+  
+  // Fill in form fields
+  const fields = [
+    { id: 'category-id', value: config.categoryId },
+    { id: 'support-role-id', value: config.supportRoleId },
+    { id: 'log-channel-id', value: config.logChannelId },
+    { id: 'max-tickets', value: config.maxTickets || 1 },
+    { id: 'cooldown', value: config.cooldown || 60 },
+    { id: 'inactive-hours', value: config.inactiveHours || 24 },
+    { id: 'auto-close-message', value: config.autoCloseMessage },
+    { id: 'welcome-message', value: config.welcomeMessage },
+    { id: 'close-message', value: config.closeMessage }
+  ];
+  
+  fields.forEach(field => {
+    const element = document.getElementById(field.id);
+    if (element) {
+      if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+        element.value = field.value || '';
+      } else if (element.tagName === 'SELECT') {
+        if (field.value) {
+          element.value = field.value;
+        }
       }
-      
-      selectEl.appendChild(option);
     }
+  });
+  
+  // Set checkboxes
+  const checkboxes = [
+    { id: 'auto-transcript', checked: config.autoTranscript },
+    { id: 'auto-close', checked: config.autoClose },
+    { id: 'require-topic', checked: config.requireTopic },
+    { id: 'use-threads', checked: config.useThreads }
+  ];
+  
+  checkboxes.forEach(checkbox => {
+    const element = document.getElementById(checkbox.id);
+    if (element) {
+      element.checked = !!checkbox.checked;
+    }
+  });
+  
+  // Show/hide auto-close settings
+  handleAutoCloseToggle();
+}
+
+/**
+ * Reset ticket configuration form to defaults
+ */
+function resetTicketSettings() {
+  // Reset form fields
+  const settingsForm = document.getElementById('ticket-settings-form');
+  if (settingsForm) {
+    settingsForm.reset();
+  }
+  
+  // Reset number inputs
+  document.getElementById('max-tickets').value = 1;
+  document.getElementById('cooldown').value = 60;
+  document.getElementById('inactive-hours').value = 24;
+  
+  // Reset text areas
+  document.getElementById('auto-close-message').value = 'This ticket has been automatically closed due to inactivity.';
+  document.getElementById('welcome-message').value = 'Thanks for creating a ticket! The support team will assist you shortly. Please describe your issue in detail.';
+  document.getElementById('close-message').value = 'This ticket is now closed. If you need further assistance, please open a new ticket.';
+  
+  // Reset checkboxes
+  document.getElementById('auto-transcript').checked = false;
+  document.getElementById('auto-close').checked = false;
+  document.getElementById('require-topic').checked = false;
+  document.getElementById('use-threads').checked = false;
+  
+  // Hide auto-close settings
+  handleAutoCloseToggle();
+}
+
+/**
+ * Save ticket configuration
+ */
+function saveTicketSettings() {
+  const serverSelect = document.getElementById('server-select');
+  if (!serverSelect || !serverSelect.value) {
+    showError('Please select a server first.');
+    return;
+  }
+  
+  const serverId = serverSelect.value;
+  
+  // Create FormData from form
+  const form = document.getElementById('ticket-settings-form');
+  const formData = new FormData(form);
+  
+  // Convert to JSON
+  const data = {};
+  formData.forEach((value, key) => {
+    data[key] = value;
+  });
+  
+  // Convert checkboxes
+  data.autoTranscript = !!formData.get('autoTranscript');
+  data.autoClose = !!formData.get('autoClose');
+  data.requireTopic = !!formData.get('requireTopic');
+  data.useThreads = !!formData.get('useThreads');
+  
+  // Send to API
+  fetch(`/api/v2/servers/${serverId}/ticket-config`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showSuccess('Ticket configuration saved successfully.');
+    } else {
+      showError('Failed to save configuration: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error saving ticket configuration:', error);
+    showError('Failed to save configuration. Please try again.');
   });
 }
 
 /**
- * Create a notification toast
- * @param {string} type - Notification type (success, error, info, warning)
- * @param {string} title - Notification title
- * @param {string} message - Notification message
+ * Create a ticket panel
  */
-function createNotification(type, title, message) {
-  // Create container if it doesn't exist
-  let container = document.getElementById('notification-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'notification-container';
-    document.body.appendChild(container);
+function createTicketPanel() {
+  const serverSelect = document.getElementById('server-select');
+  if (!serverSelect || !serverSelect.value) {
+    showError('Please select a server first.');
+    return;
   }
   
-  // Create notification
-  const notification = document.createElement('div');
-  notification.className = `notification notification-${type}`;
+  const serverId = serverSelect.value;
   
-  // Generate unique ID
-  const id = `notification-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-  notification.id = id;
-  
-  // Set content
-  notification.innerHTML = `
-    <div class="notification-icon">
-      <i class="fas ${getIconForType(type)}"></i>
-    </div>
-    <div class="notification-content">
-      <div class="notification-title">${title}</div>
-      <div class="notification-message">${message}</div>
-    </div>
-    <button class="notification-close" onclick="document.getElementById('${id}').remove()">
-      <i class="fas fa-times"></i>
-    </button>
-  `;
-  
-  // Add to container
-  container.appendChild(notification);
-  
-  // Animate in
-  setTimeout(() => {
-    notification.classList.add('active');
-  }, 10);
-  
-  // Auto-remove after 5 seconds
-  setTimeout(() => {
-    if (document.getElementById(id)) {
-      notification.classList.remove('active');
-      setTimeout(() => {
-        if (document.getElementById(id)) {
-          document.getElementById(id).remove();
-        }
-      }, 300);
+  // Get ticket types
+  const ticketTypes = [];
+  const ticketTypeRows = document.querySelectorAll('.ticket-type-row');
+  ticketTypeRows.forEach((row, index) => {
+    const label = row.querySelector('.type-label').value;
+    const emoji = row.querySelector('.type-emoji').value;
+    const description = row.querySelector('.type-description').value;
+    
+    if (label && emoji) {
+      ticketTypes.push({
+        id: `type_${index}`,
+        label,
+        emoji,
+        description: description || ''
+      });
     }
+  });
+  
+  // Create panel data
+  const panelData = {
+    channelId: document.getElementById('panel-channel-id').value,
+    panelTitle: document.getElementById('panel-title').value,
+    panelDescription: document.getElementById('panel-description').value,
+    panelColor: document.getElementById('panel-color').value,
+    panelImage: document.getElementById('panel-image').value,
+    ticketTypes: JSON.stringify(ticketTypes)
+  };
+  
+  // Validate required fields
+  if (!panelData.channelId) {
+    showError('Please select a channel to send the panel to.');
+    return;
+  }
+  
+  // Send to API
+  fetch(`/api/v2/servers/${serverId}/ticket-panel`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(panelData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showSuccess('Ticket panel created and sent to the channel.');
+    } else {
+      showError('Failed to create panel: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error creating ticket panel:', error);
+    showError('Failed to create panel. Please try again.');
+  });
+}
+
+/**
+ * View ticket details
+ */
+function viewTicketDetails(ticketId) {
+  const serverSelect = document.getElementById('server-select');
+  if (!serverSelect || !serverSelect.value) {
+    showError('Server ID not found.');
+    return;
+  }
+  
+  const serverId = serverSelect.value;
+  
+  // Show loading state
+  setLoadingState(true);
+  
+  // Get ticket details
+  fetch(`/api/v2/servers/${serverId}/tickets/${ticketId}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        displayTicketDetails(data.ticket);
+        
+        // Show modal
+        $('#ticket-modal').modal('show');
+      } else {
+        showError('Failed to get ticket details: ' + data.message);
+      }
+      setLoadingState(false);
+    })
+    .catch(error => {
+      console.error('Error getting ticket details:', error);
+      showError('Failed to get ticket details. Please try again.');
+      setLoadingState(false);
+    });
+}
+
+/**
+ * Display ticket details in modal
+ */
+function displayTicketDetails(ticket) {
+  // Set ticket data in modal
+  document.getElementById('modal-ticket-id').textContent = ticket.id;
+  document.getElementById('modal-ticket-user').textContent = ticket.creator ? ticket.creator.username : 'Unknown';
+  document.getElementById('modal-ticket-type').textContent = ticket.type || 'General';
+  
+  // Format creation date
+  const createdDate = new Date(ticket.createdAt);
+  document.getElementById('modal-ticket-created').textContent = `${createdDate.toLocaleDateString()} ${createdDate.toLocaleTimeString()}`;
+  
+  // Set status badge
+  const statusEl = document.getElementById('modal-ticket-status');
+  statusEl.textContent = ticket.status;
+  statusEl.className = `badge status-${ticket.status.toLowerCase()}`;
+  
+  // Set channel ID
+  document.getElementById('modal-ticket-channel').textContent = ticket.channelId;
+  
+  // Set ticket content
+  document.getElementById('modal-ticket-content').innerHTML = ticket.content || 'No content available.';
+  
+  // Set transcript preview
+  document.getElementById('modal-transcript-preview').innerHTML = 'Loading transcript...';
+  
+  // Load transcript preview
+  fetchTranscriptPreview(ticket.id);
+  
+  // Set ticket ID for modal action buttons
+  document.getElementById('download-transcript').dataset.ticketId = ticket.id;
+  document.getElementById('close-ticket').dataset.ticketId = ticket.id;
+  
+  // Hide close button if ticket is already closed
+  document.getElementById('close-ticket').style.display = 
+    ticket.status.toLowerCase() === 'closed' ? 'none' : 'inline-block';
+}
+
+/**
+ * Fetch transcript preview
+ */
+function fetchTranscriptPreview(ticketId) {
+  const serverSelect = document.getElementById('server-select');
+  if (!serverSelect || !serverSelect.value) {
+    document.getElementById('modal-transcript-preview').innerHTML = 'Server ID not found.';
+    return;
+  }
+  
+  const serverId = serverSelect.value;
+  
+  // Get transcript
+  fetch(`/api/v2/servers/${serverId}/tickets/${ticketId}/transcript`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Display preview of transcript
+        const transcriptPreview = document.getElementById('modal-transcript-preview');
+        
+        if (data.transcript && data.transcript.content) {
+          // Show a preview of the transcript content
+          const previewContent = data.transcript.content.substring(0, 300);
+          transcriptPreview.innerHTML = `${previewContent}...<br><em>(Partial preview - download for full transcript)</em>`;
+        } else {
+          transcriptPreview.innerHTML = 'No transcript available for this ticket.';
+        }
+      } else {
+        document.getElementById('modal-transcript-preview').innerHTML = 'Failed to load transcript: ' + data.message;
+      }
+    })
+    .catch(error => {
+      console.error('Error getting transcript preview:', error);
+      document.getElementById('modal-transcript-preview').innerHTML = 'Failed to load transcript. Please try again.';
+    });
+}
+
+/**
+ * Show close ticket confirmation modal
+ */
+function showCloseTicketModal(ticketId) {
+  // Set ticket ID in close form
+  document.getElementById('confirm-close-ticket').dataset.ticketId = ticketId;
+  
+  // Clear previous reason
+  document.getElementById('close-reason').value = '';
+  
+  // Show modal
+  $('#close-ticket-modal').modal('show');
+}
+
+/**
+ * Close a ticket
+ */
+function closeTicket() {
+  const ticketId = this.dataset.ticketId;
+  if (!ticketId) {
+    showError('Ticket ID not found.');
+    return;
+  }
+  
+  const serverSelect = document.getElementById('server-select');
+  if (!serverSelect || !serverSelect.value) {
+    showError('Server ID not found.');
+    return;
+  }
+  
+  const serverId = serverSelect.value;
+  const reason = document.getElementById('close-reason').value;
+  
+  // Show loading state
+  setLoadingState(true);
+  
+  // Close ticket
+  fetch(`/api/v2/servers/${serverId}/tickets/${ticketId}/close`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ reason })
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showSuccess('Ticket closed successfully.');
+        
+        // Hide close modal
+        $('#close-ticket-modal').modal('hide');
+        
+        // Update UI
+        refreshTickets(serverId);
+      } else {
+        showError('Failed to close ticket: ' + data.message);
+      }
+      setLoadingState(false);
+    })
+    .catch(error => {
+      console.error('Error closing ticket:', error);
+      showError('Failed to close ticket. Please try again.');
+      setLoadingState(false);
+    });
+}
+
+/**
+ * Download transcript for a ticket
+ */
+function downloadTranscript(ticketId) {
+  const serverSelect = document.getElementById('server-select');
+  if (!serverSelect || !serverSelect.value) {
+    showError('Server ID not found.');
+    return;
+  }
+  
+  const serverId = serverSelect.value;
+  
+  // Create download link
+  const downloadLink = document.createElement('a');
+  downloadLink.href = `/api/v2/servers/${serverId}/tickets/${ticketId}/transcript/download`;
+  downloadLink.target = '_blank';
+  downloadLink.download = `transcript-${ticketId}.html`;
+  
+  // Append link and trigger click
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
+
+/**
+ * Refresh tickets for a server
+ */
+function refreshTickets(serverId) {
+  if (!serverId) {
+    const serverSelect = document.getElementById('server-select');
+    if (!serverSelect || !serverSelect.value) {
+      return;
+    }
+    serverId = serverSelect.value;
+  }
+  
+  // Load tickets
+  loadTickets(serverId);
+}
+
+/**
+ * Set loading state
+ */
+function setLoadingState(isLoading) {
+  // Add loading indicator if needed
+  if (isLoading) {
+    document.body.classList.add('loading');
+  } else {
+    document.body.classList.remove('loading');
+  }
+}
+
+/**
+ * Show success message
+ */
+function showSuccess(message) {
+  // Create success alert if it doesn't exist
+  if (!document.querySelector('.alert-success')) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success';
+    alert.style.position = 'fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.style.maxWidth = '400px';
+    
+    document.body.appendChild(alert);
+  }
+  
+  // Set message and show
+  const alert = document.querySelector('.alert-success');
+  alert.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+  alert.style.display = 'block';
+  
+  // Hide after delay
+  setTimeout(() => {
+    alert.style.display = 'none';
   }, 5000);
 }
 
 /**
- * Get icon for notification type
- * @param {string} type - Notification type
- * @returns {string} - Icon class
+ * Show error message
  */
-function getIconForType(type) {
-  switch (type) {
-    case 'success':
-      return 'fa-check-circle';
-    case 'error':
-      return 'fa-exclamation-circle';
-    case 'warning':
-      return 'fa-exclamation-triangle';
-    case 'info':
-    default:
-      return 'fa-info-circle';
+function showError(message) {
+  // Create error alert if it doesn't exist
+  if (!document.querySelector('.alert-danger')) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger';
+    alert.style.position = 'fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.style.maxWidth = '400px';
+    
+    document.body.appendChild(alert);
   }
+  
+  // Set message and show
+  const alert = document.querySelector('.alert-danger');
+  alert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+  alert.style.display = 'block';
+  
+  // Hide after delay
+  setTimeout(() => {
+    alert.style.display = 'none';
+  }, 5000);
 }
 
-/**
- * Format duration in seconds to a readable string
- * @param {number} seconds - Duration in seconds
- * @returns {string} - Formatted duration
- */
-function formatDuration(seconds) {
-  if (seconds < 60) {
-    return `${seconds}s`;
-  } else if (seconds < 3600) {
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes}m`;
-  } else if (seconds < 86400) {
-    const hours = Math.floor(seconds / 3600);
-    return `${hours}h`;
-  } else {
-    const days = Math.floor(seconds / 86400);
-    return `${days}d`;
-  }
-}
+console.log('Fix-select script loaded');
 
-/**
- * Escape HTML to prevent XSS
- * @param {string} text - Text to escape
- * @returns {string} - Escaped text
- */
-function escapeHTML(text) {
-  if (!text) return '';
-  return text
-    .toString()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-// Initialize tickets page when DOM is ready
-document.addEventListener('DOMContentLoaded', initTicketsPage);
+// Apply fix to all select elements
+document.addEventListener('DOMContentLoaded', function() {
+  const selects = document.querySelectorAll('select');
+  selects.forEach(fixSelect);
+});
