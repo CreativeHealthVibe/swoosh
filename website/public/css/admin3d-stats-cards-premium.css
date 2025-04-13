@@ -1,0 +1,202 @@
+/* Premium Stats Cards Styling */
+
+.stats-row {
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 5;
+}
+
+.ticket-stat-card {
+  position: relative;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  height: 140px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(20,20,26,0.95) 0%, rgba(30,30,40,0.85) 100%);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(114, 137, 218, 0.2);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+}
+
+/* Animated gradient background */
+.ticket-stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(114, 137, 218, 0.08) 0%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  animation: rotate-gradient 15s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes rotate-gradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.ticket-stat-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(114, 137, 218, 0.2);
+}
+
+.ticket-stat-card .stat-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(114, 137, 218, 0.15) 0%, rgba(78, 98, 179, 0.3) 100%);
+  border-radius: 50%;
+  margin-right: 20px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(114, 137, 218, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(114, 137, 218, 0.3);
+}
+
+.ticket-stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(114, 137, 218, 0.2);
+}
+
+.ticket-stat-card .stat-icon i {
+  font-size: 24px;
+  color: rgba(114, 137, 218, 0.9);
+  text-shadow: 0 0 10px rgba(114, 137, 218, 0.5);
+  transition: all 0.3s ease;
+}
+
+.ticket-stat-card:hover .stat-icon i {
+  color: rgba(114, 137, 218, 1);
+  text-shadow: 0 0 15px rgba(114, 137, 218, 0.8);
+  transform: scale(1.1);
+}
+
+.ticket-stat-card .stat-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.ticket-stat-card .stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  background: linear-gradient(90deg, #ffffff, #f0f0f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ticket-stat-card:hover .stat-value {
+  transform: scale(1.05);
+  background: linear-gradient(90deg, #ffffff, #ffffff, #7289da);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ticket-stat-card .stat-title {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 5px 0 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.ticket-stat-card:hover .stat-title {
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 1px;
+}
+
+/* Sparkle effect on hover */
+.ticket-stat-card::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0;
+  transition: all 0.5s ease;
+  pointer-events: none;
+}
+
+.ticket-stat-card:hover::after {
+  animation: sparkle 1.5s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+@keyframes sparkle {
+  0% {
+    top: -10%;
+    left: -10%;
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 120%;
+    left: 120%;
+    opacity: 0;
+  }
+}
+
+/* Responsive styling */
+@media (max-width: 992px) {
+  .ticket-stat-card {
+    height: 120px;
+    padding: 15px;
+  }
+  
+  .ticket-stat-card .stat-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+  }
+  
+  .ticket-stat-card .stat-icon i {
+    font-size: 20px;
+  }
+  
+  .ticket-stat-card .stat-value {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ticket-stat-card .stat-value {
+    font-size: 24px;
+  }
+  
+  .ticket-stat-card .stat-title {
+    font-size: 12px;
+  }
+}
