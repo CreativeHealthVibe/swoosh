@@ -32,26 +32,6 @@
   letter-spacing: -0.3px;
 }
 
-/* Admin form styling (matching admin3d-messages) */
-.admin3d-form-hint {
-  font-size: 0.85rem;
-  color: #9b9eca;
-  margin-top: 0.25rem;
-  display: block;
-}
-
-.admin3d-form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.admin3d-form-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
 /* Admin3d Card Description */
 .admin3d-card-description {
   color: #9b9eca;
@@ -630,4 +610,16 @@
   color: #9b9eca;
   margin-top: 0.25rem;
   display: block;
+}
+
+.admin3d-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.admin3d-form-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
 }
