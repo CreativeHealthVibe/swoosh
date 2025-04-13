@@ -99,13 +99,30 @@
     if (typeof THREE === 'undefined') {
       console.warn('THREE.js not loaded! Falling back to 2D mode.');
       
-      // Try to load THREE.js dynamically if not available
+      // Try to load THREE.js dynamically from jsdelivr (preferred and more reliable CDN)
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js';
       script.onload = function() {
         console.log('THREE.js loaded successfully from ' + script.src);
-        // Re-initialize once loaded
-        initScene();
+        
+        // Load additional required THREE.js modules for post-processing
+        const effectComposerScript = document.createElement('script');
+        effectComposerScript.src = 'https://cdn.jsdelivr.net/npm/three@0.151.0/examples/jsm/postprocessing/EffectComposer.js';
+        
+        const renderPassScript = document.createElement('script');
+        renderPassScript.src = 'https://cdn.jsdelivr.net/npm/three@0.151.0/examples/jsm/postprocessing/RenderPass.js';
+        
+        const bloomPassScript = document.createElement('script');
+        bloomPassScript.src = 'https://cdn.jsdelivr.net/npm/three@0.151.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+        
+        document.head.appendChild(effectComposerScript);
+        document.head.appendChild(renderPassScript);
+        document.head.appendChild(bloomPassScript);
+        
+        // Re-initialize once loaded with a slight delay to ensure all scripts are processed
+        setTimeout(function() {
+          initScene();
+        }, 300);
       };
       script.onerror = function() {
         console.warn('Failed to load THREE.js from ' + script.src);
@@ -322,13 +339,13 @@
     scene.add(directionalLight);
     
     // Point lights for accent lighting
-    const purpleLight = new THREE.PointLight(CONFIG.COLORS.RING, 1, 10);
-    purpleLight.position.set(3, 2, 3);
-    scene.add(purpleLight);
+    const accentLight = new THREE.PointLight(CONFIG.COLORS.RING, 1, 10);
+    accentLight.position.set(3, 2, 3);
+    scene.add(accentLight);
     
-    const blueLight = new THREE.PointLight(CONFIG.COLORS.OPEN, 1, 10);
-    blueLight.position.set(-3, 2, 3);
-    scene.add(blueLight);
+    const secondaryLight = new THREE.PointLight(CONFIG.COLORS.OPEN, 1, 10);
+    secondaryLight.position.set(-3, 2, 3);
+    scene.add(secondaryLight);
   }
 
   // Setup post-processing effects for visual enhancement
