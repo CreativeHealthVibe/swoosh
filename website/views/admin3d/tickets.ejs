@@ -64,39 +64,35 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="stat-card" style="--card-index: 2;">
+          <div class="stat-card ticket-stat-card">
             <div class="stat-icon">
               <i class="fas fa-door-closed"></i>
             </div>
             <div class="stat-content">
-              <h3 id="closed-tickets">0</h3>
-              <p>Closed Tickets</p>
+              <h3 id="closed-tickets" class="stat-value">0</h3>
+              <p class="stat-title">Closed Tickets</p>
             </div>
           </div>
         </div>
         <div class="col-md-3">
-          <div class="stat-card" style="--card-index: 3;">
+          <div class="stat-card ticket-stat-card">
             <div class="stat-icon">
               <i class="fas fa-clock"></i>
             </div>
             <div class="stat-content">
-              <h3 id="avg-response-time">-</h3>
-              <p>Avg. Response Time</p>
+              <h3 id="avg-response-time" class="stat-value">-</h3>
+              <p class="stat-title">Avg. Response Time</p>
             </div>
           </div>
         </div>
       </div>
       
       <!-- Premium 3D visualization container -->
-      <div id="three-container">
-        <div class="ticket-loading">
-          <div class="ticket-loading-ring"></div>
-          <p>Loading 3D visualization...</p>
-        </div>
-        <div class="three-controls">
-          <div class="three-control-btn" id="expand-3d" title="Expand View">
-            <i class="fas fa-expand"></i>
-          </div>
+      <div class="tickets-3d-container">
+        <div id="three-container"></div>
+        <div class="ticket3d-loading">
+          <div class="spinner"></div>
+          <p>Loading premium 3D visualization...</p>
         </div>
       </div>
 
@@ -328,7 +324,7 @@
               
               <div id="ticket-types-container">
                 <!-- First ticket type (default) -->
-                <div class="ticket-type-row" data-index="0" style="--row-index: 0;">
+                <div class="ticket-type-row" data-index="0">
                   <div class="row">
                     <div class="col-4">
                       <input type="text" class="form-control type-label" 
