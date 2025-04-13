@@ -307,6 +307,91 @@ module.exports = {
       console.log(`Title: ${options.title}`);
       console.log(`Ticket Types: ${JSON.stringify(options.ticketTypes)}`);
       
+      // Get the guild and channel
+      const guild = await client.guilds.fetch(serverId).catch(err => {
+        console.error(`Error fetching guild ${serverId}:`, err);
+        return null;
+      });
+      
+      if (!guild) {
+        console.error(`Guild ${serverId} not found`);
+        return false;
+      }
+      
+      const channel = await guild.channels.fetch(options.channelId).catch(err => {
+        console.error(`Error fetching channel ${options.channelId}:`, err);
+        return null;
+      });
+      
+      if (!channel) {
+        console.error(`Channel ${options.channelId} not found in guild ${serverId}`);
+        return false;
+      }
+      
+      // Create ticket embed
+      const embed = new EmbedBuilder()
+        .setTitle(options.title || 'Support Tickets')
+        .setDescription(options.description || 'Please select a ticket type from the dropdown below to get assistance.')
+        .setColor(options.color ? parseInt(options.color.replace('#', ''), 16) : 0x9b59b6)
+        .setFooter({ 
+          text: 'SWOOSH Ticket System', 
+          iconURL: 'https://i.ibb.co/4g9LqWyK/swoosh.jpg' 
+        })
+        .setTimestamp();
+      
+      // Add image if provided
+      if (options.image) {
+        embed.setImage(options.image);
+      }
+      
+      // Parse ticket types if needed
+      let ticketTypes = options.ticketTypes;
+      if (typeof ticketTypes === 'string') {
+        try {
+          ticketTypes = JSON.parse(ticketTypes);
+        } catch (err) {
+          console.error('Error parsing ticket types:', err);
+          ticketTypes = [];
+        }
+      }
+      
+      // Create ticket type dropdown options
+      const selectMenuOptions = ticketTypes.map(type => ({
+        label: type.label || 'Support',
+        value: type.label ? type.label.toLowerCase().replace(/\s+/g, '_') : 'support',
+        emoji: type.emoji || '🎫',
+        description: type.description || 'Get support from our team'
+      }));
+      
+      // If no ticket types provided, add a default one
+      if (selectMenuOptions.length === 0) {
+        selectMenuOptions.push({
+          label: 'General Support',
+          value: 'general_support',
+          emoji: '🎫',
+          description: 'Get help from our team'
+        });
+      }
+      
+      // Create dropdown menu
+      const ticketMenu = new StringSelectMenuBuilder()
+        .setCustomId('ticket_menu')
+        .setPlaceholder('Select a ticket type...')
+        .addOptions(selectMenuOptions);
+      
+      // Create row with dropdown
+      const row = new ActionRowBuilder().addComponents(ticketMenu);
+      
+      // Send panel message
+      await channel.send({ embeds: [embed], components: [row] });
+      
+      // Log the action
+      if (client.logging) {
+        await client.logging.logAction('Ticket Panel Created', null, client.user, {
+          channel: channel
+        });
+      }
+      
       return true;
     } catch (error) {
       console.error('Error creating ticket panel:', error);
