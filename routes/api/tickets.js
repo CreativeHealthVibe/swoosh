@@ -166,11 +166,30 @@ router.post('/servers/:serverId/tickets/:ticketId/close', async (req, res) => {
       });
     }
     
-    // Close the ticket
-    const result = await ticketManager.closeTicket(serverId, ticketId, {
-      closedBy: req.user.id,
-      reason: reason || 'Closed by admin via dashboard'
-    });
+    // Close the ticket - we need to adapt the API for the admin panel
+    // Get the channel object first
+    const channel = guild.channels.cache.get(ticketId);
+    if (!channel) {
+      return res.status(404).json({
+        success: false,
+        message: 'Ticket channel not found'
+      });
+    }
+    
+    // Create mock interaction for compatibility
+    const mockInteraction = {
+      channel,
+      guild,
+      user: {
+        id: req.user.id,
+        toString: () => `<@${req.user.id}>`
+      },
+      deferReply: async () => {},
+      editReply: async () => {}
+    };
+    
+    // Call the standard closeTicket method with the mock interaction
+    await ticketManager.closeTicket(mockInteraction, client);
     
     if (!result || !result.success) {
       return res.status(400).json({

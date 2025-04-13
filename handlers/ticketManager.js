@@ -20,6 +20,9 @@ const adminUtils = require('../utils/admin');
 // Store active tickets
 const activeTickets = new Map();
 
+// Store ticket configurations by server ID
+const ticketConfigs = new Map();
+
 module.exports = {
   /**
    * Initialize ticket manager
@@ -31,6 +34,9 @@ module.exports = {
     if (!fs.existsSync(transcriptsDir)) {
       fs.mkdirSync(transcriptsDir, { recursive: true });
     }
+    
+    // Store client reference globally for API usage
+    global.client = client;
     
     console.log('🎫 Ticket Manager initialized');
   },
@@ -241,6 +247,201 @@ module.exports = {
    */
   getActiveTicketCount: () => {
     return activeTickets.size;
+  },
+  
+  /**
+   * Get tickets for a server
+   * @param {string} serverId - Discord server ID
+   * @returns {Array} - Array of tickets
+   */
+  getTickets: async (serverId) => {
+    try {
+      // For now, we'll return tickets from the activeTickets map that match the server ID
+      // In a future update, this could be expanded to load tickets from a database
+      const serverTickets = [];
+      
+      // Iterate through active tickets
+      for (const [channelId, ticket] of activeTickets.entries()) {
+        // If the channel belongs to this server, add it to the list
+        const client = global.client; // Assuming client is stored globally
+        if (client) {
+          const channel = client.channels.cache.get(channelId);
+          if (channel && channel.guild.id === serverId) {
+            // Get creator user if possible
+            let user = null;
+            if (ticket.userId) {
+              try {
+                user = await client.users.fetch(ticket.userId);
+              } catch (error) {
+                console.error('Error fetching ticket creator:', error);
+              }
+            }
+            
+            serverTickets.push({
+              id: channelId,
+              number: channelId.substring(0, 8), // Use first 8 characters as a "number"
+              channelId: channelId,
+              userId: ticket.userId,
+              user: user ? {
+                id: user.id,
+                username: user.username,
+                discriminator: user.discriminator || '0000',
+                avatar: user.displayAvatarURL({ dynamic: true })
+              } : null,
+              type: ticket.type,
+              status: 'OPEN',
+              createdAt: new Date(ticket.createdAt).toISOString(),
+              firstResponseTime: ticket.firstResponseTime || 0,
+              topic: ticket.topic || 'Support Request'
+            });
+          }
+        }
+      }
+      
+      return serverTickets;
+    } catch (error) {
+      console.error('Error getting tickets:', error);
+      return [];
+    }
+  },
+  
+  /**
+   * Get a specific ticket by ID
+   * @param {string} serverId - Discord server ID
+   * @param {string} ticketId - Ticket channel ID
+   * @returns {Object} - Ticket data
+   */
+  getTicketById: async (serverId, ticketId) => {
+    try {
+      // Check if ticket exists in active tickets
+      const ticket = activeTickets.get(ticketId);
+      if (!ticket) {
+        return null;
+      }
+      
+      // Check if ticket belongs to the specified server
+      const client = global.client; // Assuming client is stored globally
+      if (!client) {
+        return null;
+      }
+      
+      const channel = client.channels.cache.get(ticketId);
+      if (!channel || channel.guild.id !== serverId) {
+        return null;
+      }
+      
+      // Get creator user if possible
+      let user = null;
+      if (ticket.userId) {
+        try {
+          user = await client.users.fetch(ticket.userId);
+        } catch (error) {
+          console.error('Error fetching ticket creator:', error);
+        }
+      }
+      
+      // Return ticket data
+      return {
+        id: ticketId,
+        number: ticketId.substring(0, 8), // Use first 8 characters as a "number"
+        channelId: ticketId,
+        userId: ticket.userId,
+        user: user ? {
+          id: user.id,
+          username: user.username,
+          discriminator: user.discriminator || '0000',
+          avatar: user.displayAvatarURL({ dynamic: true })
+        } : null,
+        type: ticket.type,
+        status: 'OPEN',
+        createdAt: new Date(ticket.createdAt).toISOString(),
+        firstResponseTime: ticket.firstResponseTime || 0,
+        topic: ticket.topic || 'Support Request',
+        channelName: channel ? channel.name : `ticket-${ticketId.substring(0, 8)}`
+      };
+    } catch (error) {
+      console.error('Error getting ticket by ID:', error);
+      return null;
+    }
+  },
+  
+  /**
+   * Get ticket configuration for a server
+   * @param {string} serverId - Discord server ID
+   * @returns {Object} - Ticket configuration
+   */
+  getConfig: async (serverId) => {
+    // Return existing config or null if none exists
+    return ticketConfigs.get(serverId) || null;
+  },
+  
+  /**
+   * Set ticket configuration for a server
+   * @param {string} serverId - Discord server ID
+   * @param {Object} config - Ticket configuration
+   * @returns {Object} - Result with success flag and config
+   */
+  setConfig: async (serverId, config) => {
+    try {
+      // Store config
+      ticketConfigs.set(serverId, config);
+      
+      return {
+        success: true,
+        config
+      };
+    } catch (error) {
+      console.error('Error setting ticket configuration:', error);
+      return {
+        success: false,
+        message: error.message
+      };
+    }
+  },
+  
+  /**
+   * Send a ticket panel to a channel
+   * @param {Object} channel - Discord channel
+   * @param {Object} options - Panel options
+   * @returns {Object} - Result with success flag
+   */
+  sendTicketPanel: async (channel, options) => {
+    try {
+      // Create ticket embed
+      const embed = new EmbedBuilder()
+        .setTitle(options.title || '🎫 Support Tickets')
+        .setDescription(options.description || 'Click the button below to create a support ticket.')
+        .setColor(config.embedColor)
+        .setFooter({ 
+          text: 'SWOOSH Ticket System', 
+          iconURL: 'https://i.ibb.co/4g9LqWK/swoosh.jpg' 
+        })
+        .setTimestamp();
+      
+      // Create button
+      const button = new ButtonBuilder()
+        .setCustomId('ticket_button')
+        .setLabel(options.buttonLabel || 'Create Ticket')
+        .setStyle(ButtonStyle.Primary)
+        .setEmoji('🎫');
+      
+      // Create row with button
+      const row = new ActionRowBuilder().addComponents(button);
+      
+      // Send panel message
+      await channel.send({ embeds: [embed], components: [row] });
+      
+      return {
+        success: true,
+        message: 'Ticket panel sent successfully'
+      };
+    } catch (error) {
+      console.error('Error sending ticket panel:', error);
+      return {
+        success: false,
+        message: error.message
+      };
+    }
   }
 };
 
