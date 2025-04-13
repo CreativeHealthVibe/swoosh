@@ -18,21 +18,21 @@
   let tooltip = null;
   let animationStartTimestamp = Date.now();
   
-  // Enterprise Premium Configuration - $55k Value
+  // Enterprise Premium Configuration - $55k Value - BLACK EDITION
   const CONFIG = {
     COLORS: {
-      BACKGROUND: 0x0a0e1b,    // Premium dark background
-      RING: 0x8936ff,          // Purple ring
-      RING_INNER: 0xb76eff,    // Inner ring highlight
-      OPEN: 0x00bf9a,          // Teal for open tickets
-      OPEN_GLOW: 0x4dffd9,     // Open ticket glow
-      CLOSED: 0x6c757d,        // Grey for closed tickets
-      CLOSED_GLOW: 0xbdbdbd,   // Closed ticket glow
-      PRIORITY_HIGH: 0xff5252, // High priority
-      PRIORITY_MED: 0xffc107,  // Medium priority
-      GROUND: 0x162447,        // Ground plane
-      UI_HIGHLIGHT: 0x4fc3f7,  // UI highlight color
-      HIGHLIGHT: 0xb76eff,     // Keep original highlight color
+      BACKGROUND: 0x000000,    // Black background
+      RING: 0x333333,          // Dark ring
+      RING_INNER: 0x444444,    // Inner ring highlight
+      OPEN: 0x1a1a1a,          // Dark for open tickets
+      OPEN_GLOW: 0x333333,     // Dark gray ticket glow
+      CLOSED: 0x121212,        // Darker grey for closed tickets
+      CLOSED_GLOW: 0x222222,   // Dark grey glow
+      PRIORITY_HIGH: 0x333333, // High priority
+      PRIORITY_MED: 0x222222,  // Medium priority
+      GROUND: 0x050505,        // Almost black ground plane
+      UI_HIGHLIGHT: 0x333333,  // UI highlight color
+      HIGHLIGHT: 0x444444,     // Highlight color
     },
     ORBITAL_RADIUS: 5,
     TICKET_SIZE: 0.4,
@@ -75,7 +75,7 @@
       ENABLED: true,
       COUNT: 100,
       SIZE: 0.05,
-      COLOR: 0x4fc3f7,
+      COLOR: 0x222222,
     }
   };
 
@@ -134,11 +134,11 @@
     tooltip.style.position = 'fixed';
     tooltip.style.pointerEvents = 'none';
     tooltip.style.zIndex = '9999';
-    tooltip.style.background = 'rgba(10, 14, 30, 0.85)';
+    tooltip.style.background = 'rgba(0, 0, 0, 0.85)';
     tooltip.style.borderRadius = '6px';
-    tooltip.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)';
+    tooltip.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)';
     tooltip.style.backdropFilter = 'blur(10px)';
-    tooltip.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    tooltip.style.border = '1px solid rgba(85, 85, 85, 0.2)';
     tooltip.style.padding = '12px 16px';
     tooltip.style.color = '#ffffff';
     tooltip.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
