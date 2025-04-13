@@ -94,6 +94,15 @@
   // Initialize the THREE.js scene
   function initScene() {
     try {
+      // Get references to DOM elements
+      const threeContainer = document.getElementById('three-container');
+      const loadingElement = document.querySelector('.ticket3d-loading');
+      
+      if (!threeContainer) {
+        console.error('Could not find three-container element');
+        return;
+      }
+      
       // Setup scene
       scene = new THREE.Scene();
       scene.background = new THREE.Color(CONFIG.COLORS.BACKGROUND);
@@ -104,14 +113,18 @@
       
       // Setup renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(threeContainer.clientWidth, threeContainer.clientHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.shadowMap.enabled = true;
       
-      // Get the container element
-      const container = document.getElementById('three-container');
-      container.innerHTML = '';
-      container.appendChild(renderer.domElement);
+      // Clear and add renderer to container
+      threeContainer.innerHTML = '';
+      threeContainer.appendChild(renderer.domElement);
+      
+      // Hide loading spinner
+      if (loadingElement) {
+        loadingElement.style.display = 'none';
+      }
       
       // Add lighting
       addLighting();
@@ -389,16 +402,20 @@
   function onWindowResize() {
     if (!camera || !renderer) return;
     
+    // Get container element
+    const threeContainer = document.getElementById('three-container');
+    if (!threeContainer) return;
+    
     // Update camera aspect ratio
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = threeContainer.clientWidth / threeContainer.clientHeight;
     camera.updateProjectionMatrix();
     
     // Update renderer size
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(threeContainer.clientWidth, threeContainer.clientHeight);
     
     // Update composer if it exists
     if (composer) {
-      composer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(threeContainer.clientWidth, threeContainer.clientHeight);
     }
   }
 
