@@ -191,6 +191,9 @@ router.post('/servers/:serverId/tickets/:ticketId/close', async (req, res) => {
     // Call the standard closeTicket method with the mock interaction
     await ticketManager.closeTicket(mockInteraction, client);
     
+    // Since the closeTicket method doesn't return a result, we'll assume success if no exception was thrown
+    const result = { success: true };
+    
     if (!result || !result.success) {
       return res.status(400).json({
         success: false,

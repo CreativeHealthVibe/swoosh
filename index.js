@@ -145,6 +145,9 @@ client.once('ready', async () => {
     // Initialize ticket and bounty managers
     ticketManager.init(client);
     bountyManager.init(client);
+    
+    // Register managers in Express app for API use
+    app.set('ticketManager', ticketManager);
     console.log('✅ Ticket and Bounty systems initialized');
     
     // Initialize Discord Database Manager
