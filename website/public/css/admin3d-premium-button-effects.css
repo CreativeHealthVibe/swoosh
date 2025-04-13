@@ -1,0 +1,181 @@
+/* Ultra Premium Button Effects */
+
+.premium-btn {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  border: none !important;
+}
+
+/* Water ripple effect */
+.btn-ripple {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 0.6s ease-out;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Glow effect enhancement */
+.premium-glow {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+              0 0 0 rgba(114, 137, 218, 0);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.premium-glow:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(114, 137, 218, 0.5);
+}
+
+.premium-glow:active {
+  transform: translateY(2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4),
+              0 0 10px rgba(114, 137, 218, 0.2);
+}
+
+/* Enhanced primary button */
+.premium-primary {
+  background: linear-gradient(135deg, #7289da 0%, #4e62b3 100%);
+  color: white;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.premium-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #7289da 0%, #4e62b3 100%);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.premium-primary:hover {
+  background: linear-gradient(135deg, #8399e9 0%, #5c70c1 100%);
+  transform: translateY(-2px);
+}
+
+/* Enhanced secondary button */
+.premium-secondary {
+  background: linear-gradient(135deg, #36393f 0%, #2f3136 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border: 1px solid rgba(114, 137, 218, 0.3);
+}
+
+.premium-secondary:hover {
+  background: linear-gradient(135deg, #40444b 0%, #36393f 100%);
+  border-color: rgba(114, 137, 218, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Ultra premium effect - neon glow on hover */
+.premium-neon {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+              0 0 0 rgba(114, 137, 218, 0);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.premium-neon:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(114, 137, 218, 0.7),
+              0 0 40px rgba(114, 137, 218, 0.4),
+              0 0 60px rgba(114, 137, 218, 0.1);
+  animation: pulse-neon 1.5s infinite alternate;
+}
+
+@keyframes pulse-neon {
+  0% {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(114, 137, 218, 0.7),
+              0 0 40px rgba(114, 137, 218, 0.4),
+              0 0 60px rgba(114, 137, 218, 0.1);
+  }
+  100% {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+              0 0 15px rgba(114, 137, 218, 0.6),
+              0 0 30px rgba(114, 137, 218, 0.3),
+              0 0 50px rgba(114, 137, 218, 0.1);
+  }
+}
+
+/* Button size variations */
+.premium-lg {
+  padding: 14px 28px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.premium-md {
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+.premium-sm {
+  padding: 6px 14px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+/* Button with icon alignment */
+.premium-btn i {
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.premium-btn:hover i {
+  transform: translateX(-2px) scale(1.1);
+}
+
+/* Premium glass button */
+.premium-glass {
+  background: rgba(30, 30, 40, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.premium-glass:hover {
+  background: rgba(40, 40, 50, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Gradient text for buttons */
+.premium-gradient-text {
+  background: linear-gradient(90deg, #ffffff, #7289da);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+
+/* Loading state for buttons */
+.premium-btn.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.premium-btn.loading i {
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

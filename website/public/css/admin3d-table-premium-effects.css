@@ -1,0 +1,244 @@
+/* Ultra Premium Table Effects */
+
+/* Premium table styling */
+.premium-table {
+  background: transparent;
+  border: none;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.premium-table thead th {
+  background: linear-gradient(135deg, rgba(20,20,26,0.95) 0%, rgba(30,30,40,0.9) 100%);
+  color: #ffffff;
+  border: none;
+  padding: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+  position: relative;
+  transition: all 0.3s ease;
+  border-bottom: 2px solid rgba(114, 137, 218, 0.3);
+}
+
+.premium-table thead th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.premium-table thead th:last-child {
+  border-top-right-radius: 10px;
+}
+
+/* Animated gradient line under header */
+.premium-table thead::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+                              rgba(114, 137, 218, 0.1), 
+                              rgba(114, 137, 218, 0.6),
+                              rgba(114, 137, 218, 0.1));
+  animation: slide-gradient 3s linear infinite;
+}
+
+@keyframes slide-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Table rows */
+.premium-table tbody tr {
+  background: rgba(30, 30, 40, 0.3);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-left: 2px solid transparent;
+  position: relative;
+}
+
+.premium-table tbody tr:nth-child(odd) {
+  background: rgba(20, 20, 30, 0.4);
+}
+
+.premium-table tbody tr:hover {
+  background: rgba(50, 50, 70, 0.5);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  border-left: 2px solid rgba(114, 137, 218, 0.7);
+  z-index: 1;
+}
+
+/* Table cells */
+.premium-table tbody td {
+  border: none;
+  padding: 12px 15px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.premium-table tbody tr:hover td {
+  color: #ffffff;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Column highlight effect */
+.premium-table td:hover::after,
+.premium-table th:hover::after {
+  content: '';
+  position: absolute;
+  background-color: rgba(114, 137, 218, 0.05);
+  left: 0;
+  top: -5000px;
+  height: 10000px;
+  width: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Status indicators */
+.premium-table .status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  position: relative;
+}
+
+.premium-table .status-indicator::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.premium-table .status-open {
+  background-color: #57F287;
+  box-shadow: 0 0 8px rgba(87, 242, 135, 0.5);
+}
+
+.premium-table .status-open::after {
+  background: radial-gradient(circle, rgba(87, 242, 135, 0.5) 0%, rgba(87, 242, 135, 0) 70%);
+  animation: pulse-status 1.5s infinite;
+}
+
+.premium-table .status-closed {
+  background-color: #ED4245;
+  box-shadow: 0 0 8px rgba(237, 66, 69, 0.5);
+}
+
+.premium-table tr:hover .status-indicator::after {
+  opacity: 1;
+}
+
+@keyframes pulse-status {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Action buttons within table */
+.premium-table .action-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.9rem;
+  margin: 0 3px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.premium-table .action-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.premium-table .action-btn.view {
+  background: rgba(114, 137, 218, 0.2);
+}
+
+.premium-table .action-btn.edit {
+  background: rgba(87, 242, 135, 0.2);
+}
+
+.premium-table .action-btn.delete {
+  background: rgba(237, 66, 69, 0.2);
+}
+
+.premium-table .action-btn:hover.view {
+  background: rgba(114, 137, 218, 0.4);
+  box-shadow: 0 0 8px rgba(114, 137, 218, 0.3);
+}
+
+.premium-table .action-btn:hover.edit {
+  background: rgba(87, 242, 135, 0.4);
+  box-shadow: 0 0 8px rgba(87, 242, 135, 0.3);
+}
+
+.premium-table .action-btn:hover.delete {
+  background: rgba(237, 66, 69, 0.4);
+  box-shadow: 0 0 8px rgba(237, 66, 69, 0.3);
+}
+
+/* Empty state styling */
+.premium-table .no-tickets-row td {
+  text-align: center;
+  padding: 30px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  background: linear-gradient(135deg, rgba(20,20,26,0.6) 0%, rgba(30,30,40,0.5) 100%);
+}
+
+.premium-table .no-tickets-row td::before {
+  content: '\f4b8';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: rgba(114, 137, 218, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .premium-table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .premium-table thead th {
+    padding: 10px;
+    font-size: 0.8rem;
+  }
+  
+  .premium-table tbody td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+}
