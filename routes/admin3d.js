@@ -545,21 +545,7 @@ router.delete('/moderation/delete-filter/:serverId/:filterId', async (req, res) 
   }
 });
 
-/**
- * GET /admin3d/tickets
- * Ticket management interface
- */
-router.get('/tickets', (req, res) => {
-  const client = req.app.get('client');
-  
-  // Render ticket management page
-  res.render('admin3d/tickets', {
-    title: 'Ticket Management | SWOOSH Bot',
-    user: req.user,
-    client,
-    layout: 'layouts/admin3d'
-  });
-});
+// Ticket routes are now handled by the ticket-routes.js module
 
 /**
  * GET /admin3d/messages
@@ -1197,6 +1183,7 @@ router.get('/profile', async (req, res) => {
 router.use('/', directBanRoutes);
 router.use('/', warningRoutes);
 router.use('/moderation', automodRoutes);
+router.use('/tickets', ticketRoutes);
 
 // Add a link in the moderation page to the direct ban access
 router.get('/moderation-emergency', (req, res) => {
