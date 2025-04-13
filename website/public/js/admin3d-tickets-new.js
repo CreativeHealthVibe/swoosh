@@ -110,6 +110,53 @@ function initTicketsPage() {
 }
 
 /**
+ * Load server list into server select dropdown
+ */
+async function loadServerList() {
+  console.log('Loading server list...');
+  
+  // Show loading state
+  if (serverSelect) {
+    serverSelect.innerHTML = '<option value="" disabled selected>Loading servers...</option>';
+  
+    try {
+      // Fetch servers from API
+      const response = await fetch('/api/v2/servers');
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to load servers');
+      }
+      
+      const servers = data.servers || [];
+      
+      if (servers.length === 0) {
+        serverSelect.innerHTML = '<option value="" disabled selected>No servers found</option>';
+        return;
+      }
+      
+      // Populate dropdown
+      serverSelect.innerHTML = '<option value="" disabled selected>Select a server</option>';
+      
+      servers.forEach(server => {
+        const option = document.createElement('option');
+        option.value = server.id;
+        option.textContent = server.name;
+        serverSelect.appendChild(option);
+      });
+      
+      console.log(`Loaded ${servers.length} servers`);
+    } catch (error) {
+      console.error('Error loading servers:', error);
+      serverSelect.innerHTML = '<option value="" disabled selected>Error loading servers</option>';
+      createNotification('error', 'Error', `Failed to load servers: ${error.message}`);
+    }
+  } else {
+    console.error('Server select element not found');
+  }
+}
+
+/**
  * Handle server selection change
  */
 async function handleServerChange() {
@@ -546,8 +593,8 @@ async function openTicketInfoModal(ticketId) {
           </div>
           <div class="ticket-message-content">
             <div class="ticket-message-header">
-              <div class="ticket-message-name">${escapeHTML(message.author.username)}</div>
-              <div class="ticket-message-time">${timeFormatted}</div>
+              <span class="ticket-message-author">${escapeHTML(message.author.username)}</span>
+              <span class="ticket-message-time">${timeFormatted}</span>
             </div>
             <div class="ticket-message-text">${escapeHTML(message.content)}</div>
           </div>
@@ -557,7 +604,7 @@ async function openTicketInfoModal(ticketId) {
       });
     }
   } catch (error) {
-    console.error('Error loading ticket messages:', error);
+    console.error('Error loading messages:', error);
     messagesContainer.innerHTML = `
       <div class="error-message">
         <i class="fas fa-exclamation-triangle"></i>
@@ -566,19 +613,7 @@ async function openTicketInfoModal(ticketId) {
     `;
   }
   
-  // Update button visibility
-  const downloadButton = document.querySelector('[data-action="download-transcript"]');
-  const closeTicketButton = document.querySelector('[data-action="close-ticket"]');
-  
-  if (downloadButton) {
-    downloadButton.style.display = 'block';
-  }
-  
-  if (closeTicketButton) {
-    closeTicketButton.style.display = ticket.status.toLowerCase() === 'open' ? 'block' : 'none';
-  }
-  
-  // Show the modal
+  // Show modal
   ticketInfoModal.classList.add('active');
 }
 
@@ -598,68 +633,104 @@ function openCloseTicketModal(ticketId) {
   // Set ticket ID
   closeTicketModal.setAttribute('data-ticket-id', ticketId);
   
-  // Reset form
-  document.getElementById('close-ticket-form').reset();
+  // Update modal content
+  document.getElementById('close-ticket-name').textContent = ticket.user ? ticket.user.username : 'Unknown User';
+  document.getElementById('close-ticket-id').textContent = ticket.id || `#${ticket.number}`;
   
-  // Show the modal
+  // Show modal
   closeTicketModal.classList.add('active');
 }
 
 /**
- * Handle saving ticket configuration
- * @param {Event} e - Form submit event
+ * Handle close ticket confirmation
  */
-async function handleSaveConfig(e) {
-  e.preventDefault();
+async function handleCloseTicket() {
+  const ticketId = closeTicketModal.getAttribute('data-ticket-id');
+  
+  if (!ticketId) {
+    createNotification('error', 'Error', 'Invalid ticket ID');
+    return;
+  }
+  
+  // Get reason
+  const reason = document.getElementById('close-reason').value;
+  
+  // Disable button to prevent multiple submissions
+  const confirmButton = document.querySelector('[data-action="confirm-close"]');
+  confirmButton.disabled = true;
+  confirmButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Closing...';
+  
+  try {
+    // Submit close request
+    const response = await fetch(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/close`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ reason })
+    });
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to close ticket');
+    }
+    
+    // Show success notification
+    createNotification('success', 'Success', 'Ticket closed successfully');
+    
+    // Close modal
+    closeAllModals();
+    
+    // Reload tickets
+    loadTickets();
+  } catch (error) {
+    console.error('Error closing ticket:', error);
+    createNotification('error', 'Error', `Failed to close ticket: ${error.message}`);
+  } finally {
+    // Re-enable button
+    confirmButton.disabled = false;
+    confirmButton.innerHTML = 'Close Ticket';
+  }
+}
+
+/**
+ * Handle save ticket configuration
+ * @param {Event} event - Form submit event
+ */
+async function handleSaveConfig(event) {
+  event.preventDefault();
   
   if (!currentServerId) {
     createNotification('error', 'Error', 'No server selected');
     return;
   }
   
-  // Get form data
-  const formData = new FormData(ticketConfigForm);
-  
-  // Convert to config object
-  const config = {
-    // Basic settings
-    categoryId: formData.get('categoryId'),
-    supportRoleId: formData.get('supportRoleId'),
-    logChannelId: formData.get('logChannelId'),
-    maxTickets: parseInt(formData.get('maxTickets')),
-    cooldown: parseInt(formData.get('cooldown')),
-    
-    // Advanced settings
-    autoTranscript: formData.get('autoTranscript') === 'on',
-    autoClose: formData.get('autoClose') === 'on',
-    requireTopic: formData.get('requireTopic') === 'on',
-    useThreads: formData.get('useThreads') === 'on',
-    inactiveHours: parseInt(formData.get('inactiveHours')),
-    autoCloseMessage: formData.get('autoCloseMessage'),
-    
-    // Messages
-    welcomeMessage: formData.get('welcomeMessage'),
-    closeMessage: formData.get('closeMessage')
-  };
-  
-  // Validate required fields
-  if (!config.categoryId) {
-    createNotification('error', 'Error', 'Ticket category is required');
-    return;
-  }
-  
-  if (!config.supportRoleId) {
-    createNotification('error', 'Error', 'Support role is required');
-    return;
-  }
+  // Disable submit button
+  const submitButton = event.target.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
   
   try {
-    // Show loading state
-    const submitButton = ticketConfigForm.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    // Gather form data
+    const formData = new FormData(event.target);
+    const config = {
+      categoryId: formData.get('category-id'),
+      supportRoleId: formData.get('support-role-id'),
+      logChannelId: formData.get('log-channel-id'),
+      maxTickets: parseInt(formData.get('max-tickets'), 10),
+      cooldown: parseInt(formData.get('cooldown'), 10),
+      autoTranscript: formData.get('auto-transcript') === 'on',
+      autoClose: formData.get('auto-close') === 'on',
+      requireTopic: formData.get('require-topic') === 'on',
+      useThreads: formData.get('use-threads') === 'on',
+      inactiveHours: parseInt(formData.get('inactive-hours'), 10),
+      autoCloseMessage: formData.get('auto-close-message'),
+      welcomeMessage: formData.get('welcome-message'),
+      closeMessage: formData.get('close-message')
+    };
     
-    // Send request to API
+    // Submit config
     const response = await fetch(`/api/v2/servers/${currentServerId}/ticket-config`, {
       method: 'POST',
       headers: {
@@ -670,80 +741,62 @@ async function handleSaveConfig(e) {
     
     const data = await response.json();
     
-    // Reset button state
-    submitButton.disabled = false;
-    submitButton.innerHTML = '<i class="fas fa-save"></i> Save Configuration';
-    
     if (!data.success) {
       throw new Error(data.message || 'Failed to save ticket configuration');
     }
     
-    // Update config
-    ticketConfig = data.config || config;
+    // Update stored config
+    ticketConfig = data.config;
     
     // Show success notification
     createNotification('success', 'Success', 'Ticket configuration saved successfully');
   } catch (error) {
     console.error('Error saving ticket configuration:', error);
     createNotification('error', 'Error', `Failed to save ticket configuration: ${error.message}`);
-    
-    // Reset button state
-    const submitButton = ticketConfigForm.querySelector('button[type="submit"]');
+  } finally {
+    // Re-enable submit button
     submitButton.disabled = false;
-    submitButton.innerHTML = '<i class="fas fa-save"></i> Save Configuration';
+    submitButton.innerHTML = 'Save Configuration';
   }
 }
 
 /**
- * Handle sending ticket panel
- * @param {Event} e - Form submit event
+ * Handle send ticket panel
+ * @param {Event} event - Form submit event
  */
-async function handleSendPanel(e) {
-  e.preventDefault();
+async function handleSendPanel(event) {
+  event.preventDefault();
   
   if (!currentServerId) {
     createNotification('error', 'Error', 'No server selected');
     return;
   }
   
-  // Get form data
-  const formData = new FormData(ticketPanelForm);
-  const channelId = formData.get('channelId');
-  const title = formData.get('title') || 'Support Tickets';
-  const description = formData.get('description') || 'Click the button below to create a support ticket.';
-  const buttonLabel = formData.get('buttonLabel') || 'Create Ticket';
-  
-  // Validate required fields
-  if (!channelId) {
-    createNotification('error', 'Error', 'Channel is required');
-    return;
-  }
+  // Disable submit button
+  const submitButton = event.target.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
   
   try {
-    // Show loading state
-    const submitButton = ticketPanelForm.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    // Gather form data
+    const formData = new FormData(event.target);
+    const panelData = {
+      channelId: formData.get('panel-channel'),
+      title: formData.get('panel-title'),
+      description: formData.get('panel-description'),
+      buttonLabel: formData.get('panel-button-label')
+    };
     
-    // Send request to API
+    // Submit panel
     const response = await fetch(`/api/v2/servers/${currentServerId}/ticket-panel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        channelId,
-        title,
-        description,
-        buttonLabel
-      })
+      body: JSON.stringify(panelData)
     });
     
     const data = await response.json();
-    
-    // Reset button state
-    submitButton.disabled = false;
-    submitButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send Ticket Panel';
     
     if (!data.success) {
       throw new Error(data.message || 'Failed to send ticket panel');
@@ -753,79 +806,14 @@ async function handleSendPanel(e) {
     createNotification('success', 'Success', 'Ticket panel sent successfully');
     
     // Reset form
-    ticketPanelForm.reset();
-    
-    // Reset channel select
-    populateChannelSelect(panelChannelSelect, serverChannels);
+    event.target.reset();
   } catch (error) {
     console.error('Error sending ticket panel:', error);
     createNotification('error', 'Error', `Failed to send ticket panel: ${error.message}`);
-    
-    // Reset button state
-    const submitButton = ticketPanelForm.querySelector('button[type="submit"]');
+  } finally {
+    // Re-enable submit button
     submitButton.disabled = false;
-    submitButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send Ticket Panel';
-  }
-}
-
-/**
- * Handle closing a ticket
- */
-async function handleCloseTicket() {
-  // Get ticket ID from modal
-  const ticketId = closeTicketModal.getAttribute('data-ticket-id');
-  
-  if (!currentServerId || !ticketId) {
-    createNotification('error', 'Error', 'Invalid server or ticket ID');
-    return;
-  }
-  
-  // Get reason
-  const reason = document.getElementById('close-reason').value;
-  
-  try {
-    // Show loading state
-    const closeButton = closeTicketModal.querySelector('[data-action="confirm-close"]');
-    closeButton.disabled = true;
-    closeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Closing...';
-    
-    // Send request to API
-    const response = await fetch(`/api/v2/servers/${currentServerId}/tickets/${ticketId}/close`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        reason
-      })
-    });
-    
-    const data = await response.json();
-    
-    // Reset button state
-    closeButton.disabled = false;
-    closeButton.innerHTML = 'Close Ticket';
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to close ticket');
-    }
-    
-    // Show success notification
-    createNotification('success', 'Success', 'Ticket closed successfully');
-    
-    // Close modals
-    closeAllModals();
-    
-    // Reload tickets
-    await loadTickets();
-  } catch (error) {
-    console.error('Error closing ticket:', error);
-    createNotification('error', 'Error', `Failed to close ticket: ${error.message}`);
-    
-    // Reset button state
-    const closeButton = closeTicketModal.querySelector('[data-action="confirm-close"]');
-    closeButton.disabled = false;
-    closeButton.innerHTML = 'Close Ticket';
+    submitButton.innerHTML = 'Send Panel';
   }
 }
 
@@ -863,18 +851,37 @@ function closeAllModals() {
 function populateChannelSelect(selectEl, channels) {
   if (!selectEl) return;
   
-  // Clear options
-  selectEl.innerHTML = '<option value="">Select a channel</option>';
+  // Clear dropdown
+  selectEl.innerHTML = '<option value="" disabled selected>Select a channel</option>';
   
-  // Sort channels by name
-  const sortedChannels = [...channels].sort((a, b) => a.name.localeCompare(b.name));
+  // Sort channels
+  const sortedChannels = [...channels].sort((a, b) => {
+    // Sort by category first
+    if (a.parentId !== b.parentId) {
+      return a.parentId ? (b.parentId ? 0 : -1) : 1;
+    }
+    
+    // Then sort by position
+    if (a.position !== b.position) {
+      return a.position - b.position;
+    }
+    
+    // Finally sort by name
+    return a.name.localeCompare(b.name);
+  });
   
-  // Add options
+  // Add channels to dropdown
   sortedChannels.forEach(channel => {
-    const option = document.createElement('option');
-    option.value = channel.id;
-    option.textContent = `#${channel.name}`;
-    selectEl.appendChild(option);
+    if (channel.type === 0) { // Text channel
+      const option = document.createElement('option');
+      option.value = channel.id;
+      
+      // Add category name if available
+      const category = serverCategories.find(c => c.id === channel.parentId);
+      option.textContent = category ? `${category.name} / #${channel.name}` : `#${channel.name}`;
+      
+      selectEl.appendChild(option);
+    }
   });
 }
 
@@ -886,13 +893,13 @@ function populateChannelSelect(selectEl, channels) {
 function populateCategorySelect(selectEl, categories) {
   if (!selectEl) return;
   
-  // Clear options
-  selectEl.innerHTML = '<option value="">Select a category</option>';
+  // Clear dropdown
+  selectEl.innerHTML = '<option value="" disabled selected>Select a category</option>';
   
-  // Sort categories by name
-  const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+  // Sort categories by position
+  const sortedCategories = [...categories].sort((a, b) => a.position - b.position);
   
-  // Add options
+  // Add categories to dropdown
   sortedCategories.forEach(category => {
     const option = document.createElement('option');
     option.value = category.id;
@@ -909,23 +916,111 @@ function populateCategorySelect(selectEl, categories) {
 function populateRoleSelect(selectEl, roles) {
   if (!selectEl) return;
   
-  // Clear options
-  selectEl.innerHTML = '<option value="">Select a role</option>';
+  // Clear dropdown
+  selectEl.innerHTML = '<option value="" disabled selected>Select a role</option>';
   
-  // Sort roles by name
-  const sortedRoles = [...roles].sort((a, b) => a.name.localeCompare(b.name));
+  // Sort roles by position (highest first)
+  const sortedRoles = [...roles].sort((a, b) => b.position - a.position);
   
-  // Add options
+  // Add roles to dropdown
   sortedRoles.forEach(role => {
-    const option = document.createElement('option');
-    option.value = role.id;
-    option.textContent = role.name;
-    selectEl.appendChild(option);
+    if (!role.managed && role.id !== currentServerId) { // Skip managed roles and @everyone
+      const option = document.createElement('option');
+      option.value = role.id;
+      option.textContent = role.name;
+      
+      // Add color indicator
+      if (role.color) {
+        const colorHex = role.color.toString(16).padStart(6, '0');
+        option.style.backgroundColor = `#${colorHex}20`; // 20 = 12.5% opacity
+        option.style.color = `#${colorHex}`;
+        option.style.fontWeight = 'bold';
+      }
+      
+      selectEl.appendChild(option);
+    }
   });
 }
 
 /**
- * Format duration in seconds to human-readable string
+ * Create a notification toast
+ * @param {string} type - Notification type (success, error, info, warning)
+ * @param {string} title - Notification title
+ * @param {string} message - Notification message
+ */
+function createNotification(type, title, message) {
+  // Create container if it doesn't exist
+  let container = document.getElementById('notification-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'notification-container';
+    document.body.appendChild(container);
+  }
+  
+  // Create notification
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  
+  // Generate unique ID
+  const id = `notification-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  notification.id = id;
+  
+  // Set content
+  notification.innerHTML = `
+    <div class="notification-icon">
+      <i class="fas ${getIconForType(type)}"></i>
+    </div>
+    <div class="notification-content">
+      <div class="notification-title">${title}</div>
+      <div class="notification-message">${message}</div>
+    </div>
+    <button class="notification-close" onclick="document.getElementById('${id}').remove()">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  
+  // Add to container
+  container.appendChild(notification);
+  
+  // Animate in
+  setTimeout(() => {
+    notification.classList.add('active');
+  }, 10);
+  
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    if (document.getElementById(id)) {
+      notification.classList.remove('active');
+      setTimeout(() => {
+        if (document.getElementById(id)) {
+          document.getElementById(id).remove();
+        }
+      }, 300);
+    }
+  }, 5000);
+}
+
+/**
+ * Get icon for notification type
+ * @param {string} type - Notification type
+ * @returns {string} - Icon class
+ */
+function getIconForType(type) {
+  switch (type) {
+    case 'success':
+      return 'fa-check-circle';
+    case 'error':
+      return 'fa-exclamation-circle';
+    case 'warning':
+      return 'fa-exclamation-triangle';
+    case 'info':
+    default:
+      return 'fa-info-circle';
+  }
+}
+
+/**
+ * Format duration in seconds to a readable string
  * @param {number} seconds - Duration in seconds
  * @returns {string} - Formatted duration
  */
@@ -960,5 +1055,5 @@ function escapeHTML(text) {
     .replace(/'/g, '&#039;');
 }
 
-// Initialize on page load
+// Initialize tickets page when DOM is ready
 document.addEventListener('DOMContentLoaded', initTicketsPage);
