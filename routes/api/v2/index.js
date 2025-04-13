@@ -1,31 +1,30 @@
 /**
- * API v2 Routes Index
- * Central file for registering all API v2 routes
+ * API v2 Routes
+ * API endpoints for the version 2 of the SWOOSH Bot API
  */
 const express = require('express');
 const router = express.Router();
-const { isAdmin, isAuthenticated } = require('../../../middlewares/auth');
+const { isAuthenticated, isAdmin } = require('../../../middlewares/auth');
 
-// Import route handlers
-const serverRoutes = require('./servers');
+// Import route modules
 const ticketRoutes = require('./ticket-routes');
 
-// Middleware for all API routes
+// Apply basic authentication middleware to all routes
 router.use(isAuthenticated);
 
-// Register routes
-router.use('/servers', serverRoutes);
+// Use ticket routes
 router.use('/', ticketRoutes);
 
-// API Status check
-router.get('/status', (req, res) => {
-  const ticketManager = req.app.get('ticketManager');
-  
+// GET /api/v2/info
+// Basic API info
+router.get('/info', (req, res) => {
   res.json({
     success: true,
-    timestamp: new Date().toISOString(),
-    version: '2.0.0',
-    ticketManagerAvailable: !!ticketManager
+    api: {
+      name: 'SWOOSH Bot API',
+      version: 'v2',
+      status: 'active'
+    }
   });
 });
 

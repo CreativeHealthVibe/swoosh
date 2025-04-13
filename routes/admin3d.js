@@ -1179,6 +1179,8 @@ router.get('/profile', async (req, res) => {
   });
 });
 
+// Ticket routes already imported at the top
+
 // Register routes
 router.use('/', directBanRoutes);
 router.use('/', warningRoutes);
