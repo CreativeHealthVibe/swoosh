@@ -238,6 +238,14 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
+    // Store all tickets globally for 3D visualization
+    window.allTickets = tickets;
+    
+    // Update 3D visualization if available
+    if (typeof window.update3DTickets === 'function') {
+      window.update3DTickets(tickets);
+    }
+    
     // Clear existing rows
     ticketListBody.innerHTML = '';
     
@@ -350,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
     displayTickets(filteredTickets);
     
     // Update 3D view with filtered tickets if premium feature is available
-    if (window.update3DTickets) {
+    if (typeof window.update3DTickets === 'function') {
       window.update3DTickets(filteredTickets);
     }
   }

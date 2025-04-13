@@ -90,6 +90,9 @@
   
   <!-- Page-specific scripts - only load what's needed -->
   <% if (title.includes('Ticket')) { %>
+    <!-- THREE.js Core Library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/build/three.min.js"></script>
+    
     <!-- Three.js Post-Processing Dependencies for 3D Ticket Effects -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/EffectComposer.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.151.0/examples/js/postprocessing/RenderPass.js" defer></script>
