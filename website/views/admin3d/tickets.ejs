@@ -271,79 +271,87 @@
 
     <!-- Panels Tab -->
     <div class="tab-pane fade" id="panels-content">
-      <div class="panels-container">
-        <h3>Ticket Panels</h3>
-        <p>Create and manage ticket panels in your server</p>
-
-        <form id="panel-form">
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Channel</label>
-            <div class="col-sm-9">
-              <select id="panel-channel-id" name="channelId" class="form-control" required>
+      <div class="dashboard-header">
+        <h1 class="section-title">Ticket Panels</h1>
+      </div>
+      
+      <p class="section-description">
+        Create and manage ticket panels for your Discord servers.
+      </p>
+      
+      <div class="admin3d-card">
+        <div class="admin3d-card-header">
+          <div>
+            <div class="admin3d-card-icon">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+          </div>
+          <h3 class="admin3d-card-title">Create Ticket Panel</h3>
+        </div>
+        
+        <div class="admin3d-card-content">
+          <p class="admin3d-card-description">
+            Configure and create a new ticket panel to be sent to a channel in your server.
+          </p>
+          
+          <form id="panel-form" data-ajax="true" data-reset="true">
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label" for="panel-channel-id">Channel</label>
+              <select class="admin3d-form-select" id="panel-channel-id" name="channelId" required>
                 <option value="">- Select Channel -</option>
                 <!-- Will be populated via JavaScript -->
               </select>
-              <small class="form-text text-muted">Channel where the ticket panel will be sent</small>
+              <span class="admin3d-form-hint">Channel where the ticket panel will be sent</span>
             </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Panel Title</label>
-            <div class="col-sm-9">
-              <input type="text" id="panel-title" name="panelTitle" class="form-control" value="Support Tickets" required>
-              <small class="form-text text-muted">Title of the ticket panel embed</small>
+            
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label" for="panel-title">Panel Title</label>
+              <input class="admin3d-form-input" type="text" id="panel-title" name="panelTitle" value="Support Tickets" required>
             </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Panel Description</label>
-            <div class="col-sm-9">
-              <textarea id="panel-description" name="panelDescription" class="form-control" rows="3" required>Select an option below to create a support ticket. Our team will assist you as soon as possible.</textarea>
-              <small class="form-text text-muted">Description text for the ticket panel</small>
+            
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label" for="panel-description">Panel Description</label>
+              <textarea class="admin3d-form-textarea" id="panel-description" name="panelDescription" rows="3" required>Select an option below to create a support ticket. Our team will assist you as soon as possible.</textarea>
+              <span class="admin3d-form-hint">Description text for the ticket panel</span>
             </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Panel Color</label>
-            <div class="col-sm-9">
-              <input type="color" id="panel-color" name="panelColor" class="form-control" value="#000000">
-              <small class="form-text text-muted">Color for the ticket panel embed</small>
+            
+            <div class="admin3d-form-row">
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="panel-color">Panel Color</label>
+                <input class="admin3d-form-input" type="color" id="panel-color" name="panelColor" value="#000000">
+              </div>
+              
+              <div class="admin3d-form-group">
+                <label class="admin3d-form-label" for="panel-image">Panel Image (Optional)</label>
+                <input class="admin3d-form-input" type="url" id="panel-image" name="panelImage" placeholder="https://example.com/image.png">
+                <span class="admin3d-form-hint">Direct link to an image</span>
+              </div>
             </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Panel Image (Optional)</label>
-            <div class="col-sm-9">
-              <input type="url" id="panel-image" name="panelImage" class="form-control" placeholder="https://example.com/image.png">
-              <small class="form-text text-muted">Optional image URL for the panel</small>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-sm-3 col-form-label">Ticket Types</label>
-            <div class="col-sm-9">
-              <button type="button" id="add-ticket-type" class="premium-btn premium-secondary premium-sm mb-2">
+            
+            <div class="admin3d-form-group">
+              <label class="admin3d-form-label">Ticket Types</label>
+              <button type="button" id="add-ticket-type" class="admin3d-btn admin3d-btn-secondary" style="margin-bottom: 1rem;">
                 <i class="fas fa-plus"></i> Add Ticket Type
               </button>
               
               <div id="ticket-types-container">
                 <!-- First ticket type (default) -->
-                <div class="ticket-type-row" data-index="0">
-                  <div class="row">
-                    <div class="col-4">
-                      <input type="text" class="form-control type-label" 
+                <div class="ticket-type-row admin3d-form-group" data-index="0">
+                  <div class="admin3d-form-row">
+                    <div class="admin3d-form-group">
+                      <input type="text" class="admin3d-form-input type-label" 
                              name="ticketTypes[0][label]" placeholder="Label" value="General Support" required>
                     </div>
-                    <div class="col-2">
-                      <input type="text" class="form-control type-emoji" 
+                    <div class="admin3d-form-group">
+                      <input type="text" class="admin3d-form-input type-emoji" 
                              name="ticketTypes[0][emoji]" placeholder="Emoji" value="🔧" required>
                     </div>
-                    <div class="col-5">
-                      <input type="text" class="form-control type-description" 
+                    <div class="admin3d-form-group">
+                      <input type="text" class="admin3d-form-input type-description" 
                              name="ticketTypes[0][description]" placeholder="Description" value="General questions and support">
                     </div>
-                    <div class="col-1">
-                      <button type="button" class="premium-btn premium-danger premium-sm remove-ticket-type">
+                    <div class="admin3d-form-group" style="max-width: 50px;">
+                      <button type="button" class="admin3d-btn remove-ticket-type" style="padding: 0.5rem; background-color: #e74c3c;">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -351,14 +359,19 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="form-buttons">
-            <button type="submit" class="premium-btn premium-primary">
-              <i class="fas fa-plus-circle"></i> Create Panel
-            </button>
-          </div>
-        </form>
+            
+            <div class="admin3d-form-actions">
+              <button type="submit" class="admin3d-btn admin3d-btn-primary">
+                <i class="fas fa-plus-circle"></i> Create Panel
+              </button>
+            </div>
+          </form>
+          
+          <!-- Manual trigger button (in case the form submit doesn't work) -->
+          <button onclick="document.getElementById('panel-form').dispatchEvent(new Event('submit'))" class="admin3d-btn admin3d-btn-secondary" style="margin-top: 10px; width: 100%;">
+            Alternate Submit (Try this if Create Panel doesn't work)
+          </button>
+        </div>
       </div>
     </div>
   </div>
