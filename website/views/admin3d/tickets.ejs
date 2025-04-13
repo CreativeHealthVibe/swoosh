@@ -1,7 +1,7 @@
 <div class="tickets-container dark-theme admin3d-tickets-premium">
-  <div class="tickets-header">
-    <h1>Ticket Management</h1>
-    <p>Manage support tickets across your Discord servers</p>
+  <div class="tickets-header dashboard-header">
+    <h1 class="section-title">Ticket Management</h1>
+    <p class="section-description">Manage support tickets across your Discord servers</p>
   </div>
 
   <% if (!ticketManagerAvailable) { %>
@@ -271,9 +271,7 @@
 
     <!-- Panels Tab -->
     <div class="tab-pane fade" id="panels-content">
-      <div class="dashboard-header">
-        <h1 class="section-title">Ticket Panels</h1>
-      </div>
+      <!-- No additional header needed here since we already have it in the tab -->
       
       <p class="section-description">
         Create and manage ticket panels for your Discord servers.
