@@ -108,7 +108,7 @@ router.get('/servers/:serverId/tickets/:ticketId', async (req, res) => {
     }
     
     // Get ticket details
-    const ticket = await ticketManager.getTicketById(serverId, ticketId);
+    const ticket = await ticketManager.getTicketById(serverId, ticketId, client);
     
     if (!ticket) {
       return res.status(404).json({
@@ -250,7 +250,7 @@ router.get('/servers/:serverId/tickets/:ticketId/transcript-preview', async (req
     }
     
     // Get ticket details
-    const ticket = await ticketManager.getTicketById(serverId, ticketId);
+    const ticket = await ticketManager.getTicketById(serverId, ticketId, client);
     
     if (!ticket) {
       return res.status(404).json({
@@ -337,7 +337,7 @@ router.get('/servers/:serverId/tickets/:ticketId/transcript-download', async (re
     }
     
     // Get ticket details
-    const ticket = await ticketManager.getTicketById(serverId, ticketId);
+    const ticket = await ticketManager.getTicketById(serverId, ticketId, client);
     
     if (!ticket) {
       return res.status(404).json({
@@ -422,7 +422,7 @@ router.get('/servers/:serverId/ticket-config', async (req, res) => {
     }
     
     // Get ticket configuration
-    const config = await ticketManager.getConfig(serverId);
+    const config = await ticketManager.getConfig(serverId, client);
     
     if (!config) {
       return res.status(404).json({
