@@ -295,9 +295,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <td><span class="status-pill ${statusPillClass}">${ticket.status || 'UNKNOWN'}</span></td>
         <td class="premium-action-cell">
           <div class="premium-button-group">
-            <button class="premium-btn premium-sm premium-info view-ticket" data-ticket-id="${ticket.id}" title="View Details">
-              <i class="fas fa-eye"></i>
-            </button>
             ${ticket.status === 'OPEN' ? `
               <button class="premium-btn premium-sm premium-warning close-ticket" data-ticket-id="${ticket.id}" title="Close Ticket">
                 <i class="fas fa-times"></i>
@@ -321,14 +318,6 @@ document.addEventListener('DOMContentLoaded', function() {
    * Add event listeners to ticket action buttons
    */
   function addTicketActionListeners() {
-    // View ticket buttons
-    document.querySelectorAll('.view-ticket').forEach(button => {
-      button.addEventListener('click', function() {
-        const ticketId = this.dataset.ticketId;
-        viewTicket(currentServerId, ticketId);
-      });
-    });
-    
     // Close ticket buttons
     document.querySelectorAll('.close-ticket').forEach(button => {
       button.addEventListener('click', function() {
@@ -562,9 +551,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.success) {
           // Reload tickets
           loadTickets(serverId);
-          
-          // Close modal if open
-          $('#ticket-modal').modal('hide');
           
           showSuccess('Ticket closed successfully');
         } else {
