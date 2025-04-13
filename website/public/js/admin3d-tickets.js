@@ -392,140 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  /**
-   * View ticket details in modal
-   * @param {string} serverId - Discord server ID
-   * @param {string} ticketId - Ticket ID
-   */
-  function viewTicket(serverId, ticketId) {
-    // Find ticket in already loaded data
-    const ticket = allTickets.find(t => t.id === ticketId);
-    
-    if (!ticket) {
-      showError('Ticket not found');
-      return;
-    }
-    
-    // Show loading
-    let modal = document.getElementById('ticket-modal');
-    if (!modal) {
-      console.error('Ticket modal not found');
-      return;
-    }
-    
-    // Format date
-    const created = ticket.createdAt ? new Date(ticket.createdAt) : new Date();
-    const formattedDate = created.toLocaleDateString() + ' ' + 
-                          created.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    
-    // Update modal fields
-    document.getElementById('modal-ticket-id').textContent = ticket.id;
-    document.getElementById('modal-ticket-user').textContent = ticket.username || 'Unknown';
-    document.getElementById('modal-ticket-type').textContent = ticket.type || 'General';
-    document.getElementById('modal-ticket-created').textContent = formattedDate;
-    document.getElementById('modal-ticket-status').textContent = ticket.status || 'UNKNOWN';
-    document.getElementById('modal-ticket-topic').textContent = ticket.topic || 'No topic provided';
-    
-    // Update action buttons based on status
-    const closeBtn = document.getElementById('modal-close-ticket');
-    if (closeBtn) {
-      if (ticket.status === 'OPEN') {
-        closeBtn.style.display = 'block';
-        closeBtn.dataset.ticketId = ticket.id;
-      } else {
-        closeBtn.style.display = 'none';
-      }
-    }
-    
-    // Load transcript
-    fetchTranscript(serverId, ticketId);
-    
-    // Show modal
-    $(modal).modal('show');
-  }
-  
-  /**
-   * Fetch transcript for a ticket
-   * @param {string} serverId - Discord server ID
-   * @param {string} ticketId - Ticket ID
-   */
-  function fetchTranscript(serverId, ticketId) {
-    const transcriptContainer = document.getElementById('modal-transcript');
-    if (!transcriptContainer) return;
-    
-    // Show loading
-    transcriptContainer.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading transcript...</div>';
-    
-    fetch(`/api/v2/servers/${serverId}/tickets/${ticketId}/transcript`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success && data.transcript) {
-          if (data.transcript.html) {
-            // If HTML transcript is available, use iframe
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '300px';
-            iframe.style.border = 'none';
-            
-            transcriptContainer.innerHTML = '';
-            transcriptContainer.appendChild(iframe);
-            
-            // Write HTML content to iframe
-            iframe.contentDocument.open();
-            iframe.contentDocument.write(data.transcript.html);
-            iframe.contentDocument.close();
-          } else if (data.transcript.messages) {
-            // Otherwise render messages
-            renderMessages(data.transcript.messages, transcriptContainer);
-          } else {
-            transcriptContainer.innerHTML = '<div class="alert alert-info">No transcript content available</div>';
-          }
-        } else {
-          transcriptContainer.innerHTML = '<div class="alert alert-warning">Failed to load transcript</div>';
-        }
-      })
-      .catch(error => {
-        console.error('Error loading transcript:', error);
-        transcriptContainer.innerHTML = '<div class="alert alert-danger">Error loading transcript</div>';
-      });
-  }
-  
-  /**
-   * Render messages in transcript
-   * @param {Array} messages - Array of messages
-   * @param {Element} container - Container element
-   */
-  function renderMessages(messages, container) {
-    container.innerHTML = '';
-    
-    if (!messages || messages.length === 0) {
-      container.innerHTML = '<div class="alert alert-info">No messages in this ticket</div>';
-      return;
-    }
-    
-    const messageList = document.createElement('div');
-    messageList.className = 'transcript-messages';
-    
-    messages.forEach(msg => {
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'transcript-message';
-      
-      const timestamp = msg.timestamp ? new Date(msg.timestamp) : new Date();
-      const formattedTime = timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      
-      messageDiv.innerHTML = `
-        <div class="message-header">
-          <span class="message-author">${escapeHtml(msg.author || 'Unknown')}</span>
-          <span class="message-time">${formattedTime}</span>
-        </div>
-        <div class="message-content">${escapeHtml(msg.content || '')}</div>
-      `;
-      
-      messageList.appendChild(messageDiv);
-    });
-    
-    container.appendChild(messageList);
-  }
+  // Ticket modal functions have been completely removed as requested
   
   /**
    * Close a ticket
@@ -537,14 +404,13 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
-    const reason = prompt('Please enter a reason for closing this ticket (optional):');
-    
+    // Simplified approach without modal
     fetch(`/api/v2/servers/${serverId}/tickets/${ticketId}/close`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ reason })
+      body: JSON.stringify({ reason: '' })
     })
       .then(response => response.json())
       .then(data => {
