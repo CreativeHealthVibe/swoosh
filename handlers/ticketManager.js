@@ -372,9 +372,10 @@ module.exports = {
   /**
    * Get ticket configuration for a server
    * @param {string} serverId - Discord server ID
+   * @param {Object} [client] - Discord client (optional)
    * @returns {Object} - Ticket configuration
    */
-  getConfig: async (serverId) => {
+  getConfig: async (serverId, client) => {
     // Return existing config or null if none exists
     return ticketConfigs.get(serverId) || null;
   },
@@ -383,9 +384,10 @@ module.exports = {
    * Set ticket configuration for a server
    * @param {string} serverId - Discord server ID
    * @param {Object} config - Ticket configuration
+   * @param {Object} [client] - Discord client (optional)
    * @returns {Object} - Result with success flag and config
    */
-  setConfig: async (serverId, config) => {
+  setConfig: async (serverId, config, client) => {
     try {
       // Store config
       ticketConfigs.set(serverId, config);
