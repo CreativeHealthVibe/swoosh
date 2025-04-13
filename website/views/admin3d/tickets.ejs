@@ -11,16 +11,23 @@
     </div>
   <% } %>
 
-  <div class="server-selector">
-    <label for="server-select">Select a Server:</label>
-    <select id="server-select" class="form-control">
-      <option value="" selected disabled>- Select a server</option>
-      <% if (guilds && guilds.length > 0) { %>
-        <% guilds.forEach(guild => { %>
-          <option value="<%= guild.id %>"><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
-        <% }); %>
-      <% } %>
-    </select>
+  <div class="server-selector premium-server-selector">
+    <div class="server-select-wrapper">
+      <label for="server-select">Select a Server:</label>
+      <div class="select-container">
+        <select id="server-select" class="form-control premium-select">
+          <option value="" selected disabled>- Select a server</option>
+          <% if (guilds && guilds.length > 0) { %>
+            <% guilds.forEach(guild => { %>
+              <option value="<%= guild.id %>"><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
+            <% }); %>
+          <% } %>
+        </select>
+        <div class="select-arrow">
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="tabs">

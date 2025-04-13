@@ -8,6 +8,34 @@
   padding: 5px;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(114, 137, 218, 0.15);
+}
+
+/* Add subtle animated glow effect */
+.tabs .nav-tabs::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(114, 137, 218, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: pulse-glow 8s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes pulse-glow {
+  0% {
+    opacity: 0.5;
+    transform: rotate(0deg);
+  }
+  100% {
+    opacity: 0.8;
+    transform: rotate(360deg);
+  }
 }
 
 .tabs .nav-tabs .nav-item {
@@ -22,17 +50,44 @@
   color: rgba(255, 255, 255, 0.7);
   border: none;
   border-radius: 8px;
-  padding: 10px 15px;
+  padding: 12px 18px;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  background: transparent;
+  background: rgba(30, 30, 40, 0.3);
   margin: 2px;
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Glass reflection effect */
+.tabs .nav-tabs .nav-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: 0.5s;
+  z-index: -1;
+}
+
+.tabs .nav-tabs .nav-link:hover::before {
+  left: 100%;
 }
 
 /* Add icons to tabs */
@@ -40,33 +95,48 @@
   content: "\f3ff";
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
-  margin-right: 7px;
+  margin-right: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  color: rgba(114, 137, 218, 0.9);
+  text-shadow: 0 0 5px rgba(114, 137, 218, 0.5);
 }
 
 .tabs .nav-tabs #settings-tab::before {
   content: "\f013";
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
-  margin-right: 7px;
+  margin-right: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  color: rgba(114, 137, 218, 0.9);
+  text-shadow: 0 0 5px rgba(114, 137, 218, 0.5);
 }
 
 .tabs .nav-tabs #panels-tab::before {
   content: "\f3fd";
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
-  margin-right: 7px;
+  margin-right: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  color: rgba(114, 137, 218, 0.9);
+  text-shadow: 0 0 5px rgba(114, 137, 218, 0.5);
 }
 
 .tabs .nav-tabs .nav-link:hover {
   color: #ffffff;
-  background: rgba(70, 70, 90, 0.3);
+  background: rgba(70, 70, 90, 0.5);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
 }
 
 .tabs .nav-tabs .nav-link.active {
   color: #ffffff;
   background: linear-gradient(135deg, #7289da 0%, #4e62b3 100%);
-  box-shadow: 0 2px 10px rgba(114, 137, 218, 0.5);
-  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(114, 137, 218, 0.5);
+  transform: translateY(-3px) scale(1.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Active tab indicator */
