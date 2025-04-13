@@ -3,6 +3,24 @@
  * Premium edition with advanced ticket features
  */
 
+/**
+ * Update the step indicator to show which step the user is on
+ * @param {number} step - The step number (1, 2, or 3)
+ */
+function updateStepIndicator(step) {
+  // Get all step elements
+  const steps = document.querySelectorAll('.step');
+  
+  // Remove active class from all steps
+  steps.forEach((stepEl, index) => {
+    if (index + 1 <= step) {
+      stepEl.classList.add('active');
+    } else {
+      stepEl.classList.remove('active');
+    }
+  });
+}
+
 // Store the currently selected server and data
 let currentServerId = '';
 let serverChannels = [];
@@ -160,12 +178,16 @@ async function handleServerChange() {
   if (!serverId) {
     console.log('No server selected, hiding ticket section');
     ticketSection.style.display = 'none';
+    // Reset step indicators
+    updateStepIndicator(1);
     return;
   }
   
   currentServerId = serverId;
   console.log('Current server ID set to:', currentServerId);
   ticketSection.style.display = 'block';
+  // Update step indicator to show we're on step 2
+  updateStepIndicator(2);
   
   console.log('Loading server data, tickets, and ticket configuration...');
   

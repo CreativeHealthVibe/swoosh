@@ -5,7 +5,7 @@
   Ticket Management Page
 %>
 
-<!-- Custom CSS for ticket page dropdowns -->
+<!-- Custom CSS for ticket page dropdowns and user-friendly improvements -->
 <style>
   /* Fix for server select dropdown */
   #server-select {
@@ -15,27 +15,128 @@
     appearance: auto !important;
     -webkit-appearance: auto !important;
     -moz-appearance: auto !important;
+    font-size: 16px !important;
+    padding: 12px !important;
+    cursor: pointer !important;
+    background-color: rgba(20, 20, 20, 0.9) !important;
+    border: 2px solid var(--primary) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  #server-select:hover {
+    box-shadow: 0 0 15px rgba(137, 54, 255, 0.7) !important;
+    transform: translateY(-2px) !important;
   }
   
   /* Style dropdown box to match theme */
   #server-select option {
     background-color: #111;
     color: white;
-    padding: 8px;
-    font-size: 14px;
+    padding: 12px;
+    font-size: 16px;
   }
   
   /* Fix dropdown options visibility */
   #server-select:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-glow);
+    box-shadow: 0 0 15px rgba(137, 54, 255, 0.9);
   }
   
   /* Fix form styling to ensure all inputs are clickable */
   .admin3d-form-group {
     position: relative;
     z-index: 100;
+  }
+  
+  /* User-friendly improvements */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(137, 54, 255, 0.5);
+  }
+  
+  .step {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    margin: 0 10px;
+    background-color: rgba(30, 30, 30, 0.8);
+    border-radius: 10px;
+    color: #aaa;
+    position: relative;
+  }
+  
+  .step.active {
+    background-color: rgba(137, 54, 255, 0.3);
+    color: white;
+    box-shadow: 0 0 10px rgba(137, 54, 255, 0.5);
+  }
+  
+  .step-number {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(137, 54, 255, 0.5);
+    border-radius: 50%;
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .step.active .step-number {
+    background-color: rgba(137, 54, 255, 0.9);
+  }
+  
+  .step-text {
+    font-size: 14px;
+  }
+  
+  .step-connector {
+    height: 2px;
+    flex-grow: 1;
+    background-color: rgba(137, 54, 255, 0.3);
+    margin: 0 5px;
+  }
+  
+  .help-card {
+    background-color: rgba(50, 30, 80, 0.3);
+    border: 1px solid rgba(137, 54, 255, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(137, 54, 255, 0.3);
+  }
+  
+  .help-card h4 {
+    color: white;
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .help-card h4 i {
+    margin-right: 10px;
+    color: rgba(137, 54, 255, 0.9);
+  }
+  
+  .help-card p {
+    margin: 10px 0;
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .highlight-text {
+    color: rgba(137, 54, 255, 0.9);
+    font-weight: bold;
   }
 </style>
 
@@ -44,9 +145,32 @@
     <h1 class="section-title">Ticket Management</h1>
   </div>
   
-  <p class="section-description">
-    Manage support tickets across your Discord servers. View ticket analytics, manage open tickets, generate transcripts, and configure your ticket system settings.
-  </p>
+  <!-- User-friendly Steps Indicator -->
+  <div class="step-indicator">
+    <div class="step active">
+      <div class="step-number">1</div>
+      <div class="step-text">Select Server</div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-text">View Tickets</div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-text">Manage Settings</div>
+    </div>
+  </div>
+  
+  <!-- Help Card -->
+  <div class="help-card">
+    <h4><i class="fas fa-info-circle"></i> How to Use Ticket Management</h4>
+    <p>Welcome to the Ticket Management dashboard! Follow these simple steps:</p>
+    <p>1. <span class="highlight-text">Select a server</span> from the dropdown below to manage its tickets</p>
+    <p>2. View <span class="highlight-text">ticket statistics</span> and manage open tickets</p>
+    <p>3. Configure your <span class="highlight-text">ticket system settings</span> and create new ticket panels</p>
+  </div>
   
   <!-- Server Selection -->
   <div class="admin3d-card glow-border">
@@ -56,20 +180,23 @@
           <i class="fas fa-server"></i>
         </div>
       </div>
-      <h3 class="admin3d-card-title glow-text">Select Server</h3>
+      <h3 class="admin3d-card-title glow-text">Step 1: Select Your Discord Server</h3>
     </div>
     <div class="admin3d-card-content">
+      <div class="help-card" style="background-color: rgba(30, 30, 30, 0.5);">
+        <p><i class="fas fa-arrow-down"></i> Click the dropdown below to see all available servers</p>
+      </div>
       <div class="admin3d-form-group">
-        <label class="admin3d-form-label" for="server-select">Server</label>
+        <label class="admin3d-form-label" for="server-select">Your Discord Servers</label>
         <select class="admin3d-form-select" id="server-select">
-          <option value="">Select a server</option>
+          <option value="">Click here to select a server</option>
           <% if (client && client.guilds) { %>
             <% client.guilds.cache.sort((a, b) => a.name.localeCompare(b.name)).forEach(guild => { %>
               <option value="<%= guild.id %>"><%= guild.name %> (<%= guild.memberCount %> members)</option>
             <% }); %>
           <% } %>
         </select>
-        <span class="admin3d-form-hint">Select a server to manage tickets</span>
+        <span class="admin3d-form-hint">Choose a server from the list to view and manage its tickets</span>
       </div>
     </div>
   </div>
@@ -117,7 +244,7 @@
     </div>
     
     <!-- Ticket List -->
-    <h2 class="section-subtitle">Ticket List</h2>
+    <h2 class="section-subtitle">Step 2: View and Manage Tickets</h2>
     <div class="admin3d-card">
       <div class="admin3d-card-header">
         <div>
@@ -125,7 +252,7 @@
             <i class="fas fa-ticket-alt"></i>
           </div>
         </div>
-        <h3 class="admin3d-card-title">All Tickets</h3>
+        <h3 class="admin3d-card-title">Support Tickets</h3>
         <div class="admin3d-card-actions">
           <div class="ticket-filter">
             <select id="ticket-status-filter" class="admin3d-form-select">
@@ -140,9 +267,16 @@
         </div>
       </div>
       <div class="admin3d-card-content">
+        <!-- Help Card for Ticket List -->
+        <div class="help-card">
+          <h4><i class="fas fa-list-ul"></i> Your Server's Support Tickets</h4>
+          <p>Here you can view all the tickets in your server. Click on a ticket to see details and messages.</p>
+          <p>Use the dropdown above to filter tickets by status (open or closed).</p>
+        </div>
+        
         <div class="tickets-list-container">
           <div class="tickets-list-header">
-            <div class="ticket-id-col">ID</div>
+            <div class="ticket-id-col">Ticket ID</div>
             <div class="ticket-user-col">User</div>
             <div class="ticket-topic-col">Topic</div>
             <div class="ticket-status-col">Status</div>
@@ -161,7 +295,7 @@
     </div>
     
     <!-- Ticket Configuration -->
-    <h2 class="section-subtitle">Ticket Configuration</h2>
+    <h2 class="section-subtitle">Step 3: Ticket Configuration</h2>
     <div class="admin3d-card" >
       <div class="admin3d-card-header">
         <div>
@@ -169,9 +303,15 @@
             <i class="fas fa-cogs"></i>
           </div>
         </div>
-        <h3 class="admin3d-card-title">Settings</h3>
+        <h3 class="admin3d-card-title">Ticket Settings</h3>
       </div>
       <div class="admin3d-card-content">
+        <!-- Help Card for Settings -->
+        <div class="help-card">
+          <h4><i class="fas fa-sliders-h"></i> Configure Your Ticket System</h4>
+          <p>Customize how tickets work in your server. Set up categories, roles, and messages to create a personalized support experience.</p>
+        </div>
+        
         <form id="ticket-config-form">
           <!-- Basic Settings -->
           <div class="config-section">
@@ -290,7 +430,7 @@
     </div>
     
     <!-- Send Ticket Panel -->
-    <h2 class="section-subtitle">Create Ticket Panel</h2>
+    <h2 class="section-subtitle">Create a Discord Ticket Panel</h2>
     <div class="admin3d-card">
       <div class="admin3d-card-header">
         <div>
@@ -298,9 +438,16 @@
             <i class="fas fa-share-square"></i>
           </div>
         </div>
-        <h3 class="admin3d-card-title">Send Ticket Panel</h3>
+        <h3 class="admin3d-card-title">Create Ticket Button for Your Server</h3>
       </div>
       <div class="admin3d-card-content">
+        <!-- Help Card for Panel Creation -->
+        <div class="help-card">
+          <h4><i class="fas fa-magic"></i> Create a Ticket Button for Your Discord Server</h4>
+          <p>This will create a message with a button that users can click to open a support ticket.</p>
+          <p>Choose a channel where the ticket panel should appear and customize the text.</p>
+        </div>
+        
         <form id="ticket-panel-form">
           <div class="admin3d-form-group">
             <label class="admin3d-form-label" for="panel-channel">Channel</label>
