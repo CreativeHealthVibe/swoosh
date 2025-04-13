@@ -37,7 +37,7 @@
 }
 
 .premium-header-text p {
-  color: #aaaaaa;
+  color: #f0f0f0;
   margin-bottom: 0;
   font-size: 0.95rem;
 }
@@ -57,11 +57,11 @@
 
 .form-group-premium label i {
   margin-right: 6px;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .form-group-premium .form-text {
-  color: #888888;
+  color: #f0f0f0;
   font-size: 0.85rem;
   margin-top: 6px;
 }
@@ -123,28 +123,28 @@
 .optional-tag {
   font-size: 0.75rem;
   padding: 2px 6px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   margin-left: 8px;
   font-weight: normal;
-  color: #aaaaaa;
+  color: #f8f8f8;
 }
 
 /* Input group styling */
 .input-group-text {
   background-color: rgba(0, 0, 0, 0.5);
   border: 1px solid #333333;
-  color: #aaaaaa;
+  color: #f0f0f0;
 }
 
 .input-group .btn-outline-secondary {
-  color: #aaaaaa;
+  color: #f0f0f0;
   border-color: #333333;
   background-color: rgba(0, 0, 0, 0.3);
 }
 
 .input-group .btn-outline-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.15);
   color: #ffffff;
 }
 
@@ -172,12 +172,12 @@
 
 .preview-header i {
   margin-right: 6px;
-  color: #aaaaaa;
+  color: #f0f0f0;
 }
 
 .preview-content {
   padding: 20px;
-  background-color: #2f3136;
+  background-color: #1e1f22;
   min-height: 200px;
   display: flex;
   justify-content: center;
@@ -189,7 +189,7 @@
   max-width: 500px;
   background-color: #2b2d31;
   border-radius: 4px;
-  border-left: 4px solid #000000;
+  border-left: 4px solid #8a5cff;
   padding: 16px;
   margin: 0 auto;
 }
@@ -202,7 +202,7 @@
 }
 
 .preview-embed-description {
-  color: #dcddde;
+  color: #ffffff;
   font-size: 0.95rem;
   margin-bottom: 16px;
   line-height: 1.4;
@@ -226,7 +226,7 @@
 }
 
 .preview-button {
-  background-color: #4f545c;
+  background-color: #8a5cff;
   border: none;
   border-radius: 4px;
   color: #ffffff;
@@ -237,11 +237,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .preview-emoji {
   margin-right: 8px;
   font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 /* Ticket type styling */
@@ -300,7 +302,7 @@
 .ticket-type-body label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #aaaaaa;
+  color: #f0f0f0;
   margin-bottom: 6px;
 }
 
@@ -328,15 +330,16 @@
 
 .premium-btn i {
   margin-right: 8px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .premium-btn.premium-primary {
-  background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
-  border-color: #4752C4;
+  background: linear-gradient(135deg, #8a5cff 0%, #5546b3 100%);
+  border-color: #5546b3;
 }
 
 .premium-btn.premium-primary:hover {
-  background: linear-gradient(135deg, #6070FF 0%, #5865F2 100%);
+  background: linear-gradient(135deg, #9b6dff 0%, #8a5cff 100%);
 }
 
 .premium-btn.premium-secondary {
@@ -390,14 +393,15 @@
   align-items: center;
   justify-content: center;
   padding: 30px;
-  color: #777777;
+  color: #f0f0f0;
   text-align: center;
 }
 
 .panel-empty-state i {
   font-size: 2rem;
   margin-bottom: 15px;
-  opacity: 0.5;
+  opacity: 0.7;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Responsive adjustments */
