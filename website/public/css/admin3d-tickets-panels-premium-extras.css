@@ -1,0 +1,256 @@
+/**
+ * SWOOSH Bot 3D Ticket Panels - Premium Extras
+ * Additional premium effects and animations for ticket panels
+ */
+
+/* Premium glow effects */
+.premium-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-glow::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #5865F2, #57F287, #FEE75C, #EB459E, #ED4245, #5865F2);
+  background-size: 400% 400%;
+  z-index: -1;
+  border-radius: 12px;
+  animation: premium-glow 8s ease infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.premium-glow:hover::before {
+  opacity: 1;
+}
+
+@keyframes premium-glow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 3D hover effect for card elements */
+.premium-3d-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.premium-3d-hover:hover {
+  transform: translateY(-5px) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.5), 
+    0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Premium badge */
+.premium-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: linear-gradient(135deg, #5865F2 0%, #EB459E 100%);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transform: rotate(15deg);
+  z-index: 10;
+}
+
+/* Reflection effect */
+.reflection-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.reflection-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    rgba(255, 255, 255, 0.1) 80%, 
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: all 0.75s ease;
+}
+
+.reflection-effect:hover::after {
+  left: 150%;
+}
+
+/* Enhanced color presets */
+.color-preset {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+.color-preset::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.color-preset.selected {
+  transform: scale(1.2);
+  border: 2px solid white !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* Panel preview enhancements */
+.preview-embed {
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.preview-content:hover .preview-embed {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+/* Button animations */
+.premium-btn.premium-lg {
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-btn.premium-lg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.premium-btn.premium-lg:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Fluid animations */
+.fluid-animation {
+  animation: fluid-motion 15s ease infinite;
+  background-size: 400% 400%;
+  background-attachment: fixed;
+}
+
+@keyframes fluid-motion {
+  0% { background-position: 0% 0%; }
+  25% { background-position: 50% 25%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 75%; }
+  100% { background-position: 0% 0%; }
+}
+
+/* Enhanced ticket type rows */
+.ticket-type-row {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.ticket-type-row.removing {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+/* Context-specific animations */
+.premium-panels-preview {
+  animation: fade-in-up 0.5s ease forwards;
+}
+
+.panels-container {
+  animation: fade-in 0.5s ease forwards;
+}
+
+.existing-panels-container {
+  animation: fade-in-up 0.5s ease 0.2s forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Typography enhancements */
+.premium-header-text h3 {
+  background: linear-gradient(to right, #ffffff, #a3a3ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* Floating animation for important elements */
+.floating-animation {
+  animation: floating 5s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Make preview panel container more premium */
+.preview-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(88, 101, 242, 0.2), transparent 40%),
+              radial-gradient(circle at bottom left, rgba(235, 69, 158, 0.2), transparent 40%);
+  pointer-events: none;
+}
+
+/* Improved input focus effects */
+.form-group-premium .form-control:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.25), 0 0 0 1px #5865F2 !important;
+  border-color: #5865F2 !important;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}

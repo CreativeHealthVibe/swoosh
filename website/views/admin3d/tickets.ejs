@@ -271,9 +271,9 @@
 
     <!-- Panels Tab -->
     <div class="tab-pane fade" id="panels-content">
-      <div class="panels-container" style="background: linear-gradient(135deg, rgba(12,12,12,0.9) 0%, rgba(0,0,0,0.95) 100%);">
-        <div class="premium-header">
-          <div class="premium-header-icon">
+      <div class="panels-container fluid-animation" style="background: linear-gradient(135deg, rgba(12,12,12,0.9) 0%, rgba(0,0,0,0.95) 100%);">
+        <div class="premium-header premium-glow">
+          <div class="premium-header-icon floating-animation">
             <i class="fas fa-layer-group"></i>
           </div>
           <div class="premium-header-text">
@@ -283,7 +283,8 @@
         </div>
         
         <div class="premium-panels-preview">
-          <div class="preview-container">
+          <div class="preview-container reflection-effect premium-3d-hover">
+            <div class="premium-badge">PREMIUM</div>
             <div class="preview-header">
               <i class="fas fa-eye"></i> Live Preview
             </div>
@@ -373,7 +374,7 @@
               <label class="mb-0">
                 <i class="fas fa-ticket-alt"></i> Ticket Types
               </label>
-              <button type="button" id="add-ticket-type" class="premium-btn premium-secondary premium-sm">
+              <button type="button" id="add-ticket-type" class="premium-btn premium-secondary premium-sm premium-glow">
                 <i class="fas fa-plus"></i> Add Ticket Type
               </button>
             </div>
@@ -381,9 +382,9 @@
             <div id="ticket-types-container" class="ticket-types-premium">
               <!-- First ticket type (default) -->
               <div class="ticket-type-row" data-index="0">
-                <div class="ticket-type-card">
+                <div class="ticket-type-card premium-3d-hover reflection-effect">
                   <div class="ticket-type-header">
-                    <div class="type-emoji-display">🔧</div>
+                    <div class="type-emoji-display floating-animation">🔧</div>
                     <div class="ticket-type-actions">
                       <button type="button" class="premium-btn premium-danger premium-sm remove-ticket-type">
                         <i class="fas fa-times"></i>
@@ -413,7 +414,7 @@
           </div>
 
           <div class="form-buttons text-center">
-            <button type="submit" class="premium-btn premium-primary premium-lg">
+            <button type="submit" class="premium-btn premium-primary premium-lg premium-glow">
               <i class="fas fa-broadcast-tower"></i> Deploy Panel
             </button>
           </div>
@@ -421,10 +422,10 @@
       </div>
       
       <div class="existing-panels-container">
-        <h3><i class="fas fa-list"></i> Your Existing Panels</h3>
-        <div class="existing-panels-list" id="existing-panels">
-          <div class="panel-empty-state">
-            <i class="fas fa-info-circle"></i>
+        <h3 class="premium-header-text"><i class="fas fa-list"></i> Your Existing Panels</h3>
+        <div class="existing-panels-list premium-glow" id="existing-panels">
+          <div class="panel-empty-state reflection-effect">
+            <i class="fas fa-info-circle floating-animation"></i>
             <p>No panels have been created yet for this server</p>
           </div>
           <!-- Will be populated via JavaScript -->
