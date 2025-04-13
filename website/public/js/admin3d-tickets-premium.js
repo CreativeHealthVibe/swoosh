@@ -1,655 +1,542 @@
 /**
- * SWOOSH Bot 3D Ticket Management System
+ * SWOOSH Bot 3D Ticket Management
  * Premium Edition - $55k Value Design
  * 
- * Advanced Three.js visualization with interactive ticket elements,
- * 3D ticket representations, holographic effects and premium animations.
+ * High-end 3D visualization for ticket management interface
  */
 
-// Initialize when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-  // Only initialize if THREE.js is loaded and the three-container element exists
-  if (typeof THREE === 'undefined') {
-    console.warn('THREE.js not loaded! Falling back to 2D mode.');
-    return;
-  }
-  
-  const container = document.getElementById('three-container');
-  if (!container) return;
-  
-  // Don't initialize if body has the no-three-js class
-  if (document.body.classList.contains('no-three-js')) {
-    console.log('THREE.js disabled on this page via body class');
-    return;
-  }
-  
-  // Scene variables
-  let scene, camera, renderer, composer;
-  let tickets3D = [];
-  let raycaster, mouse;
-  let mouseX = 0, mouseY = 0;
-  let targetMouseX = 0, targetMouseY = 0;
-  let windowHalfX = window.innerWidth / 2;
-  let windowHalfY = window.innerHeight / 2;
-  let ticketData = [];
+(function() {
+  'use strict';
+
+  // Main variables
+  let camera, scene, renderer, composer;
+  let ticketObjects = [];
   let orbitalRing;
+  let controls;
+  let raycaster, mouse;
+  let currentlyIntersected = null;
+  let tooltip = null;
+  let animationStartTimestamp = Date.now();
   
-  // Scene configuration options
-  const config = {
-    cameraPosition: new THREE.Vector3(0, 0, 100),
-    ticketSize: 8,
-    ticketSpacing: 15,
-    ticketRotationSpeed: 0.005,
-    ringRadius: 60,
-    ringTubeRadius: 0.5,
-    ringColor: 0x8936ff,
-    activeColor: 0x00e676,
-    closedColor: 0xff3d71,
-    highlightColor: 0xffb300,
-    glowIntensity: 1.5,
-    bloomStrength: 1.0,
-    bloomRadius: 0.7,
-    bloomThreshold: 0.2
+  // Configuration
+  const CONFIG = {
+    ORBITAL_RADIUS: 5,
+    TICKET_SIZE: 0.4,
+    ROTATION_SPEED: 0.2,
+    HOVER_SCALE: 1.2,
+    ORBIT_HEIGHT: 1.5,
+    COLORS: {
+      OPEN: 0x00bf9a,  // Teal for open tickets
+      CLOSED: 0x6c757d,  // Gray for closed tickets
+      RING: 0x8936ff,  // Purple for the orbital ring
+      HIGHLIGHT: 0xb76eff,  // Lighter purple for highlights
+      BACKGROUND: 0x0e0e1c  // Dark background
+    }
   };
-  
-  // Initialize the 3D scene
-  initTicketScene();
-  animate();
-  
-  // Listen for ticket updates
-  window.addEventListener('ticketsUpdated', updateTickets3D);
-  
-  /**
-   * Initialize the Three.js scene with ticket-specific elements
-   */
-  function initTicketScene() {
-    // Create scene (use the existing scene from admin3d-scene.js)
-    scene = window.threeJsScene || new THREE.Scene();
-    camera = window.threeJsCamera || new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-    renderer = window.threeJsRenderer || new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+  // Initialize function - called when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Create tooltip element for hovering over tickets
+    createTooltip();
     
-    if (!window.threeJsScene) {
-      camera.position.copy(config.cameraPosition);
+    // Check if THREE.js is available and required DOM containers exist
+    if (checkRequirements()) {
+      console.log('Premium 3D Ticket System initializing...');
+      initScene();
+    } else {
+      console.warn('Premium 3D Tickets: Requirements not met, falling back to standard view');
+    }
+  });
+
+  // Check if all requirements are met to enable 3D visualization
+  function checkRequirements() {
+    // Check for THREE.js
+    if (typeof THREE === 'undefined') {
+      console.warn('Premium 3D Tickets: THREE.js not available');
+      return false;
+    }
+    
+    // Check for container element
+    const container = document.getElementById('three-container');
+    if (!container) {
+      console.warn('Premium 3D Tickets: #three-container not found');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Create tooltip element for hovering over tickets
+  function createTooltip() {
+    tooltip = document.createElement('div');
+    tooltip.className = 'ticket3d-tooltip';
+    tooltip.style.opacity = '0';
+    tooltip.style.position = 'fixed';
+    tooltip.style.pointerEvents = 'none';
+    tooltip.style.zIndex = '9999';
+    document.body.appendChild(tooltip);
+  }
+
+  // Initialize the THREE.js scene
+  function initScene() {
+    try {
+      // Setup scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(CONFIG.COLORS.BACKGROUND);
       
+      // Setup camera
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 2, 7);
+      
+      // Setup renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.autoClear = false;
+      renderer.shadowMap.enabled = true;
       
-      // Make sure the canvas doesn't block interaction with page elements
-      renderer.domElement.style.pointerEvents = 'none';
-      renderer.domElement.style.position = 'fixed';
-      renderer.domElement.style.top = '0';
-      renderer.domElement.style.left = '0';
-      renderer.domElement.style.zIndex = '-1';
-      
+      // Get the container element
+      const container = document.getElementById('three-container');
+      container.innerHTML = '';
       container.appendChild(renderer.domElement);
+      
+      // Add lighting
+      addLighting();
+      
+      // Create orbital ring
+      createOrbitalRing();
+      
+      // Post-processing setup (if available)
+      setupPostProcessing();
+      
+      // Raycaster for mouse interaction
+      raycaster = new THREE.Raycaster();
+      mouse = new THREE.Vector2();
+      
+      // Add event listeners
+      window.addEventListener('resize', onWindowResize);
+      window.addEventListener('mousemove', onMouseMove);
+      
+      // Expose update function globally
+      window.update3DTickets = updateTickets3D;
+      
+      // Start animation loop
+      animate();
+      
+      // Initial update if tickets already exist
+      if (window.allTickets && window.allTickets.length > 0) {
+        updateTickets3D(window.allTickets);
+      }
+      
+      console.log('Premium 3D Ticket System initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize 3D scene:', error);
     }
-    
-    // Setup raycaster for mouse interaction
-    raycaster = new THREE.Raycaster();
-    mouse = new THREE.Vector2();
-    
-    // Add ambient light if not already present
-    if (!scene.getObjectByName('ticketAmbientLight')) {
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-      ambientLight.name = 'ticketAmbientLight';
-      scene.add(ambientLight);
-    }
-    
-    // Add directional light if not already present
-    if (!scene.getObjectByName('ticketDirectionalLight')) {
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      directionalLight.position.set(1, 1, 1);
-      directionalLight.name = 'ticketDirectionalLight';
-      scene.add(directionalLight);
-    }
-    
-    // Create orbital ring
-    createOrbitalRing();
-    
-    // Add post-processing effects for bloom glow
-    setupPostProcessing();
-    
-    // Add event listeners
-    window.addEventListener('resize', onWindowResize);
-    window.addEventListener('mousemove', onMouseMove);
-    
-    // Store global references
-    window.threeJsScene = scene;
-    window.threeJsCamera = camera;
-    window.threeJsRenderer = renderer;
   }
-  
-  /**
-   * Setup post-processing effects
-   */
+
+  // Add lighting to the scene
+  function addLighting() {
+    // Ambient light for base illumination
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    scene.add(ambientLight);
+    
+    // Main directional light with shadows
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    directionalLight.position.set(5, 10, 7);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+    
+    // Point lights for accent lighting
+    const purpleLight = new THREE.PointLight(CONFIG.COLORS.RING, 1, 10);
+    purpleLight.position.set(3, 2, 3);
+    scene.add(purpleLight);
+    
+    const blueLight = new THREE.PointLight(CONFIG.COLORS.OPEN, 1, 10);
+    blueLight.position.set(-3, 2, 3);
+    scene.add(blueLight);
+  }
+
+  // Setup post-processing effects for visual enhancement
   function setupPostProcessing() {
-    // Skip if already set up in the main scene
-    if (window.threeJsComposer) {
-      composer = window.threeJsComposer;
-      return;
+    try {
+      // Check if required classes exist
+      if (typeof THREE.EffectComposer === 'undefined' || 
+          typeof THREE.RenderPass === 'undefined' || 
+          typeof THREE.UnrealBloomPass === 'undefined') {
+        console.warn('Post-processing libraries not available, skipping bloom effect');
+        return;
+      }
+      
+      // Create composer
+      composer = new THREE.EffectComposer(renderer);
+      
+      // Add render pass
+      const renderPass = new THREE.RenderPass(scene, camera);
+      composer.addPass(renderPass);
+      
+      // Add bloom pass
+      const bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        0.7,   // strength
+        0.6,   // radius
+        0.75   // threshold
+      );
+      composer.addPass(bloomPass);
+      
+      console.log('Post-processing effects enabled');
+    } catch (error) {
+      console.warn('Failed to setup post-processing:', error);
     }
-    
-    // Create effect composer
-    composer = new THREE.EffectComposer(renderer);
-    
-    // Add render pass
-    const renderPass = new THREE.RenderPass(scene, camera);
-    composer.addPass(renderPass);
-    
-    // Add bloom pass for glow effect
-    const bloomPass = new THREE.UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      config.bloomStrength,
-      config.bloomRadius,
-      config.bloomThreshold
-    );
-    composer.addPass(bloomPass);
-    
-    // Store global reference
-    window.threeJsComposer = composer;
   }
-  
-  /**
-   * Create orbital ring for tickets
-   */
+
+  // Create orbital ring for tickets to orbit around
   function createOrbitalRing() {
-    // Remove existing ring if present
-    if (orbitalRing) {
-      scene.remove(orbitalRing);
-    }
-    
-    // Create ring geometry
+    // Create a ring geometry
     const ringGeometry = new THREE.TorusGeometry(
-      config.ringRadius,
-      config.ringTubeRadius,
-      16,
-      100
+      CONFIG.ORBITAL_RADIUS,  // Radius
+      0.05,                   // Tube size
+      16,                     // Radial segments
+      100                     // Tubular segments
     );
     
-    // Create holographic ring material
-    const ringMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        time: { value: 0 },
-        color: { value: new THREE.Color(config.ringColor) }
-      },
-      vertexShader: `
-        uniform float time;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        
-        void main() {
-          vUv = uv;
-          vPosition = position;
-          
-          // Add subtle wave movement
-          float wave = sin(position.x * 0.1 + time * 2.0) * 0.2;
-          vec3 newPosition = position;
-          newPosition.y += wave;
-          
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float time;
-        uniform vec3 color;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        
-        void main() {
-          // Create pulsing effect
-          float pulse = 0.5 + 0.5 * sin(time * 1.5);
-          
-          // Create line pattern
-          float line = abs(sin(vUv.x * 50.0 - time * 2.0));
-          line = smoothstep(0.5, 0.55, line);
-          
-          // Energy flow effect
-          float energy = abs(sin(vUv.x * 20.0 - time * 3.0));
-          energy = pow(energy, 2.0) * 0.8;
-          
-          // Combine effects
-          float alpha = mix(0.2, 0.6, pulse) + energy * 0.4;
-          vec3 finalColor = mix(color, color * 1.5, energy);
-          
-          gl_FragColor = vec4(finalColor, alpha);
-        }
-      `,
-      transparent: true,
-      side: THREE.DoubleSide
+    // Create material with glow effect
+    const ringMaterial = new THREE.MeshStandardMaterial({
+      color: CONFIG.COLORS.RING,
+      emissive: CONFIG.COLORS.RING,
+      emissiveIntensity: 0.5,
+      metalness: 0.7,
+      roughness: 0.3,
     });
     
-    // Create ring mesh
+    // Create mesh and add to scene
     orbitalRing = new THREE.Mesh(ringGeometry, ringMaterial);
-    orbitalRing.rotation.x = Math.PI / 2;
-    orbitalRing.name = 'ticketOrbitalRing';
+    orbitalRing.rotation.x = Math.PI / 2;  // Lay flat
+    orbitalRing.castShadow = true;
+    orbitalRing.receiveShadow = true;
     scene.add(orbitalRing);
   }
-  
-  /**
-   * Create 3D representations of tickets
-   */
-  function createTicket3D(data, index, total) {
-    // Create ticket geometry
-    const ticketGeometry = new THREE.BoxGeometry(
-      config.ticketSize,
-      config.ticketSize * 0.7,
-      config.ticketSize * 0.1
-    );
+
+  // Update 3D view with new ticket data
+  function updateTickets3D(tickets) {
+    if (!scene) return;
     
-    // Determine color based on status
-    const baseColor = data.status === 'OPEN' ? 
-      config.activeColor : config.closedColor;
+    // Remove existing ticket objects
+    clearExistingTickets();
     
-    // Create holographic ticket material
-    const ticketMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        time: { value: 0 },
-        baseColor: { value: new THREE.Color(baseColor) },
-        highlightColor: { value: new THREE.Color(config.highlightColor) },
-        isHovered: { value: 0.0 }
-      },
-      vertexShader: `
-        uniform float time;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        varying vec3 vNormal;
-        
-        void main() {
-          vUv = uv;
-          vPosition = position;
-          vNormal = normalize(normalMatrix * normal);
-          
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    // Create new ticket objects
+    if (tickets && tickets.length > 0) {
+      tickets.forEach((ticket, index) => {
+        createTicket3D(ticket, index, tickets.length);
+      });
+    }
+  }
+
+  // Clear existing ticket objects from the scene
+  function clearExistingTickets() {
+    // Remove each ticket object from the scene
+    ticketObjects.forEach(obj => {
+      scene.remove(obj);
+      
+      // Clean up geometries and materials
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        if (Array.isArray(obj.material)) {
+          obj.material.forEach(mat => mat.dispose());
+        } else {
+          obj.material.dispose();
         }
-      `,
-      fragmentShader: `
-        uniform float time;
-        uniform vec3 baseColor;
-        uniform vec3 highlightColor;
-        uniform float isHovered;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        varying vec3 vNormal;
-        
-        void main() {
-          // Holographic edge glow
-          float edge = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0)));
-          edge = pow(edge, 3.0);
-          
-          // Pulsing effect
-          float pulse = 0.5 + 0.5 * sin(time * 1.0);
-          
-          // Grid pattern
-          float gridX = smoothstep(0.95, 1.0, abs(sin(vUv.x * 20.0)));
-          float gridY = smoothstep(0.95, 1.0, abs(sin(vUv.y * 20.0)));
-          float grid = gridX + gridY;
-          
-          // Data stream effect
-          float stream = step(0.98, sin(vUv.y * 50.0 - time * 3.0 + vUv.x * 20.0));
-          
-          // Combine effects with hover state
-          vec3 color = mix(baseColor, highlightColor, isHovered * 0.7);
-          color = mix(color, vec3(1.0), grid * 0.5);
-          color = mix(color, vec3(1.0), stream * 0.7);
-          color += edge * 0.5 * (isHovered * 0.5 + 0.5) * mix(baseColor, highlightColor, pulse);
-          
-          // Transparency based on edge
-          float alpha = 0.7 + edge * 0.3 + isHovered * 0.2;
-          
-          gl_FragColor = vec4(color, alpha);
-        }
-      `,
-      transparent: true,
-      side: THREE.DoubleSide
+      }
     });
     
-    // Create ticket mesh
-    const ticketMesh = new THREE.Mesh(ticketGeometry, ticketMaterial);
-    
-    // Position on the orbital ring
+    // Clear the array
+    ticketObjects = [];
+  }
+
+  // Create a 3D representation of a ticket
+  function createTicket3D(ticket, index, total) {
+    // Calculate position on orbital ring
     const angle = (index / total) * Math.PI * 2;
-    ticketMesh.position.x = Math.cos(angle) * config.ringRadius;
-    ticketMesh.position.z = Math.sin(angle) * config.ringRadius;
-    ticketMesh.rotation.y = angle + Math.PI / 2;
+    const height = CONFIG.ORBIT_HEIGHT + (Math.random() * 0.4 - 0.2); // Slight height variation
     
-    // Store the ticket data
+    // Determine color based on status
+    const color = ticket.status === 'OPEN' ? 
+                  CONFIG.COLORS.OPEN : 
+                  CONFIG.COLORS.CLOSED;
+    
+    // Create ticket mesh
+    const geometry = new THREE.BoxGeometry(
+      CONFIG.TICKET_SIZE * 1.4, 
+      CONFIG.TICKET_SIZE * 0.8, 
+      CONFIG.TICKET_SIZE * 0.1
+    );
+    
+    const material = new THREE.MeshStandardMaterial({
+      color: color,
+      emissive: color,
+      emissiveIntensity: 0.3,
+      metalness: 0.8,
+      roughness: 0.2,
+    });
+    
+    // Create mesh
+    const ticketMesh = new THREE.Mesh(geometry, material);
+    
+    // Position on orbital ring
+    ticketMesh.position.x = Math.cos(angle) * CONFIG.ORBITAL_RADIUS;
+    ticketMesh.position.z = Math.sin(angle) * CONFIG.ORBITAL_RADIUS;
+    ticketMesh.position.y = height;
+    
+    // Face center
+    ticketMesh.lookAt(new THREE.Vector3(0, height, 0));
+    
+    // Store angle for animation
     ticketMesh.userData = {
-      id: data.id,
-      status: data.status,
-      username: data.username,
-      type: data.type,
-      createdAt: data.createdAt,
-      index: index,
-      angle: angle,
-      isHovered: false
+      ticket: ticket,
+      originalAngle: angle,
+      originalHeight: height,
+      originalScale: ticketMesh.scale.clone()
     };
     
-    // Add ticket to scene
-    ticketMesh.name = `ticket-${data.id}`;
+    // Add to scene and collection
     scene.add(ticketMesh);
+    ticketObjects.push(ticketMesh);
     
-    // Add ID text
-    addTicketText(ticketMesh, data.id, angle);
+    // Add text label
+    addTicketText(ticketMesh, ticket.id, angle);
     
     return ticketMesh;
   }
-  
-  /**
-   * Add text labels to tickets
-   */
+
+  // Add text label to a ticket
   function addTicketText(ticketMesh, id, angle) {
-    // Create canvas for text
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = 256;
-    canvas.height = 128;
-    
-    // Clear background
-    context.fillStyle = 'rgba(0, 0, 0, 0)';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw text
-    context.font = 'Bold 28px Arial';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.fillStyle = 'white';
-    context.fillText(`#${id}`, canvas.width / 2, canvas.height / 2);
-    
-    // Create texture
-    const texture = new THREE.CanvasTexture(canvas);
-    
-    // Create material
-    const material = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      side: THREE.DoubleSide
-    });
-    
-    // Create plane for text
-    const geometry = new THREE.PlaneGeometry(
-      config.ticketSize * 0.8,
-      config.ticketSize * 0.3
-    );
-    const textMesh = new THREE.Mesh(geometry, material);
-    
-    // Position text in front of ticket
-    textMesh.position.copy(ticketMesh.position);
-    textMesh.position.y += 0.5;
-    textMesh.position.x += Math.cos(angle) * config.ringTubeRadius * 10;
-    textMesh.position.z += Math.sin(angle) * config.ringTubeRadius * 10;
-    textMesh.rotation.copy(ticketMesh.rotation);
-    
-    // Add text to scene
-    textMesh.name = `ticket-text-${id}`;
-    scene.add(textMesh);
-    
-    return textMesh;
-  }
-  
-  /**
-   * Update 3D tickets based on new data
-   */
-  function updateTickets3D(event) {
-    // Get ticket data from event or global variable
-    let newTicketData = event?.detail?.tickets || [];
-    
-    // If event has no data, try to get from global variable
-    if (newTicketData.length === 0) {
-      newTicketData = window.allTickets || [];
-    }
-    
-    // Skip if no new data
-    if (newTicketData.length === 0) return;
-    
-    // Store new data
-    ticketData = newTicketData;
-    
-    // Remove existing ticket meshes
-    tickets3D.forEach(ticket => {
-      // Remove ticket mesh
-      const mesh = scene.getObjectByName(`ticket-${ticket.userData.id}`);
-      if (mesh) scene.remove(mesh);
+    try {
+      // Create canvas for the text
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = 256;
+      canvas.height = 128;
       
-      // Remove text mesh
-      const textMesh = scene.getObjectByName(`ticket-text-${ticket.userData.id}`);
-      if (textMesh) scene.remove(textMesh);
-    });
-    
-    // Clear tickets array
-    tickets3D = [];
-    
-    // Create new tickets (only show up to 10 to avoid overcrowding)
-    const maxTickets = Math.min(ticketData.length, 10);
-    for (let i = 0; i < maxTickets; i++) {
-      const ticket = createTicket3D(ticketData[i], i, maxTickets);
-      tickets3D.push(ticket);
+      // Set background transparent
+      context.fillStyle = 'rgba(0,0,0,0)';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw text
+      context.font = 'Bold 40px Arial';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillStyle = '#ffffff';
+      context.fillText(id, 128, 64);
+      
+      // Create texture from canvas
+      const texture = new THREE.CanvasTexture(canvas);
+      
+      // Create material with transparency
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide
+      });
+      
+      // Create text plane
+      const textGeometry = new THREE.PlaneGeometry(
+        CONFIG.TICKET_SIZE * 1.2, 
+        CONFIG.TICKET_SIZE * 0.6
+      );
+      const textMesh = new THREE.Mesh(textGeometry, material);
+      
+      // Position slightly in front of ticket
+      const offset = 0.06;
+      textMesh.position.copy(ticketMesh.position);
+      
+      // Apply small offset in the local direction the ticket is facing
+      const direction = new THREE.Vector3(0, 0, -1);
+      direction.applyQuaternion(ticketMesh.quaternion);
+      direction.normalize();
+      
+      textMesh.position.x += direction.x * offset;
+      textMesh.position.y += direction.y * offset;
+      textMesh.position.z += direction.z * offset;
+      
+      // Match rotation of ticket
+      textMesh.quaternion.copy(ticketMesh.quaternion);
+      
+      // Add to scene and ticket objects
+      scene.add(textMesh);
+      ticketObjects.push(textMesh);
+    } catch (error) {
+      console.warn('Failed to create ticket label:', error);
     }
   }
-  
-  /**
-   * Handle window resize
-   */
+
+  // Handle window resize
   function onWindowResize() {
-    windowHalfX = window.innerWidth / 2;
-    windowHalfY = window.innerHeight / 2;
+    if (!camera || !renderer) return;
     
+    // Update camera aspect ratio
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     
+    // Update renderer size
     renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
+    
+    // Update composer if it exists
+    if (composer) {
+      composer.setSize(window.innerWidth, window.innerHeight);
+    }
   }
-  
-  /**
-   * Handle mouse movement
-   */
+
+  // Handle mouse movement for interactive hover effect
   function onMouseMove(event) {
-    // Update mouse position
+    // Calculate mouse position in normalized device coordinates
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     
-    // Store mouse position for camera animation
-    targetMouseX = event.clientX - windowHalfX;
-    targetMouseY = event.clientY - windowHalfY;
+    // Update tooltip position
+    updateTooltipPosition(event);
     
-    // Update raycaster
-    raycaster.setFromCamera(mouse, camera);
-    
-    // Check for intersections with tickets
-    const intersects = raycaster.intersectObjects(tickets3D);
-    
-    // Reset all tickets first
-    tickets3D.forEach(ticket => {
-      if (ticket.material.uniforms) {
-        ticket.material.uniforms.isHovered.value = 0.0;
-      }
-      ticket.userData.isHovered = false;
-    });
-    
-    // Update hovered ticket
-    if (intersects.length > 0) {
-      const ticket = intersects[0].object;
-      ticket.userData.isHovered = true;
-      
-      if (ticket.material.uniforms) {
-        ticket.material.uniforms.isHovered.value = 1.0;
-      }
-      
-      // Show ticket info
-      showTicketInfo(ticket.userData);
-    } else {
-      // Hide ticket info
-      hideTicketInfo();
-    }
+    // Raycasting is handled in the animation loop for performance
   }
-  
-  /**
-   * Show ticket information tooltip
-   */
+
+  // Update the tooltip position to follow mouse
+  function updateTooltipPosition(event) {
+    if (!tooltip) return;
+    
+    tooltip.style.left = event.clientX + 'px';
+    tooltip.style.top = event.clientY + 'px';
+  }
+
+  // Show ticket information in tooltip
   function showTicketInfo(ticketData) {
-    // Create or get tooltip element
-    let tooltip = document.getElementById('ticket3d-tooltip');
-    if (!tooltip) {
-      tooltip = document.createElement('div');
-      tooltip.id = 'ticket3d-tooltip';
-      tooltip.className = 'ticket3d-tooltip';
-      document.body.appendChild(tooltip);
-      
-      // Add styles
-      const style = document.createElement('style');
-      style.textContent = `
-        .ticket3d-tooltip {
-          position: fixed;
-          background-color: rgba(0, 0, 0, 0.8);
-          border: 2px solid #8936ff;
-          border-radius: 8px;
-          color: white;
-          padding: 10px 15px;
-          font-size: 14px;
-          pointer-events: none;
-          z-index: 9999;
-          box-shadow: 0 0 15px rgba(137, 54, 255, 0.5);
-          transform: translate(-50%, -100%);
-          margin-top: -10px;
-          opacity: 0;
-          transition: opacity 0.2s ease;
-          max-width: 250px;
-        }
-        .ticket3d-tooltip h4 {
-          margin: 0 0 8px;
-          color: #8936ff;
-          font-size: 16px;
-          border-bottom: 1px solid #8936ff40;
-          padding-bottom: 5px;
-        }
-        .ticket3d-tooltip p {
-          margin: 3px 0;
-          display: flex;
-          justify-content: space-between;
-        }
-        .ticket3d-tooltip span {
-          opacity: 0.7;
-        }
-      `;
-      document.head.appendChild(style);
-    }
+    if (!tooltip || !ticketData) return;
     
     // Format date
-    const created = ticketData.createdAt ? new Date(ticketData.createdAt) : new Date();
-    const formattedDate = created.toLocaleDateString() + ' ' + 
-                          created.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                          
-    // Update tooltip content
+    const created = ticketData.createdAt ? 
+                    new Date(ticketData.createdAt).toLocaleDateString() : 
+                    'Unknown';
+    
+    // Set tooltip content
     tooltip.innerHTML = `
-      <h4>Ticket #${ticketData.id}</h4>
-      <p>User: <span>${ticketData.username || 'Unknown'}</span></p>
-      <p>Type: <span>${ticketData.type || 'General'}</span></p>
-      <p>Status: <span>${ticketData.status || 'UNKNOWN'}</span></p>
-      <p>Created: <span>${formattedDate}</span></p>
+      <h4>#${ticketData.id}</h4>
+      <p><span>User:</span> ${ticketData.username || 'Unknown'}</p>
+      <p><span>Type:</span> ${ticketData.type || 'General'}</p>
+      <p><span>Status:</span> ${ticketData.status || 'Unknown'}</p>
+      <p><span>Created:</span> ${created}</p>
     `;
     
-    // Show tooltip
+    // Show tooltip with fade in
     tooltip.style.opacity = '1';
-    
-    // Update tooltip position on mousemove
-    document.addEventListener('mousemove', updateTooltipPosition);
-    
-    // Initial position update
-    updateTooltipPosition(event);
   }
-  
-  /**
-   * Update tooltip position
-   */
-  function updateTooltipPosition(event) {
-    const tooltip = document.getElementById('ticket3d-tooltip');
-    if (!tooltip) return;
-    
-    tooltip.style.left = `${event.clientX}px`;
-    tooltip.style.top = `${event.clientY}px`;
-  }
-  
-  /**
-   * Hide ticket information tooltip
-   */
+
+  // Hide ticket information tooltip
   function hideTicketInfo() {
-    const tooltip = document.getElementById('ticket3d-tooltip');
     if (!tooltip) return;
-    
     tooltip.style.opacity = '0';
-    
-    // Remove mousemove listener
-    document.removeEventListener('mousemove', updateTooltipPosition);
   }
-  
-  /**
-   * Animation loop
-   */
+
+  // Animation loop
   function animate() {
-    // Store current time for animations
-    const time = Date.now() * 0.001;
-    
-    // Request next frame
     requestAnimationFrame(animate);
     
-    // Update camera position with smooth damping
-    mouseX += (targetMouseX - mouseX) * 0.05;
-    mouseY += (targetMouseY - mouseY) * 0.05;
+    // Calculate elapsed time for animation
+    const now = Date.now();
+    const elapsedTime = (now - animationStartTimestamp) / 1000;
     
-    // Subtle camera movement based on mouse
-    if (camera) {
-      camera.position.x += (mouseX * 0.05 - camera.position.x) * 0.01;
-      camera.position.y += (-mouseY * 0.05 - camera.position.y) * 0.01;
-      camera.lookAt(scene.position);
+    // Rotate orbital ring
+    if (orbitalRing) {
+      orbitalRing.rotation.y = elapsedTime * 0.05;
     }
     
-    // Animate orbital ring
-    if (orbitalRing && orbitalRing.material.uniforms) {
-      orbitalRing.material.uniforms.time.value = time;
-      orbitalRing.rotation.z += 0.001;
-    }
-    
-    // Animate tickets
-    tickets3D.forEach(ticket => {
-      if (ticket.material.uniforms) {
-        ticket.material.uniforms.time.value = time;
-      }
+    // Animate ticket positions
+    ticketObjects.forEach(obj => {
+      // Skip objects without userData (like text labels)
+      if (!obj.userData || !obj.userData.originalAngle) return;
       
-      // Apply different rotation speeds based on hover state
-      const rotationSpeed = ticket.userData.isHovered ? 
-        config.ticketRotationSpeed * 0.5 : config.ticketRotationSpeed;
+      // Calculate new position based on original angle and elapsed time
+      const angle = obj.userData.originalAngle + (elapsedTime * CONFIG.ROTATION_SPEED);
+      obj.position.x = Math.cos(angle) * CONFIG.ORBITAL_RADIUS;
+      obj.position.z = Math.sin(angle) * CONFIG.ORBITAL_RADIUS;
       
-      // Make tickets float around their positions
-      const angle = ticket.userData.angle;
-      const floatOffset = Math.sin(time * 0.5 + angle) * 1.5;
+      // Add subtle floating animation
+      obj.position.y = obj.userData.originalHeight + 
+                      (Math.sin(elapsedTime + obj.userData.originalAngle * 3) * 0.1);
       
-      ticket.position.y = floatOffset;
-      ticket.rotation.y += rotationSpeed;
-      
-      // Update text position
-      const textMesh = scene.getObjectByName(`ticket-text-${ticket.userData.id}`);
-      if (textMesh) {
-        textMesh.position.y = ticket.position.y + 0.5;
-        textMesh.rotation.y = ticket.rotation.y;
-      }
+      // Face center
+      obj.lookAt(new THREE.Vector3(0, obj.position.y, 0));
     });
     
-    // Use composer if available for post-processing effects
+    // Handle raycasting for interactive effects
+    handleRaycasting();
+    
+    // Render scene with composer if available, otherwise use standard renderer
     if (composer) {
       composer.render();
     } else {
       renderer.render(scene, camera);
     }
   }
-  
-  // Custom event dispatcher to update tickets from external scripts
-  function dispatchTicketsUpdated(tickets) {
-    window.dispatchEvent(new CustomEvent('ticketsUpdated', {
-      detail: { tickets }
-    }));
+
+  // Handle raycasting for interactive hover effect
+  function handleRaycasting() {
+    if (!raycaster || !camera || !scene || !mouse) return;
+    
+    // Update the raycaster with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera);
+    
+    // Find interactions with ticket objects - only include main tickets, not text labels
+    const mainTickets = ticketObjects.filter(obj => obj.userData && obj.userData.ticket);
+    const intersects = raycaster.intersectObjects(mainTickets);
+    
+    // Handle mouse over/out effects
+    if (intersects.length > 0) {
+      // Mouse is over at least one ticket
+      const firstIntersected = intersects[0].object;
+      
+      if (currentlyIntersected !== firstIntersected) {
+        // Mouse entered a new ticket
+        
+        // Reset previous ticket if there was one
+        if (currentlyIntersected) {
+          // Scale back to original size
+          currentlyIntersected.scale.copy(currentlyIntersected.userData.originalScale);
+          
+          // Reset material intensity
+          if (currentlyIntersected.material) {
+            currentlyIntersected.material.emissiveIntensity = 0.3;
+          }
+        }
+        
+        // Set new intersected object
+        currentlyIntersected = firstIntersected;
+        
+        // Scale up the ticket
+        currentlyIntersected.scale.set(
+          CONFIG.HOVER_SCALE, 
+          CONFIG.HOVER_SCALE, 
+          CONFIG.HOVER_SCALE
+        );
+        
+        // Increase glow
+        if (currentlyIntersected.material) {
+          currentlyIntersected.material.emissiveIntensity = 0.7;
+        }
+        
+        // Show tooltip with ticket info
+        showTicketInfo(currentlyIntersected.userData.ticket);
+      }
+    } else if (currentlyIntersected) {
+      // Mouse moved out of all tickets
+      
+      // Reset current intersected object
+      currentlyIntersected.scale.copy(currentlyIntersected.userData.originalScale);
+      
+      if (currentlyIntersected.material) {
+        currentlyIntersected.material.emissiveIntensity = 0.3;
+      }
+      
+      // Clear reference
+      currentlyIntersected = null;
+      
+      // Hide tooltip
+      hideTicketInfo();
+    }
   }
-  
-  // Expose function to update tickets from the main ticket script
-  window.update3DTickets = dispatchTicketsUpdated;
-});
+})();
