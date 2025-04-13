@@ -24,31 +24,52 @@ function initPremiumCards() {
     // Skip if already initialized
     if (card.dataset.premiumInitialized) return;
     
-    // Add mousemove event for 3D tilt effect
-    card.addEventListener('mousemove', handleCardTilt);
+    // Check if card contains form elements
+    const hasFormElements = card.querySelector('input, textarea, select, button');
     
-    // Add mouseenter event
-    card.addEventListener('mouseenter', function() {
-      this.style.transform = 'translateY(-5px) scale(1.02)';
-      const icons = this.querySelectorAll('i, .stat-icon');
-      icons.forEach(icon => {
-        icon.style.textShadow = '0 0 8px rgba(255, 255, 255, 0.8)';
-        icon.style.transform = 'scale(1.1)';
-      });
-    });
-    
-    // Add mouseleave event
-    card.addEventListener('mouseleave', function() {
-      this.style.transform = 'translateY(0) scale(1)';
-      const icons = this.querySelectorAll('i, .stat-icon');
-      icons.forEach(icon => {
-        icon.style.textShadow = '0 0 0 rgba(255, 255, 255, 0)';
-        icon.style.transform = 'scale(1)';
+    // Only add tilt effect if card doesn't contain form elements
+    if (!hasFormElements) {
+      // Add mousemove event for 3D tilt effect
+      card.addEventListener('mousemove', handleCardTilt);
+      
+      // Add mouseenter event with motion
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px) scale(1.02)';
+        const icons = this.querySelectorAll('i, .stat-icon');
+        icons.forEach(icon => {
+          icon.style.textShadow = '0 0 8px rgba(255, 255, 255, 0.8)';
+          icon.style.transform = 'scale(1.1)';
+        });
       });
       
-      // Reset any 3D transform
-      this.style.transform = '';
-    });
+      // Add mouseleave event
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+        const icons = this.querySelectorAll('i, .stat-icon');
+        icons.forEach(icon => {
+          icon.style.textShadow = '0 0 0 rgba(255, 255, 255, 0)';
+          icon.style.transform = 'scale(1)';
+        });
+        
+        // Reset any 3D transform
+        this.style.transform = '';
+      });
+    } else {
+      // For cards with form elements, only add subtle effects
+      card.addEventListener('mouseenter', function() {
+        const icons = this.querySelectorAll('i, .stat-icon');
+        icons.forEach(icon => {
+          icon.style.textShadow = '0 0 8px rgba(255, 255, 255, 0.8)';
+        });
+      });
+      
+      card.addEventListener('mouseleave', function() {
+        const icons = this.querySelectorAll('i, .stat-icon');
+        icons.forEach(icon => {
+          icon.style.textShadow = '0 0 0 rgba(255, 255, 255, 0)';
+        });
+      });
+    }
     
     // Mark as initialized
     card.dataset.premiumInitialized = true;
@@ -194,6 +215,9 @@ function initDynamicReflections() {
     // Skip if already initialized
     if (container.dataset.reflectionInitialized) return;
     
+    // Check if container has form elements
+    const hasFormElements = container.querySelector('input, textarea, select, button');
+    
     // Create reflection overlay
     const reflectionOverlay = document.createElement('div');
     reflectionOverlay.className = 'reflection-overlay';
@@ -210,19 +234,22 @@ function initDynamicReflections() {
     container.style.position = container.style.position === 'static' ? 'relative' : container.style.position;
     container.appendChild(reflectionOverlay);
     
-    // Add mousemove event to track reflection
-    container.addEventListener('mousemove', function(e) {
-      const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      // Calculate percentage within container
-      const percentX = (x / rect.width) * 100;
-      const percentY = (y / rect.height) * 100;
-      
-      // Update reflection position
-      reflectionOverlay.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0) 70%)`;
-    });
+    // Only add mousemove tracking if there are no form elements
+    if (!hasFormElements) {
+      // Add mousemove event to track reflection
+      container.addEventListener('mousemove', function(e) {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Calculate percentage within container
+        const percentX = (x / rect.width) * 100;
+        const percentY = (y / rect.height) * 100;
+        
+        // Update reflection position
+        reflectionOverlay.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0) 70%)`;
+      });
+    }
     
     // Mark as initialized
     container.dataset.reflectionInitialized = true;
@@ -238,6 +265,15 @@ function initPremiumParticles() {
   premiumContainers.forEach(container => {
     // Skip if already initialized
     if (container.dataset.particlesInitialized) return;
+    
+    // Check if container has form elements
+    const hasFormElements = container.querySelector('input, textarea, select, button, form');
+    
+    // If container has form elements, skip adding particles
+    if (hasFormElements) {
+      container.dataset.particlesInitialized = true;
+      return;
+    }
     
     // Create particles container
     const particlesContainer = document.createElement('div');
@@ -256,8 +292,8 @@ function initPremiumParticles() {
       container.style.position = 'relative';
     }
     
-    // Add particles
-    const particleCount = 5 + Math.floor(Math.random() * 5);
+    // Reduce particle count for better performance
+    const particleCount = 3 + Math.floor(Math.random() * 3);
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       const size = 2 + Math.random() * 3;
@@ -294,7 +330,7 @@ function initPremiumParticles() {
         @keyframes float-particle {
           0% { transform: translate(0, 0); opacity: 0; }
           25% { opacity: 0.8; }
-          50% { transform: translate(${Math.random() > 0.5 ? '+' : '-'}${20 + Math.random() * 30}px, ${Math.random() > 0.5 ? '+' : '-'}${20 + Math.random() * 30}px); opacity: 0.2; }
+          50% { transform: translate(${Math.random() > 0.5 ? '+' : '-'}${15 + Math.random() * 20}px, ${Math.random() > 0.5 ? '+' : '-'}${15 + Math.random() * 20}px); opacity: 0.2; }
           75% { opacity: 0.6; }
           100% { transform: translate(0, 0); opacity: 0; }
         }
