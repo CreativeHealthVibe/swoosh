@@ -545,6 +545,32 @@ router.delete('/moderation/delete-filter/:serverId/:filterId', async (req, res) 
 });
 
 /**
+ * GET /admin3d/tickets
+ * Ticket management and support interface
+ */
+router.get('/tickets', (req, res) => {
+  const client = req.app.get('client');
+  
+  // Get available servers if client is available
+  let servers = [];
+  if (client) {
+    servers = client.guilds.cache.map(guild => ({
+      id: guild.id,
+      name: guild.name + ' (' + guild.memberCount + ')',
+      memberCount: guild.memberCount
+    })).sort((a, b) => a.name.localeCompare(b.name));
+  }
+  
+  res.render('admin3d/tickets', {
+    title: 'Ticket Management | SWOOSH Bot',
+    user: req.user,
+    client,
+    servers,
+    layout: 'layouts/admin3d'
+  });
+});
+
+/**
  * GET /admin3d/messages
  * Message management interface for sending news and embeds
  */
@@ -847,20 +873,7 @@ router.post('/messages/send-dm', (req, res) => {
   })();
 });
 
-/**
- * GET /admin3d/tickets
- * Ticket management interface
- */
-router.get('/tickets', (req, res) => {
-  const client = req.app.get('client');
-  
-  res.render('admin3d/tickets', {
-    title: 'Ticket Management | SWOOSH Bot',
-    user: req.user,
-    client,
-    layout: 'layouts/admin3d'
-  });
-});
+// Ticket routes are already defined above
 
 /**
  * GET /admin3d/roles
