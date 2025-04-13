@@ -20,7 +20,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const testImageBtn = document.getElementById('test-image-btn');
   const panelColorInput = document.getElementById('panel-color');
   const colorPresets = document.querySelectorAll('.color-preset');
-  const serverSelect = document.getElementById('server-select');
+  
+  // Get server select - may be in different locations based on layout
+  let serverSelect = document.getElementById('server-select');
+  if (!serverSelect) {
+    // Try to find it in the header/nav area
+    const serverSelectors = document.querySelectorAll('select');
+    for (const selector of serverSelectors) {
+      if (selector.options && selector.options.length > 0 && 
+          selector.options[0].text && selector.options[0].text.includes('Select a server')) {
+        serverSelect = selector;
+        break;
+      }
+    }
+  }
   
   // Preview elements
   const previewTitle = document.getElementById('preview-title');
@@ -482,14 +495,53 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Event: Server select change
   if (serverSelect) {
+    console.log('Server select element found:', serverSelect);
+    
     serverSelect.addEventListener('change', function() {
       const serverId = this.value;
-      loadChannels(serverId);
+      console.log('Server selected:', serverId);
+      if (serverId) {
+        loadChannels(serverId);
+      }
     });
     
     // Load channels for initial server if selected
     if (serverSelect.value) {
+      console.log('Initial server detected:', serverSelect.value);
       loadChannels(serverSelect.value);
+    } else {
+      // Try to get the server ID from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const serverIdFromUrl = urlParams.get('server');
+      if (serverIdFromUrl) {
+        console.log('Server ID from URL:', serverIdFromUrl);
+        // Set the server select value if possible
+        for (let i = 0; i < serverSelect.options.length; i++) {
+          if (serverSelect.options[i].value === serverIdFromUrl) {
+            serverSelect.value = serverIdFromUrl;
+            loadChannels(serverIdFromUrl);
+            break;
+          }
+        }
+      }
+    }
+  } else {
+    console.log('Server select element not found');
+    
+    // Try to find server ID another way - from URL or page context
+    const urlParams = new URLSearchParams(window.location.search);
+    const serverIdFromUrl = urlParams.get('server');
+    
+    if (serverIdFromUrl) {
+      console.log('Using server ID from URL:', serverIdFromUrl);
+      loadChannels(serverIdFromUrl);
+    } else {
+      // Try to get the current server from the header
+      const serverHeader = document.querySelector('.header-server-name');
+      if (serverHeader && serverHeader.dataset.serverId) {
+        console.log('Using server ID from header:', serverHeader.dataset.serverId);
+        loadChannels(serverHeader.dataset.serverId);
+      }
     }
   }
   
@@ -498,8 +550,40 @@ document.addEventListener('DOMContentLoaded', function() {
     panelForm.addEventListener('submit', function(e) {
       e.preventDefault();
       
-      // Check if server is selected
-      if (!serverSelect || !serverSelect.value) {
+      // Get server ID from various sources
+      const serverIdToUse = getServerIdFromMultipleSources();
+      
+      // Function to get server ID from various possible locations
+      function getServerIdFromMultipleSources() {
+        // First check the select element
+        if (serverSelect && serverSelect.value) {
+          return serverSelect.value;
+        }
+        
+        // Try URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const serverIdFromUrl = urlParams.get('server');
+        if (serverIdFromUrl) {
+          return serverIdFromUrl;
+        }
+        
+        // Try data attribute
+        const serverHeader = document.querySelector('.header-server-name');
+        if (serverHeader && serverHeader.dataset.serverId) {
+          return serverHeader.dataset.serverId;
+        }
+        
+        // Fall back to current server ID if it's been set
+        if (currentServerId) {
+          return currentServerId;
+        }
+        
+        // No server ID found
+        return null;
+      }
+      
+      // Check if server ID was found
+      if (!serverIdToUse) {
         showPremiumNotification('Please select a server', 'error');
         return;
       }
@@ -512,7 +596,6 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Collect form data
       const formData = new FormData(panelForm);
-      const serverId = serverSelect.value;
       
       // Convert form data to JSON
       const jsonData = {
@@ -539,7 +622,7 @@ document.addEventListener('DOMContentLoaded', function() {
       showPremiumNotification('Creating ticket panel...', 'info');
       
       // Send to API
-      fetch(`/api/v2/servers/${serverId}/tickets`, {
+      fetch(`/api/v2/servers/${serverIdToUse}/tickets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
