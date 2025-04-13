@@ -939,6 +939,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const row = document.createElement('div');
     row.className = 'ticket-type-row';
     row.dataset.index = index;
+    row.style.setProperty('--row-index', index);
     
     row.innerHTML = `
       <div class="row">
@@ -973,6 +974,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     Array.from(ticketTypesContainer.children).forEach((row, index) => {
       row.dataset.index = index;
+      row.style.setProperty('--row-index', index);
       
       const labelInput = row.querySelector('.type-label');
       const emojiInput = row.querySelector('.type-emoji');
