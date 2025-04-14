@@ -41,16 +41,26 @@ module.exports = {
         case 1: // Bounty Request
           embed = new EmbedBuilder()
             .setTitle('Bounty Request')
-            .setDescription('I see you\'re trying to set a bounty! Please provide the following details:')
+            .setDescription('You can use our bounty system in two ways:')
             .addFields(
-              { name: 'Who is the bounty on?', value: 'Please provide their username.', inline: false },
-              { name: 'Their Roblox ID', value: 'This is required to verify the target.', inline: false },
-              { name: 'A screenshot of their avatar', value: 'This will be used for identification.', inline: false },
-              { name: 'The bounty amount', value: 'How much are you offering?', inline: false },
-              { name: 'Do you need a clip of their response?', value: 'True/False', inline: false }
+              { 
+                name: 'Option 1: Submit with the `.bounty` command', 
+                value: 'Use `.bounty <roblox-id> <amount>` to submit a bounty directly.\nYour submission will be reviewed by admins before being posted.', 
+                inline: false 
+              },
+              { 
+                name: 'Option 2: Request admin assistance', 
+                value: 'If you need help, please provide:', 
+                inline: false 
+              },
+              { name: 'Roblox Username', value: 'Who is the bounty on?', inline: true },
+              { name: 'Roblox ID', value: 'The numeric ID is required', inline: true },
+              { name: 'Avatar Screenshot', value: 'For identification', inline: true },
+              { name: 'Bounty Amount', value: 'How much are you offering?', inline: true },
+              { name: 'Evidence Requirement', value: 'Do you need proof clip?', inline: true }
             )
             .setColor(config.embedColor)
-            .setFooter({ text: 'An admin will assist you shortly.' });
+            .setFooter({ text: 'An admin will review your request shortly.' });
           break;
 
         case 2: // Bounty Confirmed
