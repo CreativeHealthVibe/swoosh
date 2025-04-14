@@ -9,12 +9,12 @@ const os = require('os-utils');
 
 class StatsWebSocketServer {
   constructor(server, bot) {
+    // Fix 1: Simplified WebSocket server options to avoid conflicts
     this.wss = new WebSocket.Server({ 
       server,
-      path: '/stats-ws',
-      // Add proper ping/pong for connection stability
-      pingInterval: 20000, // Check connection every 20 seconds
-      pingTimeout: 10000   // Wait 10 seconds for pong response
+      path: '/stats-ws'
+      // Removed pingInterval and pingTimeout as they're not standard options
+      // We'll implement our own ping/pong mechanism
     });
     this.bot = bot;
     this.clients = new Set();
