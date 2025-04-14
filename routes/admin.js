@@ -1182,11 +1182,10 @@ async function sendNewsToChannel(req, res, redirectUrl) {
   }
   
   try {
-    // Get configurations from the database to find the news channel
-    let newsChannelId = null;
-    let guild = null;
+    // Get configurations from the database to find all news channels
+    let newsChannels = [];
     
-    // Try to get the news channel from the database
+    // Try to get the news channels from the database
     if (client.discordDB) {
       const servers = client.guilds.cache.map(g => g.id);
       
@@ -1195,23 +1194,20 @@ async function sendNewsToChannel(req, res, redirectUrl) {
         const guildConfig = await client.discordDB.getDocument('configs', guildId);
         
         if (guildConfig && guildConfig.newsChannel) {
-          newsChannelId = guildConfig.newsChannel;
-          guild = client.guilds.cache.get(guildId);
-          break;
+          const guild = client.guilds.cache.get(guildId);
+          if (guild) {
+            newsChannels.push({
+              channelId: guildConfig.newsChannel,
+              guildId: guildId,
+              guildName: guild.name
+            });
+          }
         }
       }
     }
     
-    if (!newsChannelId) {
-      req.flash('error', 'No news channel configured. Use the /setnews command in Discord first.');
-      return res.redirect(redirectUrl);
-    }
-    
-    // Try to fetch the channel
-    const channel = await client.channels.fetch(newsChannelId).catch(() => null);
-    
-    if (!channel) {
-      req.flash('error', 'News channel not found or bot does not have access to it');
+    if (newsChannels.length === 0) {
+      req.flash('error', 'No news channels configured. Use the /setnews command in Discord first.');
       return res.redirect(redirectUrl);
     }
     
@@ -1231,10 +1227,47 @@ async function sendNewsToChannel(req, res, redirectUrl) {
       embed.image = { url: newsImage };
     }
     
-    // Send the news
-    await channel.send({ embeds: [embed] });
+    // Track successful sends and errors
+    let successCount = 0;
+    let errorCount = 0;
+    let successMessages = [];
+    let errorMessages = [];
     
-    req.flash('success', `News sent to #${channel.name} in ${guild.name}`);
+    // Send the news to all configured channels
+    for (const newsChannel of newsChannels) {
+      try {
+        // Try to fetch the channel
+        const channel = await client.channels.fetch(newsChannel.channelId).catch(() => null);
+        
+        if (!channel) {
+          errorCount++;
+          errorMessages.push(`${newsChannel.guildName}: Channel not found or bot does not have access`);
+          continue;
+        }
+        
+        // Send the news
+        await channel.send({ embeds: [embed] });
+        
+        // Log success
+        successCount++;
+        successMessages.push(`#${channel.name} in ${newsChannel.guildName}`);
+        console.log(`News sent to #${channel.name} in ${newsChannel.guildName}`);
+      } catch (err) {
+        errorCount++;
+        errorMessages.push(`${newsChannel.guildName}: ${err.message}`);
+        console.error(`Error sending news to guild ${newsChannel.guildName}:`, err);
+      }
+    }
+    
+    // Build response message based on results
+    if (successCount > 0) {
+      req.flash('success', `News sent to ${successCount} channel${successCount !== 1 ? 's' : ''}: ${successMessages.join(', ')}`);
+    }
+    
+    if (errorCount > 0) {
+      req.flash('error', `Failed to send news to ${errorCount} channel${errorCount !== 1 ? 's' : ''}: ${errorMessages.join('; ')}`);
+    }
+    
     return res.redirect(redirectUrl);
   } catch (error) {
     console.error('Error sending news:', error);

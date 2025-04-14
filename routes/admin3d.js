@@ -591,7 +591,7 @@ router.get('/messages', (req, res) => {
 
 /**
  * POST /admin3d/messages/send-news
- * Send news update to configured channel
+ * Send news update to all configured channels
  */
 router.post('/messages/send-news', (req, res) => {
   const { newsTitle, newsContent, newsColor, newsImage } = req.body;
@@ -611,14 +611,13 @@ router.post('/messages/send-news', (req, res) => {
     });
   }
   
-  // Try to get news channel from database
+  // Try to get news channels from database
   (async () => {
     try {
-      // Attempt to get news channel from database
-      let newsChannelId = null;
-      let guild = null;
+      // Get configurations from the database to find all news channels
+      let newsChannels = [];
       
-      // Try to get the news channel from the database
+      // Try to get the news channels from the database
       if (client.discordDB) {
         const servers = client.guilds.cache.map(g => g.id);
         
@@ -627,27 +626,22 @@ router.post('/messages/send-news', (req, res) => {
           const guildConfig = await client.discordDB.getDocument('configs', guildId);
           
           if (guildConfig && guildConfig.newsChannel) {
-            newsChannelId = guildConfig.newsChannel;
-            guild = client.guilds.cache.get(guildId);
-            break;
+            const guild = client.guilds.cache.get(guildId);
+            if (guild) {
+              newsChannels.push({
+                channelId: guildConfig.newsChannel,
+                guildId: guildId,
+                guildName: guild.name
+              });
+            }
           }
         }
       }
       
-      if (!newsChannelId) {
+      if (newsChannels.length === 0) {
         return res.json({
           success: false,
-          message: 'No news channel configured. Use the /setnews command in Discord first.'
-        });
-      }
-      
-      // Try to fetch the channel
-      const channel = await client.channels.fetch(newsChannelId).catch(() => null);
-      
-      if (!channel) {
-        return res.json({
-          success: false,
-          message: 'News channel not found or bot does not have access to it'
+          message: 'No news channels configured. Use the /setnews command in Discord first.'
         });
       }
       
@@ -667,13 +661,61 @@ router.post('/messages/send-news', (req, res) => {
         embed.image = { url: newsImage };
       }
       
-      // Send the news
-      await channel.send({ embeds: [embed] });
+      // Track successful sends and errors
+      let successCount = 0;
+      let errorCount = 0;
+      let successMessages = [];
+      let errorMessages = [];
       
-      return res.json({
-        success: true,
-        message: `News sent to #${channel.name} in ${guild.name}`
-      });
+      // Send the news to all configured channels
+      for (const newsChannel of newsChannels) {
+        try {
+          // Try to fetch the channel
+          const channel = await client.channels.fetch(newsChannel.channelId).catch(() => null);
+          
+          if (!channel) {
+            errorCount++;
+            errorMessages.push(`${newsChannel.guildName}: Channel not found or bot does not have access`);
+            continue;
+          }
+          
+          // Send the news
+          await channel.send({ embeds: [embed] });
+          
+          // Log success
+          successCount++;
+          successMessages.push(`#${channel.name} in ${newsChannel.guildName}`);
+          console.log(`News sent to #${channel.name} in ${newsChannel.guildName}`);
+        } catch (err) {
+          errorCount++;
+          errorMessages.push(`${newsChannel.guildName}: ${err.message}`);
+          console.error(`Error sending news to guild ${newsChannel.guildName}:`, err);
+        }
+      }
+      
+      // Build response message based on results
+      if (successCount > 0) {
+        return res.json({
+          success: true,
+          message: `News sent to ${successCount} channel${successCount !== 1 ? 's' : ''}`,
+          details: {
+            successCount,
+            errorCount,
+            successMessages,
+            errorMessages
+          }
+        });
+      } else {
+        return res.json({
+          success: false,
+          message: `Failed to send news to any channels. Errors: ${errorMessages.join('; ')}`,
+          details: {
+            successCount,
+            errorCount,
+            errorMessages
+          }
+        });
+      }
     } catch (error) {
       console.error('Error sending news:', error);
       return res.json({
