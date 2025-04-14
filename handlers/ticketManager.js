@@ -45,6 +45,9 @@ module.exports = {
     console.log('🎫 Ticket Manager initialized');
   },
   
+  // Expose the ticketPanels map for API usage
+  ticketPanels,
+  
   /**
    * Get a ticket by ID
    * @param {string} serverId - Discord server ID
@@ -686,7 +689,7 @@ module.exports = {
   },
   
   /**
-   * Get tickets for a server
+   * Get tickets for a server or ticket panels if the context implies panels
    * @param {string} serverId - Discord server ID
    * @param {Object} [client] - Discord client (optional)
    * @returns {Array} - Array of tickets or ticket panels depending on context
