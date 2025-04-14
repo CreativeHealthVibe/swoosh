@@ -1,4 +1,4 @@
-// setbounty.js - Premium Slash command to create bounties on targets
+// setbounty.js - Ultra Premium Slash command to create bounties on targets
 const { 
   SlashCommandBuilder, 
   ChannelType,
@@ -6,13 +6,79 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ComponentType
+  ComponentType,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder
 } = require('discord.js');
 const bountyManager = require('../handlers/bountyManager');
 const adminUtils = require('../utils/admin');
 const validators = require('../utils/validators');
 const config = require('../config');
 const logging = require('../modules/logging');
+
+// Predefined templates for bounty creation - these will be shown in the UI
+const BOUNTY_TEMPLATES = [
+  { 
+    id: 'standard', 
+    name: 'Standard Bounty',
+    description: 'Regular bounty announcement',
+    color: '#FF0000', 
+    icon: '🎯'
+  },
+  { 
+    id: 'premium', 
+    name: 'Premium Bounty',
+    description: 'Enhanced high-visibility announcement',
+    color: '#FFD700', 
+    icon: '💰'
+  },
+  { 
+    id: 'critical', 
+    name: 'Critical Target',
+    description: 'Urgent high-priority target announcement',
+    color: '#8B0000', 
+    icon: '⚠️'
+  },
+  { 
+    id: 'stealth', 
+    name: 'Stealth Bounty',
+    description: 'Minimalist low-key announcement',
+    color: '#708090', 
+    icon: '🕵️'
+  }
+];
+
+// Predefined priority levels for bounties
+const PRIORITY_LEVELS = [
+  {
+    id: 'low',
+    name: 'Low Priority',
+    description: 'Standard target, no urgency',
+    color: '#00FF00',
+    icon: '🟢'
+  },
+  {
+    id: 'medium',
+    name: 'Medium Priority',
+    description: 'Important target, moderate urgency',
+    color: '#FFFF00',
+    icon: '🟡'
+  },
+  {
+    id: 'high',
+    name: 'High Priority',
+    description: 'Critical target, high urgency',
+    color: '#FF0000',
+    icon: '🔴'
+  },
+  {
+    id: 'top',
+    name: 'TOP PRIORITY',
+    description: 'Most wanted target, maximum urgency',
+    color: '#8B0000',
+    icon: '⭐'
+  }
+];
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -44,6 +110,28 @@ module.exports = {
       option.setName('reason')
         .setDescription('Reason for the bounty (optional)')
         .setRequired(false)
+    )
+    .addStringOption(option =>
+      option.setName('priority')
+        .setDescription('Priority level of this bounty')
+        .setRequired(false)
+        .addChoices(
+          { name: '🟢 Low Priority', value: 'low' },
+          { name: '🟡 Medium Priority', value: 'medium' },
+          { name: '🔴 High Priority', value: 'high' },
+          { name: '⭐ TOP PRIORITY', value: 'top' }
+        )
+    )
+    .addStringOption(option =>
+      option.setName('template')
+        .setDescription('Visual style for the bounty announcement')
+        .setRequired(false)
+        .addChoices(
+          { name: '🎯 Standard', value: 'standard' },
+          { name: '💰 Premium', value: 'premium' },
+          { name: '⚠️ Critical', value: 'critical' },
+          { name: '🕵️ Stealth', value: 'stealth' }
+        )
     )
     .addAttachmentOption(option =>
       option.setName('image')
@@ -83,23 +171,31 @@ module.exports = {
       const amount = interaction.options.getInteger('amount');
       const clipRequired = interaction.options.getBoolean('clip_required');
       const reason = interaction.options.getString('reason') || null;
+      const priority = interaction.options.getString('priority') || 'medium'; // default to medium priority
+      const template = interaction.options.getString('template') || 'standard'; // default to standard template
       const image = interaction.options.getAttachment('image');
       const channel = interaction.options.getChannel('channel') || interaction.channel;
       
+      // Get template and priority details
+      const selectedTemplate = BOUNTY_TEMPLATES.find(t => t.id === template) || BOUNTY_TEMPLATES[0];
+      const selectedPriority = PRIORITY_LEVELS.find(p => p.id === priority) || PRIORITY_LEVELS[1];
+      
       // Show a confirmation dialog with bounty details
       const confirmEmbed = new EmbedBuilder()
-        .setTitle('🎯 Confirm Bounty Creation')
-        .setDescription('Please review the bounty details before confirming:')
+        .setTitle(`${selectedTemplate.icon} Confirm Bounty Creation`)
+        .setDescription(`**Please review your ${selectedTemplate.name.toLowerCase()} details before confirming:**`)
         .addFields(
           { name: 'Target', value: `\`${robloxUsername}\``, inline: true },
           { name: 'Roblox ID', value: `\`${robloxId}\``, inline: true },
           { name: 'Reward', value: `\`R$ ${amount.toLocaleString()}\``, inline: true },
           { name: 'Evidence Required', value: clipRequired ? '`Video Clip Required`' : '`No Clip Needed`', inline: true },
           { name: 'Target Image', value: image ? '`Provided ✓`' : '`Not Provided ✗`', inline: true },
-          { name: 'Post Channel', value: `${channel}`, inline: true }
+          { name: 'Post Channel', value: `${channel}`, inline: true },
+          { name: `${selectedPriority.icon} Priority Level`, value: `\`${selectedPriority.name}\``, inline: true },
+          { name: `${selectedTemplate.icon} Template`, value: `\`${selectedTemplate.name}\``, inline: true }
         )
-        .setColor('#FFD700')
-        .setFooter({ text: 'SWOOSH Bounty System • Premium Edition' });
+        .setColor(selectedTemplate.color)
+        .setFooter({ text: `SWOOSH Bounty System • Ultra Premium Edition • ${selectedPriority.name}` });
         
       // Add reason field if provided
       if (reason) {
@@ -141,13 +237,14 @@ module.exports = {
         
         // Handle button press
         if (buttonInteraction.customId === 'confirm-bounty') {
-          // Update message to show processing
+          // Update message to show processing with template styling
           await buttonInteraction.update({
             embeds: [
               new EmbedBuilder()
-                .setTitle('⏳ Processing Bounty...')
-                .setDescription('Creating your bounty, please wait...')
-                .setColor('#FFD700')
+                .setTitle(`${selectedTemplate.icon} Processing ${selectedTemplate.name}...`)
+                .setDescription(`**Creating your ${selectedPriority.name.toLowerCase()} bounty, please wait...**\n\n*Target: ${robloxUsername}*`)
+                .setColor(selectedTemplate.color)
+                .setFooter({ text: `SWOOSH Bounty System • Ultra Premium Edition • ${selectedPriority.name}` })
             ],
             components: []
           });
@@ -190,60 +287,142 @@ module.exports = {
           });
           
           if (result.success) {
-            // Success message with eye-catching design
+            // Success message with eye-catching design and enhanced styling
             const successEmbed = new EmbedBuilder()
-              .setTitle('🎯 Bounty Created Successfully')
-              .setDescription(`**Target:** \`${robloxUsername}\`\n**Reward:** \`R$ ${amount.toLocaleString()}\`${reason ? `\n**Reason:** \`${reason}\`` : ''}\n\n${result.message || 'The bounty has been posted to the specified channel.'}`)
-              .setColor('#00FF00')
-              .setFooter({ text: 'SWOOSH Bounty System • Premium Edition' })
+              .setTitle(`${selectedTemplate.icon} ${selectedTemplate.name} Created Successfully`)
+              .setDescription(
+                `**TARGET DETAILS:**\n` +
+                `${selectedPriority.icon} **Priority:** \`${selectedPriority.name}\`\n` +
+                `👤 **Username:** \`${robloxUsername}\`\n` +
+                `🆔 **Roblox ID:** \`${robloxId}\`\n` +
+                `💰 **Reward:** \`R$ ${amount.toLocaleString()}\`\n` +
+                `🎬 **Evidence:** ${clipRequired ? '`Video Clip Required`' : '`No Clip Needed`'}\n` +
+                `${reason ? `📝 **Reason:** \`${reason}\`\n` : ''}` +
+                `\n**BOUNTY STATUS:**\n` +
+                `✅ Successfully created and posted to ${channel}\n` +
+                `${result.message ? `\n${result.message}` : ''}`
+              )
+              .setColor(selectedTemplate.color)
+              .setFooter({ 
+                text: `SWOOSH Bounty System • Ultra Premium Edition • ${new Date().toLocaleString()}`,
+                iconURL: interaction.guild.iconURL({ dynamic: true })
+              })
               .setTimestamp();
+            
+            // Add thumbnail if provided
+            if (image) {
+              successEmbed.setThumbnail(image.url);
+            }
             
             return buttonInteraction.editReply({ embeds: [successEmbed], components: [] });
           } else {
-            // Failure message with detailed explanation
+            // Failure message with detailed explanation and better visuals
             const failureEmbed = new EmbedBuilder()
-              .setTitle('❌ Bounty Creation Failed')
-              .setDescription(`**Error:** ${result.message || 'Unknown error occurred'}`)
+              .setTitle(`❌ ${selectedTemplate.name} Creation Failed`)
+              .setDescription(
+                `**We encountered an error while creating your bounty:**\n\n` +
+                `\`\`\`\n${result.message || 'Unknown error occurred'}\n\`\`\`\n\n` +
+                `**Attempted Target:** \`${robloxUsername}\`\n` +
+                `**Roblox ID:** \`${robloxId}\`\n` +
+                `**Reward Amount:** \`R$ ${amount.toLocaleString()}\`\n\n` +
+                `Please check the error details above and try again, or contact an administrator if the issue persists.`
+              )
               .setColor('#FF0000')
-              .setFooter({ text: 'Please try again or contact an administrator' });
+              .setFooter({ 
+                text: 'SWOOSH Bounty System • Error Report',
+                iconURL: interaction.guild.iconURL({ dynamic: true })
+              })
+              .setTimestamp();
             
             return buttonInteraction.editReply({ embeds: [failureEmbed], components: [] });
           }
         } else if (buttonInteraction.customId === 'cancel-bounty') {
-          // Cancel message
+          // Enhanced cancel message with template styling
           const cancelEmbed = new EmbedBuilder()
-            .setTitle('🚫 Bounty Cancelled')
-            .setDescription('The bounty creation has been cancelled.')
-            .setColor('#808080')
-            .setFooter({ text: 'SWOOSH Bounty System' });
+            .setTitle(`${selectedTemplate.icon} ${selectedTemplate.name} Cancelled`)
+            .setDescription(
+              `**Operation Cancelled**\n\n` +
+              `The bounty creation process for \`${robloxUsername}\` has been cancelled.\n\n` +
+              `*No bounty information has been saved or posted.*`
+            )
+            .setColor('#36393F') // Discord dark theme color for a professional look
+            .setFooter({ 
+              text: `SWOOSH Bounty System • Ultra Premium Edition • Action Cancelled`,
+              iconURL: interaction.guild.iconURL({ dynamic: true })
+            })
+            .setTimestamp();
           
           return buttonInteraction.update({ embeds: [cancelEmbed], components: [] });
         }
       } catch (timeoutError) {
-        // Timeout - update the message to show it expired
+        // Enhanced timeout message with better styling
         const timeoutEmbed = new EmbedBuilder()
-          .setTitle('⏰ Time Expired')
-          .setDescription('Bounty creation cancelled due to timeout. Please try again.')
-          .setColor('#808080');
+          .setTitle(`⏰ Session Expired`)
+          .setDescription(
+            `**Your bounty creation session has expired**\n\n` +
+            `The bounty configuration for \`${robloxUsername}\` was not completed within the time limit.\n\n` +
+            `*Please run the command again to restart the process.*`
+          )
+          .setColor('#36393F')
+          .setFooter({ 
+            text: `SWOOSH Bounty System • Ultra Premium Edition • Session Timeout`,
+            iconURL: interaction.guild.iconURL({ dynamic: true }) 
+          })
+          .setTimestamp();
         
         return interaction.editReply({ embeds: [timeoutEmbed], components: [] });
       }
     } catch (error) {
       console.error('Setbounty Command Error:', error);
       
-      // Create an error embed for better user experience
+      // Create an enhanced error embed for better user experience
       const errorEmbed = new EmbedBuilder()
-        .setTitle('❌ Error')
-        .setDescription(`An error occurred while creating the bounty:\n\`${error.message || 'Unknown error'}\``)
+        .setTitle('⚠️ Bounty System Error')
+        .setDescription(
+          `**An unexpected error occurred while processing your bounty request**\n\n` +
+          `\`\`\`js\n${error.message || 'Unknown error'}\n\`\`\`\n\n` +
+          `This error has been logged and will be reviewed by our development team.\n` +
+          `Please try again later or contact an administrator if the issue persists.`
+        )
         .setColor('#FF0000')
-        .setFooter({ text: 'Please try again or contact an administrator' });
+        .setFooter({ 
+          text: `SWOOSH Bounty System • Ultra Premium Edition • Error Report`,
+          iconURL: interaction.guild?.iconURL({ dynamic: true }) || null
+        })
+        .setTimestamp();
       
-      interaction.editReply({ embeds: [errorEmbed], components: [] });
+      // Add a button to report the issue
+      const actionRow = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setLabel('Try Again')
+            .setStyle(ButtonStyle.Primary)
+            .setCustomId('retry-bounty')
+            .setEmoji('🔄'),
+          new ButtonBuilder()
+            .setLabel('View Documentation')
+            .setStyle(ButtonStyle.Link)
+            .setURL('https://discord.gg/swoosh')
+            .setEmoji('📖')
+        );
       
-      // Log error
+      await interaction.editReply({ 
+        embeds: [errorEmbed], 
+        components: [actionRow] 
+      });
+      
+      // Log detailed error information
       logging.logAction('Command Error', interaction.user, null, {
         command: 'setbounty',
-        error: error.message
+        error: error.message,
+        stack: error.stack,
+        options: {
+          username: interaction.options.getString('username'),
+          robloxId: interaction.options.getString('robloxid'),
+          amount: interaction.options.getInteger('amount'),
+          priority: interaction.options.getString('priority') || 'medium',
+          template: interaction.options.getString('template') || 'standard'
+        }
       });
     }
   }
