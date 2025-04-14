@@ -65,24 +65,27 @@ h1, h2, h3, h4, h5, h6, p, span, a, label, div,
   display: block !important;
 }
 
-/* Header */
-.tickets-header {
+/* Header - Message Management style */
+.dashboard-header {
   background-color: #000 !important;
   border-bottom: 1px solid #222 !important;
   padding: 1rem !important;
-  text-align: center !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
 }
 
-.tickets-header h1 {
+.section-title {
   font-size: 2rem !important;
-  color: #fff !important;
+  color: #ffffff !important;
   margin: 0 !important;
+  font-weight: 600 !important;
 }
 
-.tickets-header p {
-  color: #aaa !important;
+.section-description {
+  color: #ffffff !important;
   margin-top: 0.5rem !important;
+  margin-bottom: 2rem !important;
+  font-size: 1.1rem !important;
+  max-width: 800px !important;
 }
 
 /* Server Selector */
