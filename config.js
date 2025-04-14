@@ -138,8 +138,8 @@ module.exports = {
   // Webhook settings
   webhooks: {
     bountyAvatarUrl: 'https://i.imgur.com/YzOA3Rb.png',
-    bountyName: 'huh',
-    bountyColor: '#9b59b6', // Purple color for bounty embeds
+    bountyName: 'SWOOSH Bounty System',
+    bountyColor: '#000000', // Black color for bounty embeds
     defaultThumbnailUrl: 'https://i.imgur.com/YzOA3Rb.png', // Default thumbnail for bounty embeds
   }
 };
