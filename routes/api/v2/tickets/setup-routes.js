@@ -32,13 +32,13 @@ function getBountyManager(req) {
 router.get('/servers/:serverId/ticket-config', isAuthenticated, isAdmin, async (req, res) => {
   try {
     const { serverId } = req.params;
-    const client = getClient();
+    const client = getClient(req);
     
     if (!client) {
       return res.status(500).json({ success: false, error: 'Discord bot is not available' });
     }
     
-    const ticketManager = getTicketManager();
+    const ticketManager = getTicketManager(req);
     
     if (!ticketManager) {
       return res.status(500).json({ success: false, error: 'Ticket system is not available' });
@@ -48,7 +48,7 @@ router.get('/servers/:serverId/ticket-config', isAuthenticated, isAdmin, async (
     const config = await ticketManager.getServerConfig(serverId);
     
     // Get bounty configuration if available
-    const bountyManager = getBountyManager();
+    const bountyManager = getBountyManager(req);
     let bountyConfig = null;
     
     if (bountyManager) {
@@ -76,13 +76,13 @@ router.post('/servers/:serverId/ticket-config', isAuthenticated, isAdmin, async 
   try {
     const { serverId } = req.params;
     const config = req.body;
-    const client = getClient();
+    const client = getClient(req);
     
     if (!client) {
       return res.status(500).json({ success: false, error: 'Discord bot is not available' });
     }
     
-    const ticketManager = getTicketManager();
+    const ticketManager = getTicketManager(req);
     
     if (!ticketManager) {
       return res.status(500).json({ success: false, error: 'Ticket system is not available' });
@@ -118,13 +118,13 @@ router.post('/servers/:serverId/bounty-config', isAuthenticated, isAdmin, async 
   try {
     const { serverId } = req.params;
     const config = req.body;
-    const client = getClient();
+    const client = getClient(req);
     
     if (!client) {
       return res.status(500).json({ success: false, error: 'Discord bot is not available' });
     }
     
-    const bountyManager = getBountyManager();
+    const bountyManager = getBountyManager(req);
     
     if (!bountyManager) {
       return res.status(500).json({ success: false, error: 'Bounty system is not available' });
@@ -160,13 +160,13 @@ router.post('/servers/:serverId/quick-setup', isAuthenticated, isAdmin, async (r
   try {
     const { serverId } = req.params;
     const { channelId, categoryId, supportRoleId, panelColor, panelTitle, panelDescription, ticketTypes } = req.body;
-    const client = getClient();
+    const client = getClient(req);
     
     if (!client) {
       return res.status(500).json({ success: false, error: 'Discord bot is not available' });
     }
     
-    const ticketManager = getTicketManager();
+    const ticketManager = getTicketManager(req);
     
     if (!ticketManager) {
       return res.status(500).json({ success: false, error: 'Ticket system is not available' });
