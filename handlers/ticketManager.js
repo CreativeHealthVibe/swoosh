@@ -997,19 +997,28 @@ async function handleTicketCreation(interaction, ticketType, client) {
     console.log(`Using ticket category "${category.name}" (ID: ${category.id}) for new ticket`);
     
     // Format the user's name for the ticket channel
-    const ticketUserName = interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const ticketChannelName = `ticket-${ticketUserName}`;
+    // Include the ticket type in the channel name to allow multiple ticket types per user
+    let ticketTypeSuffix = '';
+    try {
+      // Extract a short suffix from the ticket type
+      ticketTypeSuffix = `-${ticketType.toLowerCase().substring(0, 4)}`;
+    } catch (e) {
+      console.log('Error creating ticket type suffix:', e);
+    }
     
-    // Check for existing ticket - more comprehensive search
+    const ticketUserName = interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const ticketChannelName = `ticket-${ticketUserName}${ticketTypeSuffix}`;
+    
+    // Check for existing ticket with exact name match (includes type in name)
     let existingTicket = null;
     
-    // First check by name and parent
+    // Check by exact name and parent
     existingTicket = interaction.guild.channels.cache.find(
       ch => ch.parentId === category.id && 
            ch.name === ticketChannelName
     );
     
-    // If not found, check by name only across all channels
+    // If not found, check by exact name only across all channels
     if (!existingTicket) {
       existingTicket = interaction.guild.channels.cache.find(
         ch => ch.name === ticketChannelName
@@ -1017,8 +1026,8 @@ async function handleTicketCreation(interaction, ticketType, client) {
     }
     
     if (existingTicket) {
-      console.log(`User ${interaction.user.username} already has an open ticket: ${existingTicket.name} (ID: ${existingTicket.id})`);
-      return interaction.editReply(`You already have an open ticket: ${existingTicket}`);
+      console.log(`User ${interaction.user.username} already has an open ticket of this type: ${existingTicket.name} (ID: ${existingTicket.id})`);
+      return interaction.editReply(`You already have an open ticket of this type: ${existingTicket}`);
     }
     
     // Get ticket type config
@@ -1034,9 +1043,9 @@ async function handleTicketCreation(interaction, ticketType, client) {
       return interaction.editReply('Invalid ticket type selected.');
     }
     
-    // Create ticket channel
+    // Create ticket channel with the type in the name
     const channel = await interaction.guild.channels.create({
-      name: `ticket-${interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+      name: ticketChannelName, // Use the same name with type suffix that we checked for existence
       type: ChannelType.GuildText,
       parent: category.id,
       permissionOverwrites: await getTicketPermissions(interaction.guild, interaction.user.id, client.user.id)
