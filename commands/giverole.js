@@ -25,6 +25,11 @@ const SPECIAL_ROLES = {
     name: 'Swoosh Bot Staff 🛡️',
     color: '#FFA500', // Orange
     description: 'Official SWOOSH Staff Member'
+  },
+  'partner': {
+    name: 'Swoosh Bot Partner 🤝',
+    color: '#00FF00', // Green
+    description: 'Official SWOOSH Bot Partner'
   }
 };
 
@@ -54,7 +59,7 @@ module.exports = {
     // Check if the command has the required arguments
     if (args.length < 2) {
       return message.reply({
-        content: `❌ Please provide a user and role type. Usage: \`${this.usage}\`\nAvailable roles: ${Object.keys(SPECIAL_ROLES).join(', ')}`,
+        content: `❌ Please provide a user and role type. Usage: \`${this.usage}\`\nAvailable roles: ${Object.keys(SPECIAL_ROLES).join(', ')}\nOr use \`.giverole @user custom:Role Name:emoji\` to create a custom role`,
         ephemeral: true
       });
     }
