@@ -8,12 +8,14 @@ const { isAuthenticated, isAdmin } = require('../../../middlewares/auth');
 
 // Import route modules
 const ticketRoutes = require('./ticket-routes');
+const ticketSetupRoutes = require('./tickets/setup-routes');
 
 // Apply basic authentication middleware to all routes
 router.use(isAuthenticated);
 
 // Use ticket routes
 router.use('/', ticketRoutes);
+router.use('/', ticketSetupRoutes);
 
 // GET /api/v2/info
 // Basic API info
