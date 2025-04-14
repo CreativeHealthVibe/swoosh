@@ -48,21 +48,24 @@ const database = require('./utils/database');
 // Path to autoroles configuration
 const autrolesConfigPath = path.join(__dirname, 'data/autoroles.json');
 
-// Load autoroles configuration
-let autoroles = {};
+// Load autoroles configuration into global space
+global.sharedAutoroles = {};
 try {
   if (fs.existsSync(autrolesConfigPath)) {
-    autoroles = JSON.parse(fs.readFileSync(autrolesConfigPath, 'utf8'));
-    console.log(`✅ Loaded autoroles configuration for ${Object.keys(autoroles).length} servers`);
+    global.sharedAutoroles = JSON.parse(fs.readFileSync(autrolesConfigPath, 'utf8'));
+    console.log(`✅ Loaded autoroles configuration for ${Object.keys(global.sharedAutoroles).length} servers`);
   } else {
     // Create autoroles file if it doesn't exist
     fs.mkdirSync(path.dirname(autrolesConfigPath), { recursive: true });
-    fs.writeFileSync(autrolesConfigPath, JSON.stringify(autoroles, null, 2));
+    fs.writeFileSync(autrolesConfigPath, JSON.stringify(global.sharedAutoroles, null, 2));
     console.log('✅ Created empty autoroles configuration file');
   }
 } catch (error) {
   console.error('❌ Error loading autoroles configuration:', error);
 }
+
+// Create local reference to the global autoroles
+const autoroles = global.sharedAutoroles;
 
 // Initialize collections for commands
 client.commands = new Collection();
