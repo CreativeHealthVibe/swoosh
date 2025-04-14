@@ -507,16 +507,22 @@ module.exports = {
    * @param {Object} channel - Discord channel
    * @param {Object} author - Command author
    */
-  setupTicketPanel: async (channel, author) => {
+  setupTicketPanel: async (channel, author, options = {}) => {
     try {
       // Import Discord.js components directly to ensure they're available
       const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
       
+      // Use provided options or defaults
+      const title = options.title || '🎫 SWOOSH Support Tickets';
+      const description = options.description || 'Please select a ticket type from the dropdown below to get assistance.';
+      const color = options.color || config.embedColor;
+      const ticketTypes = options.ticketTypes || Object.keys(config.ticketTypes).map(key => config.ticketTypes[key].id);
+      
       // Create ticket embed
       const embed = new EmbedBuilder()
-        .setTitle('🎫 SWOOSH Support Tickets')
-        .setDescription('Please select a ticket type from the dropdown below to get assistance.')
-        .setColor(config.embedColor)
+        .setTitle(title)
+        .setDescription(description)
+        .setColor(color)
         .setFooter({ 
           text: 'SWOOSH Ticket System', 
           iconURL: 'https://i.ibb.co/4g9LqWyK/swoosh.jpg' 
@@ -526,39 +532,40 @@ module.exports = {
       // Create ticket type dropdown
       const ticketMenu = new StringSelectMenuBuilder()
         .setCustomId('ticket_menu')
-        .setPlaceholder('Select a ticket type...')
-        .addOptions([
-          {
-            label: config.ticketTypes.CLAIM_BOUNTY.label,
-            value: config.ticketTypes.CLAIM_BOUNTY.id,
-            emoji: config.ticketTypes.CLAIM_BOUNTY.emoji,
-            description: config.ticketTypes.CLAIM_BOUNTY.description
-          },
-          {
-            label: config.ticketTypes.SET_BOUNTY.label,
-            value: config.ticketTypes.SET_BOUNTY.id,
-            emoji: config.ticketTypes.SET_BOUNTY.emoji,
-            description: config.ticketTypes.SET_BOUNTY.description
-          },
-          {
-            label: config.ticketTypes.CLAIM_XP_ROLE.label,
-            value: config.ticketTypes.CLAIM_XP_ROLE.id,
-            emoji: config.ticketTypes.CLAIM_XP_ROLE.emoji,
-            description: config.ticketTypes.CLAIM_XP_ROLE.description
-          },
-          {
-            label: config.ticketTypes.GENERAL_SUPPORT.label,
-            value: config.ticketTypes.GENERAL_SUPPORT.id,
-            emoji: config.ticketTypes.GENERAL_SUPPORT.emoji,
-            description: config.ticketTypes.GENERAL_SUPPORT.description
-          },
-          {
-            label: config.ticketTypes.STAFF_APPLY.label,
-            value: config.ticketTypes.STAFF_APPLY.id,
-            emoji: config.ticketTypes.STAFF_APPLY.emoji,
-            description: config.ticketTypes.STAFF_APPLY.description
+        .setPlaceholder('Select a ticket type...');
+      
+      // Add options based on selected ticket types
+      const menuOptions = [];
+      
+      // Always include the specified ticket types, or all if none specified
+      if (ticketTypes && ticketTypes.length > 0) {
+        // Add only the selected ticket types
+        for (const typeId of ticketTypes) {
+          // Find the ticket type in config
+          const foundType = Object.values(config.ticketTypes).find(type => type.id === typeId);
+          if (foundType) {
+            menuOptions.push({
+              label: foundType.label,
+              value: foundType.id,
+              emoji: foundType.emoji,
+              description: foundType.description
+            });
           }
-        ]);
+        }
+      } else {
+        // Add all ticket types if none specified
+        Object.values(config.ticketTypes).forEach(type => {
+          menuOptions.push({
+            label: type.label,
+            value: type.id,
+            emoji: type.emoji,
+            description: type.description
+          });
+        });
+      }
+      
+      // Add options to menu
+      ticketMenu.addOptions(menuOptions);
       
       // Create row with dropdown
       const row = new ActionRowBuilder().addComponents(ticketMenu);
