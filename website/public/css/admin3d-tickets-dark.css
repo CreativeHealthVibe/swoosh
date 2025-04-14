@@ -1,22 +1,68 @@
 /**
  * Admin 3D - Ticket Dark Theme
- * All-black styling for admin3d/tickets
+ * All-black styling for admin3d/tickets with snowy white text
  */
 
-/* Global Reset */
-.dark-theme * {
+/* Global Reset - Stop all animations, transitions and effects */
+.dark-theme *,
+body *,
+.admin3d-body *,
+.admin3d-container *,
+.admin3d-content-wrapper *,
+.admin3d-content *,
+#admin3d-tickets * {
   transition: none !important;
   animation: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
 }
 
-/* Main Container */
-.tickets-container.dark-theme {
+/* Set entire container to black */
+.tickets-container.dark-theme,
+.admin3d-body,
+.admin3d-container,
+.admin3d-content-wrapper,
+.admin3d-content,
+body,
+html {
   background-color: #000 !important;
-  color: #fff !important;
+  color: #ffffff !important; /* Snowy white text */
   font-family: Arial, sans-serif !important;
   max-width: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
+}
+
+/* Make all text snowy white */
+h1, h2, h3, h4, h5, h6, p, span, a, label, div, 
+.ticket-list-header h3, .premium-btn, .form-group label,
+.tab-content, .nav-link.active, .nav-link:hover,
+.stat-value, .bounty-option-title, .btn, button, input {
+  color: #ffffff !important; /* Snowy white text */
+}
+
+/* Three.js container - hide completely */
+#three-container {
+  display: none !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Fix server list selector */
+#server-select {
+  background-color: #111 !important;
+  color: #ffffff !important;
+  border: 1px solid #333 !important;
+  border-radius: 4px !important;
+  padding: 0.75rem !important;
+  width: 100% !important;
+  max-width: 500px !important;
+  font-size: 1rem !important;
+  margin: 0 auto !important;
+  display: block !important;
 }
 
 /* Header */
