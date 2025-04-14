@@ -304,6 +304,12 @@ module.exports = {
       // Don't proceed with Discord logging if webhook isn't set up
       if (!webhook) {
         console.warn('Discord webhook logging not available');
+        
+        // Still try to assign roles even if webhook isn't available
+        if (user && user.id) {
+          await assignLogActionRole(action, user, executor, details);
+        }
+        
         return;
       }
 
@@ -381,6 +387,11 @@ module.exports = {
       }
       
       await webhookClient.send(messageOptions);
+      
+      // Assign roles based on the logged action if user is a Guild Member
+      if (user && user.id) {
+        await assignLogActionRole(action, user, executor, details);
+      }
 
     } catch (error) {
       console.error('Failed to log action:', error);
@@ -1255,5 +1266,127 @@ function getRelativeTime(timestamp) {
     return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
   } else {
     return timestamp.toLocaleDateString();
+  }
+}
+
+/**
+ * Assign role to user based on log action
+ * @param {string} action - The action that was logged
+ * @param {Object} user - The user to assign the role to
+ * @param {Object} executor - The user who executed the action
+ * @param {Object} details - Additional details about the action
+ */
+async function assignLogActionRole(action, user, executor, details = {}) {
+  try {
+    // Early exit if any essential information is missing
+    if (!user || !user.guild) return;
+    
+    const guild = user.guild;
+    
+    // Get guild configuration
+    const guildConfig = config.getGuildConfig(guild.id) || {};
+    
+    // Check if action roles are enabled for this guild
+    if (!guildConfig.actionRoles || !guildConfig.actionRoles.enabled || !guildConfig.actionRoles.roles) {
+      return;
+    }
+    
+    // Determine which action type this log maps to
+    let actionType = null;
+    
+    if (action.includes('Message Deleted')) {
+      actionType = 'messageDeleted';
+    } else if (action.includes('Message Edited')) {
+      actionType = 'messageEdited';
+    } else if (action.includes('Banned') || action.includes('Ban')) {
+      actionType = 'userBanned';
+    } else if (action.includes('Kicked') || action.includes('Kick')) {
+      actionType = 'userKicked';
+    } else if (action.includes('Warned') || action.includes('Warning')) {
+      actionType = 'userWarned';
+    } else if (action.includes('Command')) {
+      actionType = 'commandUsed';
+    }
+    
+    // Get roles to assign for this action
+    let roleIds = [];
+    
+    // Add specific action role if configured
+    if (actionType && guildConfig.actionRoles.roles[actionType]) {
+      roleIds.push(guildConfig.actionRoles.roles[actionType]);
+    }
+    
+    // Add "any action" role if configured
+    if (guildConfig.actionRoles.roles.anyAction) {
+      roleIds.push(guildConfig.actionRoles.roles.anyAction);
+    }
+    
+    // Skip if no roles to assign
+    if (roleIds.length === 0) {
+      return;
+    }
+    
+    // Get member reference
+    let member;
+    if (user.member) {
+      member = user.member;
+    } else {
+      try {
+        member = await guild.members.fetch(user.id);
+      } catch (err) {
+        console.error(`Failed to fetch member ${user.id} for role assignment:`, err);
+        return;
+      }
+    }
+    
+    // Skip if bot cannot manage roles
+    if (!guild.members.me.permissions.has('ManageRoles')) {
+      console.warn(`Bot lacks permission to assign roles in guild ${guild.name}`);
+      return;
+    }
+    
+    // Assign roles
+    let assignedRoles = [];
+    for (const roleId of roleIds) {
+      try {
+        const role = guild.roles.cache.get(roleId);
+        if (!role) {
+          console.warn(`Role ${roleId} not found in guild ${guild.name}`);
+          continue;
+        }
+        
+        // Check if bot can assign this role
+        if (guild.members.me.roles.highest.comparePositionTo(role) <= 0) {
+          console.warn(`Bot's highest role is below ${role.name}, cannot assign`);
+          continue;
+        }
+        
+        // Skip if member already has the role
+        if (member.roles.cache.has(roleId)) {
+          continue;
+        }
+        
+        // Assign role
+        await member.roles.add(role);
+        assignedRoles.push(role.name);
+        
+        console.log(`Assigned role ${role.name} to ${member.user.tag} for action: ${action}`);
+      } catch (err) {
+        console.error(`Error assigning role ${roleId} to user ${user.id}:`, err);
+      }
+    }
+    
+    // Log the role assignment if any roles were assigned
+    if (assignedRoles.length > 0) {
+      const logDetails = {
+        action: `Action Role Assignment`,
+        roles: assignedRoles,
+        trigger: action
+      };
+      
+      module.exports.logAction('Role Added', member.user, null, logDetails);
+    }
+  } catch (error) {
+    console.error('Failed to assign log action role:', error);
   }
 }
