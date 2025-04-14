@@ -188,6 +188,24 @@ module.exports = {
           // Database module might not be available, ignore
         }
       });
+      
+      // Track guild member removals
+      client.on('guildMemberRemove', member => {
+        module.exports.logMemberLeave(member);
+        
+        // Update database if available
+        try {
+          const database = require('../utils/database');
+          database.updateServerMember({
+            guild_id: member.guild.id,
+            user_id: member.id,
+            left_at: new Date(),
+            is_member: false
+          }).catch(err => console.error('Failed to update member leave in database:', err));
+        } catch (error) {
+          // Database module might not be available, ignore
+        }
+      });
 
       // Initialize command usage tracking with common commands
       if (commandUsageStats.size === 0) {
@@ -913,6 +931,89 @@ module.exports = {
       }
     } catch (error) {
       console.error('Failed to log member join:', error);
+    }
+  },
+  
+  /**
+   * Log member leave
+   * @param {Object} member - The guild member who left
+   */
+  logMemberLeave: async (member) => {
+    try {
+      if (!member.guild) return;
+      
+      // Get guild-specific config
+      const guildConfig = config.getGuildConfig(member.guild.id) || {};
+      
+      // Try to get the log channel from the guild config
+      let guildLogChannel = null;
+      
+      // First check for a specific member logs channel
+      if (guildConfig.loggingChannels && guildConfig.loggingChannels.memberJoin) {
+        guildLogChannel = member.client.channels.cache.get(guildConfig.loggingChannels.memberJoin);
+      }
+      
+      // Fall back to general log channel if no member-specific channel
+      if (!guildLogChannel && guildConfig.logChannelId) {
+        guildLogChannel = member.client.channels.cache.get(guildConfig.logChannelId);
+      }
+      
+      // If still no channel, try to find a standard named channel
+      if (!guildLogChannel) {
+        guildLogChannel = member.guild.channels.cache.find(
+          channel => channel.name === 'member-log' || channel.name === 'joins' || channel.name === 'logs'
+        );
+      }
+      
+      // If still no channel, exit
+      if (!guildLogChannel) {
+        console.log(`No member log channel found for guild: ${member.guild.name}`);
+        return;
+      }
+      
+      // Calculate how long they were in the server
+      const joinedAt = member.joinedAt;
+      const now = new Date();
+      const membershipDays = joinedAt ? Math.floor((now - joinedAt) / (1000 * 60 * 60 * 24)) : 'Unknown';
+      
+      // Create embed for member leave log
+      const embed = new EmbedBuilder()
+        .setTitle('👋 Member Left')
+        .setDescription(`<@${member.id}> left the server`)
+        .addFields(
+          { name: 'User', value: `${member.user.tag} (${member.id})`, inline: true },
+          { name: 'Joined At', value: joinedAt ? `<t:${Math.floor(joinedAt.getTime() / 1000)}:R>` : 'Unknown', inline: true },
+          { name: 'Time in Server', value: membershipDays !== 'Unknown' ? `${membershipDays} days` : 'Unknown', inline: true }
+        )
+        .setColor('#ff6666')
+        .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+        .setTimestamp();
+      
+      // Send log
+      await guildLogChannel.send({ embeds: [embed] });
+      console.log(`Logged member leave in guild: ${member.guild.name}`);
+      
+      // Log to database if available
+      try {
+        const database = require('../utils/database');
+        database.addServerLog({
+          guild_id: member.guild.id,
+          event_type: 'MEMBER_LEAVE',
+          user_id: member.id,
+          content: `${member.user.tag} left the server`,
+          metadata: {
+            user_tag: member.user.tag,
+            avatar: member.user.displayAvatarURL({ dynamic: true }),
+            joined_at: member.joinedAt ? member.joinedAt.toISOString() : null,
+            membership_days: membershipDays !== 'Unknown' ? membershipDays : null,
+            is_bot: member.user.bot
+          }
+        }).catch(err => console.error('Failed to log member leave to database:', err));
+      } catch (error) {
+        // Database module might not be available, ignore
+      }
+    } catch (error) {
+      console.error('Failed to log member leave:', error);
     }
   },
   
