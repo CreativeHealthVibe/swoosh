@@ -59,7 +59,7 @@ module.exports = {
         return;
       }
 
-      // Get log channel by ID from env var or find/create by name
+      // Get log channel by ID from config or find by name (no auto-creation)
       if (config.logChannelId) {
         logChannel = guild.channels.cache.get(config.logChannelId);
       }
@@ -68,25 +68,9 @@ module.exports = {
         logChannel = guild.channels.cache.find(c => c.name === 'logs');
       }
       
+      // No log channel found, but we won't auto-create one
       if (!logChannel) {
-        logChannel = await guild.channels.create({
-          name: 'logs',
-          type: ChannelType.GuildText,
-          permissionOverwrites: [
-            {
-              id: guild.id,
-              deny: [PermissionsBitField.Flags.SendMessages]
-            },
-            {
-              id: client.user.id,
-              allow: [
-                PermissionsBitField.Flags.SendMessages,
-                PermissionsBitField.Flags.ManageMessages,
-                PermissionsBitField.Flags.AttachFiles
-              ]
-            }
-          ]
-        });
+        console.log(`[Guild: ${guild.name}] No log channel found. Use /setlogs to configure one.`);
       }
 
       // Initialize specialized logging channels
