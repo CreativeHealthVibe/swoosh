@@ -997,7 +997,7 @@ async function handleTicketCreation(interaction, ticketType, client) {
     console.log(`Using ticket category "${category.name}" (ID: ${category.id}) for new ticket`);
     
     // Format the user's name for the ticket channel
-    // Include the ticket type in the channel name to allow multiple ticket types per user
+    // Include the ticket type and a timestamp in the channel name to allow multiple tickets
     let ticketTypeSuffix = '';
     try {
       // Extract a short suffix from the ticket type
@@ -1006,28 +1006,22 @@ async function handleTicketCreation(interaction, ticketType, client) {
       console.log('Error creating ticket type suffix:', e);
     }
     
+    // Add unique timestamp for allowing multiple tickets of the same type
+    const timestamp = Date.now().toString().slice(-6);
+    
     const ticketUserName = interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const ticketChannelName = `ticket-${ticketUserName}${ticketTypeSuffix}`;
+    const ticketChannelName = `ticket-${ticketUserName}${ticketTypeSuffix}-${timestamp}`;
     
-    // Check for existing ticket with exact name match (includes type in name)
-    let existingTicket = null;
-    
-    // Check by exact name and parent
-    existingTicket = interaction.guild.channels.cache.find(
+    // Check if the maximum number of open tickets per user has been reached
+    const maxTicketsPerUser = 10; // You can adjust this number as needed
+    const userTickets = interaction.guild.channels.cache.filter(
       ch => ch.parentId === category.id && 
-           ch.name === ticketChannelName
+           ch.name.startsWith(`ticket-${ticketUserName}`)
     );
     
-    // If not found, check by exact name only across all channels
-    if (!existingTicket) {
-      existingTicket = interaction.guild.channels.cache.find(
-        ch => ch.name === ticketChannelName
-      );
-    }
-    
-    if (existingTicket) {
-      console.log(`User ${interaction.user.username} already has an open ticket of this type: ${existingTicket.name} (ID: ${existingTicket.id})`);
-      return interaction.editReply(`You already have an open ticket of this type: ${existingTicket}`);
+    if (userTickets.size >= maxTicketsPerUser) {
+      console.log(`User ${interaction.user.username} has reached the maximum number of tickets (${maxTicketsPerUser})`);
+      return interaction.editReply(`You have reached the maximum number of open tickets (${maxTicketsPerUser}). Please close some of your existing tickets before creating a new one.`);
     }
     
     // Get ticket type config
