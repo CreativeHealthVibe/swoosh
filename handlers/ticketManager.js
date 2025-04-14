@@ -300,21 +300,22 @@ module.exports = {
    */
   createPanel: async (serverId, options) => {
     try {
+      console.log('createPanel called with server ID:', serverId);
+      console.log('Panel options:', JSON.stringify(options, null, 2));
+      
+      // Get client
       const client = global.client;
       if (!client) {
-        console.error('Client not available for createPanel');
+        console.error('Discord client is not available');
         return false;
       }
       
       console.log(`Creating ticket panel in server ${serverId}, channel ${options.channelId}`);
-      console.log(`Title: ${options.title}`);
-      console.log(`Description: ${options.description}`);
-      console.log(`Ticket Types:`, options.ticketTypes);
       
       // Import Discord.js components directly to ensure they're available
-      const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+      const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ChannelType } = require('discord.js');
       
-      // Get the guild and channel
+      // Get the guild
       const guild = await client.guilds.fetch(serverId).catch(err => {
         console.error(`Error fetching guild ${serverId}:`, err);
         return null;
@@ -325,6 +326,7 @@ module.exports = {
         return false;
       }
       
+      // Get the channel
       const channel = await guild.channels.fetch(options.channelId).catch(err => {
         console.error(`Error fetching channel ${options.channelId}:`, err);
         return null;
@@ -335,14 +337,26 @@ module.exports = {
         return false;
       }
       
+      // Verify channel is a text channel
+      if (channel.type !== ChannelType.GuildText) {
+        console.error(`Channel ${options.channelId} is not a text channel (type: ${channel.type})`);
+        return false;
+      }
+      
+      console.log(`Found channel #${channel.name} (${channel.id}) in guild ${guild.name}`);
+      
       // Create ticket embed
+      const embedColor = options.color ? 
+        parseInt(options.color.replace(/^#/, ''), 16) || 0x9b59b6 : 
+        0x9b59b6;
+      
       const embed = new EmbedBuilder()
         .setTitle(options.title || 'Support Tickets')
         .setDescription(options.description || 'Please select a ticket type from the dropdown below to get assistance.')
-        .setColor(options.color ? parseInt(options.color.replace('#', ''), 16) : 0x9b59b6)
+        .setColor(embedColor)
         .setFooter({ 
           text: 'SWOOSH Ticket System', 
-          iconURL: 'https://i.ibb.co/4g9LqWyK/swoosh.jpg' 
+          iconURL: 'https://i.ibb.co/4g9LqWK/swoosh.jpg' 
         })
         .setTimestamp();
       
@@ -353,25 +367,40 @@ module.exports = {
       
       // Parse ticket types if needed
       let ticketTypes = options.ticketTypes;
+      console.log('Ticket types before processing:', typeof ticketTypes, Array.isArray(ticketTypes) ? ticketTypes.length : ticketTypes);
+      
       if (typeof ticketTypes === 'string') {
         try {
           ticketTypes = JSON.parse(ticketTypes);
+          console.log('Parsed ticket types from string:', ticketTypes);
         } catch (err) {
           console.error('Error parsing ticket types:', err);
           ticketTypes = [];
         }
       }
       
+      // Ensure ticketTypes is an array
+      if (!Array.isArray(ticketTypes)) {
+        console.warn('ticketTypes is not an array, setting to empty array');
+        ticketTypes = [];
+      }
+      
       // Create ticket type dropdown options
-      const selectMenuOptions = ticketTypes.map(type => ({
-        label: type.label || 'Support',
-        value: type.label ? type.label.toLowerCase().replace(/\s+/g, '_') : 'support',
-        emoji: type.emoji || '🎫',
-        description: type.description || 'Get support from our team'
-      }));
+      const selectMenuOptions = ticketTypes.map(type => {
+        console.log('Processing ticket type:', type);
+        return {
+          label: type.label || 'Support',
+          value: type.label ? type.label.toLowerCase().replace(/\s+/g, '_') : 'support',
+          emoji: type.emoji || '🎫',
+          description: type.description || 'Get support from our team'
+        };
+      });
+      
+      console.log('Created select menu options:', selectMenuOptions);
       
       // If no ticket types provided, add a default one
       if (selectMenuOptions.length === 0) {
+        console.log('No ticket types provided, adding default option');
         selectMenuOptions.push({
           label: 'General Support',
           value: 'general_support',
@@ -389,8 +418,11 @@ module.exports = {
       // Create row with dropdown
       const row = new ActionRowBuilder().addComponents(ticketMenu);
       
+      console.log('Sending panel message to channel');
+      
       // Send panel message
       const message = await channel.send({ embeds: [embed], components: [row] });
+      console.log('Panel message sent successfully, ID:', message.id);
       
       // Store panel information
       const panelData = {
@@ -660,63 +692,27 @@ module.exports = {
    */
   getTickets: async (serverId, client) => {
     try {
-      // Check if this is being called from the panel API endpoint
+      console.log('getTickets called for server:', serverId);
+      // Always check request URL first to determine what kind of data to return
       const stack = new Error().stack;
-      const isFromPanelEndpoint = stack.includes('ticket-panels') || 
-                                   stack.includes('admin3d-tickets-panels') ||
-                                   stack.includes('/servers/:serverId/tickets');
+      const isTicketPanelsRequest = stack.includes('ticket-panel') || 
+                                     stack.includes('ticket-panels') || 
+                                     stack.includes('tickets');
       
-      // If this is being called for panels, return panel data instead of tickets
-      if (isFromPanelEndpoint) {
-        console.log('Getting ticket panels for server:', serverId);
-        // Get existing panels or create an empty array
+      // If this is a request for ticket panels, return them
+      if (isTicketPanelsRequest) {
+        console.log('Request is for ticket panels');
+        // Get existing panels
         const panels = ticketPanels.get(serverId) || [];
+        console.log(`Found ${panels.length} ticket panels for server ${serverId}`);
         
-        // If no panels exist, create some sample data for the API
+        // Return empty array if no panels
         if (panels.length === 0) {
-          // Log to identify this is the sample data case
-          console.log('No existing panels found, returning sample data');
-          
-          // Get client for channel data
-          const discordClient = client || global.client;
-          if (!discordClient) {
-            return [];
-          }
-          
-          // Try to get guild to find a channel for the sample
-          const guild = discordClient.guilds.cache.get(serverId);
-          if (!guild) {
-            return [];
-          }
-          
-          // Use the first text channel as a sample channel
-          const channel = guild.channels.cache.find(ch => ch.type === 0);
-          if (!channel) {
-            return [];
-          }
-          
-          // Example panel structure matching what the frontend expects
-          const samplePanel = {
-            id: `panel-${Date.now()}`,
-            channelId: channel.id,
-            channelName: channel.name,
-            title: 'Support Tickets',
-            description: 'Please select a ticket type to get assistance',
-            color: '#8a5cff',
-            ticketTypes: [{
-              id: 'general_support',
-              label: 'General Support',
-              emoji: '❓'
-            }]
-          };
-          
-          // Add to panel storage
-          const serverPanels = [samplePanel];
-          ticketPanels.set(serverId, serverPanels);
-          
-          return serverPanels;
+          console.log('No panels found, returning empty array');
+          return [];
         }
         
+        // Return the panels
         return panels;
       }
       
