@@ -55,7 +55,7 @@ function saveAutoroles() {
 module.exports = {
   name: 'autorole',
   description: 'Configure auto role assignment for new members',
-  usage: '.autorole add @role | .autorole remove @role | .autorole list',
+  usage: '.autorole add @role | .autorole remove @role | .autorole list | .autorole clean',
   
   /**
    * Execute the command
@@ -86,7 +86,8 @@ module.exports = {
           .addFields(
             { name: 'Add a role', value: '`.autorole add @role`', inline: false },
             { name: 'Remove a role', value: '`.autorole remove @role`', inline: false },
-            { name: 'List configured roles', value: '`.autorole list`', inline: false }
+            { name: 'List configured roles', value: '`.autorole list`', inline: false },
+            { name: 'Clean invalid roles', value: '`.autorole clean`', inline: false }
           )
           .setColor(config.embedColor)
           .setFooter({ text: 'Only staff members can configure autoroles' });
@@ -102,17 +103,74 @@ module.exports = {
           return message.reply('No autoroles have been configured for this server.');
         }
         
-        const roleList = autoroles[guildId].map(roleId => {
+        const validRoles = [];
+        const invalidRoles = [];
+        
+        // Check each configured role
+        for (const roleId of autoroles[guildId]) {
           const role = message.guild.roles.cache.get(roleId);
-          return role ? role.name : `Unknown role (${roleId})`;
-        }).join('\n- ');
+          if (!role) {
+            invalidRoles.push(`Unknown role (${roleId})`);
+          } else if (!role.manageable) {
+            invalidRoles.push(`${role.name} (not manageable by bot)`);
+          } else {
+            validRoles.push(role.name);
+          }
+        }
         
         const embed = new EmbedBuilder()
           .setTitle('Configured Autoroles')
-          .setDescription(`The following roles will be automatically assigned to new members:\n\n- ${roleList}`)
           .setColor(config.embedColor);
-          
+        
+        let description = '';
+        
+        if (validRoles.length > 0) {
+          description += `**Valid roles that will be assigned:**\n- ${validRoles.join('\n- ')}\n\n`;
+        } else {
+          description += '**No valid roles configured.**\n\n';
+        }
+        
+        if (invalidRoles.length > 0) {
+          description += `**Invalid roles that cannot be assigned:**\n- ${invalidRoles.join('\n- ')}\n\n`;
+          description += '_Use `.autorole clean` to remove invalid roles._';
+        }
+        
+        embed.setDescription(description);
         return message.reply({ embeds: [embed] });
+      }
+      
+      // Clean up invalid autoroles
+      if (action === 'clean') {
+        if (!autoroles[guildId] || !autoroles[guildId].length) {
+          return message.reply('No autoroles have been configured for this server.');
+        }
+        
+        const originalLength = autoroles[guildId].length;
+        const cleanedRoles = [];
+        
+        // Filter out invalid roles
+        autoroles[guildId] = autoroles[guildId].filter(roleId => {
+          const role = message.guild.roles.cache.get(roleId);
+          if (!role || !role.manageable) {
+            cleanedRoles.push(roleId);
+            return false;
+          }
+          return true;
+        });
+        
+        // Save changes if any roles were removed
+        if (cleanedRoles.length > 0) {
+          saveAutoroles();
+          
+          // Log the action
+          logging.logAction('Autoroles Cleaned', null, message.author, {
+            removedCount: cleanedRoles.length
+          });
+          
+          return message.reply(`✅ Cleaned up ${cleanedRoles.length} invalid autoroles. Use \`.autorole list\` to see the current configuration.`);
+        } else {
+          return message.reply('No invalid autoroles found. All configured roles are valid and can be assigned by the bot.');
+        }
       }
       
       // Add or remove autorole
@@ -126,6 +184,11 @@ module.exports = {
         
         // Add role to autoroles
         if (action === 'add') {
+          // Check if role is manageable by the bot
+          if (!role.manageable) {
+            return message.reply(`❌ Cannot add role ${role.name} because it's not manageable by the bot. The bot's role must be positioned higher than this role in the server settings.`);
+          }
+          
           if (autoroles[guildId].includes(role.id)) {
             return message.reply(`The role ${role.name} is already configured as an autorole.`);
           }
@@ -160,7 +223,7 @@ module.exports = {
       }
       
       // Invalid action
-      return message.reply('Invalid action. Use `.autorole add @role`, `.autorole remove @role`, or `.autorole list`.');
+      return message.reply('Invalid action. Use `.autorole add @role`, `.autorole remove @role`, `.autorole list`, or `.autorole clean`.');
     } catch (error) {
       console.error('Autorole Command Error:', error);
       message.reply('❌ An error occurred while processing the command.');
