@@ -27,6 +27,9 @@ router.get('/', isAuthenticated, isAdmin, (req, res) => {
     }));
   }
   
+  // Get the selected server ID from query params if any
+  const selectedServer = req.query.server || '';
+  
   // Render ticket management page
   res.render('admin3d/tickets', {
     title: 'Ticket Management | SWOOSH Bot',
@@ -34,6 +37,7 @@ router.get('/', isAuthenticated, isAdmin, (req, res) => {
     client,
     ticketManagerAvailable,
     guilds,
+    selectedServer, // Pass selected server ID to template
     query: req.query, // Pass query parameters to the template
     layout: 'layouts/admin3d'
   });
