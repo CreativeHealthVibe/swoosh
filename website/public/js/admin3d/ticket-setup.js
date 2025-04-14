@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
               Allow users to create and claim bounties through tickets
             </p>
             <div class="form-check">
-              <input type="checkbox" id="enable-bounties" name="enableBounties" class="form-check-input">
+              <input type="checkbox" id="enable-bounties" name="enableBounties" class="form-check-input" checked>
               <label for="enable-bounties" class="form-check-label">Enable bounty system for tickets</label>
             </div>
           </div>
@@ -383,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
               Role that can approve bounties and bounty claims
             </p>
             <div class="form-group">
-              <select id="bounty-manager-role" name="bountyManagerRoleId" class="form-control">
+              <select id="bounty-manager-role" name="bountyManagerRoleId" class="form-control" required>
                 <option value="">- Select Role -</option>
               </select>
             </div>
@@ -394,13 +394,13 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="bounty-option-icon">
                 <i class="fas fa-hashtag"></i>
               </div>
-              <h4 class="bounty-option-title">Bounty Announcements</h4>
+              <h4 class="bounty-option-title">Bounty Panel Channel</h4>
             </div>
             <p class="bounty-option-description">
-              Channel where new bounties will be announced
+              Channel where the bounty panel will be created
             </p>
             <div class="form-group">
-              <select id="bounty-channel" name="bountyChannelId" class="form-control">
+              <select id="bounty-channel" name="bountyChannelId" class="form-control" required>
                 <option value="">- Select Channel -</option>
               </select>
             </div>
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
           
           <div class="form-actions">
             <button type="submit" class="premium-btn premium-primary">
-              <i class="fas fa-save"></i> Save Bounty Settings
+              <i class="fas fa-save"></i> Save & Create Bounty Panel
             </button>
           </div>
         </form>
@@ -566,10 +566,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.success) {
           showSuccess('Bounty configuration saved successfully!');
           
-          // Ask if the user wants to set up a bounty panel
-          if (confirm('Bounty settings saved! Would you like to create a bounty ticket panel in the selected channel?')) {
-            createBountyPanel(serverId, config);
-          }
+          // Automatically create the bounty panel without asking
+          console.log('Creating bounty panel with config:', config);
+          createBountyPanel(serverId, config);
         } else {
           showError(`Failed to save bounty configuration: ${data.error}`);
         }
