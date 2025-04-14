@@ -144,6 +144,21 @@ module.exports = {
         .setDescription('Channel to post the bounty in')
         .addChannelTypes(ChannelType.GuildText)
         .setRequired(false)
+    )
+    .addUserOption(option =>
+      option.setName('submitted_by')
+        .setDescription('User who submitted this bounty')
+        .setRequired(false)
+    )
+    .addUserOption(option =>
+      option.setName('approved_by')
+        .setDescription('Admin who approved this bounty')
+        .setRequired(false)
+    )
+    .addBooleanOption(option =>
+      option.setName('log_evidence')
+        .setDescription('Whether to log RE (evidence) submissions')
+        .setRequired(false)
     ),
   
   /**
@@ -176,6 +191,9 @@ module.exports = {
       const template = interaction.options.getString('template') || 'standard'; // default to standard template
       const image = interaction.options.getAttachment('image');
       const channel = interaction.options.getChannel('channel') || interaction.channel;
+      const submittedBy = interaction.options.getUser('submitted_by') || interaction.user;
+      const approvedBy = interaction.options.getUser('approved_by') || interaction.user;
+      const logEvidence = interaction.options.getBoolean('log_evidence') ?? true; // Default to true if not specified
       
       // Get template and priority details
       const selectedTemplate = BOUNTY_TEMPLATES.find(t => t.id === template) || BOUNTY_TEMPLATES[0];
@@ -193,7 +211,10 @@ module.exports = {
           { name: 'Target Image', value: image ? '`Provided ✓`' : '`Not Provided ✗`', inline: true },
           { name: 'Post Channel', value: `${channel}`, inline: true },
           { name: `${selectedPriority.icon} Priority Level`, value: `\`${selectedPriority.name}\``, inline: true },
-          { name: `${selectedTemplate.icon} Template`, value: `\`${selectedTemplate.name}\``, inline: true }
+          { name: `${selectedTemplate.icon} Template`, value: `\`${selectedTemplate.name}\``, inline: true },
+          { name: 'Submitted By', value: submittedBy.toString(), inline: true },
+          { name: 'Approved By', value: approvedBy.toString(), inline: true },
+          { name: 'Log Evidence', value: logEvidence ? '`Enabled ✓`' : '`Disabled ✗`', inline: true }
         )
         .setColor(selectedTemplate.color)
         .setFooter({ text: `SWOOSH Bounty System • Ultra Premium Edition • ${selectedPriority.name}` });
@@ -286,7 +307,10 @@ module.exports = {
             image,
             channel,
             priority: selectedPriority,
-            template: selectedTemplate
+            template: selectedTemplate,
+            submittedBy: submittedBy,
+            approvedBy: approvedBy,
+            skipLogging: !logEvidence // Skip logging if logEvidence is false
           });
           
           if (result.success) {
@@ -294,13 +318,15 @@ module.exports = {
             const successEmbed = new EmbedBuilder()
               .setTitle(`Bounty Created Successfully`)
               .setDescription(
-                `**Details:**\n` +
-                `Username: ${robloxUsername}\n` +
-                `Roblox ID: ${robloxId}\n` +
-                `Reward: R$ ${amount.toLocaleString()}\n` +
-                `Evidence: ${clipRequired ? 'Video Required' : 'No Clip Needed'}\n` +
-                `${reason ? `Reason: ${reason}\n` : ''}` +
-                `\nThe bounty has been posted to ${channel}.${result.message ? `\n${result.message}` : ''}`
+                `## Target: ${robloxUsername}\n\n` +
+                `**Roblox ID:** ${robloxId}\n` +
+                `**Reward:** R$ ${amount.toLocaleString()}\n` +
+                `**Evidence:** ${clipRequired ? 'Video Required' : 'No Clip Needed'}\n` +
+                `**Submitted By:** ${submittedBy.toString()}\n` +
+                `**Approved By:** ${approvedBy.toString()}\n` + 
+                `**Evidence Logs:** ${logEvidence ? 'Enabled' : 'Disabled'}\n` +
+                `${reason ? `**Reason:** ${reason}\n` : ''}\n` +
+                `The bounty has been posted to ${channel}.${result.message ? `\n${result.message}` : ''}`
               )
               .setColor('#000000')
               .setFooter({ 
