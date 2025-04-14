@@ -22,7 +22,7 @@
           <option value="" selected disabled>- Select a server</option>
           <% if (guilds && guilds.length > 0) { %>
             <% guilds.forEach(guild => { %>
-              <option value="<%= guild.id %>" <%= (query && query.server === guild.id) ? 'selected' : '' %>><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
+              <option value="<%= guild.id %>"><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
             <% }); %>
           <% } %>
         </select>
@@ -35,16 +35,37 @@
   
   <!-- Inline script for server selector -->
   <script>
-    // Directly apply styles to server select
+    // Apply styles and select current server
     document.addEventListener('DOMContentLoaded', function() {
+      // Get server select
       const serverSelect = document.getElementById('server-select');
-      if (serverSelect) {
-        console.log("Server select found in inline script!");
-        serverSelect.style.backgroundColor = '#000000';
-        serverSelect.style.color = '#ffffff';
-        serverSelect.style.border = '1px solid #333333';
-        serverSelect.style.borderRadius = '4px';
-        serverSelect.style.padding = '8px 12px';
+      if (!serverSelect) {
+        console.error("Server select not found!");
+        return;
+      }
+      
+      console.log("Server select found in inline script!");
+      
+      // Apply styling
+      serverSelect.style.backgroundColor = '#000000';
+      serverSelect.style.color = '#ffffff';
+      serverSelect.style.border = '1px solid #333333';
+      serverSelect.style.borderRadius = '4px';
+      serverSelect.style.padding = '8px 12px';
+      
+      // Get current server ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentServer = urlParams.get('server');
+      
+      if (currentServer) {
+        // Select the current server in dropdown
+        for (let i = 0; i < serverSelect.options.length; i++) {
+          if (serverSelect.options[i].value === currentServer) {
+            serverSelect.options[i].selected = true;
+            console.log('Set selected server to:', currentServer);
+            break;
+          }
+        }
       }
     });
   </script>
