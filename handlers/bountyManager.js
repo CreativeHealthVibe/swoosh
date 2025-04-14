@@ -56,31 +56,36 @@ module.exports = {
         };
       }
       
-      // Use the specific custom emojis provided
-      // Custom emoji IDs directly from SWOOSH STUDIO server
+      // Premium emojis for a more luxurious feel
       const moneyEmoji = '<:S__dollars:1359207557964759261>'; 
-      const targetEmoji = '👤'; // Using default for target
+      const targetEmoji = '🎯'; // Better target icon
       const idEmoji = '<:S__ID:1359205471633801457>';
-      const rewardEmoji = '💵'; // Using default for reward
+      const rewardEmoji = '💰'; // Better reward icon
       const clipEmoji = '<:S__Clip:1359205711619555579>';
       const hostedEmoji = '<:S__Crown:1359205562201411584>';
       const timeEmoji = '<:S__Time:1359205638596464773>';
       
-      // Create bounty embed with custom emojis and emoji highlighted with asterisks
+      // Get current timestamp for relative time
+      const timestamp = Math.floor(Date.now() / 1000);
+      
+      // Formatter for the bounty amount with commas
+      const formattedAmount = bountyData.amount.toLocaleString();
+      
+      // Create a more visually striking bounty embed with custom styling
       const bountyEmbed = new EmbedBuilder()
-        .setTitle(`**<:S__dollars:1359207557964759261>** SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()} **<:S__dollars:1359207557964759261>**`)
-        .setDescription(`**A new bounty has been placed!** Eliminate the target to claim the reward.`)
+        .setTitle(`${moneyEmoji} **SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()}** ${moneyEmoji}`)
+        .setDescription(`**⚠️ A HIGH-VALUE TARGET HAS BEEN MARKED ⚠️**\n\n**Eliminate this target and claim your reward!**\n\n*This bounty was authorized by the SWOOSH administration.*`)
         .addFields(
-          { name: `${targetEmoji} Target`, value: `${bountyData.robloxUsername}`, inline: true },
-          { name: `${idEmoji} Roblox ID`, value: `${bountyData.robloxId}`, inline: true },
-          { name: `${rewardEmoji} Reward`, value: `R$${bountyData.amount.toLocaleString()}`, inline: true },
-          { name: `${clipEmoji} Clip Required`, value: bountyData.clipRequired ? '✅ Yes' : '❌ No', inline: true },
-          { name: `${hostedEmoji} Hosted By`, value: interaction.user.toString(), inline: true },
-          { name: `${timeEmoji} Posted`, value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
+          { name: `${targetEmoji} **TARGET IDENTIFIED**`, value: `\`${bountyData.robloxUsername}\``, inline: true },
+          { name: `${idEmoji} **ROBLOX ID**`, value: `\`${bountyData.robloxId}\``, inline: true },
+          { name: `${rewardEmoji} **REWARD AMOUNT**`, value: `\`R$ ${formattedAmount}\``, inline: true },
+          { name: `${clipEmoji} **EVIDENCE REQUIREMENTS**`, value: bountyData.clipRequired ? '`✅ VIDEO CLIP REQUIRED`' : '`❌ NO CLIP NEEDED`', inline: true },
+          { name: `${hostedEmoji} **AUTHORIZED BY**`, value: interaction.user.toString(), inline: true },
+          { name: `${timeEmoji} **POSTED**`, value: `<t:${timestamp}:R>`, inline: true }
         )
-        .setColor(config.webhooks.bountyColor || config.embedColor)
+        .setColor('#ff0000') // Striking red color for more attention
         .setFooter({ 
-          text: 'To claim this bounty, open a ticket and provide evidence.', 
+          text: '💀 To claim this bounty, open a ticket with proof of elimination 💀', 
           iconURL: config.webhooks.bountyAvatarUrl 
         });
       
