@@ -1197,6 +1197,7 @@ app.use('/api', apiRoutes); // General API routes
 app.use('/api', apiAuthRoutes); // Auth API routes
 app.use('/api/leaderboard', apiLeaderboardRoutes);
 app.use('/api/moderation', apiModerationRoutes); // Moderation API routes
+app.use('/api/tickets', require('./routes/api/tickets')); // Ticket API routes
 app.use('/leaderboard', leaderboardRoutes);
 app.use('/admin3d', admin3dRoutes); // Premium 3D Admin Panel
 app.use('/api/v2', apiV2Routes); // New V2 API Routes

@@ -28,6 +28,8 @@ const ticketConfigs = new Map();
 const ticketPanels = new Map();
 
 module.exports = {
+  // Expose the ticket panels map
+  ticketPanels,
   /**
    * Initialize ticket manager
    * @param {Object} client - Discord client
@@ -45,8 +47,7 @@ module.exports = {
     console.log('🎫 Ticket Manager initialized');
   },
   
-  // Expose the ticketPanels map for API usage
-  ticketPanels,
+
   
   /**
    * Get a ticket by ID
