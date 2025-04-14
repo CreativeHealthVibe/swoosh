@@ -6,17 +6,20 @@ const express = require('express');
 const router = express.Router();
 const { isAuthenticated, isAdmin } = require('../../../middlewares/auth');
 
-// Reference to ticketPanels Map from ticketManager
-let ticketPanels;
-
-// Initialize the routes and get reference to the ticketPanels from the client
+// Initialize the routes with access to the client and ticketManager
 router.use((req, res, next) => {
-  // Set the ticketPanels reference if it's not set yet and client is available
+  // Get client on each request to ensure we have the latest reference
   const client = req.app.get('client');
-  if (client && client.ticketManager && !ticketPanels) {
-    console.log('Initializing ticketPanels reference from client.ticketManager');
-    ticketPanels = client.ticketManager.ticketPanels;
+  
+  // Log warning if client or ticketManager is missing
+  if (!client) {
+    console.warn('Discord client not available for ticket routes');
+  } else if (!client.ticketManager) {
+    console.warn('TicketManager not available for ticket routes');
+  } else if (!client.ticketManager.ticketPanels) {
+    console.warn('ticketPanels Map not available for ticket routes');
   }
+  
   next();
 });
 
@@ -618,8 +621,8 @@ router.delete('/servers/:serverId/ticket-panel/:panelId', isAuthenticated, isAdm
     // Remove panel from storage
     panels.splice(panelIndex, 1);
     
-    // Update panels in storage
-    ticketPanels.set(serverId, panels);
+    // Update panels in storage using client reference
+    client.ticketManager.ticketPanels.set(serverId, panels);
     
     // Try to delete the message from Discord
     try {
