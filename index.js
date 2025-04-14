@@ -48,6 +48,22 @@ const database = require('./utils/database');
 // Path to autoroles configuration
 const autrolesConfigPath = path.join(__dirname, 'data/autoroles.json');
 
+// Load autoroles configuration
+let autoroles = {};
+try {
+  if (fs.existsSync(autrolesConfigPath)) {
+    autoroles = JSON.parse(fs.readFileSync(autrolesConfigPath, 'utf8'));
+    console.log(`✅ Loaded autoroles configuration for ${Object.keys(autoroles).length} servers`);
+  } else {
+    // Create autoroles file if it doesn't exist
+    fs.mkdirSync(path.dirname(autrolesConfigPath), { recursive: true });
+    fs.writeFileSync(autrolesConfigPath, JSON.stringify(autoroles, null, 2));
+    console.log('✅ Created empty autoroles configuration file');
+  }
+} catch (error) {
+  console.error('❌ Error loading autoroles configuration:', error);
+}
+
 // Initialize collections for commands
 client.commands = new Collection();
 client.slashCommands = new Collection();
@@ -419,37 +435,48 @@ client.on('messageDelete', async message => {
 // Handle new member joins (auto-roles)
 client.on('guildMemberAdd', async member => {
   try {
-    // Check if autoroles are configured for this guild
-    if (fs.existsSync(autrolesConfigPath)) {
-      const autoroles = JSON.parse(fs.readFileSync(autrolesConfigPath, 'utf8'));
-      const guildId = member.guild.id;
+    const guildId = member.guild.id;
+    
+    // Get guild name for logging
+    const guildName = member.guild.name;
+    console.log(`Member joined: ${member.user.tag} in guild: ${guildName}`);
 
-      // Check if guild has autoroles configured
-      if (autoroles[guildId] && autoroles[guildId].length > 0) {
-        let rolesAdded = 0;
-        
-        // Add each configured role
-        for (const roleId of autoroles[guildId]) {
-          try {
-            const role = member.guild.roles.cache.get(roleId);
-            if (role && role.manageable) {
-              await member.roles.add(role);
-              rolesAdded++;
-            }
-          } catch (roleError) {
-            console.error(`Error adding role ${roleId} to member ${member.user.tag}:`, roleError);
+    // Check if guild has autoroles configured in the global autoroles object
+    if (autoroles[guildId] && autoroles[guildId].length > 0) {
+      console.log(`Found ${autoroles[guildId].length} autoroles configured for guild: ${guildName}`);
+      let rolesAdded = 0;
+      
+      // Add each configured role
+      for (const roleId of autoroles[guildId]) {
+        try {
+          const role = member.guild.roles.cache.get(roleId);
+          if (role && role.manageable) {
+            console.log(`Adding role: ${role.name} to member: ${member.user.tag}`);
+            await member.roles.add(role);
+            rolesAdded++;
+          } else if (!role) {
+            console.warn(`Role with ID ${roleId} not found in guild ${guildName}`);
+          } else if (!role.manageable) {
+            console.warn(`Role ${role.name} is not manageable by the bot in guild ${guildName}`);
           }
-        }
-        
-        // Log autorole assignment
-        if (rolesAdded > 0) {
-          logging.logAction('Autoroles Assigned', member.user, null, {
-            count: rolesAdded,
-            member: member.user.tag
-          });
-          console.log(`✅ Assigned ${rolesAdded} autorole(s) to new member: ${member.user.tag}`);
+        } catch (roleError) {
+          console.error(`Error adding role ${roleId} to member ${member.user.tag}:`, roleError);
         }
       }
+      
+      // Log autorole assignment
+      if (rolesAdded > 0) {
+        logging.logAction('Autoroles Assigned', member.user, null, {
+          count: rolesAdded,
+          member: member.user.tag,
+          guild: guildName
+        });
+        console.log(`✅ Assigned ${rolesAdded} autorole(s) to new member: ${member.user.tag} in ${guildName}`);
+      } else {
+        console.warn(`⚠️ No roles were successfully added to member: ${member.user.tag} in ${guildName}`);
+      }
+    } else {
+      console.log(`No autoroles configured for guild: ${guildName}`);
     }
   } catch (error) {
     console.error('Autorole Error:', error);

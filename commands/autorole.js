@@ -14,24 +14,41 @@ if (!fs.existsSync(path.join(__dirname, '../data'))) {
   fs.mkdirSync(path.join(__dirname, '../data'), { recursive: true });
 }
 
-// Load or create autoroles configuration
-let autoroles = {};
-try {
-  if (fs.existsSync(autrolesConfigPath)) {
-    autoroles = JSON.parse(fs.readFileSync(autrolesConfigPath, 'utf8'));
-  } else {
-    fs.writeFileSync(autrolesConfigPath, JSON.stringify(autoroles, null, 2));
+// Get the shared autoroles reference from the main file if it exists
+// or create a new one if it doesn't
+let autoroles = global.sharedAutoroles || {};
+
+// If global autoroles isn't populated yet, load from file
+if (Object.keys(autoroles).length === 0) {
+  try {
+    if (fs.existsSync(autrolesConfigPath)) {
+      autoroles = JSON.parse(fs.readFileSync(autrolesConfigPath, 'utf8'));
+      console.log(`[Autorole Command] Loaded autoroles from file: ${Object.keys(autoroles).length} servers`);
+    } else {
+      fs.writeFileSync(autrolesConfigPath, JSON.stringify(autoroles, null, 2));
+      console.log('[Autorole Command] Created empty autoroles configuration file');
+    }
+  } catch (error) {
+    console.error('[Autorole Command] Error loading autoroles configuration:', error);
   }
-} catch (error) {
-  console.error('Error loading autoroles configuration:', error);
+  
+  // Store in global for sharing with other modules
+  global.sharedAutoroles = autoroles;
 }
 
 // Save autoroles configuration
 function saveAutoroles() {
   try {
     fs.writeFileSync(autrolesConfigPath, JSON.stringify(autoroles, null, 2));
+    console.log(`[Autorole Command] Saved autoroles configuration for ${Object.keys(autoroles).length} servers`);
+    
+    // Ensure the global reference is updated
+    global.sharedAutoroles = autoroles;
+    
+    return true;
   } catch (error) {
-    console.error('Error saving autoroles configuration:', error);
+    console.error('[Autorole Command] Error saving autoroles configuration:', error);
+    return false;
   }
 }
 
