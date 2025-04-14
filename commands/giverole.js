@@ -75,19 +75,57 @@ module.exports = {
 
     // Remove the user mention from args and get the role type
     args.shift();
-    const roleType = args.join(' ').toLowerCase();
+    const roleInput = args.join(' ');
+    const roleType = roleInput.toLowerCase();
 
-    // Check if the role type is valid
-    if (!Object.keys(SPECIAL_ROLES).includes(roleType)) {
-      return message.reply({
-        content: `❌ Invalid role type. Available roles: ${Object.keys(SPECIAL_ROLES).join(', ')}`,
-        ephemeral: true
-      });
+    // Check if it's a custom role format (custom:Role Name:emoji)
+    let roleInfo;
+    let customRoleName = null;
+    
+    if (roleType.startsWith('custom:')) {
+      // Parse custom role format
+      const customParts = roleInput.split(':');
+      
+      if (customParts.length < 2) {
+        return message.reply({
+          content: '❌ Invalid custom role format. Use `custom:Role Name:emoji` (emoji is optional)',
+          ephemeral: true
+        });
+      }
+      
+      // Get the role name and emoji (if provided)
+      const roleName = customParts[1].trim();
+      const emoji = customParts.length > 2 ? customParts[2].trim() : '🏆';
+      
+      if (!roleName) {
+        return message.reply({
+          content: '❌ Custom role name cannot be empty',
+          ephemeral: true
+        });
+      }
+      
+      // Create custom role info
+      customRoleName = `${roleName} ${emoji}`;
+      roleInfo = {
+        name: customRoleName,
+        color: '#5865F2', // Discord blue
+        description: `Custom SWOOSH role: ${roleName}`
+      };
+      
+    } else {
+      // Check if it's a predefined role type
+      if (!Object.keys(SPECIAL_ROLES).includes(roleType)) {
+        return message.reply({
+          content: `❌ Invalid role type. Available roles: ${Object.keys(SPECIAL_ROLES).join(', ')}\nOr use \`.giverole @user custom:Role Name:emoji\` to create a custom role`,
+          ephemeral: true
+        });
+      }
+      
+      // Get predefined role info
+      roleInfo = SPECIAL_ROLES[roleType];
     }
 
     try {
-      // Get role info
-      const roleInfo = SPECIAL_ROLES[roleType];
       
       // Update whos.js to include this special user
       const success = await updateSpecialUsers(targetUser.id, roleInfo.name);
