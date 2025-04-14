@@ -253,7 +253,12 @@ client.on('messageCreate', async (message) => {
     const args = message.content.slice(config.prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
     
-    const command = client.commands.get(commandName);
+    // Get the command by name or alias
+    const command = client.commands.get(commandName) || 
+                  Array.from(client.commands.values()).find(cmd => 
+                    cmd.aliases && cmd.aliases.includes(commandName)
+                  );
+    
     if (!command) return;
     
     // Log command usage to the special channel
