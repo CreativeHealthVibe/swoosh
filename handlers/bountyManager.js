@@ -71,11 +71,57 @@ module.exports = {
       // Formatter for the bounty amount with commas
       const formattedAmount = bountyData.amount.toLocaleString();
       
-      // Create a more visually striking bounty embed with custom styling
+      // Get template and priority info from bountyData if provided
+      const template = bountyData.template || { 
+        id: 'standard', 
+        name: 'Standard Bounty',
+        description: 'Regular bounty announcement',
+        color: '#FF0000', 
+        icon: '🎯'
+      };
+      
+      const priority = bountyData.priority || {
+        id: 'medium',
+        name: 'Medium Priority',
+        description: 'Important target, moderate urgency',
+        color: '#FFFF00',
+        icon: '🟡'
+      };
+      
+      // Create template-specific title and description based on the selected template
+      let templateTitle, templateDescription, templateColor;
+      
+      switch(template.id) {
+        case 'premium':
+          templateTitle = `${moneyEmoji} **PREMIUM BOUNTY: ${bountyData.robloxUsername.toUpperCase()}** ${moneyEmoji}`;
+          templateDescription = `**⚠️ HIGH-VALUE TARGET IDENTIFIED ⚠️**\n\n**Eliminate this premium target and claim your substantial reward!**\n\n*This premium bounty was personally authorized by SWOOSH command.*`;
+          templateColor = template.color;
+          break;
+        case 'critical':
+          templateTitle = `${template.icon} **CRITICAL TARGET: ${bountyData.robloxUsername.toUpperCase()}** ${template.icon}`;
+          templateDescription = `**⚠️ URGENT ELIMINATION REQUIRED ⚠️**\n\n**This target has been designated for immediate removal.**\n\n*This critical bounty carries MAXIMUM priority and authorization.*`;
+          templateColor = template.color;
+          break;
+        case 'stealth':
+          templateTitle = `${template.icon} **DISCRETE CONTRACT: ${bountyData.robloxUsername}** ${template.icon}`;
+          templateDescription = `**Target designated for quiet removal.**\n\n**Complete this contract with minimal visibility for full reward.**\n\n*Authorized through secure channels.*`;
+          templateColor = template.color;
+          break;
+        default: // standard
+          templateTitle = `${targetEmoji} **SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()}** ${targetEmoji}`;
+          templateDescription = `**⚠️ A HIGH-VALUE TARGET HAS BEEN MARKED ⚠️**\n\n**Eliminate this target and claim your reward!**\n\n*This bounty was authorized by the SWOOSH administration.*`;
+          templateColor = template.color || '#FF0000';
+      }
+      
+      // Create priority-specific field styling
+      const priorityDisplay = `${priority.icon} **${priority.name.toUpperCase()}**`;
+      
+      // Create a visually striking bounty embed with custom styling based on template
       const bountyEmbed = new EmbedBuilder()
-        .setTitle(`${moneyEmoji} **SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()}** ${moneyEmoji}`)
-        .setDescription(`**⚠️ A HIGH-VALUE TARGET HAS BEEN MARKED ⚠️**\n\n**Eliminate this target and claim your reward!**\n\n*This bounty was authorized by the SWOOSH administration.*`)
+        .setTitle(templateTitle)
+        .setDescription(templateDescription)
         .addFields(
+          { name: `${priority.icon} **PRIORITY LEVEL**`, value: `\`${priority.name.toUpperCase()}\``, inline: true },
           { name: `${targetEmoji} **TARGET IDENTIFIED**`, value: `\`${bountyData.robloxUsername}\``, inline: true },
           { name: `${idEmoji} **ROBLOX ID**`, value: `\`${bountyData.robloxId}\``, inline: true },
           { name: `${rewardEmoji} **REWARD AMOUNT**`, value: `\`R$ ${formattedAmount}\``, inline: true },
@@ -83,9 +129,9 @@ module.exports = {
           { name: `${hostedEmoji} **AUTHORIZED BY**`, value: interaction.user.toString(), inline: true },
           { name: `${timeEmoji} **POSTED**`, value: `<t:${timestamp}:R>`, inline: true }
         )
-        .setColor('#ff0000') // Striking red color for more attention
+        .setColor(templateColor)
         .setFooter({ 
-          text: '💀 To claim this bounty, open a ticket with proof of elimination 💀', 
+          text: `💀 ${template.name} • ${priority.name} • Open a ticket to claim this bounty 💀`, 
           iconURL: config.webhooks.bountyAvatarUrl 
         });
         
@@ -130,13 +176,17 @@ module.exports = {
         };
       }
       
-      // Log bounty creation with reason if provided
+      // Log bounty creation with detailed information
       logging.logAction('Bounty Created', null, interaction.user, {
         robloxUsername: bountyData.robloxUsername,
         robloxId: bountyData.robloxId,
         amount: bountyData.amount,
         clipRequired: bountyData.clipRequired,
-        reason: bountyData.reason || 'No reason provided'
+        reason: bountyData.reason || 'No reason provided',
+        template: template.name,
+        priority: priority.name,
+        channel: bountyData.channel?.name || 'No specific channel',
+        timestamp: new Date().toISOString()
       });
       
       return result;
