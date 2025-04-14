@@ -22,7 +22,7 @@
           <option value="" selected disabled>- Select a server</option>
           <% if (guilds && guilds.length > 0) { %>
             <% guilds.forEach(guild => { %>
-              <option value="<%= guild.id %>" <%= serverID === guild.id ? 'selected' : '' %>><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
+              <option value="<%= guild.id %>" <%= (query && query.server === guild.id) ? 'selected' : '' %>><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
             <% }); %>
           <% } %>
         </select>
