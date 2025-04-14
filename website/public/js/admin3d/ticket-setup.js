@@ -544,6 +544,11 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(data => {
         if (data.success) {
           showSuccess('Bounty configuration saved successfully!');
+          
+          // Ask if the user wants to set up a bounty panel
+          if (confirm('Bounty settings saved! Would you like to create a bounty ticket panel in the selected channel?')) {
+            createBountyPanel(serverId, config);
+          }
         } else {
           showError(`Failed to save bounty configuration: ${data.error}`);
         }
@@ -672,6 +677,62 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+  // Create a regular ticket panel
+  function createTicketPanel(serverId, channelId, config) {
+    updateStatus('Creating ticket panel...');
+    
+    fetch(`/api/v2/servers/${serverId}/quick-setup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        channelId: channelId,
+        config: config
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccess('Ticket panel created successfully!');
+        } else {
+          showError(`Failed to create ticket panel: ${data.error}`);
+        }
+      })
+      .catch(error => {
+        console.error('Error creating ticket panel:', error);
+        showError('An error occurred while creating the ticket panel');
+      });
+  }
+  
+  // Create a bounty system panel
+  function createBountyPanel(serverId, config) {
+    updateStatus('Creating bounty panel...');
+    
+    fetch(`/api/v2/servers/${serverId}/bounty-setup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        channelId: config.bountyChannelId,
+        config: config
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccess('Bounty panel created successfully!');
+        } else {
+          showError(`Failed to create bounty panel: ${data.error}`);
+        }
+      })
+      .catch(error => {
+        console.error('Error creating bounty panel:', error);
+        showError('An error occurred while creating the bounty panel');
+      });
+  }
+
   // Initialize on load
   init();
 });
