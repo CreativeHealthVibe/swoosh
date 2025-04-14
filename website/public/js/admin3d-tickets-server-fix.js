@@ -3,24 +3,112 @@
  * Fixes server list display issues in the ticket management interface
  */
 
+// IMPORTANT: Run this script FIRST in the head section
+console.log('Server select fix running from head section');
+
+// Create a direct URL method to change server
+window.changeServer = function(serverId) {
+  console.log('Changing server to:', serverId);
+  window.location.href = '/admin3d/tickets?server=' + serverId;
+};
+
 // Run script once page has fully loaded (including images and styles)
 window.addEventListener('load', function() {
-  console.log('Server fix script loaded');
+  console.log('Fix-select script loaded');
   initServerSelection();
+  createServerSelector();
 });
 
 // Also try on DOMContentLoaded as a fallback
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Server fix DOMContentLoaded');
   initServerSelection();
+  createServerSelector();
 });
+
+// Try early execution as well
+setTimeout(() => {
+  // Check if we already have a server select
+  if (!document.getElementById('fixed-server-select')) {
+    console.log('Server select not found in early script');
+    createServerSelector();
+  }
+}, 500);
+
+// Function to create a server selector if one doesn't exist
+function createServerSelector() {
+  // If we already created the fixed selector, don't recreate
+  if (document.getElementById('fixed-server-select')) {
+    return;
+  }
+  
+  // Get guilds from the original selector if it exists
+  const originalSelect = document.getElementById('server-select');
+  if (!originalSelect) {
+    console.error('Server select element not found!');
+    return;
+  }
+  
+  // Create a container for the new selector
+  const fixedSelectorContainer = document.createElement('div');
+  fixedSelectorContainer.className = 'server-selector premium-server-selector';
+  fixedSelectorContainer.style.margin = '15px 0';
+  
+  // Add the selector HTML
+  fixedSelectorContainer.innerHTML = `
+    <div class="server-select-wrapper">
+      <label for="fixed-server-select">Select a Server:</label>
+      <div class="select-container">
+        <select id="fixed-server-select" class="form-control premium-select">
+          <option value="" selected disabled>- Select a server</option>
+          ${Array.from(originalSelect.options).map(option => 
+            `<option value="${option.value}" ${option.selected ? 'selected' : ''}>${option.text}</option>`
+          ).join('')}
+        </select>
+        <div class="select-arrow">
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Insert the new selector at the beginning of the container
+  const container = document.querySelector('.tickets-container');
+  if (container) {
+    if (container.firstChild) {
+      container.insertBefore(fixedSelectorContainer, container.firstChild.nextSibling);
+    } else {
+      container.appendChild(fixedSelectorContainer);
+    }
+    
+    // Set up the change event
+    const fixedSelect = document.getElementById('fixed-server-select');
+    if (fixedSelect) {
+      fixedSelect.addEventListener('change', function() {
+        window.changeServer(this.value);
+      });
+      
+      // Style the fixed selector
+      fixedSelect.style.backgroundColor = '#000000';
+      fixedSelect.style.color = '#ffffff'; 
+      fixedSelect.style.padding = '8px 12px';
+      fixedSelect.style.borderRadius = '4px';
+      fixedSelect.style.border = '1px solid #333';
+      
+      // Try to match the URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const serverParam = urlParams.get('server');
+      if (serverParam) {
+        fixedSelect.value = serverParam;
+      }
+    }
+  }
+}
 
 function initServerSelection() {
   // Try to find all possible server select elements
   const serverSelect = document.getElementById('server-select');
   const serverSelects = document.querySelectorAll('select.form-control.premium-select');
-  
-  console.log('Server selects found:', serverSelects.length);
   
   if (serverSelect) {
     console.log('Found server select by ID');
@@ -45,6 +133,7 @@ function initServerSelection() {
       initializeServerSelect(retrySelect);
     } else {
       console.error('Server select element not found after retry!');
+      createServerSelector(); // Create our own selector if all else fails
     }
   }, 1000);
 }
