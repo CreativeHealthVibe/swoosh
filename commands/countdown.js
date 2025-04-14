@@ -17,7 +17,7 @@ module.exports = {
 
             if (args.length < 1) {
                 return message.reply({
-                    content: `❌ Please provide a time for the countdown. Example: \`.countdown 5h 30m Meeting starts\``,
+                    content: `❌ Please provide a time for the countdown. Example: \`.countdown 5h 30m Meeting starts\`\n\nFormat: \`.countdown [TIME VALUES] [description]\`\nTime values must come first, for example: \`5h\`, \`30m\`, \`10s\`. Then add your description.`,
                     ephemeral: true
                 });
             }
@@ -28,7 +28,8 @@ module.exports = {
             let parsingTime = true;
 
             for (const arg of args) {
-                if (parsingTime && (arg.endsWith('h') || arg.endsWith('m') || arg.endsWith('s'))) {
+                // Check if argument matches the time pattern (number followed by h, m, or s)
+                if (parsingTime && arg.match(/^\d+[hms]$/)) {
                     timeArgs.push(arg);
                 } else {
                     parsingTime = false;
