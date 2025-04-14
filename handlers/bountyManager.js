@@ -88,6 +88,15 @@ module.exports = {
           text: '💀 To claim this bounty, open a ticket with proof of elimination 💀', 
           iconURL: config.webhooks.bountyAvatarUrl 
         });
+        
+      // Add reason if provided
+      if (bountyData.reason) {
+        bountyEmbed.addFields({ 
+          name: '📝 **ELIMINATION REASON**', 
+          value: `\`${bountyData.reason}\``, 
+          inline: false 
+        });
+      }
       
       // Add timestamp
       bountyEmbed.setTimestamp();
@@ -121,12 +130,13 @@ module.exports = {
         };
       }
       
-      // Log bounty creation
+      // Log bounty creation with reason if provided
       logging.logAction('Bounty Created', null, interaction.user, {
         robloxUsername: bountyData.robloxUsername,
         robloxId: bountyData.robloxId,
         amount: bountyData.amount,
-        clipRequired: bountyData.clipRequired
+        clipRequired: bountyData.clipRequired,
+        reason: bountyData.reason || 'No reason provided'
       });
       
       return result;
