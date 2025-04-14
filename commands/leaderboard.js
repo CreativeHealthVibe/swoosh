@@ -16,11 +16,24 @@ module.exports = {
     .setDescription('Shows the top Discord servers using SWOOSH Bot'),
   
   /**
-   * Execute the command
+   * Execute the command for message-based invocation
+   * @param {Object} message - Discord message
+   */
+  async execute(message) {
+    const websiteUrl = process.env.WEBSITE_URL || 'https://swooshfinal.onrender.com';
+    const leaderboardUrl = `${websiteUrl}/leaderboard`;
+    
+    await message.reply({
+      content: `**📊 SWOOSH Server Leaderboard**\n\nCheck out the top servers using SWOOSH Bot:\n${leaderboardUrl}\n\nSee where your server ranks among the community!`
+    });
+  },
+  
+  /**
+   * Execute the command for interaction/slash command
    * @param {Object} interaction - Discord interaction
    */
-  async execute(interaction) {
-    const websiteUrl = process.env.WEBSITE_URL || 'https://swoosh-discord-bot.repl.co';
+  async executeInteraction(interaction) {
+    const websiteUrl = process.env.WEBSITE_URL || 'https://swooshfinal.onrender.com';
     const leaderboardUrl = `${websiteUrl}/leaderboard`;
     
     await interaction.reply({
