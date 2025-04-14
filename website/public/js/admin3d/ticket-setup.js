@@ -263,6 +263,14 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           
           <div class="form-group">
+            <label><i class="fas fa-hashtag"></i> Panel Channel</label>
+            <select id="ticket-channel" name="ticketChannelId" class="form-control">
+              <option value="">- Select Channel -</option>
+            </select>
+            <small class="form-text">Channel where users will create tickets (optional)</small>
+          </div>
+          
+          <div class="form-group">
             <label><i class="fas fa-cog"></i> Additional Options</label>
             <div class="options-container">
               <div class="form-check">
@@ -273,6 +281,11 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="form-check">
                 <input type="checkbox" id="setup-topic" name="requireTopic" class="form-check-input">
                 <label for="setup-topic" class="form-check-label">Require users to specify a topic</label>
+              </div>
+              
+              <div class="form-check">
+                <input type="checkbox" id="create-panel" name="createPanel" class="form-check-input" checked>
+                <label for="create-panel" class="form-check-label">Create ticket panel in selected channel</label>
               </div>
             </div>
           </div>
@@ -313,9 +326,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add boolean values
         config.autoTranscript = !!formData.get('autoTranscript');
         config.requireTopic = !!formData.get('requireTopic');
+        const createPanel = !!formData.get('createPanel');
         
         // Send to server
         saveTicketConfig(serverId, config);
+        
+        // Create panel if requested and channel is selected
+        if (createPanel && config.ticketChannelId) {
+          setTimeout(() => {
+            createTicketPanel(serverId, config.ticketChannelId, config);
+          }, 1000); // Small delay to allow config to save first
+        }
       });
     }
   }
