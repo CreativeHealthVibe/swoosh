@@ -261,11 +261,41 @@ function initThreeJsVisualizations(initialData) {
 /**
  * Set up WebSocket connection for real-time data
  */
+// Store reconnection state globally
+let isReconnecting = false;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 10;
+const RECONNECT_INTERVAL = 3000; // 3 seconds
+
+// Create ping interval to keep connection alive
+let pingInterval = null;
+
 function setupWebSocket() {
+  // Don't try to reconnect if we're already trying
+  if (isReconnecting) return;
+  
+  // Mark that we're trying to reconnect
+  isReconnecting = true;
+  
+  // Generate a unique connection ID to prevent duplicate connections
+  const connectionId = Date.now();
+  
+  // Clear any existing ping interval
+  if (pingInterval) {
+    clearInterval(pingInterval);
+    pingInterval = null;
+  }
+  
+  // Close any existing socket
+  if (socket && socket.readyState !== WebSocket.CLOSED) {
+    socket.close();
+  }
+  
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${protocol}//${window.location.host}/stats-ws`;
   
   try {
+    console.log(`Creating new WebSocket connection... Attempt ${reconnectAttempts + 1}`);
     socket = new WebSocket(wsUrl);
     
     // Update status indicator
@@ -277,16 +307,53 @@ function setupWebSocket() {
       statusText.textContent = 'Connecting to real-time data...';
     }
     
+    // Add connection status to the page if it doesn't exist
+    if (!document.getElementById('connection-status')) {
+      const statusDiv = document.createElement('div');
+      statusDiv.id = 'connection-status';
+      statusDiv.style.position = 'fixed';
+      statusDiv.style.bottom = '10px';
+      statusDiv.style.right = '10px';
+      statusDiv.style.background = 'rgba(0,0,0,0.7)';
+      statusDiv.style.color = '#fff';
+      statusDiv.style.padding = '5px 10px';
+      statusDiv.style.borderRadius = '4px';
+      statusDiv.style.zIndex = '9999';
+      statusDiv.textContent = 'Connecting...';
+      document.body.appendChild(statusDiv);
+    }
+    
     // Connection opened
     socket.addEventListener('open', () => {
       console.log('Connected to stats WebSocket');
       isSocketConnected = true;
+      isReconnecting = false;
+      reconnectAttempts = 0;
       
+      // Update status elements
       if (statusIndicator && statusText) {
         statusIndicator.classList.remove('connecting');
         statusIndicator.classList.add('connected');
         statusText.textContent = 'Real-time data connected';
       }
+      
+      const statusDiv = document.getElementById('connection-status');
+      if (statusDiv) {
+        statusDiv.textContent = 'Connected';
+        statusDiv.style.background = 'rgba(0,128,0,0.7)';
+      }
+      
+      // Set up ping interval to keep connection alive
+      pingInterval = setInterval(() => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          try {
+            socket.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+            console.log('Sent ping to keep WebSocket alive');
+          } catch (error) {
+            console.error('Error sending ping:', error);
+          }
+        }
+      }, 25000); // Send ping every 25 seconds
       
       // Request initial data
       socket.send(JSON.stringify({ type: 'subscribe', data: 'all' }));
@@ -296,6 +363,8 @@ function setupWebSocket() {
     socket.addEventListener('message', (event) => {
       try {
         const data = JSON.parse(event.data);
+        // Reset reconnect attempts on successful message
+        reconnectAttempts = 0;
         handleSocketData(data);
       } catch (err) {
         console.error('Error parsing WebSocket data:', err);
@@ -303,17 +372,51 @@ function setupWebSocket() {
     });
     
     // Socket closed
-    socket.addEventListener('close', () => {
-      console.log('Disconnected from stats WebSocket');
+    socket.addEventListener('close', (event) => {
+      console.log('WebSocket connection closed:', event.code, event.reason);
       isSocketConnected = false;
       
+      // Clear ping interval
+      if (pingInterval) {
+        clearInterval(pingInterval);
+        pingInterval = null;
+      }
+      
+      // Update status elements
       if (statusIndicator && statusText) {
         statusIndicator.classList.remove('connecting', 'connected');
         statusText.textContent = 'Real-time data disconnected';
       }
       
-      // Try to reconnect after 5 seconds
-      setTimeout(setupWebSocket, 5000);
+      const statusDiv = document.getElementById('connection-status');
+      if (statusDiv) {
+        statusDiv.textContent = 'Disconnected. Reconnecting...';
+        statusDiv.style.background = 'rgba(255,165,0,0.7)';
+      }
+      
+      // Try to reconnect with increasing backoff
+      reconnectAttempts++;
+      
+      const delay = Math.min(RECONNECT_INTERVAL * Math.pow(1.5, reconnectAttempts - 1), 30000);
+      console.log(`Attempting to reconnect in ${delay/1000} seconds...`);
+      
+      // Allow reconnection attempt
+      isReconnecting = false;
+      
+      // Try to reconnect if we haven't exceeded max attempts
+      if (reconnectAttempts <= MAX_RECONNECT_ATTEMPTS) {
+        setTimeout(() => {
+          console.log(`Reconnecting... Attempt ${reconnectAttempts}`);
+          setupWebSocket();
+        }, delay);
+      } else {
+        console.error('Maximum reconnection attempts reached. Please refresh the page.');
+        const statusDiv = document.getElementById('connection-status');
+        if (statusDiv) {
+          statusDiv.textContent = 'Connection failed. Refresh the page.';
+          statusDiv.style.background = 'rgba(255,0,0,0.7)';
+        }
+      }
     });
     
     // Socket error
@@ -321,13 +424,26 @@ function setupWebSocket() {
       console.error('WebSocket error:', error);
       isSocketConnected = false;
       
+      // Update status elements
       if (statusIndicator && statusText) {
         statusIndicator.classList.remove('connecting', 'connected');
         statusText.textContent = 'Real-time data connection error';
       }
+      
+      const statusDiv = document.getElementById('connection-status');
+      if (statusDiv) {
+        statusDiv.textContent = 'Connection error';
+        statusDiv.style.background = 'rgba(255,0,0,0.7)';
+      }
     });
   } catch (err) {
     console.error('Failed to create WebSocket connection:', err);
+    isReconnecting = false;
+    
+    // Try again after a delay
+    if (reconnectAttempts <= MAX_RECONNECT_ATTEMPTS) {
+      setTimeout(setupWebSocket, RECONNECT_INTERVAL);
+    }
   }
 }
 
