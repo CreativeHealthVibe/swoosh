@@ -88,58 +88,37 @@ module.exports = {
         icon: '🟡'
       };
       
-      // Create template-specific title and description based on the selected template
-      let templateTitle, templateDescription, templateColor;
-      
-      switch(template.id) {
-        case 'premium':
-          templateTitle = `${moneyEmoji} **PREMIUM BOUNTY: ${bountyData.robloxUsername.toUpperCase()}** ${moneyEmoji}`;
-          templateDescription = `**⚠️ HIGH-VALUE TARGET IDENTIFIED ⚠️**\n\n**Eliminate this premium target and claim your substantial reward!**\n\n*This premium bounty was personally authorized by SWOOSH command.*`;
-          templateColor = template.color;
-          break;
-        case 'critical':
-          templateTitle = `${template.icon} **CRITICAL TARGET: ${bountyData.robloxUsername.toUpperCase()}** ${template.icon}`;
-          templateDescription = `**⚠️ URGENT ELIMINATION REQUIRED ⚠️**\n\n**This target has been designated for immediate removal.**\n\n*This critical bounty carries MAXIMUM priority and authorization.*`;
-          templateColor = template.color;
-          break;
-        case 'stealth':
-          templateTitle = `${template.icon} **DISCRETE CONTRACT: ${bountyData.robloxUsername}** ${template.icon}`;
-          templateDescription = `**Target designated for quiet removal.**\n\n**Complete this contract with minimal visibility for full reward.**\n\n*Authorized through secure channels.*`;
-          templateColor = template.color;
-          break;
-        default: // standard
-          templateTitle = `${targetEmoji} **SWOOSH BOUNTY: ${bountyData.robloxUsername.toUpperCase()}** ${targetEmoji}`;
-          templateDescription = `**⚠️ A HIGH-VALUE TARGET HAS BEEN MARKED ⚠️**\n\n**Eliminate this target and claim your reward!**\n\n*This bounty was authorized by the SWOOSH administration.*`;
-          templateColor = template.color || '#FF0000';
-      }
+      // Using a clean, professional design regardless of template choice
+      const templateTitle = `${targetEmoji} **SWOOSH BOUNTY: ${bountyData.robloxUsername}**`;
+      const templateDescription = `**Target marked for elimination. Please see details below.**`;
+      const templateColor = '#000000'; // Pure black for a clean look
       
       // Create priority-specific field styling
       const priorityDisplay = `${priority.icon} **${priority.name.toUpperCase()}**`;
       
-      // Create a visually striking bounty embed with custom styling based on template
+      // Create a clean, professional bounty embed
       const bountyEmbed = new EmbedBuilder()
         .setTitle(templateTitle)
         .setDescription(templateDescription)
         .addFields(
-          { name: `${priority.icon} **PRIORITY LEVEL**`, value: `\`${priority.name.toUpperCase()}\``, inline: true },
-          { name: `${targetEmoji} **TARGET IDENTIFIED**`, value: `\`${bountyData.robloxUsername}\``, inline: true },
-          { name: `${idEmoji} **ROBLOX ID**`, value: `\`${bountyData.robloxId}\``, inline: true },
-          { name: `${rewardEmoji} **REWARD AMOUNT**`, value: `\`R$ ${formattedAmount}\``, inline: true },
-          { name: `${clipEmoji} **EVIDENCE REQUIREMENTS**`, value: bountyData.clipRequired ? '`✅ VIDEO CLIP REQUIRED`' : '`❌ NO CLIP NEEDED`', inline: true },
-          { name: `${hostedEmoji} **AUTHORIZED BY**`, value: interaction.user.toString(), inline: true },
-          { name: `${timeEmoji} **POSTED**`, value: `<t:${timestamp}:R>`, inline: true }
+          { name: `Priority`, value: `${priority.name}`, inline: true },
+          { name: `Username`, value: `${bountyData.robloxUsername}`, inline: true },
+          { name: `Roblox ID`, value: `${bountyData.robloxId}`, inline: true },
+          { name: `Reward`, value: `R$ ${formattedAmount}`, inline: true },
+          { name: `Evidence`, value: bountyData.clipRequired ? 'Video Required' : 'No Clip Needed', inline: true },
+          { name: `Authorized By`, value: interaction.user.toString(), inline: true }
         )
         .setColor(templateColor)
         .setFooter({ 
-          text: `💀 ${template.name} • ${priority.name} • Open a ticket to claim this bounty 💀`, 
+          text: `SWOOSH Bounty System • Open a ticket to claim this bounty`, 
           iconURL: config.webhooks.bountyAvatarUrl 
         });
         
-      // Add reason if provided
+      // Add reason if provided with clean formatting
       if (bountyData.reason) {
         bountyEmbed.addFields({ 
-          name: '📝 **ELIMINATION REASON**', 
-          value: `\`${bountyData.reason}\``, 
+          name: 'Reason', 
+          value: bountyData.reason, 
           inline: false 
         });
       }
