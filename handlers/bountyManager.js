@@ -103,7 +103,9 @@ module.exports = {
           `# REWARD: R$ ${formattedAmount}\n\n` +
           `**ID:** ${bountyData.robloxId}\n` +
           `**Priority:** ${priority.name}\n` +
-          `**Authorized By:** ${interaction.user.toString()}`
+          `**Authorized By:** ${interaction.user.toString()}\n` +
+          `**Submitted By:** ${bountyData.submittedBy ? bountyData.submittedBy.toString() : interaction.user.toString()}\n` +
+          `**Approved By:** ${bountyData.approvedBy ? bountyData.approvedBy.toString() : interaction.user.toString()}`
         )
         .setColor(templateColor)
         .setFooter({ 
@@ -159,18 +161,22 @@ module.exports = {
         };
       }
       
-      // Log bounty creation with detailed information
-      logging.logAction('Bounty Created', null, interaction.user, {
-        robloxUsername: bountyData.robloxUsername,
-        robloxId: bountyData.robloxId,
-        amount: bountyData.amount,
-        clipRequired: bountyData.clipRequired,
-        reason: bountyData.reason || 'No reason provided',
-        template: template.name,
-        priority: priority.name,
-        channel: bountyData.channel?.name || 'No specific channel',
-        timestamp: new Date().toISOString()
-      });
+      // Log bounty creation with detailed information (only if log option is enabled)
+      if (!bountyData.skipLogging) {
+        logging.logAction('Bounty Created', null, interaction.user, {
+          robloxUsername: bountyData.robloxUsername,
+          robloxId: bountyData.robloxId,
+          amount: bountyData.amount,
+          clipRequired: bountyData.clipRequired,
+          reason: bountyData.reason || 'No reason provided',
+          template: template.name,
+          priority: priority.name,
+          channel: bountyData.channel?.name || 'No specific channel',
+          submittedBy: bountyData.submittedBy ? bountyData.submittedBy.tag : interaction.user.tag,
+          approvedBy: bountyData.approvedBy ? bountyData.approvedBy.tag : interaction.user.tag,
+          timestamp: new Date().toISOString()
+        });
+      }
       
       return result;
     } catch (error) {
