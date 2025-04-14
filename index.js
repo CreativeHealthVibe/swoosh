@@ -447,23 +447,37 @@ client.on('guildMemberAdd', async member => {
     // Check if guild has autoroles configured in the global autoroles object
     if (autoroles[guildId] && autoroles[guildId].length > 0) {
       console.log(`Found ${autoroles[guildId].length} autoroles configured for guild: ${guildName}`);
+      
+      // Check if bot has MANAGE_ROLES permission
+      const botMember = member.guild.members.me;
+      const hasManageRoles = botMember && botMember.permissions.has('ManageRoles');
+      
+      if (!hasManageRoles) {
+        console.warn(`⚠️ Bot doesn't have MANAGE_ROLES permission in guild ${guildName}. Can't assign any roles.`);
+        logging.logAction('Autorole Permission Error', member.user, null, {
+          guild: guildName,
+          error: "Bot doesn't have MANAGE_ROLES permission"
+        });
+        return;
+      }
+      
       let rolesAdded = 0;
       
       // Add each configured role
       for (const roleId of autoroles[guildId]) {
         try {
           const role = member.guild.roles.cache.get(roleId);
-          if (role && role.manageable) {
-            console.log(`Adding role: ${role.name} to member: ${member.user.tag}`);
-            await member.roles.add(role);
-            rolesAdded++;
-          } else if (!role) {
+          if (!role) {
             console.warn(`Role with ID ${roleId} not found in guild ${guildName}`);
-          } else if (!role.manageable) {
-            console.warn(`Role ${role.name} is not manageable by the bot in guild ${guildName}`);
+            continue;
           }
+          
+          console.log(`Adding role: ${role.name} to member: ${member.user.tag}`);
+          await member.roles.add(role);
+          rolesAdded++;
         } catch (roleError) {
           console.error(`Error adding role ${roleId} to member ${member.user.tag}:`, roleError);
+          console.error(roleError.stack);
         }
       }
       

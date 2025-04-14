@@ -106,23 +106,30 @@ module.exports = {
         const validRoles = [];
         const invalidRoles = [];
         
+        const embed = new EmbedBuilder()
+          .setTitle('Configured Autoroles')
+          .setColor(config.embedColor);
+          
+        // Check if bot has MANAGE_ROLES permission
+        const hasManageRoles = message.guild.members.me.permissions.has('ManageRoles');
+        
+        let description = '';
+        
+        // Add warning about permission if needed
+        if (!hasManageRoles) {
+          description = `⚠️ **WARNING:** Bot does not have MANAGE_ROLES permission in this server. No roles can be assigned.\n\n`;
+        }
+        
         // Check each configured role
         for (const roleId of autoroles[guildId]) {
           const role = message.guild.roles.cache.get(roleId);
           if (!role) {
             invalidRoles.push(`Unknown role (${roleId})`);
-          } else if (!role.manageable) {
-            invalidRoles.push(`${role.name} (not manageable by bot)`);
           } else {
+            // If the bot has permission, all roles should be valid
             validRoles.push(role.name);
           }
         }
-        
-        const embed = new EmbedBuilder()
-          .setTitle('Configured Autoroles')
-          .setColor(config.embedColor);
-        
-        let description = '';
         
         if (validRoles.length > 0) {
           description += `**Valid roles that will be assigned:**\n- ${validRoles.join('\n- ')}\n\n`;
@@ -148,10 +155,10 @@ module.exports = {
         const originalLength = autoroles[guildId].length;
         const cleanedRoles = [];
         
-        // Filter out invalid roles
+        // Filter out deleted roles only
         autoroles[guildId] = autoroles[guildId].filter(roleId => {
           const role = message.guild.roles.cache.get(roleId);
-          if (!role || !role.manageable) {
+          if (!role) {
             cleanedRoles.push(roleId);
             return false;
           }
@@ -184,9 +191,9 @@ module.exports = {
         
         // Add role to autoroles
         if (action === 'add') {
-          // Check if role is manageable by the bot
-          if (!role.manageable) {
-            return message.reply(`❌ Cannot add role ${role.name} because it's not manageable by the bot. The bot's role must be positioned higher than this role in the server settings.`);
+          // Check if bot has MANAGE_ROLES permission
+          if (!message.guild.members.me.permissions.has('ManageRoles')) {
+            return message.reply(`❌ Cannot add role ${role.name} because the bot doesn't have the MANAGE_ROLES permission in this server.`);
           }
           
           if (autoroles[guildId].includes(role.id)) {
