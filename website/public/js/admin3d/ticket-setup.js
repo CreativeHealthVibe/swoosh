@@ -1,369 +1,677 @@
 /**
- * Admin 3D - Ticket Setup JS
- * Handles the ticket setup interface in admin panel
- * Simplified for better performance
+ * Admin3D Ticket Setup Script
+ * Integrates setup-tickets command functionality into the admin interface
  */
 
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Ticket setup JS loaded');
   
-  // Initialize ticket setup immediately without waiting for Three.js
-  initTicketSetup();
-
-  // Handle tab switching
-  const tabButtons = document.querySelectorAll('.ticket-section-tab');
-  tabButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      // Remove active class from all tabs
-      tabButtons.forEach(b => b.classList.remove('active'));
-      
-      // Add active class to clicked tab
-      this.classList.add('active');
-      
-      // Hide all tab content
-      document.querySelectorAll('.ticket-section-content').forEach(content => {
-        content.style.display = 'none';
-      });
-      
-      // Show selected tab content
-      const contentId = this.getAttribute('data-tab');
-      document.getElementById(contentId).style.display = 'block';
-    });
-  });
-});
-
-/**
- * Initialize ticket setup
- */
-function initTicketSetup() {
-  console.log('Initializing ticket setup...');
+  // Initialize variables
+  let selectedServer = null;
+  let serverChannels = [];
+  let serverRoles = [];
   
-  // Get server ID
-  const serverId = document.getElementById('server-id').value;
-  if (!serverId) {
-    console.error('Server ID not found in form');
-    return;
-  }
+  // DOM elements
+  const serverSelect = document.getElementById('server-select');
+  const quickSetupTab = document.getElementById('quick-setup-tab');
+  const quickSetupContent = document.getElementById('quick-setup-content');
+  const bountySetupTab = document.getElementById('bounty-setup-tab');
+  const bountySetupContent = document.getElementById('bounty-setup-content');
   
-  // Fetch available channels
-  fetchChannels(serverId);
-  
-  // Setup form submission handlers
-  setupFormHandlers(serverId);
-  
-  // Load existing ticket panels
-  loadTicketPanels(serverId);
-}
-
-/**
- * Fetch channels for the server
- * @param {string} serverId - Server ID
- */
-function fetchChannels(serverId) {
-  console.log(`Fetching channels for server ${serverId}...`);
-  
-  fetch(`/api/v2/servers/${serverId}/channels`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        populateChannelDropdown(data.channels);
-      } else {
-        console.error('Error fetching channels:', data.message);
-        showError('Could not load channels. Please try again later.');
+  // Setup event listeners
+  if (serverSelect) {
+    serverSelect.addEventListener('change', function() {
+      selectedServer = this.value;
+      if (selectedServer) {
+        loadServerData(selectedServer);
       }
-    })
-    .catch(error => {
-      console.error('Error fetching channels:', error);
-      showError('Could not load channels. Please try again later.');
     });
-}
-
-/**
- * Populate channel dropdown with fetched channels
- * @param {Array} channels - Array of channels
- */
-function populateChannelDropdown(channels) {
-  const dropdown = document.getElementById('ticket-channel');
-  if (!dropdown) {
-    console.error('Channel dropdown not found');
-    return;
   }
   
-  // Clear existing options
-  dropdown.innerHTML = '<option value="">Select a channel</option>';
-  
-  // Filter to only text channels and sort alphabetically
-  const textChannels = channels
-    .filter(channel => channel.type === 'GUILD_TEXT')
-    .sort((a, b) => a.name.localeCompare(b.name));
-  
-  // Add channel options
-  textChannels.forEach(channel => {
-    const option = document.createElement('option');
-    option.value = channel.id;
-    option.textContent = `#${channel.name}`;
-    dropdown.appendChild(option);
-  });
-  
-  console.log(`Populated dropdown with ${textChannels.length} channels`);
-}
-
-/**
- * Setup form submission handlers
- * @param {string} serverId - Server ID
- */
-function setupFormHandlers(serverId) {
-  const ticketForm = document.getElementById('ticket-setup-form');
-  if (!ticketForm) {
-    console.error('Ticket setup form not found');
-    return;
+  // Load server data (channels, roles, etc.)
+  function loadServerData(serverId) {
+    // Update status
+    updateStatus(`Loading server data for ${serverId}...`);
+    
+    // Fetch server channels
+    fetch(`/api/v2/servers/${serverId}/channels`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          serverChannels = data.channels;
+          populateChannelSelects();
+        } else {
+          console.error('Failed to load channels:', data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching channels:', error);
+      });
+    
+    // Fetch server roles
+    fetch(`/api/v2/servers/${serverId}/roles`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          serverRoles = data.roles;
+          populateRoleSelects();
+        } else {
+          console.error('Failed to load roles:', data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching roles:', error);
+      });
+    
+    // Load existing ticket configuration
+    fetch(`/api/v2/servers/${serverId}/ticket-config`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.config) {
+          populateConfigForm(data.config);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching ticket config:', error);
+      });
   }
   
-  ticketForm.addEventListener('submit', function(event) {
-    event.preventDefault();
+  // Populate channel select elements
+  function populateChannelSelects() {
+    // Find all channel select elements
+    const channelSelects = [
+      document.getElementById('category-id'),
+      document.getElementById('log-channel-id'),
+      document.getElementById('panel-channel-id'),
+      document.getElementById('ticket-channel'),
+      document.getElementById('setup-category'),
+      document.getElementById('setup-log-channel')
+    ];
     
-    // Validate form
-    if (!validateTicketForm()) {
-      return;
-    }
+    // Filter channels by type
+    const textChannels = serverChannels.filter(channel => 
+      channel.type === 'GUILD_TEXT' || channel.type === 0
+    );
     
-    // Show loading state
-    const submitBtn = ticketForm.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Creating...';
+    const categories = serverChannels.filter(channel => 
+      channel.type === 'GUILD_CATEGORY' || channel.type === 4
+    );
     
-    // Get form data
-    const formData = new FormData(ticketForm);
-    const ticketData = {
-      serverId: serverId,
-      channelId: formData.get('ticket-channel'),
-      title: formData.get('ticket-title'),
-      description: formData.get('ticket-description'),
-      color: formData.get('ticket-color')
+    // Update each select element
+    channelSelects.forEach(select => {
+      if (!select) return;
+      
+      // Clear existing options
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+      
+      // Determine which channel list to use based on select ID
+      const channelList = select.id.includes('category') ? categories : textChannels;
+      
+      // Sort alphabetically
+      channelList.sort((a, b) => a.name.localeCompare(b.name));
+      
+      // Add options
+      channelList.forEach(channel => {
+        const option = document.createElement('option');
+        option.value = channel.id;
+        option.textContent = channel.name;
+        select.appendChild(option);
+      });
+    });
+  }
+  
+  // Populate role select elements
+  function populateRoleSelects() {
+    // Find all role select elements
+    const roleSelects = [
+      document.getElementById('support-role-id'),
+      document.getElementById('setup-support-role')
+    ];
+    
+    // Sort roles alphabetically
+    serverRoles.sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Update each select element
+    roleSelects.forEach(select => {
+      if (!select) return;
+      
+      // Clear existing options
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+      
+      // Add options
+      serverRoles.forEach(role => {
+        const option = document.createElement('option');
+        option.value = role.id;
+        option.textContent = role.name;
+        select.appendChild(option);
+      });
+    });
+  }
+  
+  // Populate form with existing configuration
+  function populateConfigForm(config) {
+    // Populate settings form
+    const elements = {
+      'category-id': config.categoryId,
+      'support-role-id': config.supportRoleId,
+      'log-channel-id': config.logChannelId,
+      'max-tickets': config.maxTickets || 1,
+      'cooldown': config.cooldown || 60,
+      'auto-transcript': config.autoTranscript,
+      'auto-close': config.autoClose,
+      'require-topic': config.requireTopic,
+      'use-threads': config.useThreads,
+      'inactive-hours': config.inactiveHours || 24,
+      'auto-close-message': config.autoCloseMessage,
+      'welcome-message': config.welcomeMessage,
+      'close-message': config.closeMessage
     };
     
-    // Get selected ticket types
-    const ticketTypes = [];
-    document.querySelectorAll('.ticket-type-checkbox:checked').forEach(checkbox => {
-      ticketTypes.push(checkbox.value);
-    });
-    ticketData.ticketTypes = ticketTypes;
+    // Update form elements
+    for (const [id, value] of Object.entries(elements)) {
+      const element = document.getElementById(id);
+      if (!element) continue;
+      
+      if (element.type === 'checkbox') {
+        element.checked = !!value;
+      } else {
+        element.value = value || '';
+      }
+    }
     
-    console.log('Creating ticket panel with data:', ticketData);
+    // Show/hide conditional elements
+    const autoClose = document.getElementById('auto-close');
+    if (autoClose && autoClose.checked) {
+      document.querySelectorAll('.auto-close-settings').forEach(el => {
+        el.style.display = 'block';
+      });
+    }
     
-    // Send API request
-    fetch('/api/tickets/setup', {
+    // Update Quick Setup tab
+    populateQuickSetup(config);
+    
+    // Update Bounty Setup tab
+    populateBountySetup(config);
+  }
+  
+  // Populate Quick Setup form
+  function populateQuickSetup(config) {
+    if (!quickSetupContent) return;
+    
+    // Create the form if it doesn't exist
+    if (!document.getElementById('quick-setup-form')) {
+      createQuickSetupForm();
+    }
+    
+    // Populate form fields
+    const setupElements = {
+      'setup-category': config.categoryId,
+      'setup-support-role': config.supportRoleId,
+      'setup-log-channel': config.logChannelId
+    };
+    
+    // Update form elements
+    for (const [id, value] of Object.entries(setupElements)) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.value = value || '';
+      }
+    }
+  }
+  
+  // Create Quick Setup form
+  function createQuickSetupForm() {
+    if (!quickSetupContent) return;
+    
+    // Create HTML for quick setup
+    const setupHtml = `
+      <div class="quick-setup-container">
+        <div class="setup-header">
+          <h3><i class="fas fa-bolt"></i> Quick Ticket Setup</h3>
+          <p>Configure your ticket system with these essential settings</p>
+        </div>
+        
+        <form id="quick-setup-form" class="setup-form">
+          <input type="hidden" id="server-id" name="serverId" value="">
+          
+          <div class="form-group">
+            <label><i class="fas fa-folder"></i> Ticket Category</label>
+            <select id="setup-category" name="categoryId" class="form-control" required>
+              <option value="">- Select Category -</option>
+            </select>
+            <small class="form-text">Category where ticket channels will be created</small>
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-user-shield"></i> Support Role</label>
+            <select id="setup-support-role" name="supportRoleId" class="form-control" required>
+              <option value="">- Select Role -</option>
+            </select>
+            <small class="form-text">Role that will have access to all tickets</small>
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-history"></i> Log Channel</label>
+            <select id="setup-log-channel" name="logChannelId" class="form-control">
+              <option value="">- Select Channel -</option>
+            </select>
+            <small class="form-text">Channel where ticket logs will be posted</small>
+          </div>
+          
+          <div class="form-group">
+            <label><i class="fas fa-cog"></i> Additional Options</label>
+            <div class="options-container">
+              <div class="form-check">
+                <input type="checkbox" id="setup-transcripts" name="autoTranscript" class="form-check-input">
+                <label for="setup-transcripts" class="form-check-label">Save transcripts when tickets are closed</label>
+              </div>
+              
+              <div class="form-check">
+                <input type="checkbox" id="setup-topic" name="requireTopic" class="form-check-input">
+                <label for="setup-topic" class="form-check-label">Require users to specify a topic</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="premium-btn premium-primary">
+              <i class="fas fa-magic"></i> Setup Ticket System
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    // Add the form to the tab content
+    quickSetupContent.innerHTML = setupHtml;
+    
+    // Add form submit event
+    const setupForm = document.getElementById('quick-setup-form');
+    if (setupForm) {
+      setupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(this);
+        const serverId = selectedServer;
+        
+        if (!serverId) {
+          alert('Please select a server first');
+          return;
+        }
+        
+        // Add server ID
+        formData.append('serverId', serverId);
+        
+        // Convert to object
+        const config = Object.fromEntries(formData.entries());
+        
+        // Add boolean values
+        config.autoTranscript = !!formData.get('autoTranscript');
+        config.requireTopic = !!formData.get('requireTopic');
+        
+        // Send to server
+        saveTicketConfig(serverId, config);
+      });
+    }
+  }
+  
+  // Create Bounty Setup form
+  function createBountySetupForm() {
+    if (!bountySetupContent) return;
+    
+    // Create HTML for bounty setup
+    const bountyHtml = `
+      <div class="bounty-system-container">
+        <div class="bounty-header">
+          <h3><i class="fas fa-coins"></i> Bounty System Setup</h3>
+          <p>Configure the bounty system for your tickets</p>
+        </div>
+        
+        <form id="bounty-setup-form" class="setup-form">
+          <input type="hidden" id="bounty-server-id" name="serverId" value="">
+          
+          <div class="bounty-option">
+            <div class="bounty-option-header">
+              <div class="bounty-option-icon">
+                <i class="fas fa-toggle-on"></i>
+              </div>
+              <h4 class="bounty-option-title">Enable Bounty System</h4>
+            </div>
+            <p class="bounty-option-description">
+              Allow users to create and claim bounties through tickets
+            </p>
+            <div class="form-check">
+              <input type="checkbox" id="enable-bounties" name="enableBounties" class="form-check-input">
+              <label for="enable-bounties" class="form-check-label">Enable bounty system for tickets</label>
+            </div>
+          </div>
+          
+          <div class="bounty-option">
+            <div class="bounty-option-header">
+              <div class="bounty-option-icon">
+                <i class="fas fa-user-shield"></i>
+              </div>
+              <h4 class="bounty-option-title">Bounty Manager Role</h4>
+            </div>
+            <p class="bounty-option-description">
+              Role that can approve bounties and bounty claims
+            </p>
+            <div class="form-group">
+              <select id="bounty-manager-role" name="bountyManagerRoleId" class="form-control">
+                <option value="">- Select Role -</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="bounty-option">
+            <div class="bounty-option-header">
+              <div class="bounty-option-icon">
+                <i class="fas fa-hashtag"></i>
+              </div>
+              <h4 class="bounty-option-title">Bounty Announcements</h4>
+            </div>
+            <p class="bounty-option-description">
+              Channel where new bounties will be announced
+            </p>
+            <div class="form-group">
+              <select id="bounty-channel" name="bountyChannelId" class="form-control">
+                <option value="">- Select Channel -</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="info-box">
+            <p><i class="fas fa-info-circle"></i> The bounty system allows users to create and claim tickets with rewards. Bounty managers can approve claims before rewards are distributed.</p>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="premium-btn premium-primary">
+              <i class="fas fa-save"></i> Save Bounty Settings
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    // Add the form to the tab content
+    bountySetupContent.innerHTML = bountyHtml;
+    
+    // Add form submit event
+    const bountyForm = document.getElementById('bounty-setup-form');
+    if (bountyForm) {
+      bountyForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(this);
+        const serverId = selectedServer;
+        
+        if (!serverId) {
+          alert('Please select a server first');
+          return;
+        }
+        
+        // Add server ID
+        formData.append('serverId', serverId);
+        
+        // Convert to object
+        const config = Object.fromEntries(formData.entries());
+        
+        // Add boolean values
+        config.enableBounties = !!formData.get('enableBounties');
+        
+        // Send to server
+        saveBountyConfig(serverId, config);
+      });
+    }
+  }
+  
+  // Populate Bounty Setup form
+  function populateBountySetup(config) {
+    if (!bountySetupContent) return;
+    
+    // Create the form if it doesn't exist
+    if (!document.getElementById('bounty-setup-form')) {
+      createBountySetupForm();
+    }
+    
+    // Repopulate role select
+    const bountyManagerSelect = document.getElementById('bounty-manager-role');
+    if (bountyManagerSelect) {
+      // Clear existing options
+      while (bountyManagerSelect.options.length > 1) {
+        bountyManagerSelect.remove(1);
+      }
+      
+      // Add options
+      serverRoles.forEach(role => {
+        const option = document.createElement('option');
+        option.value = role.id;
+        option.textContent = role.name;
+        bountyManagerSelect.appendChild(option);
+      });
+    }
+    
+    // Repopulate channel select
+    const bountyChannelSelect = document.getElementById('bounty-channel');
+    if (bountyChannelSelect) {
+      // Clear existing options
+      while (bountyChannelSelect.options.length > 1) {
+        bountyChannelSelect.remove(1);
+      }
+      
+      // Filter text channels
+      const textChannels = serverChannels.filter(channel => 
+        channel.type === 'GUILD_TEXT' || channel.type === 0
+      );
+      
+      // Sort alphabetically
+      textChannels.sort((a, b) => a.name.localeCompare(b.name));
+      
+      // Add options
+      textChannels.forEach(channel => {
+        const option = document.createElement('option');
+        option.value = channel.id;
+        option.textContent = channel.name;
+        bountyChannelSelect.appendChild(option);
+      });
+    }
+    
+    // Populate form values
+    if (config.bountyConfig) {
+      const enableBounties = document.getElementById('enable-bounties');
+      if (enableBounties) {
+        enableBounties.checked = !!config.bountyConfig.enableBounties;
+      }
+      
+      const bountyManagerRole = document.getElementById('bounty-manager-role');
+      if (bountyManagerRole && config.bountyConfig.bountyManagerRoleId) {
+        bountyManagerRole.value = config.bountyConfig.bountyManagerRoleId;
+      }
+      
+      const bountyChannel = document.getElementById('bounty-channel');
+      if (bountyChannel && config.bountyConfig.bountyChannelId) {
+        bountyChannel.value = config.bountyConfig.bountyChannelId;
+      }
+    }
+  }
+  
+  // Save ticket configuration
+  function saveTicketConfig(serverId, config) {
+    updateStatus('Saving ticket configuration...');
+    
+    fetch(`/api/v2/servers/${serverId}/ticket-config`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(ticketData)
+      body: JSON.stringify(config)
     })
-    .then(response => response.json())
-    .then(data => {
-      // Reset button state
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
-      
-      if (data.success) {
-        showSuccess('Ticket panel created successfully!');
-        ticketForm.reset();
-        
-        // Refresh ticket panels list
-        loadTicketPanels(serverId);
-      } else {
-        showError(`Failed to create ticket panel: ${data.message}`);
-      }
-    })
-    .catch(error => {
-      console.error('Error creating ticket panel:', error);
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
-      showError('An error occurred while creating the ticket panel. Please try again.');
-    });
-  });
-}
-
-/**
- * Validate the ticket setup form
- * @returns {boolean} - Whether the form is valid
- */
-function validateTicketForm() {
-  const channelId = document.getElementById('ticket-channel').value;
-  if (!channelId) {
-    showError('Please select a channel for the ticket panel');
-    return false;
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccess('Ticket configuration saved successfully!');
+          
+          // Update main settings form
+          loadServerData(serverId);
+        } else {
+          showError(`Failed to save ticket configuration: ${data.error}`);
+        }
+      })
+      .catch(error => {
+        console.error('Error saving ticket config:', error);
+        showError('An error occurred while saving ticket configuration');
+      });
   }
   
-  // Ensure at least one ticket type is selected
-  const ticketTypes = document.querySelectorAll('.ticket-type-checkbox:checked');
-  if (ticketTypes.length === 0) {
-    showError('Please select at least one ticket type');
-    return false;
-  }
-  
-  return true;
-}
-
-/**
- * Load existing ticket panels
- * @param {string} serverId - Server ID
- */
-function loadTicketPanels(serverId) {
-  console.log(`Loading ticket panels for server ${serverId}...`);
-  
-  fetch(`/api/tickets/setup/${serverId}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        displayTicketPanels(data.panels);
-      } else {
-        console.error('Error loading ticket panels:', data.message);
-        showError('Could not load existing ticket panels. Please try again later.');
-      }
-    })
-    .catch(error => {
-      console.error('Error loading ticket panels:', error);
-      document.getElementById('ticket-panels-list').innerHTML = 
-        '<div class="error-message">Could not load ticket panels. Please try again later.</div>';
-    });
-}
-
-/**
- * Display ticket panels in the UI
- * @param {Array} panels - Array of ticket panels
- */
-function displayTicketPanels(panels) {
-  const panelsList = document.getElementById('ticket-panels-list');
-  if (!panelsList) {
-    console.error('Ticket panels list container not found');
-    return;
-  }
-  
-  // Clear existing panels
-  panelsList.innerHTML = '';
-  
-  if (!panels || panels.length === 0) {
-    panelsList.innerHTML = '<div class="no-data-message">No ticket panels have been created yet.</div>';
-    return;
-  }
-  
-  // Sort panels by creation date (newest first)
-  panels.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  
-  // Create panel cards
-  panels.forEach(panel => {
-    const panelCard = document.createElement('div');
-    panelCard.className = 'ticket-panel-card luxurious-card';
-    panelCard.setAttribute('data-panel-id', panel.id);
+  // Save bounty configuration
+  function saveBountyConfig(serverId, config) {
+    updateStatus('Saving bounty configuration...');
     
-    // Format creation date
-    const createdDate = new Date(panel.createdAt);
-    const formattedDate = createdDate.toLocaleDateString() + ' ' + 
-                          createdDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    fetch(`/api/v2/servers/${serverId}/bounty-config`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(config)
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccess('Bounty configuration saved successfully!');
+        } else {
+          showError(`Failed to save bounty configuration: ${data.error}`);
+        }
+      })
+      .catch(error => {
+        console.error('Error saving bounty config:', error);
+        showError('An error occurred while saving bounty configuration');
+      });
+  }
+  
+  // Show success message
+  function showSuccess(message) {
+    const notificationArea = document.querySelector('.notification-area') || createNotificationArea();
     
-    // Create card content
-    panelCard.innerHTML = `
-      <div class="panel-header">
-        <h3 class="panel-title">${panel.options.title || 'Ticket Panel'}</h3>
-        <div class="panel-badge">${formatChannelName(panel.channelId)}</div>
-      </div>
-      <div class="panel-content">
-        <p class="panel-description">${panel.options.description || 'No description provided'}</p>
-        <div class="panel-details">
-          <div class="panel-detail">
-            <span class="detail-label">Created:</span>
-            <span class="detail-value">${formattedDate}</span>
-          </div>
-          <div class="panel-detail">
-            <span class="detail-label">Ticket Types:</span>
-            <span class="detail-value">${formatTicketTypes(panel.options.ticketTypes)}</span>
-          </div>
-        </div>
-      </div>
+    const notification = document.createElement('div');
+    notification.className = 'notification success-notification';
+    notification.innerHTML = `
+      <i class="fas fa-check-circle"></i>
+      <span>${message}</span>
     `;
     
-    panelsList.appendChild(panelCard);
-  });
-  
-  console.log(`Displayed ${panels.length} ticket panels`);
-}
-
-/**
- * Format ticket types for display
- * @param {Array} types - Array of ticket types
- * @returns {string} - Formatted ticket types
- */
-function formatTicketTypes(types) {
-  if (!types || types.length === 0) {
-    return 'All types';
+    notificationArea.appendChild(notification);
+    
+    // Remove after delay
+    setTimeout(() => {
+      notification.classList.add('fade-out');
+      setTimeout(() => {
+        notification.remove();
+      }, 500);
+    }, 3000);
   }
   
-  if (types.length <= 3) {
-    return types.join(', ');
+  // Show error message
+  function showError(message) {
+    const notificationArea = document.querySelector('.notification-area') || createNotificationArea();
+    
+    const notification = document.createElement('div');
+    notification.className = 'notification error-notification';
+    notification.innerHTML = `
+      <i class="fas fa-exclamation-circle"></i>
+      <span>${message}</span>
+    `;
+    
+    notificationArea.appendChild(notification);
+    
+    // Remove after delay
+    setTimeout(() => {
+      notification.classList.add('fade-out');
+      setTimeout(() => {
+        notification.remove();
+      }, 500);
+    }, 5000);
   }
   
-  return `${types.slice(0, 2).join(', ')} +${types.length - 2} more`;
-}
-
-/**
- * Format channel name for display
- * @param {string} channelId - Channel ID
- * @returns {string} - Formatted channel name
- */
-function formatChannelName(channelId) {
-  // Try to find channel name from cache
-  const channels = document.getElementById('ticket-channel').options;
-  for (let i = 0; i < channels.length; i++) {
-    if (channels[i].value === channelId) {
-      return channels[i].textContent;
+  // Create notification area
+  function createNotificationArea() {
+    const notificationArea = document.createElement('div');
+    notificationArea.className = 'notification-area';
+    document.body.appendChild(notificationArea);
+    return notificationArea;
+  }
+  
+  // Update status
+  function updateStatus(message) {
+    const statusElement = document.querySelector('.status-message');
+    if (statusElement) {
+      statusElement.textContent = message;
+    } else {
+      console.log('Status:', message);
     }
   }
   
-  // Fallback to just showing the ID
-  return `#${channelId.substring(0, 8)}...`;
-}
-
-/**
- * Show success message
- * @param {string} message - Success message
- */
-function showSuccess(message) {
-  const alertElement = document.createElement('div');
-  alertElement.className = 'success-alert';
-  alertElement.textContent = message;
+  // Initialize the forms
+  function init() {
+    // Create Quick Setup form
+    if (quickSetupContent && !document.getElementById('quick-setup-form')) {
+      createQuickSetupForm();
+    }
+    
+    // Create Bounty Setup form
+    if (bountySetupContent && !document.getElementById('bounty-setup-form')) {
+      createBountySetupForm();
+    }
+    
+    // Set up auto-close checkbox event
+    const autoClose = document.getElementById('auto-close');
+    if (autoClose) {
+      autoClose.addEventListener('change', function() {
+        const autoCloseSettings = document.querySelectorAll('.auto-close-settings');
+        autoCloseSettings.forEach(setting => {
+          setting.style.display = this.checked ? 'block' : 'none';
+        });
+      });
+    }
+    
+    // Set up ticket settings form
+    const ticketSettingsForm = document.getElementById('ticket-settings-form');
+    if (ticketSettingsForm) {
+      ticketSettingsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(this);
+        const serverId = selectedServer;
+        
+        if (!serverId) {
+          alert('Please select a server first');
+          return;
+        }
+        
+        // Add server ID
+        formData.append('serverId', serverId);
+        
+        // Convert to object
+        const config = Object.fromEntries(formData.entries());
+        
+        // Add boolean values
+        config.autoTranscript = !!formData.get('autoTranscript');
+        config.autoClose = !!formData.get('autoClose');
+        config.requireTopic = !!formData.get('requireTopic');
+        config.useThreads = !!formData.get('useThreads');
+        
+        // Send to server
+        saveTicketConfig(serverId, config);
+      });
+    }
+  }
   
-  document.body.appendChild(alertElement);
-  
-  // Add show class for animation
-  setTimeout(() => alertElement.classList.add('show'), 10);
-  
-  // Remove after 5 seconds
-  setTimeout(() => {
-    alertElement.classList.remove('show');
-    setTimeout(() => alertElement.remove(), 500);
-  }, 5000);
-}
-
-/**
- * Show error message
- * @param {string} message - Error message
- */
-function showError(message) {
-  const alertElement = document.createElement('div');
-  alertElement.className = 'error-alert';
-  alertElement.textContent = message;
-  
-  document.body.appendChild(alertElement);
-  
-  // Add show class for animation
-  setTimeout(() => alertElement.classList.add('show'), 10);
-  
-  // Remove after 5 seconds
-  setTimeout(() => {
-    alertElement.classList.remove('show');
-    setTimeout(() => alertElement.remove(), 500);
-  }, 5000);
-}
+  // Initialize on load
+  init();
+});
