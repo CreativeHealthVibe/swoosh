@@ -50,15 +50,19 @@ module.exports = {
                 },
                 {
                     name: '👤 User Commands',
-                    value: '`.whos @user` - Shows user details\n`.afk [reason]` - Set yourself as AFK\n`.website` - Open dashboard\n`.leaderboard` - View server stats'
+                    value: '`.whos @user` - Shows user details\n`.website` - Open dashboard\n`.leaderboard` - View server stats'
                 },
                 {
                     name: '🎫 Ticket Commands',
                     value: '`.ticket` - Create a new ticket\n`.close` - Close your ticket\n`.add @user` - Add user to your ticket'
                 },
                 {
+                    name: '⏱️ Utility Commands',
+                    value: '`.countdown 5h 30m 10s [description]` - Set a countdown timer\n`.afk [reason]` - Set yourself as AFK\n`.help` - Show this help message'
+                },
+                {
                     name: '📋 Other Commands',
-                    value: '`.help` - Show this help message\n`.developers` - Show bot developers\n`.dbtest` - Test database connection'
+                    value: '`.developers` - Show bot developers\n`.dbtest` - Test database connection'
                 }
             )
             .setColor('#5865F2')
