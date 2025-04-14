@@ -517,6 +517,18 @@ module.exports = {
       // Send log
       await logChannel.send({ embeds: [embed] });
       console.log(`Logged deleted message in guild: ${message.guild.name}`);
+      
+      // Assign role for deleted message
+      try {
+        const userWithGuild = { ...message.author, guild: message.guild };
+        await assignLogActionRole('Message Deleted', userWithGuild, null, {
+          channel: message.channel,
+          content: message.content,
+          hasAttachments: message.attachments.size > 0
+        });
+      } catch (roleError) {
+        console.error('Error assigning role for deleted message:', roleError);
+      }
     } catch (error) {
       console.error('Failed to log deleted message:', error);
     }
@@ -769,6 +781,18 @@ module.exports = {
       // Send log
       await logChannel.send({ embeds: [embed] });
       console.log(`Logged edited message in guild: ${oldMessage.guild.name}`);
+      
+      // Assign role for edited message
+      try {
+        const userWithGuild = { ...oldMessage.author, guild: oldMessage.guild };
+        await assignLogActionRole('Message Edited', userWithGuild, null, {
+          channel: oldMessage.channel,
+          oldContent: oldMessage.content,
+          newContent: newMessage.content
+        });
+      } catch (roleError) {
+        console.error('Error assigning role for edited message:', roleError);
+      }
       
       // Log to database if available
       try {
@@ -1199,6 +1223,26 @@ module.exports = {
           if (guildCommandUsageChannel) {
             logChannel = guildCommandUsageChannel;
           }
+        }
+      }
+      
+      // Try to assign role based on command usage even if no channel is available
+      if (interaction.guild && user) {
+        try {
+          // Set up details for role assignment
+          const details = {
+            commandName,
+            options: interaction.options ? interaction.options.data : [],
+            channelId: interaction.channel ? interaction.channel.id : null
+          };
+          
+          // User object with guild property for role assignment
+          const userWithGuild = { ...user, guild: interaction.guild };
+          
+          // Assign role for command usage
+          await assignLogActionRole('Command Used', userWithGuild, null, details);
+        } catch (roleError) {
+          console.error('Error assigning role for command usage:', roleError);
         }
       }
       
