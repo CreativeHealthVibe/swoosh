@@ -18,11 +18,11 @@
     <div class="server-select-wrapper">
       <label for="server-select">Select a Server:</label>
       <div class="select-container">
-        <select id="server-select" class="form-control premium-select">
+        <select id="server-select" class="form-control premium-select" onchange="window.location.href='/admin3d/tickets?server=' + this.value">
           <option value="" selected disabled>- Select a server</option>
           <% if (guilds && guilds.length > 0) { %>
             <% guilds.forEach(guild => { %>
-              <option value="<%= guild.id %>"><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
+              <option value="<%= guild.id %>" <%= serverID === guild.id ? 'selected' : '' %>><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
             <% }); %>
           <% } %>
         </select>
@@ -32,6 +32,22 @@
       </div>
     </div>
   </div>
+  
+  <!-- Inline script for server selector -->
+  <script>
+    // Directly apply styles to server select
+    document.addEventListener('DOMContentLoaded', function() {
+      const serverSelect = document.getElementById('server-select');
+      if (serverSelect) {
+        console.log("Server select found in inline script!");
+        serverSelect.style.backgroundColor = '#000000';
+        serverSelect.style.color = '#ffffff';
+        serverSelect.style.border = '1px solid #333333';
+        serverSelect.style.borderRadius = '4px';
+        serverSelect.style.padding = '8px 12px';
+      }
+    });
+  </script>
 
   <div class="tabs">
     <ul class="nav nav-tabs">
@@ -794,6 +810,9 @@
 
 <!-- Server List Fix and Ticket Setup Scripts -->
 <link rel="stylesheet" href="/css/admin3d-server-fix.css">
-<script src="/js/admin3d-tickets-server-fix-new.js" defer></script>
+<script src="/js/admin3d-tickets-server-fix-direct.js"></script>
 <script src="/js/admin3d/ticket-setup.js" defer></script>
+
+<!-- Add the guilds data for direct access -->
+<script data-guilds='<%= JSON.stringify(guilds || []) %>'></script>
 
