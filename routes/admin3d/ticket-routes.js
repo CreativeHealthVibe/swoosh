@@ -34,6 +34,7 @@ router.get('/', isAuthenticated, isAdmin, (req, res) => {
     client,
     ticketManagerAvailable,
     guilds,
+    query: req.query, // Pass query parameters to the template
     layout: 'layouts/admin3d'
   });
 });
