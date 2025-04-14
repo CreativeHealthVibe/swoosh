@@ -1,0 +1,77 @@
+/**
+ * Admin 3D - Server List Fix Styles
+ * Force server list to work and display properly
+ */
+
+/* Server selection should always work */
+#server-select {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 999999 !important;
+  background-color: #111 !important;
+  color: #ffffff !important;
+  border: 1px solid #333 !important;
+  border-radius: 4px !important;
+  padding: 0.75rem !important;
+  width: 100% !important;
+  max-width: 500px !important;
+  font-size: 1rem !important;
+  margin: 0 auto !important;
+  margin-bottom: 1.5rem !important;
+  font-weight: normal !important;
+}
+
+/* Fix dropdown options */
+#server-select option {
+  background-color: #111 !important;
+  color: #ffffff !important;
+  padding: 0.5rem !important;
+}
+
+/* Force form controls to be visible and usable */
+input, select, textarea, button {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+  position: relative !important;
+}
+
+/* Make tabs stand out more */
+.nav-tabs {
+  border-bottom: 2px solid #333 !important;
+  margin-bottom: 1rem !important;
+}
+
+.nav-link {
+  font-weight: bold !important;
+  color: #cccccc !important;
+  padding: 0.75rem 1.25rem !important;
+}
+
+.nav-link.active {
+  background-color: #222 !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #ffffff !important;
+}
+
+/* Clean up ticket panels list */
+.ticket-panels-list {
+  padding: 1rem !important;
+  background-color: #111 !important;
+  border-radius: 5px !important;
+  border: 1px solid #222 !important;
+}
+
+/* Disable 3D visualization completely */
+.tickets-3d-container {
+  display: none !important;
+  height: 0 !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
