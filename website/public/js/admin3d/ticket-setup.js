@@ -1,17 +1,15 @@
 /**
  * Admin 3D - Ticket Setup JS
  * Handles the ticket setup interface in admin panel
+ * Simplified for better performance
  */
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Init once the DOM and Three.js environment are ready
-  if (window.threeJsInitialized) {
-    initTicketSetup();
-  } else {
-    // Wait for Three.js to initialize
-    document.addEventListener('threeJsInitialized', initTicketSetup);
-  }
+  console.log('Ticket setup JS loaded');
+  
+  // Initialize ticket setup immediately without waiting for Three.js
+  initTicketSetup();
 
   // Handle tab switching
   const tabButtons = document.querySelectorAll('.ticket-section-tab');

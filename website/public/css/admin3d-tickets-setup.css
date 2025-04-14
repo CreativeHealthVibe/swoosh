@@ -1,13 +1,13 @@
 /**
  * Admin 3D - Ticket Setup Styles
- * Premium styling for ticket setup in admin panel
+ * Minimal dark styling for ticket setup in admin panel
  */
 
 /* Ticket Setup Container */
 .ticket-setup-container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   padding: 1rem;
   width: 100%;
   max-width: 1200px;
@@ -16,37 +16,12 @@
 
 /* Ticket Setup Section */
 .ticket-setup-section {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000000;
+  border-radius: 10px;
+  border: 1px solid #222;
   padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 
-              0 8px 30px rgba(0, 0, 0, 0.05),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
-}
-
-.ticket-setup-section:before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-  opacity: 0.2;
-  pointer-events: none;
-  z-index: 0;
-  transform: scale(0.5);
-  animation: pulse 15s ease-in-out infinite alternate;
-}
-
-@keyframes pulse {
-  0% { transform: scale(0.5) rotate(0deg); opacity: 0.2; }
-  50% { transform: scale(0.8) rotate(180deg); opacity: 0.3; }
-  100% { transform: scale(0.5) rotate(360deg); opacity: 0.2; }
 }
 
 /* Section Title */
