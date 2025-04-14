@@ -294,13 +294,22 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     
     // Fetch panels from API
-    fetch(`/api/v2/servers/${serverId}/tickets`)
+    fetch(`/api/v2/servers/${serverId}/tickets`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
       .then(response => response.json())
       .then(data => {
         // Clear loading state
         existingPanelsList.innerHTML = '';
         
-        if (data.length === 0) {
+        // Check if data is in the expected format with success, tickets, and stats
+        const panels = data.success && data.tickets ? data.tickets : data;
+        
+        console.log('Loaded panels data:', panels);
+        
+        if (!panels || panels.length === 0) {
           // Show empty state
           existingPanelsList.innerHTML = `
             <div class="panel-empty-state reflection-effect">
@@ -312,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Add panels to list
-        data.forEach(panel => {
+        panels.forEach(panel => {
           const panelElement = document.createElement('div');
           panelElement.className = 'panel-item premium-3d-hover';
           panelElement.style.borderLeft = `4px solid ${panel.color || '#000000'}`;
@@ -600,10 +609,10 @@ document.addEventListener('DOMContentLoaded', function() {
       // Convert form data to JSON
       const jsonData = {
         channelId: formData.get('channelId'),
-        title: formData.get('panelTitle'),
-        description: formData.get('panelDescription'),
-        color: formData.get('panelColor'),
-        image: formData.get('panelImage'),
+        panelTitle: formData.get('panelTitle'),
+        panelDescription: formData.get('panelDescription'),
+        panelColor: formData.get('panelColor'),
+        panelImage: formData.get('panelImage'),
         ticketTypes: []
       };
       
@@ -622,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function() {
       showPremiumNotification('Creating ticket panel...', 'info');
       
       // Send to API
-      fetch(`/api/v2/servers/${serverIdToUse}/tickets`, {
+      fetch(`/api/v2/servers/${serverIdToUse}/ticket-panel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
