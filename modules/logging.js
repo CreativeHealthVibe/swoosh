@@ -42,6 +42,36 @@ module.exports = {
   cachedInvites,
   
   /**
+   * Get guild logging settings
+   * @param {string} guildId - Discord guild ID
+   * @returns {Object} - Guild settings object
+   */
+  getGuildSettings: (guildId) => {
+    if (!guildId) return null;
+    
+    // Get guild configuration from config
+    const guildConfig = config.getGuildConfig(guildId);
+    if (!guildConfig) return null;
+    
+    // Create a channels object with all logging channel IDs
+    const channels = {
+      general: guildConfig.logChannelId || null,
+      deletedMessages: guildConfig.loggingChannels?.deletedMessages || null,
+      ticketTranscripts: guildConfig.loggingChannels?.ticketTranscripts || null,
+      commandUsage: guildConfig.loggingChannels?.commandUsage || null,
+      botStatus: guildConfig.loggingChannels?.botStatus || null,
+      memberJoin: guildConfig.loggingChannels?.memberJoin || null,
+      bountySubmissions: guildConfig.loggingChannels?.bountySubmissions || null
+    };
+    
+    return {
+      guildId,
+      logEnabled: !!guildConfig.logChannelId,
+      channels
+    };
+  },
+  
+  /**
    * Setup logging system
    * @param {Object} client - Discord client
    */
