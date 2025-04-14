@@ -100,7 +100,7 @@ module.exports = {
       const bountyEmbed = new EmbedBuilder()
         .setTitle(`TARGET: ${bountyData.robloxUsername.toUpperCase()}`)
         .setDescription(
-          `## REWARD: R$ ${formattedAmount}\n\n` +
+          `# REWARD: R$ ${formattedAmount}\n\n` +
           `**ID:** ${bountyData.robloxId}\n` +
           `**Priority:** ${priority.name}\n` +
           `**Authorized By:** ${interaction.user.toString()}`

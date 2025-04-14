@@ -136,10 +136,40 @@ module.exports = {
         defaultAvatarUrl: config.webhooks.bountyAvatarUrl
       }));
       
-      // When image is provided in the setbounty command, use it as the webhook avatar
+      // Select an avatar URL for the webhook based on priority
       let avatarURL;
       
-      if (bountyData.image) {
+      // Priority 1: If there's a Roblox avatar URL, use that
+      if (bountyData.robloxAvatarUrl) {
+        avatarURL = bountyData.robloxAvatarUrl;
+        console.log('Using Roblox avatar URL as webhook avatar:', avatarURL);
+        
+        // Try to download the image for direct use
+        try {
+          const https = require('https');
+          const imageBuffer = await new Promise((resolve, reject) => {
+            https.get(avatarURL, (response) => {
+              if (response.statusCode !== 200) {
+                reject(new Error(`Failed to download image: ${response.statusCode}`));
+                return;
+              }
+              const chunks = [];
+              response.on('data', (chunk) => chunks.push(chunk));
+              response.on('end', () => resolve(Buffer.concat(chunks)));
+              response.on('error', (error) => reject(error));
+            }).on('error', (error) => reject(error));
+          });
+          
+          // Convert image buffer to base64 data URI
+          console.log('Successfully downloaded image, converting to data URI');
+          avatarURL = `data:image/png;base64,${imageBuffer.toString('base64')}`;
+        } catch (imageError) {
+          console.error('Error processing image, falling back to URL:', imageError);
+          // Keep using the original URL if download fails
+        }
+      }
+      // Priority 2: If there's an uploaded image, use that
+      else if (bountyData.image) {
         // Get the image URL directly from the attachment
         avatarURL = bountyData.image.url;
         console.log('Using attached image as webhook avatar:', avatarURL);
@@ -168,12 +198,16 @@ module.exports = {
           console.error('Error processing image, falling back to URL:', imageError);
           // Keep using the original URL if download fails
         }
-      } else if (global.customBountyAvatarURL) {
+      }
+      // Priority 3: If there's a custom avatar set via command
+      else if (global.customBountyAvatarURL) {
         avatarURL = global.customBountyAvatarURL;
         console.log('Using custom bounty avatar URL from /image command');
         // Only clear it if we're actually using it
         global.customBountyAvatarURL = null;
-      } else {
+      }
+      // Priority 4: Default to config avatar
+      else {
         avatarURL = config.webhooks.bountyAvatarUrl;
         console.log('Using default avatar URL');
       }
