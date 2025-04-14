@@ -1235,9 +1235,19 @@ app.get('/status-check', (req, res) => {
 const server = http.createServer(app);
 
 // Set up WebSocket server for real-time updates
-// NOTE: We'll use the main /ws endpoint for basic websocket communication
-// The StatsWebSocketServer will use /stats-ws for the 3D admin panel
-const wss = new WebSocket.Server({ server, path: '/ws' });
+// Create a dedicated WebSocket server that doesn't share with StatsWebSocketServer
+// This ensures no port/server conflicts
+const WS_PORT = 8080; // Using a dedicated port for WebSockets
+const wss = new WebSocket.Server({ 
+  port: WS_PORT,
+  host: '0.0.0.0',
+  clientTracking: true
+});
+
+console.log(`🔌 WebSocket server running on ws://0.0.0.0:${WS_PORT}`);
+
+// Add a variable to track the WebSocket server URL for client connections
+global.wsServerUrl = `ws://localhost:${WS_PORT}`;
 
 // Store connected clients
 const clients = new Set();

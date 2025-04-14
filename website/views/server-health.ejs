@@ -157,8 +157,10 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Set up WebSocket connection for real-time updates
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  // Use the 3D stats endpoint specifically
-  const wsUrl = `${protocol}//${window.location.host}/stats-ws`;
+  // Connect to dedicated WebSocket server on port 8080
+  // This avoids conflicts with other WebSocket servers
+  const wsPort = 8080;
+  const wsUrl = `${protocol}//${window.location.hostname}:${wsPort}`;
   let socket;
   
   // Connection management
@@ -193,13 +195,22 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function connectWebSocket() {
     // Don't attempt reconnection if already trying
-    if (isReconnecting) return;
+    if (isReconnecting) {
+      console.log('Already attempting to reconnect, skipping new attempt');
+      return;
+    }
     isReconnecting = true;
     
     try {
+      console.log('Starting new WebSocket connection attempt to:', wsUrl);
+      
       // Clear any existing socket
-      if (socket && socket.readyState !== WebSocket.CLOSED) {
-        socket.close();
+      if (socket) {
+        console.log('Existing socket readyState:', socket.readyState);
+        if (socket.readyState !== WebSocket.CLOSED) {
+          console.log('Closing existing socket connection with readyState:', socket.readyState);
+          socket.close();
+        }
       }
       
       // Clear any existing ping interval
@@ -218,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Handle WebSocket opening
       socket.onopen = () => {
-        console.log('WebSocket connection established');
+        console.log('WebSocket connection established to', wsUrl);
         // Reset reconnection state
         reconnectAttempts = 0;
         isReconnecting = false;
@@ -235,17 +246,36 @@ document.addEventListener('DOMContentLoaded', function() {
         statusDiv.textContent = 'Connected';
         statusDiv.style.background = 'rgba(0,128,0,0.7)';
         
-        // Set up ping to keep connection alive
+        // Set up ping to keep connection alive - increased frequency for better stability
+        if (pingInterval) {
+          clearInterval(pingInterval);
+        }
+        
         pingInterval = setInterval(() => {
           if (socket && socket.readyState === WebSocket.OPEN) {
             try {
-              socket.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+              const pingMessage = JSON.stringify({ 
+                type: 'ping', 
+                timestamp: Date.now(),
+                client: 'server-health-page' 
+              });
+              socket.send(pingMessage);
               console.log('Sent ping to keep WebSocket alive');
             } catch (error) {
               console.error('Error sending ping:', error);
+              // Try to reconnect on ping error
+              if (socket) {
+                socket.close();
+                connectWebSocket();
+              }
             }
+          } else if (socket && socket.readyState !== WebSocket.CONNECTING) {
+            // If socket is not open and not currently connecting, try to reconnect
+            console.log('Socket not open in ping interval, current state:', socket.readyState);
+            socket.close();
+            connectWebSocket();
           }
-        }, 25000); // Send ping every 25 seconds
+        }, 15000); // Send ping every 15 seconds
         
         // Hide status after 3 seconds
         setTimeout(() => {
@@ -253,7 +283,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
         
         // Request initial data
-        socket.send(JSON.stringify({ type: 'subscribe', data: 'all' }));
+        try {
+          console.log('Sending subscription request');
+          socket.send(JSON.stringify({ 
+            type: 'subscribe', 
+            data: 'all',
+            client: 'server-health-page'
+          }));
+        } catch (err) {
+          console.error('Error sending initial subscription:', err);
+        }
       };
       
       // Handle incoming messages
