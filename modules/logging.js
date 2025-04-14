@@ -557,8 +557,6 @@ module.exports = {
    */
   logBotStatus: async (client) => {
     try {
-      if (!botStatusChannel) return;
-      
       // Calculate uptime
       const uptime = Date.now() - BOT_START_TIME;
       const days = Math.floor(uptime / (24 * 60 * 60 * 1000));
@@ -591,8 +589,38 @@ module.exports = {
         .setTimestamp()
         .setFooter({ text: 'Status refreshes every hour' });
       
-      // Send status update
-      await botStatusChannel.send({ embeds: [embed] });
+      // Loop through all guilds and send status to their configured status channels
+      let sentToAnyChannel = false;
+      
+      client.guilds.cache.forEach(async (guild) => {
+        try {
+          // Get guild-specific config
+          const guildConfig = config.getGuildConfig(guild.id) || {};
+          
+          // Try to get the status channel from the guild config
+          let guildBotStatusChannel = null;
+          if (guildConfig.loggingChannels && guildConfig.loggingChannels.botStatus) {
+            guildBotStatusChannel = client.channels.cache.get(guildConfig.loggingChannels.botStatus);
+          }
+          
+          // Send to guild-specific channel if available
+          if (guildBotStatusChannel) {
+            await guildBotStatusChannel.send({ embeds: [embed] });
+            console.log(`Sent bot status to guild: ${guild.name}`);
+            sentToAnyChannel = true;
+          }
+        } catch (error) {
+          console.error(`Error sending status to guild ${guild.name}:`, error);
+        }
+      });
+      
+      // If no guild-specific channels were available, try the fallback channel
+      if (!sentToAnyChannel && botStatusChannel) {
+        await botStatusChannel.send({ embeds: [embed] });
+        console.log(`Sent bot status to fallback channel`);
+      } else if (!sentToAnyChannel) {
+        console.log(`No bot status channels configured in any guild. Use /setlogs status to configure.`);
+      }
       
       // Schedule next status update in 1 hour
       setTimeout(() => module.exports.logBotStatus(client), 60 * 60 * 1000);
@@ -801,12 +829,36 @@ module.exports = {
    */
   logMemberJoin: async (member) => {
     try {
-      // Find an appropriate channel to log this event
-      const logChannel = member.guild.channels.cache.find(
-        channel => channel.name === 'member-log' || channel.name === 'joins' || channel.name === 'logs'
-      );
+      if (!member.guild) return;
       
-      if (!logChannel) return;
+      // Get guild-specific config
+      const guildConfig = config.getGuildConfig(member.guild.id) || {};
+      
+      // Try to get the log channel from the guild config
+      let guildLogChannel = null;
+      
+      // First check for a specific member logs channel
+      if (guildConfig.loggingChannels && guildConfig.loggingChannels.memberJoin) {
+        guildLogChannel = member.client.channels.cache.get(guildConfig.loggingChannels.memberJoin);
+      }
+      
+      // Fall back to general log channel if no member-specific channel
+      if (!guildLogChannel && guildConfig.logChannelId) {
+        guildLogChannel = member.client.channels.cache.get(guildConfig.logChannelId);
+      }
+      
+      // If still no channel, try to find a standard named channel
+      if (!guildLogChannel) {
+        guildLogChannel = member.guild.channels.cache.find(
+          channel => channel.name === 'member-log' || channel.name === 'joins' || channel.name === 'logs'
+        );
+      }
+      
+      // If still no channel, exit
+      if (!guildLogChannel) {
+        console.log(`No member log channel found for guild: ${member.guild.name}`);
+        return;
+      }
       
       // Account age calculation
       const createdAt = member.user.createdAt;
@@ -837,7 +889,8 @@ module.exports = {
       }
       
       // Send log
-      await logChannel.send({ embeds: [embed] });
+      await guildLogChannel.send({ embeds: [embed] });
+      console.log(`Logged member join in guild: ${member.guild.name}`);
       
       // Log to database if available
       try {
@@ -889,14 +942,38 @@ module.exports = {
         }).join(' ');
       }
       
-      // Skip Discord logging if channel not available
-      if (!commandUsageChannel) return;
+      // Get guild-specific log channel if this is a guild command
+      let logChannel = commandUsageChannel;
+      
+      if (interaction.guild) {
+        // Get guild-specific config
+        const guildConfig = config.getGuildConfig(interaction.guild.id) || {};
+        
+        // Try to get the command usage channel from the guild config
+        if (guildConfig.loggingChannels && guildConfig.loggingChannels.commandUsage) {
+          const guildCommandUsageChannel = interaction.client.channels.cache.get(guildConfig.loggingChannels.commandUsage);
+          if (guildCommandUsageChannel) {
+            logChannel = guildCommandUsageChannel;
+          }
+        }
+      }
+      
+      // Skip Discord logging if no channel is available
+      if (!logChannel) {
+        if (interaction.guild) {
+          console.log(`No command usage log channel found for guild: ${interaction.guild.name}`);
+        }
+        return;
+      }
       
       // Create message for command usage
       const message = `<@${user.id}> used slash command \`/${commandName}\` ${options ? `with options: \`${options}\`` : ''}`;
       
       // Send log
-      await commandUsageChannel.send(message);
+      await logChannel.send(message);
+      if (interaction.guild) {
+        console.log(`Logged command usage in guild: ${interaction.guild.name}`);
+      }
       
       // Log to database if available
       try {
