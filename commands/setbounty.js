@@ -184,6 +184,7 @@ module.exports = {
             robloxId,
             amount,
             clipRequired,
+            reason,
             image,
             channel
           });
@@ -192,7 +193,7 @@ module.exports = {
             // Success message with eye-catching design
             const successEmbed = new EmbedBuilder()
               .setTitle('🎯 Bounty Created Successfully')
-              .setDescription(`**Target:** \`${robloxUsername}\`\n**Reward:** \`R$ ${amount.toLocaleString()}\`\n\n${result.message || 'The bounty has been posted to the specified channel.'}`)
+              .setDescription(`**Target:** \`${robloxUsername}\`\n**Reward:** \`R$ ${amount.toLocaleString()}\`${reason ? `\n**Reason:** \`${reason}\`` : ''}\n\n${result.message || 'The bounty has been posted to the specified channel.'}`)
               .setColor('#00FF00')
               .setFooter({ text: 'SWOOSH Bounty System • Premium Edition' })
               .setTimestamp();
