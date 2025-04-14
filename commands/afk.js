@@ -39,10 +39,20 @@ module.exports = {
       // Update nickname to show AFK status
       try {
         if (message.member.manageable) {
-          const newNickname = `[AFK] ${message.member.nickname || message.author.username}`;
-          // Only update if new nickname is different and doesn't exceed 32 chars
-          if (message.member.nickname !== newNickname && newNickname.length <= 32) {
-            await message.member.setNickname(newNickname);
+          // Get current nickname or username
+          const currentName = message.member.nickname || message.author.username;
+          
+          // Check if already has [AFK] tag to avoid duplicates
+          if (currentName.includes('[AFK]')) {
+            console.log(`User ${message.author.tag} already has AFK tag in nickname`);
+          } else {
+            // Add AFK tag
+            const newNickname = `[AFK] ${currentName}`;
+            
+            // Only update if new nickname is different and doesn't exceed 32 chars
+            if (message.member.nickname !== newNickname && newNickname.length <= 32) {
+              await message.member.setNickname(newNickname);
+            }
           }
         }
       } catch (e) {
@@ -94,8 +104,19 @@ module.exports = {
       
       // Reset nickname if it was changed
       try {
-        if (message.member.manageable && message.member.nickname && message.member.nickname.startsWith('[AFK]')) {
-          await message.member.setNickname(originalNickname === message.author.username ? null : originalNickname);
+        if (message.member.manageable && message.member.nickname) {
+          // Handle possible multiple [AFK] tags by replacing all occurrences
+          if (message.member.nickname.includes('[AFK]')) {
+            let cleanName = originalNickname;
+            
+            // If somehow the original nickname also had [AFK], remove it
+            while (cleanName.includes('[AFK]')) {
+              cleanName = cleanName.replace('[AFK]', '').trim();
+            }
+            
+            // Set to null if it's the same as username to remove nickname entirely
+            await message.member.setNickname(cleanName === message.author.username ? null : cleanName);
+          }
         }
       } catch (e) {
         console.error('Could not reset nickname from AFK status:', e);
