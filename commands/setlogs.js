@@ -47,6 +47,15 @@ module.exports = {
             .setRequired(true)))
     .addSubcommand(subcommand =>
       subcommand
+        .setName('bounty_submissions')
+        .setDescription('Set the channel for bounty submissions from members')
+        .addChannelOption(option =>
+          option.setName('channel')
+            .setDescription('The channel for admins to review bounty submissions')
+            .addChannelTypes(ChannelType.GuildText)
+            .setRequired(true)))
+    .addSubcommand(subcommand =>
+      subcommand
         .setName('status')
         .setDescription('Set the bot status updates channel')
         .addChannelOption(option =>
@@ -122,6 +131,10 @@ module.exports = {
         case 'member':
           guildConfig.loggingChannels.memberJoin = channel.id;
           break;
+
+        case 'bounty_submissions':
+          guildConfig.loggingChannels.bountySubmissions = channel.id;
+          break;
       }
       
       // Save the updated configuration
@@ -178,6 +191,10 @@ module.exports = {
       } else if (subcommand === 'member') {
         embed.setFooter({ 
           text: 'Member join and leave events will be logged to this channel.' 
+        });
+      } else if (subcommand === 'bounty_submissions') {
+        embed.setFooter({ 
+          text: 'Bounty submissions from members will be sent to this channel for admin review.' 
         });
       }
       

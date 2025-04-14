@@ -6,6 +6,9 @@ const adminUtils = require('../utils/admin');
 const logging = require('../modules/logging');
 const webhookManager = require('./webhookManager');
 
+// Storage for pending bounty submissions
+const pendingBounties = new Map();
+
 module.exports = {
   /**
    * Initialize bounty manager
@@ -14,6 +17,178 @@ module.exports = {
   init: (client) => {
     // This function is called when the bot starts up
     console.log('Bounty manager initialized');
+    this.client = client;
+  },
+  
+  /**
+   * Get all pending bounties
+   * @returns {Array} - Array of pending bounties
+   */
+  getPendingBounties: () => {
+    return Array.from(pendingBounties.values());
+  },
+  
+  /**
+   * Submit a new bounty for approval
+   * @param {Object} interaction - Slash command interaction
+   * @param {Object} bountyData - Bounty data
+   * @returns {Object} - Result of bounty submission
+   */
+  submitBounty: async (interaction, bountyData) => {
+    try {
+      // Generate a unique ID for this submission
+      const submissionId = Date.now().toString();
+      
+      // Store the submission with metadata
+      pendingBounties.set(submissionId, {
+        id: submissionId,
+        submittedAt: new Date(),
+        submittedBy: interaction.user,
+        guildId: interaction.guild.id,
+        channelId: interaction.channel.id,
+        status: 'pending',
+        ...bountyData
+      });
+      
+      // Log the submission
+      logging.logAction('Bounty Submitted', null, interaction.user, {
+        submissionId,
+        robloxId: bountyData.robloxId,
+        amount: bountyData.amount,
+        timestamp: new Date().toISOString()
+      });
+      
+      return {
+        success: true,
+        submissionId,
+        message: "Your bounty has been submitted for admin review."
+      };
+    } catch (error) {
+      console.error('Bounty Submission Error:', error);
+      return {
+        success: false,
+        message: "An error occurred while submitting the bounty: " + error.message
+      };
+    }
+  },
+  
+  /**
+   * Get a specific pending bounty by ID
+   * @param {string} submissionId - Bounty submission ID
+   * @returns {Object|null} - Bounty data or null if not found
+   */
+  getPendingBounty: (submissionId) => {
+    return pendingBounties.get(submissionId) || null;
+  },
+  
+  /**
+   * Approve a pending bounty submission
+   * @param {Object} interaction - Slash command interaction
+   * @param {string} submissionId - Bounty submission ID
+   * @param {Object} approvalData - Approval data including channel to post to
+   * @returns {Object} - Result of bounty approval
+   */
+  approveBounty: async (interaction, submissionId, approvalData) => {
+    try {
+      // Get the pending bounty
+      const pendingBounty = pendingBounties.get(submissionId);
+      if (!pendingBounty) {
+        return {
+          success: false,
+          message: "Bounty submission not found."
+        };
+      }
+      
+      // Create the bounty using the existing createBounty method
+      const createResult = await module.exports.createBounty(interaction, {
+        robloxUsername: pendingBounty.robloxUsername,
+        robloxId: pendingBounty.robloxId,
+        amount: pendingBounty.amount,
+        reason: pendingBounty.reason,
+        clipRequired: approvalData.clipRequired || false,
+        channel: approvalData.channel,
+        submittedBy: pendingBounty.submittedBy,
+        approvedBy: interaction.user,
+        logEvidence: approvalData.logEvidence
+      });
+      
+      if (createResult.success) {
+        // Update the pending bounty status
+        pendingBounty.status = 'approved';
+        pendingBounty.approvedBy = interaction.user;
+        pendingBounty.approvedAt = new Date();
+        pendingBounties.set(submissionId, pendingBounty);
+        
+        // Remove from pending after some time (e.g., 1 hour)
+        setTimeout(() => {
+          pendingBounties.delete(submissionId);
+        }, 3600000);
+        
+        return {
+          success: true,
+          message: "Bounty approved and posted successfully."
+        };
+      } else {
+        return createResult;
+      }
+    } catch (error) {
+      console.error('Bounty Approval Error:', error);
+      return {
+        success: false,
+        message: "An error occurred while approving the bounty: " + error.message
+      };
+    }
+  },
+  
+  /**
+   * Deny a pending bounty submission
+   * @param {Object} interaction - Slash command interaction
+   * @param {string} submissionId - Bounty submission ID
+   * @param {string} reason - Reason for denial
+   * @returns {Object} - Result of bounty denial
+   */
+  denyBounty: async (interaction, submissionId, reason) => {
+    try {
+      // Get the pending bounty
+      const pendingBounty = pendingBounties.get(submissionId);
+      if (!pendingBounty) {
+        return {
+          success: false,
+          message: "Bounty submission not found."
+        };
+      }
+      
+      // Update the pending bounty status
+      pendingBounty.status = 'denied';
+      pendingBounty.deniedBy = interaction.user;
+      pendingBounty.deniedAt = new Date();
+      pendingBounty.denialReason = reason;
+      pendingBounties.set(submissionId, pendingBounty);
+      
+      // Log the denial
+      logging.logAction('Bounty Denied', null, interaction.user, {
+        submissionId,
+        robloxId: pendingBounty.robloxId,
+        reason: reason || 'No reason provided',
+        timestamp: new Date().toISOString()
+      });
+      
+      // Remove from pending after some time (e.g., 1 hour)
+      setTimeout(() => {
+        pendingBounties.delete(submissionId);
+      }, 3600000);
+      
+      return {
+        success: true,
+        message: "Bounty denied successfully."
+      };
+    } catch (error) {
+      console.error('Bounty Denial Error:', error);
+      return {
+        success: false,
+        message: "An error occurred while denying the bounty: " + error.message
+      };
+    }
   },
   
   /**
