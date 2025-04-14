@@ -24,15 +24,39 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get server select - may be in different locations based on layout
   let serverSelect = document.getElementById('server-select');
   if (!serverSelect) {
+    console.log('Initial server-select not found by ID, searching alternatives...');
     // Try to find it in the header/nav area
     const serverSelectors = document.querySelectorAll('select');
+    console.log('Found', serverSelectors.length, 'select elements');
+    
     for (const selector of serverSelectors) {
-      if (selector.options && selector.options.length > 0 && 
-          selector.options[0].text && selector.options[0].text.includes('Select a server')) {
-        serverSelect = selector;
-        break;
+      if (selector.options && selector.options.length > 0) {
+        console.log('Checking select element:', selector.id, 'with options:', selector.options.length);
+        
+        // Check if this is the server select by looking at option text
+        if (selector.options[0].text && 
+            (selector.options[0].text.includes('Select a server') || 
+             selector.options[0].text.includes('Select server') ||
+             selector.options[0].text.includes('server'))) {
+          console.log('Found server select by option text');
+          serverSelect = selector;
+          break;
+        }
       }
     }
+    
+    // If still not found, try other methods
+    if (!serverSelect) {
+      console.log('Server select not found by options, trying class-based approach');
+      // Try by class
+      const premiumSelects = document.querySelectorAll('.premium-select');
+      if (premiumSelects.length > 0) {
+        console.log('Found premium-select elements:', premiumSelects.length);
+        serverSelect = premiumSelects[0];
+      }
+    }
+  } else {
+    console.log('Server select found by ID');
   }
   
   // Preview elements
@@ -258,15 +282,21 @@ document.addEventListener('DOMContentLoaded', function() {
           panelChannelInput.disabled = false;
           
           // Add channels to dropdown
-          data.forEach(channel => {
-            // Only show text channels
-            if (channel.type === 0) {
-              const option = document.createElement('option');
-              option.value = channel.id;
-              option.textContent = `#${channel.name}`;
-              panelChannelInput.appendChild(option);
-            }
-          });
+          if (data.channels && Array.isArray(data.channels)) {
+            console.log('Loaded channels:', data.channels.length);
+            
+            data.channels.forEach(channel => {
+              // Only show text channels (type === 'text')
+              if (channel.type === 'text') {
+                const option = document.createElement('option');
+                option.value = channel.id;
+                option.textContent = `#${channel.name}`;
+                panelChannelInput.appendChild(option);
+              }
+            });
+          } else {
+            console.warn('Channels data is not in expected format:', data);
+          }
           
           showPremiumNotification('Channels loaded successfully', 'success');
         }
@@ -576,8 +606,11 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Function to get server ID from various possible locations
       function getServerIdFromMultipleSources() {
+        console.log('Getting server ID from multiple sources');
+        
         // First check the select element
         if (serverSelect && serverSelect.value) {
+          console.log('Using server ID from select element:', serverSelect.value);
           return serverSelect.value;
         }
         
@@ -585,21 +618,39 @@ document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const serverIdFromUrl = urlParams.get('server');
         if (serverIdFromUrl) {
+          console.log('Using server ID from URL parameter:', serverIdFromUrl);
           return serverIdFromUrl;
         }
         
         // Try data attribute
         const serverHeader = document.querySelector('.header-server-name');
         if (serverHeader && serverHeader.dataset.serverId) {
+          console.log('Using server ID from header data attribute:', serverHeader.dataset.serverId);
           return serverHeader.dataset.serverId;
+        }
+        
+        // Try getting from another element
+        const serverIdElement = document.querySelector('[data-server-id]');
+        if (serverIdElement && serverIdElement.dataset.serverId) {
+          console.log('Using server ID from element with data-server-id attribute:', serverIdElement.dataset.serverId);
+          return serverIdElement.dataset.serverId;
         }
         
         // Fall back to current server ID if it's been set
         if (currentServerId) {
+          console.log('Using current server ID from memory:', currentServerId);
           return currentServerId;
         }
         
-        // No server ID found
+        // As a last resort, look for server ID in page content
+        const pageContent = document.body.textContent;
+        const serverIdMatch = pageContent.match(/serverId\s*[:=]\s*['"]([\d]+)['"]/);
+        if (serverIdMatch && serverIdMatch[1]) {
+          console.log('Found server ID in page content:', serverIdMatch[1]);
+          return serverIdMatch[1];
+        }
+        
+        console.log('No server ID found from any source');
         return null;
       }
       
