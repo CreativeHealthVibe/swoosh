@@ -44,6 +44,9 @@
       <li class="nav-item">
         <a class="nav-link" id="quick-setup-tab" data-toggle="tab" href="#quick-setup-content">Quick Setup</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" id="bounty-setup-tab" data-toggle="tab" href="#bounty-setup-content">Bounty System</a>
+      </li>
     </ul>
   </div>
 
@@ -639,6 +642,142 @@
               <p>The ticket panel has been successfully set up in your server.</p>
               <p>Channel: <span id="setup-result-channel"></span></p>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bounty System Tab -->
+    <div class="tab-pane fade" id="bounty-setup-content">
+      <div class="ticket-setup-container fluid-animation">
+        <div class="premium-header premium-glow">
+          <div class="premium-header-icon floating-animation">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <div class="premium-header-text">
+            <h3>Bounty System Setup</h3>
+            <p>Configure bounty ticket panels for your server</p>
+          </div>
+        </div>
+
+        <div class="ticket-setup-section">
+          <input type="hidden" id="server-id" value="">
+          
+          <form id="ticket-setup-form">
+            <div class="form-row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="ticket-channel" class="required">Channel for Bounty Ticket Panel</label>
+                  <select id="ticket-channel" name="ticket-channel" class="form-control" required>
+                    <option value="">Select a channel</option>
+                    <!-- Will be populated via JavaScript -->
+                  </select>
+                  <small class="form-text">Choose a text channel where the bounty ticket panel will be displayed</small>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-row form-row-2col">
+              <div>
+                <div class="form-group">
+                  <label for="ticket-title">Panel Title</label>
+                  <input type="text" id="ticket-title" name="ticket-title" class="form-control" value="🏆 SWOOSH Bounty System">
+                  <small class="form-text">Title displayed at the top of the bounty panel</small>
+                </div>
+              </div>
+              <div>
+                <div class="form-group">
+                  <label for="ticket-color">Panel Color</label>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="ticket-color" name="ticket-color" value="#ffd700">
+                    <span class="color-preview">#ffd700</span>
+                  </div>
+                  <small class="form-text">Color of the ticket panel (gold is recommended for bounties)</small>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="ticket-description">Panel Description</label>
+              <textarea id="ticket-description" name="ticket-description" class="form-control" rows="3">Welcome to the SWOOSH Bounty System! Select an option below to create a bounty ticket. Our team will assist you with claiming or setting bounties.</textarea>
+              <small class="form-text">Description text shown on the bounty panel</small>
+            </div>
+            
+            <div class="form-group">
+              <label>Ticket Types</label>
+              <div class="ticket-types-container">
+                <div class="ticket-type-item">
+                  <input type="checkbox" id="claim-bounty-type" name="ticketTypes[]" value="claim_bounty" class="ticket-type-checkbox" checked>
+                  <label for="claim-bounty-type" class="ticket-type-label">
+                    <span class="ticket-type-emoji">💰</span> Claim Bounty
+                  </label>
+                </div>
+                
+                <div class="ticket-type-item">
+                  <input type="checkbox" id="set-bounty-type" name="ticketTypes[]" value="set_bounty" class="ticket-type-checkbox" checked>
+                  <label for="set-bounty-type" class="ticket-type-label">
+                    <span class="ticket-type-emoji">📝</span> Set Bounty
+                  </label>
+                </div>
+                
+                <div class="ticket-type-item">
+                  <input type="checkbox" id="claim-xp-type" name="ticketTypes[]" value="claim_xp_role" class="ticket-type-checkbox" checked>
+                  <label for="claim-xp-type" class="ticket-type-label">
+                    <span class="ticket-type-emoji">⭐</span> XP Claims
+                  </label>
+                </div>
+                
+                <div class="ticket-type-item">
+                  <input type="checkbox" id="general-support-type" name="ticketTypes[]" value="general_support" class="ticket-type-checkbox">
+                  <label for="general-support-type" class="ticket-type-label">
+                    <span class="ticket-type-emoji">🔧</span> General Support
+                  </label>
+                </div>
+              </div>
+              <small class="form-text">Select which ticket types to include in the bounty panel</small>
+            </div>
+            
+            <div class="bounty-system-container">
+              <div class="bounty-option">
+                <div class="bounty-option-header">
+                  <div class="bounty-option-icon">💰</div>
+                  <h4 class="bounty-option-title">Claim Bounty</h4>
+                </div>
+                <p class="bounty-option-description">Allows users to create tickets for claiming rewards for completing bounties. Staff can verify and award the bounty directly in the ticket.</p>
+              </div>
+              
+              <div class="bounty-option">
+                <div class="bounty-option-header">
+                  <div class="bounty-option-icon">📝</div>
+                  <h4 class="bounty-option-title">Set Bounty</h4>
+                </div>
+                <p class="bounty-option-description">Allows users to create tickets for setting up new bounties. Staff can approve, set reward amounts, and publish the bounty.</p>
+              </div>
+              
+              <div class="bounty-option">
+                <div class="bounty-option-header">
+                  <div class="bounty-option-icon">⭐</div>
+                  <h4 class="bounty-option-title">XP Claims</h4>
+                </div>
+                <p class="bounty-option-description">Allows users to create tickets for claiming XP and role rewards. Staff can verify and grant appropriate roles.</p>
+              </div>
+              
+              <div class="info-box">
+                <strong>Note:</strong> Once created, the bounty ticket panel will be sent to the selected channel in your Discord server. Users can interact with it to create tickets for the selected types.
+              </div>
+            </div>
+            
+            <button type="submit" class="premium-btn premium-primary premium-lg premium-glow" style="margin-top: 1.5rem;">
+              <i class="fas fa-rocket"></i> Create Bounty Ticket Panel
+            </button>
+          </form>
+        </div>
+        
+        <div class="ticket-setup-section" style="margin-top: 2rem;">
+          <h3 class="ticket-setup-title">Existing Ticket Panels</h3>
+          <div id="ticket-panels-list">
+            <!-- Will be populated via JavaScript -->
+            <div class="no-data-message">No ticket panels found or no server selected.</div>
           </div>
         </div>
       </div>
