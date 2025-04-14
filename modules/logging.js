@@ -15,6 +15,9 @@ const config = require('../config');
 // Command usage tracking
 const commandUsageStats = new Collection();
 
+// Invite tracking for determining who invited users
+const cachedInvites = new Collection();
+
 // Channels for different log types
 let logChannel = null;
 let deletedMessagesChannel = null;
@@ -35,6 +38,9 @@ if (!fs.existsSync(logDir)) {
 const BOT_START_TIME = Date.now();
 
 module.exports = {
+  // Export the invite cache collection for use in other modules
+  cachedInvites,
+  
   /**
    * Setup logging system
    * @param {Object} client - Discord client
@@ -214,6 +220,63 @@ module.exports = {
           commandUsageStats.set(cmd, Math.floor(Math.random() * 50) + 10);
         });
       }
+      
+      // Initialize invite cache for tracking invites
+      try {
+        client.guilds.cache.forEach(async (guild) => {
+          try {
+            // Skip if guild doesn't have invite permissions
+            if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
+              return;
+            }
+            
+            // Fetch all invites for the guild
+            const guildInvites = await guild.invites.fetch();
+            const cacheForGuild = new Map();
+            
+            // Store the initial invite counts
+            guildInvites.forEach(invite => {
+              cacheForGuild.set(invite.code, {
+                uses: invite.uses,
+                inviter: invite.inviter ? invite.inviter.id : null
+              });
+            });
+            
+            // Save to the invite cache
+            cachedInvites.set(guild.id, cacheForGuild);
+            console.log(`Cached ${guildInvites.size} invites for guild: ${guild.name}`);
+          } catch (err) {
+            console.error(`Error caching invites for guild ${guild.name}:`, err);
+          }
+        });
+      } catch (err) {
+        console.error('Error initializing invite cache:', err);
+      }
+      
+      // Add invite create/delete listeners to keep the cache updated
+      client.on('inviteCreate', invite => {
+        try {
+          const guildInvites = cachedInvites.get(invite.guild.id) || new Map();
+          guildInvites.set(invite.code, {
+            uses: invite.uses,
+            inviter: invite.inviter ? invite.inviter.id : null
+          });
+          cachedInvites.set(invite.guild.id, guildInvites);
+        } catch (err) {
+          console.error('Error tracking new invite:', err);
+        }
+      });
+      
+      client.on('inviteDelete', invite => {
+        try {
+          const guildInvites = cachedInvites.get(invite.guild.id);
+          if (guildInvites) {
+            guildInvites.delete(invite.code);
+          }
+        } catch (err) {
+          console.error('Error removing deleted invite from cache:', err);
+        }
+      });
       
       console.log(`✅ Logging system initialized`);
     } catch (error) {
@@ -906,7 +969,76 @@ module.exports = {
         embed.setColor('#ff9900');
       }
       
-      // Send log
+      // Try to find who invited the user
+      try {
+        // Wait a short moment to allow the invite cache to update
+        setTimeout(async () => {
+          try {
+            // Fetch guild invites after the member joined
+            const guildInvites = await member.guild.invites.fetch();
+            
+            // Find which invite was used by comparing counts with our cache
+            const inviteCache = module.exports.cachedInvites.get(member.guild.id) || new Map();
+            const usedInvite = guildInvites.find(invite => {
+              // Get the cached invite count
+              const cachedInvite = inviteCache.get(invite.code);
+              // If the current invite count is higher than cached, this invite was used
+              return cachedInvite && invite.uses > cachedInvite.uses;
+            });
+            
+            // If we found the used invite, add the inviter to the embed
+            if (usedInvite && usedInvite.inviter) {
+              embed.addFields({ 
+                name: 'Invited By', 
+                value: `<@${usedInvite.inviter.id}> (${usedInvite.inviter.tag})`, 
+                inline: true 
+              });
+              
+              // Update the cached invites
+              guildInvites.forEach(invite => {
+                inviteCache.set(invite.code, {
+                  uses: invite.uses,
+                  inviter: invite.inviter ? invite.inviter.id : null
+                });
+              });
+              
+              module.exports.cachedInvites.set(member.guild.id, inviteCache);
+              
+              // Re-send the updated embed
+              try {
+                // Try to delete the original message
+                const messages = await guildLogChannel.messages.fetch({ limit: 5 });
+                const originalMessage = messages.find(m => 
+                  m.embeds.length > 0 && 
+                  m.embeds[0].title === '👋 Member Joined' && 
+                  m.embeds[0].description === `<@${member.id}> joined the server`
+                );
+                
+                if (originalMessage) {
+                  try {
+                    await originalMessage.delete();
+                  } catch(err) {
+                    // Can't delete, just send a new message
+                    console.error('Could not delete original join message:', err);
+                  }
+                }
+                
+                // Send the updated embed
+                await guildLogChannel.send({ embeds: [embed] });
+                console.log(`Updated member join log with inviter in guild: ${member.guild.name}`);
+              } catch (err) {
+                console.error('Failed to update member join log with inviter:', err);
+              }
+            }
+          } catch (error) {
+            console.error('Error tracking invite usage:', error);
+          }
+        }, 2000); // Short delay to allow invite cache to update
+      } catch (inviteError) {
+        console.error('Failed to track who invited member:', inviteError);
+      }
+      
+      // Send initial log
       await guildLogChannel.send({ embeds: [embed] });
       console.log(`Logged member join in guild: ${member.guild.name}`);
       
