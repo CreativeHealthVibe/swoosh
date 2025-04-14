@@ -49,7 +49,7 @@ module.exports = {
         
         // Create the embed with special styling
         const specialEmbed = new EmbedBuilder()
-          .setTitle(`<:aperson:1358185076449476660> User Info: ${targetUser.username}`)
+          .setTitle(`<:aperson:1358185076449476660> User Info: ${targetUser.tag || targetUser.username}`)
           .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }))
           .addFields(
             { name: '<:aperson:1358185076449476660> User ID', value: targetUser.id },
@@ -72,10 +72,7 @@ module.exports = {
           }
         }
         
-        // Add image at the bottom
-        specialEmbed.setImage(targetUser.displayAvatarURL({ dynamic: true, size: 256 }));
-        
-        // Add the special role title at the very bottom as bold
+        // Add the special role title at the bottom as bold
         specialEmbed.addFields({ 
           name: '🏆 Special Role',
           value: `**${specialUsers[targetUser.id]}**`
