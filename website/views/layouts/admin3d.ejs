@@ -5,6 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
   
+  <!-- Ticket Server Fix Script - Added to head for early loading -->
+  <script>
+    // Wait for DOM to be ready before manipulating the server select
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Server select fix running from head section');
+      
+      // Find server select with a slight delay to ensure DOM is fully loaded
+      setTimeout(function() {
+        const serverSelect = document.getElementById('server-select');
+        
+        if (serverSelect) {
+          console.log('Server select found in early script!');
+          
+          // Apply styling
+          serverSelect.style.backgroundColor = '#000000';
+          serverSelect.style.color = '#ffffff';
+          serverSelect.style.border = '1px solid #333333';
+          serverSelect.style.borderRadius = '4px';
+          serverSelect.style.padding = '8px 12px';
+          serverSelect.style.width = '100%';
+          
+          // Add change handler
+          serverSelect.addEventListener('change', function() {
+            console.log('Server selected:', this.value);
+            window.location.href = `/admin3d/tickets?server=${this.value}`;
+          });
+        } else {
+          console.log('Server select not found in early script');
+        }
+      }, 500);
+    });
+  </script>
+  
   <!-- Favicon -->
   <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
   
