@@ -275,7 +275,7 @@ module.exports = {
             });
           }
           
-          // Create bounty
+          // Create bounty with template and priority information
           const result = await bountyManager.createBounty(interaction, {
             robloxUsername,
             robloxId,
@@ -283,7 +283,9 @@ module.exports = {
             clipRequired,
             reason,
             image,
-            channel
+            channel,
+            priority: selectedPriority,
+            template: selectedTemplate
           });
           
           if (result.success) {
