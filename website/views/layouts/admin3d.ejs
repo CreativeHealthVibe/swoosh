@@ -75,6 +75,10 @@
   <% } %>
   <% if (title.includes('Ticket')) { %>
     <link rel="stylesheet" href="/css/admin3d-tickets.css">
+    <link rel="stylesheet" href="/css/admin3d-tickets-setup.css">
+    <link rel="stylesheet" href="/css/admin3d-tickets-dark.css">
+    <!-- Premium styles disabled for performance -->
+    <!--
     <link rel="stylesheet" href="/css/admin3d-tickets-premium.css">
     <link rel="stylesheet" href="/css/admin3d-tickets-panels-premium.css">
     <link rel="stylesheet" href="/css/admin3d-tickets-panels-premium-extras.css">
@@ -85,6 +89,7 @@
     <link rel="stylesheet" href="/css/admin3d-premium-ambient-effects.css">
     <link rel="stylesheet" href="/css/admin3d-premium-button-effects.css">
     <link rel="stylesheet" href="/css/admin3d-table-premium-effects.css">
+    -->
     <link rel="stylesheet" href="/css/premium-buttons.css">
   <% } %>
   <!-- Common functionality styles for all admin pages -->
@@ -116,9 +121,12 @@
     
     <!-- Ticket Admin Scripts (Order matters) -->
     <script src="/js/admin3d-tickets.js" defer></script>
-    <script src="/js/admin3d-tickets-premium.js" defer></script>
     <script src="/js/admin3d-tickets-panels.js" defer></script>
-    <script src="/js/admin3d-premium-effects.js" defer></script>
+    <script src="/js/admin3d/ticket-setup.js" defer></script>
+    <script src="/js/admin3d-tickets-server-fix.js" defer></script>
+    <!-- Premium scripts commented out for performance -->
+    <!-- <script src="/js/admin3d-tickets-premium.js" defer></script> -->
+    <!-- <script src="/js/admin3d-premium-effects.js" defer></script> -->
   <% } else if (title.includes('Role')) { %>
     <script src="/js/admin3d-roles.js" defer></script>
   <% } else if (title.includes('Blacklist')) { %>
