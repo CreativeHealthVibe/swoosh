@@ -1,5 +1,5 @@
 // setlogs.js - Command to set log channels instead of auto-creating them
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
 const config = require('../config');
 const adminUtils = require('../utils/admin');
 const fs = require('fs');
@@ -16,6 +16,7 @@ module.exports = {
         .addChannelOption(option =>
           option.setName('channel')
             .setDescription('The channel to use for general logs')
+            .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)))
     .addSubcommand(subcommand =>
       subcommand
@@ -24,6 +25,7 @@ module.exports = {
         .addChannelOption(option =>
           option.setName('channel')
             .setDescription('The channel to use for deleted messages logs')
+            .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)))
     .addSubcommand(subcommand =>
       subcommand
@@ -32,6 +34,7 @@ module.exports = {
         .addChannelOption(option =>
           option.setName('channel')
             .setDescription('The channel to use for ticket transcripts')
+            .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)))
     .addSubcommand(subcommand =>
       subcommand
@@ -40,6 +43,7 @@ module.exports = {
         .addChannelOption(option =>
           option.setName('channel')
             .setDescription('The channel to use for command usage logs')
+            .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)))
     .addSubcommand(subcommand =>
       subcommand
@@ -48,6 +52,7 @@ module.exports = {
         .addChannelOption(option =>
           option.setName('channel')
             .setDescription('The channel to use for bot status updates')
+            .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)))
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
@@ -71,10 +76,8 @@ module.exports = {
       const subcommand = interaction.options.getSubcommand();
       const channel = interaction.options.getChannel('channel');
       
-      // Check if channel is a text channel
-      if (channel.type !== 0) { // TextChannel
-        return interaction.editReply('❌ You must select a text channel for logging.');
-      }
+      // Channel type is already validated by the command restrictions
+      // We're only accepting GuildText channels
       
       // Load current configuration
       const guildId = interaction.guild.id;
