@@ -32,7 +32,12 @@ module.exports = {
         '930131254106550333': 'Swoosh Bot Owner 👑', // gh_Sman
         '1196042021488570391': 'Swoosh Bot Owner 👑', // fl4ddie
         '506323791140356106': 'Swoosh Bot Developer 👑', // cdn.gov
+        '954490324720439356': 'Swoosh Bot Tester 🧪'
       };
+      
+      // Debug: Log if this is a special user
+      console.log(`Checking user ${targetUser.username} (${targetUser.id}), is special: ${Boolean(specialUsers[targetUser.id])}`);
+      console.log(`Available special users: ${Object.keys(specialUsers).join(', ')}`);
       
       if (specialUsers[targetUser.id]) {
         // Create a special embed for owners/developers/testers/staff
@@ -70,10 +75,10 @@ module.exports = {
         // Add image at the bottom
         specialEmbed.setImage(targetUser.displayAvatarURL({ dynamic: true, size: 256 }));
         
-        // Add the special role title at the very bottom
+        // Add the special role title at the very bottom as bold
         specialEmbed.addFields({ 
-          name: '\u200B', // Invisible character for spacing
-          value: specialUsers[targetUser.id]
+          name: '🏆 Special Role',
+          value: `**${specialUsers[targetUser.id]}**`
         });
           
         return interaction.reply({ embeds: [specialEmbed] });
