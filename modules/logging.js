@@ -52,28 +52,54 @@ module.exports = {
         `[${new Date().toISOString()}] Bot started\n`
       );
       
-      // Find the guild to set up logging
-      const guild = client.guilds.cache.first();
-      if (!guild) {
-        console.warn('No guilds available for logging setup');
-        return;
-      }
-
+      // Set up logging for each guild
+      client.guilds.cache.forEach(async (guild) => {
+        try {
+          // Get guild-specific configuration
+          const guildConfig = config.getGuildConfig(guild.id) || {};
+          
+          // Log setup status
+          console.log(`Setting up logging for guild: ${guild.name} (${guild.id})`);
+          
+          // Check if guild has logging config
+          if (guildConfig.loggingChannels || guildConfig.logChannelId) {
+            console.log(`Found logging configuration for guild: ${guild.name}`);
+          } else {
+            console.log(`No logging configuration found for guild: ${guild.name}. Use /setlogs to configure.`);
+          }
+          
+          // Create webhook for this guild if it has a general log channel
+          if (guildConfig.logChannelId) {
+            const guildLogChannel = guild.channels.cache.get(guildConfig.logChannelId);
+            if (guildLogChannel) {
+              try {
+                const webhooks = await guildLogChannel.fetchWebhooks();
+                const guildWebhook = webhooks.find(wh => wh.name === 'SWOOSH Logger');
+                
+                if (!guildWebhook) {
+                  await guildLogChannel.createWebhook({
+                    name: 'SWOOSH Logger',
+                    avatar: 'https://i.ibb.co/4g9LqWyK/swoosh.jpg'
+                  });
+                  console.log(`Created webhook for guild: ${guild.name}`);
+                }
+              } catch (error) {
+                console.error(`Error setting up webhook for guild ${guild.name}:`, error);
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Error setting up logging for guild ${guild.name}:`, error);
+        }
+      });
+      
+      // Set up default channels as a fallback
       // Get log channel by ID from config or find by name (no auto-creation)
-      if (config.logChannelId) {
-        logChannel = guild.channels.cache.get(config.logChannelId);
+      if (config.logChannelId && config.logChannelId !== "undefined") {
+        logChannel = client.channels.cache.get(config.logChannelId);
       }
       
-      if (!logChannel) {
-        logChannel = guild.channels.cache.find(c => c.name === 'logs');
-      }
-      
-      // No log channel found, but we won't auto-create one
-      if (!logChannel) {
-        console.log(`[Guild: ${guild.name}] No log channel found. Use /setlogs to configure one.`);
-      }
-
-      // Initialize specialized logging channels
+      // Initialize specialized logging channels from default config as fallback
       if (config.loggingChannels) {
         // Deleted Messages Channel
         if (config.loggingChannels.deletedMessages) {
@@ -358,7 +384,25 @@ module.exports = {
    */
   logDeletedMessage: async (message) => {
     try {
-      if (!deletedMessagesChannel) return;
+      if (!message.guild) return; // DM messages don't have a guild
+      
+      // Get guild-specific config
+      const guildConfig = config.getGuildConfig(message.guild.id) || {};
+      
+      // Try to get the deleted messages channel from the guild config
+      let guildDeletedMessagesChannel = null;
+      if (guildConfig.loggingChannels && guildConfig.loggingChannels.deletedMessages) {
+        guildDeletedMessagesChannel = message.client.channels.cache.get(guildConfig.loggingChannels.deletedMessages);
+      }
+      
+      // Fall back to the global channel if no guild-specific channel is found
+      const logChannel = guildDeletedMessagesChannel || deletedMessagesChannel;
+      
+      // If still no channel, exit
+      if (!logChannel) {
+        console.log(`No deleted messages log channel found for guild: ${message.guild.name}`);
+        return;
+      }
       
       // Create embed for deleted message log
       const embed = new EmbedBuilder()
@@ -379,7 +423,8 @@ module.exports = {
       }
       
       // Send log
-      await deletedMessagesChannel.send({ embeds: [embed] });
+      await logChannel.send({ embeds: [embed] });
+      console.log(`Logged deleted message in guild: ${message.guild.name}`);
     } catch (error) {
       console.error('Failed to log deleted message:', error);
     }
@@ -563,7 +608,25 @@ module.exports = {
    */
   logEditedMessage: async (oldMessage, newMessage) => {
     try {
-      if (!deletedMessagesChannel) return;
+      if (!oldMessage.guild) return; // DM messages don't have a guild
+      
+      // Get guild-specific config
+      const guildConfig = config.getGuildConfig(oldMessage.guild.id) || {};
+      
+      // Try to get the deleted messages channel from the guild config
+      let guildDeletedMessagesChannel = null;
+      if (guildConfig.loggingChannels && guildConfig.loggingChannels.deletedMessages) {
+        guildDeletedMessagesChannel = oldMessage.client.channels.cache.get(guildConfig.loggingChannels.deletedMessages);
+      }
+      
+      // Fall back to the global channel if no guild-specific channel is found
+      const logChannel = guildDeletedMessagesChannel || deletedMessagesChannel;
+      
+      // If still no channel, exit
+      if (!logChannel) {
+        console.log(`No deleted messages log channel found for guild: ${oldMessage.guild.name}`);
+        return;
+      }
       
       // Create embed for edited message log
       const embed = new EmbedBuilder()
@@ -584,7 +647,8 @@ module.exports = {
       }
       
       // Send log
-      await deletedMessagesChannel.send({ embeds: [embed] });
+      await logChannel.send({ embeds: [embed] });
+      console.log(`Logged edited message in guild: ${oldMessage.guild.name}`);
       
       // Log to database if available
       try {
@@ -616,11 +680,31 @@ module.exports = {
    */
   logBulkDeletedMessages: async (messages) => {
     try {
-      if (!deletedMessagesChannel) return;
+      if (!messages.size || !messages.first()) return;
       
       const messageCount = messages.size;
       const channel = messages.first().channel;
       const guild = messages.first().guild;
+      
+      if (!guild) return; // DM messages don't have a guild
+      
+      // Get guild-specific config
+      const guildConfig = config.getGuildConfig(guild.id) || {};
+      
+      // Try to get the deleted messages channel from the guild config
+      let guildDeletedMessagesChannel = null;
+      if (guildConfig.loggingChannels && guildConfig.loggingChannels.deletedMessages) {
+        guildDeletedMessagesChannel = messages.first().client.channels.cache.get(guildConfig.loggingChannels.deletedMessages);
+      }
+      
+      // Fall back to the global channel if no guild-specific channel is found
+      const logChannel = guildDeletedMessagesChannel || deletedMessagesChannel;
+      
+      // If still no channel, exit
+      if (!logChannel) {
+        console.log(`No deleted messages log channel found for guild: ${guild.name}`);
+        return;
+      }
       
       // Create embed for bulk deletion log
       const embed = new EmbedBuilder()
@@ -660,10 +744,11 @@ module.exports = {
       fs.writeFileSync(tempFilePath, messageLog);
       
       // Send log with attachment
-      await deletedMessagesChannel.send({
+      await logChannel.send({
         embeds: [embed],
         files: [tempFilePath]
       });
+      console.log(`Logged bulk deleted messages (${messageCount} messages) in guild: ${guild.name}`);
       
       // Clean up temp file after sending
       fs.unlinkSync(tempFilePath);
