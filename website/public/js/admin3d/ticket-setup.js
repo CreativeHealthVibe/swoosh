@@ -737,7 +737,10 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       body: JSON.stringify({
         channelId: config.bountyChannelId,
-        config: config
+        bountyManagerRoleId: config.bountyManagerRoleId,
+        titleText: config.titleText || '🏆 SWOOSH Bounty System',
+        descriptionText: config.descriptionText || 'Select an option below to interact with the bounty system.',
+        panelColor: config.panelColor || '#000000'
       })
     })
       .then(response => response.json())

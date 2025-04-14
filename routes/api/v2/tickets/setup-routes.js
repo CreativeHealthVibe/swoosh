@@ -234,14 +234,14 @@ router.post('/servers/:serverId/bounty-setup', isAuthenticated, isAdmin, async (
   try {
     const { serverId } = req.params;
     const { channelId, bountyManagerRoleId, titleText, descriptionText } = req.body;
-    const client = getClient();
+    const client = getClient(req);
     
     if (!client) {
       return res.status(500).json({ success: false, error: 'Discord bot is not available' });
     }
     
-    const ticketManager = getTicketManager();
-    const bountyManager = getBountyManager();
+    const ticketManager = getTicketManager(req);
+    const bountyManager = getBountyManager(req);
     
     if (!ticketManager || !bountyManager) {
       return res.status(500).json({ success: false, error: 'Ticket or bounty system is not available' });
