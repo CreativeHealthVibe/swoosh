@@ -1012,12 +1012,16 @@ async function handleTicketCreation(interaction, ticketType, client) {
     const ticketUserName = interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
     const ticketChannelName = `ticket-${ticketUserName}${ticketTypeSuffix}-${timestamp}`;
     
+    console.log(`Generated ticket channel name: ${ticketChannelName}`);
+    
     // Check if the maximum number of open tickets per user has been reached
     const maxTicketsPerUser = 10; // You can adjust this number as needed
     const userTickets = interaction.guild.channels.cache.filter(
       ch => ch.parentId === category.id && 
            ch.name.startsWith(`ticket-${ticketUserName}`)
     );
+    
+    console.log(`User ${interaction.user.username} has ${userTickets.size} open tickets`);
     
     if (userTickets.size >= maxTicketsPerUser) {
       console.log(`User ${interaction.user.username} has reached the maximum number of tickets (${maxTicketsPerUser})`);
@@ -1038,12 +1042,18 @@ async function handleTicketCreation(interaction, ticketType, client) {
     }
     
     // Create ticket channel with the type in the name
+    console.log(`Creating ticket channel: ${ticketChannelName}`);
+    const permissions = await getTicketPermissions(interaction.guild, interaction.user.id, client.user.id);
+    console.log(`Got permissions for channel creation`);
+    
     const channel = await interaction.guild.channels.create({
       name: ticketChannelName, // Use the same name with type suffix that we checked for existence
       type: ChannelType.GuildText,
       parent: category.id,
-      permissionOverwrites: await getTicketPermissions(interaction.guild, interaction.user.id, client.user.id)
+      permissionOverwrites: permissions
     });
+    
+    console.log(`Created ticket channel: ${channel.name} (ID: ${channel.id})`);
     
     // Create action row with buttons
     const buttons = new ActionRowBuilder().addComponents(
@@ -1076,27 +1086,39 @@ async function handleTicketCreation(interaction, ticketType, client) {
       .setFooter({ text: `Ticket ID: ${channel.id}` });
     
     // Send initial message
+    console.log(`Sending initial message to ticket channel ${channel.name}`);
     await channel.send({ 
       content: `${interaction.user.toString()} Welcome to your ticket!`,
       embeds: [embed],
       components: [buttons]
     });
+    console.log(`Sent initial message to ticket channel ${channel.name}`);
     
     // Store ticket info
+    console.log(`Storing ticket info for channel ${channel.id}`);
     activeTickets.set(channel.id, {
       userId: interaction.user.id,
       type: ticketType,
       createdAt: Date.now()
     });
+    console.log(`Stored ticket info for channel ${channel.id}`);
     
     // Reply to interaction
+    console.log(`Replying to interaction for ticket ${channel.name}`);
     await interaction.editReply(`Your ticket has been created: ${channel}`);
+    console.log(`Replied to interaction for ticket ${channel.name}`);
     
     // Log ticket creation
+    console.log(`Logging ticket creation for channel ${channel.name}`);
     logging.logAction('Ticket Created', interaction.user, null, {
       channel: channel,
       type: ticketConfig.label
     });
+    console.log(`Logged ticket creation for channel ${channel.name}`);
+    
+    // Signal completion
+    console.log(`✅ Ticket creation completed successfully for ${channel.name} (${channel.id})`);
+    return;
   } catch (error) {
     console.error('Ticket Creation Error:', error);
     await interaction.editReply('Failed to create your ticket. Please try again later.');
