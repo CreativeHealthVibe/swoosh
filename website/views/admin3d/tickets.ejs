@@ -459,11 +459,11 @@
         <div class="premium-config-badge">PREMIUM</div>
         <div class="ticket-config-title">
           <div class="ticket-config-title-icon float-animation">
-            <i class="fas fa-magic"></i>
+            <i class="fas fa-coins"></i>
           </div>
           <div class="ticket-config-title-text">
-            <h3>Quick Ticket Setup</h3>
-            <p>Quickly set up a ticket panel in your Discord server</p>
+            <h3>Bounty System Setup</h3>
+            <p>Quickly set up bounty ticket panels in your Discord server</p>
           </div>
         </div>
 
@@ -472,8 +472,9 @@
             <i class="fas fa-info-circle"></i>
           </div>
           <div class="quick-setup-info-text">
-            <p>This feature lets you quickly set up a ticket panel in your Discord server, similar to using the <code>.setup-tickets</code> command.</p>
-            <p>The bot will create a panel with a dropdown menu for different ticket types in the selected channel.</p>
+            <p>This feature sets up a ticket panel focused on the bounty system in your Discord server, similar to using the <code>.setup-tickets</code> command.</p>
+            <p>The bot will create a panel with options for claiming and setting bounties, XP claims, and general support tickets.</p>
+            <p>Users can select "Claim Bounty" to submit evidence, "Set Bounty" to create new bounties, and "Claim XP" for XP-related inquiries.</p>
           </div>
         </div>
 
@@ -539,8 +540,86 @@
 
           <div class="form-group form-group-premium">
             <label><i class="fas fa-align-left"></i> Panel Description</label>
-            <textarea id="setup-panel-description" name="panelDescription" class="form-control" rows="3" required>Please select a ticket type from the dropdown below to get assistance.</textarea>
+            <textarea id="setup-panel-description" name="panelDescription" class="form-control" rows="3" required>Select an option below to interact with the bounty system. Claim bounties by submitting evidence, set new bounties, or request support.</textarea>
             <small class="form-text">Description text for the ticket panel</small>
+          </div>
+          
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-list-ul"></i> Ticket Types</label>
+            <div class="bounty-ticket-types">
+              <div class="ticket-type-item">
+                <div class="type-checkbox">
+                  <input type="checkbox" id="claim-bounty-type" name="ticketTypes[]" value="claim_bounty" checked disabled>
+                  <label for="claim-bounty-type">
+                    <span class="checkbox-custom"></span>
+                  </label>
+                </div>
+                <div class="type-content">
+                  <div class="type-header">
+                    <span class="type-emoji">💰</span>
+                    <span class="type-name">Claim Bounty</span>
+                  </div>
+                  <div class="type-description">
+                    Submit evidence to claim a bounty
+                  </div>
+                </div>
+              </div>
+              
+              <div class="ticket-type-item">
+                <div class="type-checkbox">
+                  <input type="checkbox" id="set-bounty-type" name="ticketTypes[]" value="set_bounty" checked disabled>
+                  <label for="set-bounty-type">
+                    <span class="checkbox-custom"></span>
+                  </label>
+                </div>
+                <div class="type-content">
+                  <div class="type-header">
+                    <span class="type-emoji">🎯</span>
+                    <span class="type-name">Set Bounty</span>
+                  </div>
+                  <div class="type-description">
+                    Set a new bounty on a player
+                  </div>
+                </div>
+              </div>
+              
+              <div class="ticket-type-item">
+                <div class="type-checkbox">
+                  <input type="checkbox" id="claim-xp-type" name="ticketTypes[]" value="claim_xp_role" checked disabled>
+                  <label for="claim-xp-type">
+                    <span class="checkbox-custom"></span>
+                  </label>
+                </div>
+                <div class="type-content">
+                  <div class="type-header">
+                    <span class="type-emoji">⭐</span>
+                    <span class="type-name">Claim XP</span>
+                  </div>
+                  <div class="type-description">
+                    Discuss your XP and claim your role
+                  </div>
+                </div>
+              </div>
+              
+              <div class="ticket-type-item">
+                <div class="type-checkbox">
+                  <input type="checkbox" id="general-support-type" name="ticketTypes[]" value="general_support" checked disabled>
+                  <label for="general-support-type">
+                    <span class="checkbox-custom"></span>
+                  </label>
+                </div>
+                <div class="type-content">
+                  <div class="type-header">
+                    <span class="type-emoji">🔧</span>
+                    <span class="type-name">General Support</span>
+                  </div>
+                  <div class="type-description">
+                    Get help with general issues
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="form-text">All ticket types are included in the bounty system panel</small>
           </div>
 
           <div class="ticket-config-save">
