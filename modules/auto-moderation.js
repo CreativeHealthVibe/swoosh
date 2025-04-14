@@ -476,32 +476,33 @@ class AutoModerationSystem {
    */
   containsProfanity(content) {
     // Enhanced list of common profanity words with variations
+    // Note: Words with asterisks have been adjusted to avoid regex issues
     const profanityList = [
       // Common swear words
-      'asshole', 'a$$hole', 'a**hole', 'a-hole',
-      'bitch', 'b!tch', 'b*tch', 'b1tch', 'biatch',
-      'fuck', 'f*ck', 'f**k', 'fuk', 'fck', 'f***', 'fvck', 'f@ck', 'f#ck', 'fu*k',
-      'shit', 'sh*t', 'sh!t', 'sh1t', '$hit', 's**t', 's***',
+      'asshole', 'a$$hole', 'ahole', 'a-hole',
+      'bitch', 'b!tch', 'btch', 'b1tch', 'biatch',
+      'fuck', 'fck', 'fuk', 'fvck', 'f@ck', 'f#ck', 'fuk',
+      'shit', 'sht', 'sh!t', 'sh1t', '$hit', 'st',
       'damn', 'crap', 
       'bastard', 'b@stard',
-      'whore', 'wh*re', 'w*ore', 'h0e',
-      'dick', 'd*ck', 'd!ck', 'd1ck', 'dik',
-      'pussy', 'p*ssy', 'pu$$y', 'puss', 'p*ss',
-      'nigger', 'n!gger', 'n*gger', 'n1gger', 'negro',
-      'nigga', 'n!gga', 'n*gga', 'n1gga',
-      'faggot', 'f@ggot', 'f*ggot', 'f@g', 'f*g', 'fag',
-      'retard', 'r*tard', 'r3tard', 
-      'slut', 'sl*t', '$lut',
-      'cunt', 'c*nt', 'cvnt', 'c**t',
-      'cock', 'c*ck', 'c0ck', 'cok',
+      'whore', 'wore', 'h0e',
+      'dick', 'dck', 'd!ck', 'd1ck', 'dik',
+      'pussy', 'psy', 'pu$$y', 'puss', 'pss',
+      'nigger', 'n!gger', 'ngger', 'n1gger', 'negro',
+      'nigga', 'n!gga', 'ngga', 'n1gga',
+      'faggot', 'f@ggot', 'fggot', 'f@g', 'fg', 'fag',
+      'retard', 'rtard', 'r3tard', 
+      'slut', 'slt', '$lut',
+      'cunt', 'cnt', 'cvnt', 'ct',
+      'cock', 'cck', 'c0ck', 'cok',
 
       // Other offensive terms
       'idiot', 'stupid', 'dumb',
       'motherfucker', 'mofo', 'm0f0', 
-      'bullshit', 'bullsh*t', 'bs',
+      'bullshit', 'bullsht', 'bs',
       'jackass', 'j@ck@ss', 
-      'ass', '@ss', '@$$', 'a$$', 'a$$',
-      'tits', 't*ts', 't1ts', 'titties',
+      'ass', '@ss', '@$$', 'a$$',
+      'tits', 'tts', 't1ts', 'titties',
       'moron', 'imbecile',
       'stfu', 'gtfo', 'wtf', 'lmfao', 'lmao',
       'anal', '@nal', 'cumshot', 'cum', 'jizz'
@@ -524,34 +525,56 @@ class AutoModerationSystem {
       
       // Check for separated letters: "f u c k"
       try {
-        const separatedPattern = word.split('').join('[\\s.*_-]+');
+        // Fix for special characters in words that cause regex issues
+        // Escape any asterisks in the word before splitting
+        const escapedWord = word.replace(/\*/g, '\\*');
+        const letters = escapedWord.split('');
+        
+        // Create a safer pattern for letter separation
+        const separatedPattern = letters.map(letter => this.escapeRegExp(letter)).join('[\\s._-]*');
         const separatedRegex = new RegExp(`\\b${separatedPattern}\\b`, 'i');
+        
         if (separatedRegex.test(contentLower)) {
           return true;
         }
       } catch (regexError) {
-        console.warn(`Invalid regex pattern for word "${word}": ${regexError.message}`);
-        // Try a simpler pattern instead
+        console.warn(`Skipping separated pattern for word "${word}": ${regexError.message}`);
+        
+        // Try a much simpler pattern that just looks for characters in sequence
         try {
-          const simplePattern = word.split('').join('\\s*');
-          const simpleRegex = new RegExp(`\\b${simplePattern}\\b`, 'i');
-          if (simpleRegex.test(contentLower)) {
-            return true;
+          // Replace any problematic characters with their literal equivalents
+          const safeWord = word.replace(/\*/g, '').replace(/[^\w]/g, '');
+          if (safeWord.length >= 3) { // Only check if we have enough characters to detect
+            const letters = safeWord.split('');
+            const safePattern = letters.join('\\s*');
+            const safeRegex = new RegExp(`\\b${safePattern}\\b`, 'i');
+            
+            if (safeRegex.test(contentLower)) {
+              return true;
+            }
           }
         } catch (error) {
-          console.error(`Failed to create fallback regex for "${word}": ${error.message}`);
+          // Just log and continue - don't crash the system
+          console.error(`Cannot create basic pattern for "${word}": ${error.message}`);
         }
       }
       
       // Check for dotted words: "f.u.c.k"
       try {
-        const dottedPattern = word.split('').join('\\.');
-        const dottedRegex = new RegExp(`\\b${dottedPattern}\\b`, 'i');
-        if (dottedRegex.test(contentLower)) {
-          return true;
+        // Create a safer pattern for dotted words
+        const safeWord = word.replace(/\*/g, '').replace(/[^\w]/g, '');
+        if (safeWord.length >= 3) { // Only check if we have enough characters to detect
+          const letters = safeWord.split('');
+          const dottedPattern = letters.join('\\.');
+          const dottedRegex = new RegExp(`\\b${dottedPattern}\\b`, 'i');
+          
+          if (dottedRegex.test(contentLower)) {
+            return true;
+          }
         }
       } catch (regexError) {
-        console.warn(`Invalid dotted regex pattern for word "${word}": ${regexError.message}`);
+        // Just log and continue - don't crash the system
+        console.warn(`Skipping dotted pattern for "${word}": ${regexError.message}`);
       }
     }
     

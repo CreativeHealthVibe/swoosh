@@ -33,7 +33,8 @@ module.exports = {
         '1196042021488570391': 'Swoosh Bot Owner 👑', // fl4ddie
         '506323791140356106': 'Swoosh Bot Developer 👑', // cdn.gov
         '954490324720439356': 'Swoosh Bot Tester 🧪'
-      };
+      ,
+        '598002466583478272': 'parter Name 🤝'};
       
       // Debug: Log if this is a special user
       console.log(`Checking user ${targetUser.username} (${targetUser.id}), is special: ${Boolean(specialUsers[targetUser.id])}`);
