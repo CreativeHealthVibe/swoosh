@@ -96,17 +96,14 @@ module.exports = {
       // Create priority-specific field styling
       const priorityDisplay = `${priority.icon} **${priority.name.toUpperCase()}**`;
       
-      // Create a clean, professional bounty embed
+      // Create a clean, professional bounty embed with larger text
       const bountyEmbed = new EmbedBuilder()
-        .setTitle(templateTitle)
-        .setDescription(templateDescription)
-        .addFields(
-          { name: `Priority`, value: `${priority.name}`, inline: true },
-          { name: `Username`, value: `${bountyData.robloxUsername}`, inline: true },
-          { name: `Roblox ID`, value: `${bountyData.robloxId}`, inline: true },
-          { name: `Reward`, value: `R$ ${formattedAmount}`, inline: true },
-          { name: `Evidence`, value: bountyData.clipRequired ? 'Video Required' : 'No Clip Needed', inline: true },
-          { name: `Authorized By`, value: interaction.user.toString(), inline: true }
+        .setTitle(`TARGET: ${bountyData.robloxUsername.toUpperCase()}`)
+        .setDescription(
+          `## REWARD: R$ ${formattedAmount}\n\n` +
+          `**ID:** ${bountyData.robloxId}\n` +
+          `**Priority:** ${priority.name}\n` +
+          `**Authorized By:** ${interaction.user.toString()}`
         )
         .setColor(templateColor)
         .setFooter({ 
@@ -126,8 +123,15 @@ module.exports = {
       // Add timestamp
       bountyEmbed.setTimestamp();
       
-      // Set a thumbnail if image is provided or use default SWOOSH logo
-      if (!bountyData.image && config.webhooks.defaultThumbnailUrl) {
+      // Handle thumbnails - priority is: 
+      // 1. Provided image attachment
+      // 2. Roblox avatar URL from API 
+      // 3. Default thumbnail
+      if (bountyData.image) {
+        bountyEmbed.setThumbnail(bountyData.image.url);
+      } else if (bountyData.robloxAvatarUrl) {
+        bountyEmbed.setThumbnail(bountyData.robloxAvatarUrl);
+      } else if (config.webhooks.defaultThumbnailUrl) {
         bountyEmbed.setThumbnail(config.webhooks.defaultThumbnailUrl);
       }
       

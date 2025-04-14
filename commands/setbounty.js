@@ -15,6 +15,7 @@ const adminUtils = require('../utils/admin');
 const validators = require('../utils/validators');
 const config = require('../config');
 const logging = require('../modules/logging');
+const robloxAPI = require('../utils/roblox-api');
 
 // Predefined templates for bounty creation - these will be shown in the UI
 const BOUNTY_TEMPLATES = [
