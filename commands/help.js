@@ -26,7 +26,7 @@ module.exports = {
                 },
                 { 
                     name: '<:Role_:1358183713522847855> Role Management', 
-                    value: '`.role @user @role` - Assign/remove role\n`.roleall @role` - Add role to all members\n`.autorole add @role` - Add autorole\n`.autorole remove @role` - Remove autorole\n`.autorole list` - List autoroles\n`.autorole clean` - Remove deleted roles\n`.deleteroles` - Delete unused roles' 
+                    value: '`.role @user @role` - Assign/remove role\n`.roleall @role` - Add role to all members\n`.autorole add @role` - Add autorole\n`.autorole remove @role` - Remove autorole\n`.autorole list` - List autoroles\n`.autorole clean` - Remove deleted roles\n`.deleteroles` - Delete unused roles\n`.giverole @user <role-type>` - Assign special bot roles' 
                 },
                 { 
                     name: '🛡️ Moderation', 
