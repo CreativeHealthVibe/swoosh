@@ -22,11 +22,11 @@ module.exports = {
                 },
                 { 
                     name: '<:SWOOSHT:1361283625320190002> Bounty System', 
-                    value: '`.setbounty` - Create a new bounty\n`.image` - Set webhook avatar\n`.template` - Send template message' 
+                    value: '`.setbounty` - Create a new bounty directly\n`.log_bounty` - Review/approve bounty submissions\n`.image` - Set webhook avatar\n`.template` - Send template message' 
                 },
                 { 
                     name: '<:Role_:1358183713522847855> Role Management', 
-                    value: '`.role @user @role` - Assign/remove role\n`.roleall @role` - Add role to all members\n`.autorole add @role` - Add autorole\n`.autorole remove @role` - Remove autorole\n`.autorole list` - List autoroles\n`.autorole clean` - Remove deleted roles\n`.deleteroles` - Delete unused roles\n`.giverole @user <role-type>` - Assign special bot roles' 
+                    value: '`.role @user @role` - Assign/remove role\n`.role all @role` - Add role to all members\n`.autorole add @role` - Add autorole\n`.autorole remove @role` - Remove autorole\n`.autorole list` - List autoroles\n`.autorole clean` - Remove deleted roles\n`.deleteroles` - Delete unused roles\n`.giverole @user <role-type>` - Assign special bot roles' 
                 },
                 { 
                     name: '🛡️ Moderation', 
@@ -58,7 +58,7 @@ module.exports = {
                 },
                 {
                     name: '⏱️ Utility Commands',
-                    value: '`.countdown 5h 30m 10s [description]` - Set a countdown timer\n`.afk [reason]` - Set yourself as AFK\n`.help` - Show this help message'
+                    value: '`.countdown 5h 30m 10s [description]` - Set a countdown timer\n`.bounty <roblox-id> <amount>` - Submit a bounty target\n`.afk [reason]` - Set yourself as AFK\n`.help` - Show this help message'
                 },
                 {
                     name: '📋 Other Commands',
