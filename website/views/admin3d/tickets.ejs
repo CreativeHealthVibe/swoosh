@@ -41,6 +41,9 @@
       <li class="nav-item">
         <a class="nav-link" id="panels-tab" data-toggle="tab" href="#panels-content">Ticket Panels</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" id="quick-setup-tab" data-toggle="tab" href="#quick-setup-content">Quick Setup</a>
+      </li>
     </ul>
   </div>
 
@@ -446,6 +449,118 @@
             <p>No panels have been created yet for this server</p>
           </div>
           <!-- Will be populated via JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Setup Tab (similar to .setup-tickets command) -->
+    <div class="tab-pane fade" id="quick-setup-content">
+      <div class="quick-setup-container premium-3d-hover fluid-animation">
+        <div class="premium-config-badge">PREMIUM</div>
+        <div class="ticket-config-title">
+          <div class="ticket-config-title-icon float-animation">
+            <i class="fas fa-magic"></i>
+          </div>
+          <div class="ticket-config-title-text">
+            <h3>Quick Ticket Setup</h3>
+            <p>Quickly set up a ticket panel in your Discord server</p>
+          </div>
+        </div>
+
+        <div class="quick-setup-info premium-glow-container">
+          <div class="quick-setup-info-icon">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div class="quick-setup-info-text">
+            <p>This feature lets you quickly set up a ticket panel in your Discord server, similar to using the <code>.setup-tickets</code> command.</p>
+            <p>The bot will create a panel with a dropdown menu for different ticket types in the selected channel.</p>
+          </div>
+        </div>
+
+        <form id="quick-setup-form" class="ticket-config-form">
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-server"></i> Select Server</label>
+            <div class="enhanced-select-container">
+              <select id="setup-server-select" name="serverId" class="form-control" required>
+                <option value="">- Select Server -</option>
+                <!-- Will be populated via JavaScript from the same list as the main selector -->
+              </select>
+            </div>
+            <small class="form-text">The Discord server where you want to set up tickets</small>
+          </div>
+
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-hashtag"></i> Target Channel</label>
+            <div class="enhanced-select-container">
+              <select id="setup-channel-id" name="channelId" class="form-control" required>
+                <option value="">- Select Channel -</option>
+                <!-- Will be populated via JavaScript -->
+              </select>
+            </div>
+            <small class="form-text">The text channel where the ticket panel will be sent</small>
+          </div>
+
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-palette"></i> Panel Color</label>
+            <div class="color-picker-container">
+              <input type="color" id="setup-panel-color" name="panelColor" class="form-control color-input" value="#000000">
+              <div class="color-presets">
+                <span class="color-preset" style="background-color: #5865F2;" data-color="#5865F2"></span>
+                <span class="color-preset" style="background-color: #57F287;" data-color="#57F287"></span>
+                <span class="color-preset" style="background-color: #EB459E;" data-color="#EB459E"></span>
+                <span class="color-preset" style="background-color: #ED4245;" data-color="#ED4245"></span>
+                <span class="color-preset" style="background-color: #000000;" data-color="#000000"></span>
+              </div>
+            </div>
+            <small class="form-text">Color for the ticket panel embed</small>
+          </div>
+
+          <div class="form-row">
+            <div class="col-md-6">
+              <div class="form-group form-group-premium">
+                <label><i class="fas fa-heading"></i> Panel Title</label>
+                <input type="text" id="setup-panel-title" name="panelTitle" class="form-control" value="🎫 SWOOSH Support Tickets" required>
+                <small class="form-text">Title of the ticket panel embed</small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group form-group-premium">
+                <label><i class="fas fa-folder"></i> Ticket Category (Optional)</label>
+                <div class="enhanced-select-container">
+                  <select id="setup-category-id" name="categoryId" class="form-control">
+                    <option value="">- Auto Create -</option>
+                    <!-- Will be populated via JavaScript -->
+                  </select>
+                </div>
+                <small class="form-text">Optional category for ticket channels (will create if missing)</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group form-group-premium">
+            <label><i class="fas fa-align-left"></i> Panel Description</label>
+            <textarea id="setup-panel-description" name="panelDescription" class="form-control" rows="3" required>Please select a ticket type from the dropdown below to get assistance.</textarea>
+            <small class="form-text">Description text for the ticket panel</small>
+          </div>
+
+          <div class="ticket-config-save">
+            <button type="submit" class="premium-btn premium-primary premium-lg premium-glow">
+              <i class="fas fa-rocket"></i> Create Ticket Panel
+            </button>
+          </div>
+        </form>
+
+        <div class="setup-result-container" style="display: none;">
+          <div class="setup-result premium-card">
+            <div class="setup-result-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="setup-result-content">
+              <h4>Ticket Panel Created!</h4>
+              <p>The ticket panel has been successfully set up in your server.</p>
+              <p>Channel: <span id="setup-result-channel"></span></p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
