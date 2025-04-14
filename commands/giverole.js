@@ -1,26 +1,28 @@
 const { EmbedBuilder } = require('discord.js');
 const config = require('../config');
 const logging = require('../modules/logging');
+const fs = require('fs');
+const path = require('path');
 
-// Store special role IDs or create them if they don't exist
+// Store special role types with their display names and icons
 const SPECIAL_ROLES = {
   'bot owner': {
-    name: 'SWOOSH Bot Owner',
+    name: 'Swoosh Bot Owner 👑',
     color: '#FF0000', // Red
     description: 'Official SWOOSH Bot Owner'
   },
   'bot tester': {
-    name: 'SWOOSH Bot Tester',
+    name: 'Swoosh Bot Tester 🧪',
     color: '#00FFFF', // Cyan
     description: 'Official SWOOSH Bot Tester'
   },
   'developer': {
-    name: 'SWOOSH Developer',
+    name: 'Swoosh Bot Developer 💻',
     color: '#8A2BE2', // Blue Violet
     description: 'Official SWOOSH Developer'
   },
   'staff': {
-    name: 'SWOOSH Staff',
+    name: 'Swoosh Bot Staff 🛡️',
     color: '#FFA500', // Orange
     description: 'Official SWOOSH Staff Member'
   }
@@ -29,9 +31,12 @@ const SPECIAL_ROLES = {
 // Store creator ID to restrict access
 const BOT_CREATOR_ID = '930131254106550333';
 
+// Path to the whos.js file where we need to update the special users
+const WHOS_FILE_PATH = path.join(process.cwd(), 'commands', 'whos.js');
+
 module.exports = {
   name: 'giverole',
-  description: 'Assign a special SWOOSH role to a user',
+  description: 'Assign a special SWOOSH role title to a user',
   usage: '.giverole @user <role-type>',
   aliases: ['give', 'specialrole'],
   async execute(message, args, client) {
@@ -79,29 +84,20 @@ module.exports = {
       // Get role info
       const roleInfo = SPECIAL_ROLES[roleType];
       
-      // Look for existing role or create a new one
-      let role = message.guild.roles.cache.find(r => r.name === roleInfo.name);
+      // Update whos.js to include this special user
+      const success = await updateSpecialUsers(targetUser.id, roleInfo.name);
       
-      if (!role) {
-        // Create the role if it doesn't exist
-        role = await message.guild.roles.create({
-          name: roleInfo.name,
-          color: roleInfo.color,
-          reason: `SWOOSH Special Role created by ${message.author.tag}`,
-          hoist: true, // Show role separately in member list
-          mentionable: true
+      if (!success) {
+        return message.reply({
+          content: '❌ Failed to update special users in whos.js. Please check the console for errors.',
+          ephemeral: true
         });
-        
-        console.log(`Created new role: ${roleInfo.name}`);
       }
-      
-      // Assign role to the user
-      await targetUser.roles.add(role);
       
       // Create embed for confirmation
       const embed = new EmbedBuilder()
-        .setTitle('🎭 Special Role Assigned')
-        .setDescription(`${targetUser.toString()} has been given the **${roleInfo.name}** role.`)
+        .setTitle('🎭 Special Role Title Assigned')
+        .setDescription(`${targetUser.toString()} has been given the **${roleInfo.name}** title.`)
         .addFields({
           name: 'Role Description',
           value: roleInfo.description
@@ -116,7 +112,7 @@ module.exports = {
       try {
         const dmEmbed = new EmbedBuilder()
           .setTitle('🎉 Congratulations!')
-          .setDescription(`You have been granted the **${roleInfo.name}** role in ${message.guild.name}!`)
+          .setDescription(`You have been granted the **${roleInfo.name}** title in ${message.guild.name}!`)
           .addFields({
             name: 'Role Description',
             value: roleInfo.description
@@ -132,15 +128,73 @@ module.exports = {
           });
         
         await targetUser.send({ embeds: [dmEmbed] });
-        console.log(`Sent DM to ${targetUser.user.tag} about new role`);
+        console.log(`Sent DM to ${targetUser.user.tag} about new special role title`);
       } catch (dmError) {
         console.error(`Could not send DM to ${targetUser.user.tag}:`, dmError);
         message.channel.send(`⚠️ Note: Couldn't send a DM to ${targetUser.toString()}, they might have DMs disabled.`);
       }
       
     } catch (error) {
-      console.error('Error assigning special role:', error);
-      message.reply('❌ An error occurred while assigning the role. Please check if I have the required permissions.');
+      console.error('Error assigning special role title:', error);
+      message.reply('❌ An error occurred while assigning the role title.');
     }
   }
 };
+
+/**
+ * Update the specialUsers object in whos.js
+ * @param {string} userId - The user ID to add
+ * @param {string} roleTitle - The role title to assign
+ * @returns {boolean} - Whether the update was successful
+ */
+async function updateSpecialUsers(userId, roleTitle) {
+  try {
+    // Read the whos.js file
+    const whosContent = fs.readFileSync(WHOS_FILE_PATH, 'utf8');
+    
+    // Define the pattern to match the specialUsers object
+    const specialUsersRegex = /(const specialUsers = \{[^}]*\})/s;
+    
+    // Extract the specialUsers object
+    const match = whosContent.match(specialUsersRegex);
+    if (!match) {
+      console.error('Could not find specialUsers object in whos.js');
+      return false;
+    }
+    
+    // Parse the specialUsers object to extract its content
+    const specialUsersObj = match[1];
+    
+    // Check if user ID already exists in the object
+    const userIdPattern = new RegExp(`'${userId}':\\s*'[^']*'`);
+    if (specialUsersObj.match(userIdPattern)) {
+      // User ID exists, update the role title
+      const updatedSpecialUsers = specialUsersObj.replace(
+        userIdPattern,
+        `'${userId}': '${roleTitle}'`
+      );
+      
+      // Update the file
+      const updatedWhosContent = whosContent.replace(specialUsersRegex, updatedSpecialUsers);
+      fs.writeFileSync(WHOS_FILE_PATH, updatedWhosContent, 'utf8');
+    } else {
+      // User ID doesn't exist, add it to the object
+      const lastBrace = specialUsersObj.lastIndexOf('}');
+      const specialUsersPrefix = specialUsersObj.substring(0, lastBrace);
+      const updatedSpecialUsers = specialUsersPrefix + 
+        (specialUsersPrefix.endsWith(',') || specialUsersPrefix.endsWith('{') ? '' : ',') + 
+        `\n        '${userId}': '${roleTitle}'` + 
+        specialUsersObj.substring(lastBrace);
+      
+      // Update the file
+      const updatedWhosContent = whosContent.replace(specialUsersRegex, updatedSpecialUsers);
+      fs.writeFileSync(WHOS_FILE_PATH, updatedWhosContent, 'utf8');
+    }
+    
+    console.log(`Updated special users in whos.js - added/updated ${userId} with title: ${roleTitle}`);
+    return true;
+  } catch (error) {
+    console.error('Error updating special users in whos.js:', error);
+    return false;
+  }
+}
