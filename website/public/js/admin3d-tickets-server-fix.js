@@ -3,34 +3,54 @@
  * Fixes server list display issues in the ticket management interface
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+// Run script once page has fully loaded (including images and styles)
+window.addEventListener('load', function() {
   console.log('Server fix script loaded');
+  initServerSelection();
+});
 
-  // Try to find the server selector element - add a small delay as it might not be immediately available
-  setTimeout(() => {
-    // Server selector element
-    const serverSelect = document.getElementById('server-select');
-    
-    if (!serverSelect) {
-      console.warn('Server select element not found on initial load, will retry...');
-      // Try again with a longer delay
-      setTimeout(() => {
-        const serverSelectRetry = document.getElementById('server-select');
-        if (serverSelectRetry) {
-          console.log('Server select element found on retry');
-          initializeServerSelect(serverSelectRetry);
-        } else {
-          console.error('Server select element not found after retry!');
-        }
-      }, 1000);
-      return;
-    } else {
-      initializeServerSelect(serverSelect);
-    }
-  }, 100);
+// Also try on DOMContentLoaded as a fallback
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Server fix DOMContentLoaded');
+  initServerSelection();
+});
+
+function initServerSelection() {
+  // Try to find all possible server select elements
+  const serverSelect = document.getElementById('server-select');
+  const serverSelects = document.querySelectorAll('select.form-control.premium-select');
   
-  // Initialize all server select functionality
-  function initializeServerSelect(serverSelect) {
+  console.log('Server selects found:', serverSelects.length);
+  
+  if (serverSelect) {
+    console.log('Found server select by ID');
+    initializeServerSelect(serverSelect);
+    return;
+  }
+  
+  if (serverSelects.length > 0) {
+    console.log('Found server select by class');
+    initializeServerSelect(serverSelects[0]);
+    return;
+  }
+  
+  // If not found, try again with a longer delay
+  console.warn('Server select element not found, will retry in 1 second...');
+  setTimeout(() => {
+    const retrySelect = document.getElementById('server-select') || 
+                        document.querySelector('select.form-control.premium-select');
+    
+    if (retrySelect) {
+      console.log('Server select found on retry');
+      initializeServerSelect(retrySelect);
+    } else {
+      console.error('Server select element not found after retry!');
+    }
+  }, 1000);
+}
+
+// Initialize all server select functionality
+function initializeServerSelect(serverSelect) {
     // Ensure server options are properly displayed
     function fixServerOptions() {
       const options = serverSelect.querySelectorAll('option');
@@ -129,4 +149,3 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize tabs
     initializeTabs();
   }
-});
