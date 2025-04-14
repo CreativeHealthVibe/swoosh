@@ -6,18 +6,16 @@ module.exports = {
     name: 'help',
     description: 'Shows a list of available commands in a premium format',
     async execute(message, args, client) {
-        // Check if user has permissions to use this command
-        if (!adminUtils.canManageTickets(message.member)) {
-            return message.reply({
-                content: '❌ You do not have permission to use this command.',
-                ephemeral: true
-            });
-        }
+        // Help command is available to all users, no permission check needed
 
         const embed = new EmbedBuilder()
             .setTitle('SWOOSH Bot Commands')
-            .setDescription(`**Command Prefix:** \`${config.prefix}\`\n*Staff permissions required for most commands*`)
+            .setDescription(`**Command Prefix:** \`${config.prefix}\`\n*Use the appropriate commands based on your permissions*`)
             .addFields(
+                {
+                    name: '🧰 ADMIN COMMANDS',
+                    value: '━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+                },
                 { 
                     name: '<:SWOOSHT:1361283625320190002> Ticket Management',
                     value: '`.setup-tickets` - Create ticket panel\n`.adduser @user` - Add user to ticket\n`/transcript` - Generate ticket transcript' 
@@ -28,23 +26,31 @@ module.exports = {
                 },
                 { 
                     name: '<:Role_:1358183713522847855> Role Management', 
-                    value: '`/role @user @role` - Assign/remove role\n`.autorole add @role` - Add autorole\n`.autorole remove @role` - Remove autorole\n`.autorole list` - List autoroles\n`.logrole set [action] @role` - Assign action roles' 
+                    value: '`/role @user @role` - Assign/remove role\n`.autorole add @role` - Add autorole\n`.autorole remove @role` - Remove autorole\n`.autorole list` - List autoroles\n`.logrole set [action] @role` - Assign action roles\n`.autorole clean` - Remove deleted roles' 
                 },
                 { 
                     name: '🛡️ Moderation', 
-                    value: '`.ban @user [reason]` - Ban member\n`.unban ID [reason]` - Unban member\n`.banlist [page]` - View ban list\n`.banlist-enhanced [filters]` - Advanced ban list\n`.kick @user [reason]` - Kick member\n`.mute @user [time] [reason]` - Mute member\n`.purge <amount>` - Delete messages' 
+                    value: '`.ban @user [reason]` - Ban member\n`.unban ID [reason]` - Unban member\n`.banlist [page]` - View ban list\n`.banlist-enhanced [filters]` - Advanced ban list\n`.kick @user [reason]` - Kick member\n`.mute @user [time] [reason]` - Mute member\n`.purge <amount>` - Delete messages\n`.bulkban` - Ban multiple users' 
                 },
                 {
                     name: '🚫 Security & Blacklisting',
-                    value: '`.blacklists` - Show blacklisted users\n`.add blacklist` - Add to blacklist\n`.setlogs [channel]` - Set log channels\n`.setlogroles` - Manage log permissions'
+                    value: '`.blacklists` - Show blacklisted users\n`.add blacklist` - Add to blacklist\n`.setlogs [channel]` - Set log channels\n`.setlogroles` - Manage log permissions\n`.baninfo ID` - View ban details'
                 },
                 {
-                    name: '👤 User Information',
-                    value: '`/whos @user` - Shows user details\n`.afk [reason]` - Set yourself as AFK\n`/logrole` - Configure action roles'
+                    name: '⚙️ Server Configuration',
+                    value: '`/setnews` - Configure news channels\n`.create role` - Create server role\n`/emoji` - Upload custom emoji\n`/logrole config` - Configure action roles\n`.setlogs` - Set up logging channels'
                 },
                 {
-                    name: '🔧 Utilities',
-                    value: '`/emoji` - Upload custom emoji\n`.create role` - Create server role\n`/setnews` - Configure news channels\n`/website` - Open dashboard'
+                    name: '👥 MEMBER COMMANDS',
+                    value: '━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+                },
+                {
+                    name: '👤 User Commands',
+                    value: '`/whos @user` - Shows user details\n`.afk [reason]` - Set yourself as AFK\n`/website` - Open dashboard\n`/logrole list` - View your log roles'
+                },
+                {
+                    name: '🎫 Ticket Commands',
+                    value: '`/ticket` - Create a new ticket\n`/close` - Close your ticket\n`/add @user` - Add user to your ticket'
                 }
             )
             .setColor('#5865F2')
@@ -66,9 +72,9 @@ module.exports = {
                     .setStyle(ButtonStyle.Link)
                     .setURL('https://discord.gg/swoosh'),
                 new ButtonBuilder()
-                    .setLabel('Documentation')
+                    .setLabel('Privacy Policy')
                     .setStyle(ButtonStyle.Link)
-                    .setURL('https://swooshfinal.onrender.com/docs')
+                    .setURL('https://swooshfinal.onrender.com/privacy')
             );
 
         await message.reply({ embeds: [embed], components: [row] });
