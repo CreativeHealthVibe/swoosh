@@ -11,16 +11,21 @@ class StatsWebSocketServer {
   constructor(server, bot) {
     this.wss = new WebSocket.Server({ 
       server,
-      path: '/stats-ws'
+      path: '/stats-ws',
+      // Add proper ping/pong for connection stability
+      pingInterval: 20000, // Check connection every 20 seconds
+      pingTimeout: 10000   // Wait 10 seconds for pong response
     });
     this.bot = bot;
     this.clients = new Set();
     this.broadcastInterval = null;
+    this.pingInterval = null;
     this.startTime = Date.now();
     
     // Initialize
     this.setupWebSocketServer();
     this.startBroadcasting();
+    this.setupHeartbeats();
   }
   
   /**
@@ -30,11 +35,27 @@ class StatsWebSocketServer {
     this.wss.on('connection', (ws, req) => {
       console.log(`New WebSocket client connected from ${req.socket.remoteAddress}`);
       
+      // Track connection status
+      ws.isAlive = true;
+      
       // Add client to set
       this.clients.add(ws);
       
+      // Send welcome message to confirm connection
+      ws.send(JSON.stringify({
+        type: 'welcome',
+        message: 'Connected to SWOOSH Bot stats server',
+        timestamp: new Date().toISOString()
+      }));
+      
       // Send initial stats data
       this.sendStatsToClient(ws);
+      
+      // Set up ping-pong for this connection
+      ws.on('pong', () => {
+        ws.isAlive = true;
+        console.log('Received pong from client');
+      });
       
       // Handle messages from client
       ws.on('message', (message) => {
@@ -47,8 +68,8 @@ class StatsWebSocketServer {
       });
       
       // Handle client disconnect
-      ws.on('close', () => {
-        console.log('WebSocket client disconnected');
+      ws.on('close', (code, reason) => {
+        console.log(`WebSocket client disconnected. Code: ${code}, Reason: ${reason || ''}`);
         this.clients.delete(ws);
       });
       
@@ -58,6 +79,40 @@ class StatsWebSocketServer {
         this.clients.delete(ws);
       });
     });
+    
+    // Set up error handling at the server level
+    this.wss.on('error', (error) => {
+      console.error('WebSocket server error:', error);
+    });
+  }
+  
+  /**
+   * Set up heartbeat mechanism to detect disconnected clients
+   */
+  setupHeartbeats() {
+    // Clear any existing interval
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+    }
+    
+    this.pingInterval = setInterval(() => {
+      this.wss.clients.forEach((ws) => {
+        if (ws.isAlive === false) {
+          console.log('Terminating inactive WebSocket connection');
+          return ws.terminate();
+        }
+        
+        // Mark as inactive for next cycle
+        ws.isAlive = false;
+        // Send ping (client should respond with pong)
+        try {
+          ws.ping();
+        } catch (error) {
+          console.error('Error sending ping:', error);
+          ws.terminate();
+        }
+      });
+    }, 30000); // Check every 30 seconds
   }
   
   /**
@@ -82,6 +137,11 @@ class StatsWebSocketServer {
       clearInterval(this.broadcastInterval);
       this.broadcastInterval = null;
     }
+    
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = null;
+    }
   }
   
   /**
@@ -96,12 +156,21 @@ class StatsWebSocketServer {
     let clientCount = 0;
     this.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(payload);
-        clientCount++;
+        try {
+          client.send(payload);
+          clientCount++;
+        } catch (error) {
+          console.error('Error sending to client:', error);
+          this.clients.delete(client);
+        }
+      } else if (client.readyState === WebSocket.CLOSED || client.readyState === WebSocket.CLOSING) {
+        this.clients.delete(client);
       }
     });
     
-    console.log(`Broadcasting stats to ${clientCount} clients (${payload.length} bytes)`);
+    if (clientCount > 0) {
+      console.log(`Broadcasting stats to ${clientCount} clients (${payload.length} bytes)`);
+    }
   }
   
   /**
@@ -114,8 +183,13 @@ class StatsWebSocketServer {
     const stats = this.collectStats();
     const payload = JSON.stringify(stats);
     
-    client.send(payload);
-    console.log(`Sending stats to client (${payload.length} bytes)`);
+    try {
+      client.send(payload);
+      console.log(`Sending stats to client (${payload.length} bytes)`);
+    } catch (error) {
+      console.error('Error sending stats to client:', error);
+      this.clients.delete(client);
+    }
   }
   
   /**
@@ -124,19 +198,35 @@ class StatsWebSocketServer {
    * @param {Object} data - Message data
    */
   handleClientMessage(client, data) {
+    // Reset isAlive flag on any message from client
+    client.isAlive = true;
+    
     switch (data.type) {
       case 'subscribe':
         // Client subscribed to updates
+        console.log('Client subscribed to stats updates');
+        this.sendStatsToClient(client);
         break;
         
       case 'refresh':
         // Client requested refresh
+        console.log('Client requested stats refresh');
         this.sendStatsToClient(client);
+        break;
+        
+      case 'ping':
+        // Client sent ping, respond with pong
+        console.log('Received ping from client, sending pong');
+        client.send(JSON.stringify({
+          type: 'pong',
+          timestamp: new Date().toISOString(),
+          received: data.timestamp
+        }));
         break;
         
       case 'timerange':
         // Client changed time range
-        // We would filter data based on range here
+        console.log(`Client changed time range to: ${data.range}`);
         break;
         
       default:
