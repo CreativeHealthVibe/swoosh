@@ -18,11 +18,11 @@
     <div class="server-select-wrapper">
       <label for="server-select">Select a Server:</label>
       <div class="select-container">
-        <select id="server-select" class="form-control premium-select" onchange="window.location.href='/admin3d/tickets?server=' + this.value">
+        <select id="server-select" class="form-control premium-select" onchange="changeServer(this.value)">
           <option value="" selected disabled>- Select a server</option>
           <% if (guilds && guilds.length > 0) { %>
             <% guilds.forEach(guild => { %>
-              <option value="<%= guild.id %>"><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
+              <option value="<%= guild.id %>" <%= guild.id === selectedServer ? 'selected' : '' %>><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
             <% }); %>
           <% } %>
         </select>
@@ -32,6 +32,55 @@
       </div>
     </div>
   </div>
+  
+  <!-- Direct server selector for fixing any issues -->
+  <div class="server-selector premium-server-selector" style="margin-top: 20px; display: none;" id="fixed-server-selector">
+    <div class="server-select-wrapper">
+      <label for="fixed-server-select">Select a Server (Fixed):</label>
+      <div class="select-container">
+        <select id="fixed-server-select" class="form-control premium-select" onchange="changeServer(this.value)">
+          <option value="" selected disabled>- Select a server</option>
+          <% if (guilds && guilds.length > 0) { %>
+            <% guilds.forEach(guild => { %>
+              <option value="<%= guild.id %>" <%= guild.id === selectedServer ? 'selected' : '' %>><%= guild.name %> (<%= guild.memberCount || 'N/A' %> members)</option>
+            <% }); %>
+          <% } %>
+        </select>
+        <div class="select-arrow">
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Fix server selection on page load -->
+  <script>
+    // Create the global server selector function
+    window.changeServer = window.changeServer || function(serverId) {
+      console.log('Changing server to:', serverId);
+      window.location.href = '/admin3d/tickets?server=' + serverId;
+    };
+    
+    // Show fixed selector if needed
+    document.addEventListener('DOMContentLoaded', function() {
+      const serverSelect = document.getElementById('server-select');
+      const fixedSelector = document.getElementById('fixed-server-selector');
+      
+      // Only show fixed selector if there's an issue with regular one
+      if (!serverSelect || serverSelect.value === '') {
+        fixedSelector.style.display = 'block';
+      }
+      
+      // Force select server from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const serverId = urlParams.get('server');
+      if (serverId) {
+        if (serverSelect) serverSelect.value = serverId;
+        const fixedSelect = document.getElementById('fixed-server-select');
+        if (fixedSelect) fixedSelect.value = serverId;
+      }
+    });
+  </script>
   
   <!-- Inline script for server selector -->
   <script>

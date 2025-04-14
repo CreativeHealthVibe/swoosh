@@ -5,36 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
   
-  <!-- Ticket Server Fix Script - Added to head for early loading -->
+  <!-- Server Fix Script (Include before all other scripts) -->
   <script>
-    // Wait for DOM to be ready before manipulating the server select
+    console.log('Server select fix running from head section');
+    
+    // Make global server change function
+    window.changeServer = function(serverId) {
+      console.log('Changing server to:', serverId);
+      window.location.href = '/admin3d/tickets?server=' + serverId;
+    };
+    
+    // Early DOM manipulations to fix server selector as soon as possible
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('Server select fix running from head section');
-      
-      // Find server select with a slight delay to ensure DOM is fully loaded
-      setTimeout(function() {
-        const serverSelect = document.getElementById('server-select');
+      // Create and inject working server select that doesn't rely on original
+      if (document.querySelector('.tickets-container')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const serverIdFromUrl = urlParams.get('server');
         
-        if (serverSelect) {
-          console.log('Server select found in early script!');
-          
-          // Apply styling
-          serverSelect.style.backgroundColor = '#000000';
-          serverSelect.style.color = '#ffffff';
-          serverSelect.style.border = '1px solid #333333';
-          serverSelect.style.borderRadius = '4px';
-          serverSelect.style.padding = '8px 12px';
-          serverSelect.style.width = '100%';
-          
-          // Add change handler
-          serverSelect.addEventListener('change', function() {
-            console.log('Server selected:', this.value);
-            window.location.href = `/admin3d/tickets?server=${this.value}`;
-          });
-        } else {
-          console.log('Server select not found in early script');
+        // Create a helper function to find server
+        window.selectServer = function(serverId) {
+          if (serverId) {
+            const serverSelect = document.getElementById('server-select');
+            const fixedSelect = document.getElementById('fixed-server-select');
+            
+            // Update any existing server selects
+            if (serverSelect) serverSelect.value = serverId;
+            if (fixedSelect) fixedSelect.value = serverId;
+            
+            console.log('Set server selection to:', serverId);
+          }
+        };
+        
+        // Automatically set selected server based on URL
+        if (serverIdFromUrl) {
+          setTimeout(function() {
+            window.selectServer(serverIdFromUrl);
+          }, 300);
         }
-      }, 500);
+      }
     });
   </script>
   
