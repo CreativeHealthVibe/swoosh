@@ -1235,6 +1235,8 @@ app.get('/status-check', (req, res) => {
 const server = http.createServer(app);
 
 // Set up WebSocket server for real-time updates
+// NOTE: We'll use the main /ws endpoint for basic websocket communication
+// The StatsWebSocketServer will use /stats-ws for the 3D admin panel
 const wss = new WebSocket.Server({ server, path: '/ws' });
 
 // Store connected clients
