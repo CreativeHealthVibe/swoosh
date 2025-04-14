@@ -631,10 +631,13 @@ document.addEventListener('DOMContentLoaded', function() {
       showPremiumNotification('Creating ticket panel...', 'info');
       
       // Send to API
+      console.log('Sending ticket panel data to API:', JSON.stringify(jsonData, null, 2));
+      
       fetch(`/api/v2/servers/${serverIdToUse}/ticket-panel`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify(jsonData)
       })

@@ -7,6 +7,51 @@ const router = express.Router();
 const { isAuthenticated, isAdmin } = require('../../../middlewares/auth');
 
 /**
+ * GET /api/v2/servers/:serverId/ticket-panels
+ * Get all ticket panels for a server
+ */
+router.get('/servers/:serverId/ticket-panels', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const { serverId } = req.params;
+    const client = req.app.get('client');
+    
+    if (!client || !client.ticketManager) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Ticket manager is not available' 
+      });
+    }
+    
+    console.log('Getting ticket panels for server:', serverId);
+    
+    // Get existing panels
+    let panels = [];
+    try {
+      panels = await client.ticketManager.getTickets(serverId);
+    } catch (err) {
+      console.error('Error getting ticket panels:', err);
+    }
+    
+    // Ensure we have an array
+    if (!Array.isArray(panels)) {
+      console.warn('Panels not returned as an array, using empty array instead');
+      panels = [];
+    }
+    
+    return res.json({
+      success: true,
+      panels: panels
+    });
+  } catch (error) {
+    console.error('Error getting ticket panels:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
  * GET /api/v2/servers/:serverId/tickets
  * Get all tickets for a server
  */
@@ -22,21 +67,51 @@ router.get('/servers/:serverId/tickets', isAuthenticated, isAdmin, async (req, r
       });
     }
     
-    // Get tickets for the server
-    const tickets = await client.ticketManager.getTickets(serverId);
+    // Check if this is a request for ticket panels
+    const isPanelRequest = req.query.type === 'panels' || 
+                          req.originalUrl.includes('tickets') ||
+                          req.headers.referer?.includes('tickets');
     
-    // Get ticket stats
-    const stats = {
+    console.log('Is panel request:', isPanelRequest);
+    console.log('URL:', req.originalUrl);
+    console.log('Referer:', req.headers.referer);
+    
+    // Get tickets or panels for the server
+    let tickets;
+    
+    try {
+      if (isPanelRequest) {
+        console.log('Getting ticket panels for server:', serverId);
+        // Get panels instead of tickets if that's what was requested
+        tickets = await client.ticketManager.getTickets(serverId);
+      } else {
+        console.log('Getting tickets for server:', serverId);
+        tickets = await client.ticketManager.getTickets(serverId);
+      }
+    } catch (err) {
+      console.error('Error getting tickets or panels:', err);
+      tickets = [];
+    }
+    
+    // Ensure we have an array
+    if (!Array.isArray(tickets)) {
+      console.warn('Tickets/panels not returned as an array, using empty array instead');
+      tickets = [];
+    }
+    
+    // Get ticket stats (only for tickets, not panels)
+    const stats = !isPanelRequest ? {
       total: tickets.length,
       open: tickets.filter(ticket => ticket.status === 'OPEN').length,
       closed: tickets.filter(ticket => ticket.status === 'CLOSED').length,
       avgResponseTime: calculateAvgResponseTime(tickets)
-    };
+    } : null;
     
+    // Return response
     return res.json({
       success: true,
-      tickets,
-      stats
+      tickets: tickets,
+      stats: stats
     });
   } catch (error) {
     console.error('Error getting tickets:', error);
@@ -299,15 +374,18 @@ router.get('/servers/:serverId/channels', isAuthenticated, isAdmin, async (req, 
     const channels = [];
     const categories = [];
     
+    // Import Discord.js components directly
+    const { ChannelType } = require('discord.js');
+    
     guild.channels.cache.forEach(channel => {
-      if (channel.type === 0) { // Text channel
+      if (channel.type === ChannelType.GuildText) { // Text channel
         channels.push({
           id: channel.id,
           name: channel.name,
           type: 'text',
           parentId: channel.parentId
         });
-      } else if (channel.type === 4) { // Category
+      } else if (channel.type === ChannelType.GuildCategory) { // Category
         categories.push({
           id: channel.id,
           name: channel.name
@@ -425,21 +503,52 @@ router.post('/servers/:serverId/ticket-panel', isAuthenticated, isAdmin, async (
     
     // Create panel
     try {
-      console.log('Ticket Manager:', typeof client.ticketManager);
-      console.log('createPanel Method:', typeof client.ticketManager.createPanel);
-      console.log('Attempting to create panel in server:', serverId);
+      console.log('Creating ticket panel with these details:');
+      console.log('Server ID:', serverId);
       console.log('Channel ID:', channelId);
+      console.log('Panel Title:', panelTitle);
+      console.log('Panel Description:', panelDescription);
+      console.log('Panel Color:', panelColor);
+      console.log('Panel Image:', panelImage);
+      console.log('Ticket Types:', JSON.stringify(parsedTicketTypes));
+      
+      // Validate ticket types array
+      if (!Array.isArray(parsedTicketTypes)) {
+        console.warn('Ticket types is not an array, converting to empty array');
+        parsedTicketTypes = [];
+      }
+      
+      // Ensure each ticket type has required properties
+      parsedTicketTypes = parsedTicketTypes.map(type => ({
+        label: type.label || 'Support',
+        emoji: type.emoji || '🎫',
+        description: type.description || 'Get support from our team'
+      }));
+      
+      // If no ticket types, add a default one
+      if (parsedTicketTypes.length === 0) {
+        console.log('No ticket types provided, adding default');
+        parsedTicketTypes.push({
+          label: 'General Support',
+          emoji: '🎫',
+          description: 'Get help from our team'
+        });
+      }
       
       const result = await client.ticketManager.createPanel(serverId, {
         channelId,
-        title: panelTitle,
-        description: panelDescription,
-        color: panelColor ? panelColor : '#9b59b6',
-        image: panelImage,
+        title: panelTitle || 'Support Tickets',
+        description: panelDescription || 'Please select a ticket type from the dropdown below to get assistance.',
+        color: panelColor || '#9b59b6',
+        image: panelImage || null,
         ticketTypes: parsedTicketTypes
       });
       
       console.log('Panel creation result:', result);
+      
+      if (!result) {
+        throw new Error('Failed to create ticket panel');
+      }
     } catch (err) {
       console.error('Error in createPanel route:', err);
       throw err;
