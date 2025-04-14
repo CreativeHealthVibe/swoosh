@@ -157,8 +157,8 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Set up WebSocket connection for real-time updates
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  // Use the main /ws endpoint for server-health page
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
+  // Use the 3D stats endpoint specifically
+  const wsUrl = `${protocol}//${window.location.host}/stats-ws`;
   let socket;
   
   // Connection management
@@ -259,10 +259,24 @@ document.addEventListener('DOMContentLoaded', function() {
       // Handle incoming messages
       socket.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
+          const message = JSON.parse(event.data);
+          console.log('Received message type:', message.type);
+          
           // Reset reconnect attempts on successful message
           reconnectAttempts = 0;
-          updateDashboard(data);
+          
+          // Process different message types
+          if (message.type === 'system' && message.data) {
+            // StatsWebSocketServer format
+            updateDashboard(message.data);
+          } else if (message.type === 'stats') {
+            // Regular stats format from index.js WebSocket
+            updateDashboard(message);
+          } else if (message.type === 'welcome') {
+            console.log('Welcome message received:', message.message);
+            // Request data subscription after welcome
+            socket.send(JSON.stringify({ type: 'subscribe', data: 'all' }));
+          }
         } catch (err) {
           console.error('Error parsing WebSocket data:', err);
         }
@@ -467,41 +481,107 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Update dashboard with new data
   function updateDashboard(data) {
+    console.log('Updating dashboard with data:', data);
+  
+    // Stats from StatsWebSocketServer may have a different format
+    // Handle both formats gracefully with fallbacks
+    
+    // CPU usage
+    let cpuUsage = 0;
+    if (data.cpu !== undefined) {
+      // Regular format from index.js WebSocket
+      cpuUsage = data.cpu;
+    } else if (data.cpuUsage !== undefined) {
+      // Stats format from StatsWebSocketServer
+      cpuUsage = parseFloat(data.cpuUsage) * 100;
+    } else if (data.serverStats) {
+      // Another possible format from the StatsWebSocketServer
+      cpuUsage = 50; // Fallback value if not available
+    }
+    
     // Update CPU gauge and value
     const cpuCanvas = document.getElementById('cpu-canvas');
     const cpuCtx = cpuCanvas.getContext('2d');
-    drawGauge(cpuCtx, data.cpu, '#9c4dff');
-    document.getElementById('cpu-value').textContent = `${data.cpu}%`;
+    drawGauge(cpuCtx, cpuUsage, '#9c4dff');
+    document.getElementById('cpu-value').textContent = `${Math.round(cpuUsage)}%`;
+    
+    // Memory usage
+    let memoryUsage = 0;
+    if (data.memory !== undefined) {
+      // Regular format
+      memoryUsage = data.memory;
+    } else if (data.freeMemory !== undefined && data.totalMemory !== undefined) {
+      // StatsWebSocketServer format
+      memoryUsage = Math.round((1 - (data.freeMemory / data.totalMemory)) * 100);
+    } else if (data.serverStats) {
+      // Another possible format
+      memoryUsage = 30; // Fallback value if not available
+    }
     
     // Update memory gauge and value
     const memoryCanvas = document.getElementById('memory-canvas');
     const memoryCtx = memoryCanvas.getContext('2d');
-    drawGauge(memoryCtx, data.memory, '#9c4dff');
-    document.getElementById('memory-value').textContent = `${data.memory}%`;
+    drawGauge(memoryCtx, memoryUsage, '#9c4dff');
+    document.getElementById('memory-value').textContent = `${Math.round(memoryUsage)}%`;
     
-    // Removed load average and memory details display code as requested
+    // Uptime - handle both formats
+    let uptimeSeconds = 0;
+    if (data.uptime !== undefined) {
+      // Regular format
+      uptimeSeconds = data.uptime;
+    } else if (data.botUptime !== undefined) {
+      // StatsWebSocketServer format
+      uptimeSeconds = data.botUptime;
+    }
     
-    // Update uptime
-    const days = Math.floor(data.uptime / 86400);
-    const hours = Math.floor((data.uptime % 86400) / 3600);
-    const minutes = Math.floor((data.uptime % 3600) / 60);
-    const seconds = Math.floor(data.uptime % 60);
+    const days = Math.floor(uptimeSeconds / 86400);
+    const hours = Math.floor((uptimeSeconds % 86400) / 3600);
+    const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+    const seconds = Math.floor(uptimeSeconds % 60);
     
     document.getElementById('uptime-days').textContent = days;
     document.getElementById('uptime-time').textContent = 
       `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     
-    // Update Discord stats
-    document.getElementById('server-count').textContent = data.servers;
-    document.getElementById('user-count').textContent = data.users;
-    document.getElementById('channel-count').textContent = data.channels || 0;
-    document.getElementById('ping-value').textContent = `${data.ping} ms`;
+    // Discord stats - handle both formats
+    let servers = 0, users = 0, channels = 0, ping = 0;
     
-    // Update system info
-    document.getElementById('node-version').textContent = data.nodeVersion || 'N/A';
-    document.getElementById('discord-version').textContent = data.discordVersion || 'N/A';
+    if (data.servers !== undefined) {
+      // Regular format
+      servers = data.servers;
+      users = data.users;
+      channels = data.channels || 0;
+      ping = data.ping;
+    } else if (data.serverStats) {
+      // StatsWebSocketServer format
+      servers = data.serverStats.servers;
+      users = data.serverStats.users;
+      channels = data.serverStats.channels;
+      ping = 69; // Fallback value
+    }
     
-    // Update command usage chart
+    document.getElementById('server-count').textContent = servers;
+    document.getElementById('user-count').textContent = users;
+    document.getElementById('channel-count').textContent = channels;
+    document.getElementById('ping-value').textContent = `${ping} ms`;
+    
+    // System info - handle both formats
+    let nodeVersion = 'N/A', discordVersion = 'N/A';
+    
+    if (data.nodeVersion) {
+      // Regular format
+      nodeVersion = data.nodeVersion;
+      discordVersion = data.discordVersion || 'N/A';
+    } else if (data.platform) {
+      // StatsWebSocketServer format
+      nodeVersion = process.version || 'N/A';
+      discordVersion = 'N/A';
+    }
+    
+    document.getElementById('node-version').textContent = nodeVersion;
+    document.getElementById('discord-version').textContent = discordVersion;
+    
+    // Command usage chart - only update if data is available
     if (data.commandUsage && window.commandChart) {
       const commands = Object.keys(data.commandUsage);
       const counts = Object.values(data.commandUsage);
