@@ -38,7 +38,7 @@ module.exports = {
 
             if (timeArgs.length === 0) {
                 return message.reply({
-                    content: `❌ Invalid time format. Please use a format like \`5h 30m 10s\` where h=hours, m=minutes, s=seconds.`,
+                    content: `❌ Invalid time format. Please use a format like \`5h\`, \`30m\`, \`10s\`, or combine them like \`1h 30m\`. (h=hours, m=minutes, s=seconds)`,
                     ephemeral: true
                 });
             }
