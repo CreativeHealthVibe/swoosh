@@ -101,15 +101,25 @@ module.exports = {
         }
       }
 
-      // Create/retrieve webhook
-      const webhooks = await logChannel.fetchWebhooks();
-      webhook = webhooks.find(wh => wh.name === 'SWOOSH Logger');
-      
-      if (!webhook) {
-        webhook = await logChannel.createWebhook({
-          name: 'SWOOSH Logger',
-          avatar: 'https://i.ibb.co/4g9LqWyK/swoosh.jpg'
-        });
+      // Create/retrieve webhook only if log channel exists
+      if (logChannel) {
+        try {
+          const webhooks = await logChannel.fetchWebhooks();
+          webhook = webhooks.find(wh => wh.name === 'SWOOSH Logger');
+          
+          if (!webhook) {
+            webhook = await logChannel.createWebhook({
+              name: 'SWOOSH Logger',
+              avatar: 'https://i.ibb.co/4g9LqWyK/swoosh.jpg'
+            });
+          }
+        } catch (error) {
+          console.error('Error setting up webhook:', error);
+          webhook = null;
+        }
+      } else {
+        console.log('No log channel configured for webhook creation. Use /setlogs to set up logging channels.');
+        webhook = null;
       }
 
       // Setup message deletion listener
