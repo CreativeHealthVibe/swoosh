@@ -1,7 +1,58 @@
 // config.js - Bot configuration
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+
+// Guild configuration cache and utility functions
+const guildConfigs = new Map();
+const configDir = path.join(__dirname, 'data', 'configs');
+
+// Ensure configs directory exists
+if (!fs.existsSync(configDir)) {
+  fs.mkdirSync(configDir, { recursive: true });
+}
+
+// Utility functions for guild configuration
+const getGuildConfig = (guildId) => {
+  // Check cache first
+  if (guildConfigs.has(guildId)) {
+    return guildConfigs.get(guildId);
+  }
+  
+  // Try to load from file
+  const configPath = path.join(configDir, `${guildId}.json`);
+  if (fs.existsSync(configPath)) {
+    try {
+      const configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      guildConfigs.set(guildId, configData);
+      return configData;
+    } catch (error) {
+      console.error(`Error loading config for guild ${guildId}:`, error);
+    }
+  }
+  
+  return null;
+};
+
+const saveGuildConfig = (guildId, configData) => {
+  // Update cache
+  guildConfigs.set(guildId, configData);
+  
+  // Save to file
+  const configPath = path.join(configDir, `${guildId}.json`);
+  try {
+    fs.writeFileSync(configPath, JSON.stringify(configData, null, 2));
+    return true;
+  } catch (error) {
+    console.error(`Error saving config for guild ${guildId}:`, error);
+    return false;
+  }
+};
 
 module.exports = {
+  // Guild configuration utility functions
+  getGuildConfig,
+  saveGuildConfig,
   prefix: ".",
   embedColor: "#0099ff",
   ticketCategory: "SWOOSH | Tickets",
