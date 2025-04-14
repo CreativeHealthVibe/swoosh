@@ -6,6 +6,20 @@ const express = require('express');
 const router = express.Router();
 const { isAuthenticated, isAdmin } = require('../../../middlewares/auth');
 
+// Reference to ticketPanels Map from ticketManager
+let ticketPanels;
+
+// Initialize the routes and get reference to the ticketPanels from the client
+router.use((req, res, next) => {
+  // Set the ticketPanels reference if it's not set yet and client is available
+  const client = req.app.get('client');
+  if (client && client.ticketManager && !ticketPanels) {
+    console.log('Initializing ticketPanels reference from client.ticketManager');
+    ticketPanels = client.ticketManager.ticketPanels;
+  }
+  next();
+});
+
 /**
  * GET /api/v2/servers/:serverId/ticket-panels
  * Get all ticket panels for a server
@@ -560,6 +574,85 @@ router.post('/servers/:serverId/ticket-panel', isAuthenticated, isAdmin, async (
     });
   } catch (error) {
     console.error('Error creating ticket panel:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/v2/servers/:serverId/ticket-panel/:panelId
+ * Delete a ticket panel
+ */
+router.delete('/servers/:serverId/ticket-panel/:panelId', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const { serverId, panelId } = req.params;
+    const client = req.app.get('client');
+    
+    if (!client || !client.ticketManager) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Ticket manager is not available' 
+      });
+    }
+    
+    console.log('Deleting ticket panel:', panelId, 'from server:', serverId);
+    
+    // Get existing panels
+    const panels = await client.ticketManager.getTickets(serverId);
+    
+    // Find the panel to delete
+    const panelIndex = panels.findIndex(panel => panel.id === panelId);
+    
+    if (panelIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Panel not found'
+      });
+    }
+    
+    // Get the panel data
+    const panel = panels[panelIndex];
+    
+    // Remove panel from storage
+    panels.splice(panelIndex, 1);
+    
+    // Update panels in storage
+    ticketPanels.set(serverId, panels);
+    
+    // Try to delete the message from Discord
+    try {
+      // Get the guild and channel
+      const guild = await client.guilds.fetch(serverId);
+      
+      if (!guild) {
+        throw new Error('Guild not found');
+      }
+      
+      const channel = await guild.channels.fetch(panel.channelId);
+      
+      if (!channel) {
+        throw new Error('Channel not found');
+      }
+      
+      // Try to delete the message if messageId exists
+      if (panel.messageId) {
+        await channel.messages.delete(panel.messageId).catch(() => {
+          console.log('Could not delete panel message, it may have been deleted already');
+        });
+      }
+    } catch (err) {
+      console.error('Error deleting panel message from Discord:', err);
+      // Continue even if Discord message deletion fails
+    }
+    
+    return res.json({
+      success: true,
+      message: 'Panel deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting ticket panel:', error);
     return res.status(500).json({
       success: false,
       message: error.message

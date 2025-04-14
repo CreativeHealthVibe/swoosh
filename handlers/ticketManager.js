@@ -24,6 +24,7 @@ const activeTickets = new Map();
 const ticketConfigs = new Map();
 
 // Store ticket panels by server ID
+// Ticket panels map that will store all ticket panels by serverId
 const ticketPanels = new Map();
 
 module.exports = {
