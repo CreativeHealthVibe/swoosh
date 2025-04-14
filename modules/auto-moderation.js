@@ -523,17 +523,35 @@ class AutoModerationSystem {
       if (word.length <= 3) continue; // Skip short words to avoid false positives
       
       // Check for separated letters: "f u c k"
-      const separatedPattern = word.split('').join('[\\s.*_-]+');
-      const separatedRegex = new RegExp(`\\b${separatedPattern}\\b`, 'i');
-      if (separatedRegex.test(contentLower)) {
-        return true;
+      try {
+        const separatedPattern = word.split('').join('[\\s.*_-]+');
+        const separatedRegex = new RegExp(`\\b${separatedPattern}\\b`, 'i');
+        if (separatedRegex.test(contentLower)) {
+          return true;
+        }
+      } catch (regexError) {
+        console.warn(`Invalid regex pattern for word "${word}": ${regexError.message}`);
+        // Try a simpler pattern instead
+        try {
+          const simplePattern = word.split('').join('\\s*');
+          const simpleRegex = new RegExp(`\\b${simplePattern}\\b`, 'i');
+          if (simpleRegex.test(contentLower)) {
+            return true;
+          }
+        } catch (error) {
+          console.error(`Failed to create fallback regex for "${word}": ${error.message}`);
+        }
       }
       
       // Check for dotted words: "f.u.c.k"
-      const dottedPattern = word.split('').join('\\.');
-      const dottedRegex = new RegExp(`\\b${dottedPattern}\\b`, 'i');
-      if (dottedRegex.test(contentLower)) {
-        return true;
+      try {
+        const dottedPattern = word.split('').join('\\.');
+        const dottedRegex = new RegExp(`\\b${dottedPattern}\\b`, 'i');
+        if (dottedRegex.test(contentLower)) {
+          return true;
+        }
+      } catch (regexError) {
+        console.warn(`Invalid dotted regex pattern for word "${word}": ${regexError.message}`);
       }
     }
     
