@@ -293,19 +293,26 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     `;
     
-    // Fetch panels from API
-    fetch(`/api/v2/servers/${serverId}/tickets`, {
+    console.log('Loading ticket panels for server:', serverId);
+    
+    // Fetch panels from API using the new dedicated endpoint
+    fetch(`/api/v2/servers/${serverId}/ticket-panels`, {
       headers: {
         'Accept': 'application/json'
       }
     })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to load ticket panels: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then(data => {
         // Clear loading state
         existingPanelsList.innerHTML = '';
         
-        // Check if data is in the expected format with success, tickets, and stats
-        const panels = data.success && data.tickets ? data.tickets : data;
+        // Get panels from the response
+        const panels = data.success && data.panels ? data.panels : [];
         
         console.log('Loaded panels data:', panels);
         
@@ -380,9 +387,14 @@ document.addEventListener('DOMContentLoaded', function() {
     element.classList.add('deleting');
     showPremiumNotification('Deleting panel...', 'info');
     
-    // Delete the panel
-    fetch(`/api/v2/servers/${serverId}/tickets/${panelId}`, {
-      method: 'DELETE'
+    console.log('Deleting panel:', panelId, 'from server:', serverId);
+    
+    // Delete the panel using the dedicated endpoint
+    fetch(`/api/v2/servers/${serverId}/ticket-panel/${panelId}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json'
+      }
     })
       .then(response => {
         if (response.ok) {
