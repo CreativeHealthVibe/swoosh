@@ -901,16 +901,40 @@ async function handleTicketCreation(interaction, ticketType, client) {
   try {
     // Import Discord.js components directly to ensure they're available
     const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField } = require('discord.js');
-    // Find or create ticket category
-    let category = await ensureTicketCategory(interaction.guild);
     
-    // Check for existing ticket
-    const existingTicket = interaction.guild.channels.cache.find(
+    console.log(`Processing ticket creation for user ${interaction.user.username} of type ${ticketType} in server ${interaction.guild.name}`);
+    
+    // Find or create ticket category - using our improved function
+    let category = await ensureTicketCategory(interaction.guild);
+    if (!category) {
+      console.error(`Failed to find or create ticket category in server ${interaction.guild.name}`);
+      return interaction.editReply('Could not create ticket due to category configuration issues. Please contact a server administrator.');
+    }
+    
+    console.log(`Using ticket category "${category.name}" (ID: ${category.id}) for new ticket`);
+    
+    // Format the user's name for the ticket channel
+    const ticketUserName = interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const ticketChannelName = `ticket-${ticketUserName}`;
+    
+    // Check for existing ticket - more comprehensive search
+    let existingTicket = null;
+    
+    // First check by name and parent
+    existingTicket = interaction.guild.channels.cache.find(
       ch => ch.parentId === category.id && 
-           ch.name === `ticket-${interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+           ch.name === ticketChannelName
     );
     
+    // If not found, check by name only across all channels
+    if (!existingTicket) {
+      existingTicket = interaction.guild.channels.cache.find(
+        ch => ch.name === ticketChannelName
+      );
+    }
+    
     if (existingTicket) {
+      console.log(`User ${interaction.user.username} already has an open ticket: ${existingTicket.name} (ID: ${existingTicket.id})`);
       return interaction.editReply(`You already have an open ticket: ${existingTicket}`);
     }
     
@@ -1124,16 +1148,44 @@ async function ensureTicketCategory(guild) {
   // Import Discord.js components directly to ensure they're available
   const { ChannelType, PermissionsBitField } = require('discord.js');
   
-  // Find existing category
+  // Try to find the category by name - first check case-insensitive
+  const categoryName = config.ticketCategory;
+  console.log(`Looking for ticket category "${categoryName}" in server ${guild.name}`);
+  
+  // Check for exact category name match first
   let category = guild.channels.cache.find(c => 
     c.type === ChannelType.GuildCategory && 
-    c.name === config.ticketCategory
+    c.name === categoryName
   );
   
-  // Create category if it doesn't exist
+  // If not found, try a case-insensitive match
   if (!category) {
+    category = guild.channels.cache.find(c => 
+      c.type === ChannelType.GuildCategory && 
+      c.name.toLowerCase() === categoryName.toLowerCase()
+    );
+  }
+  
+  // If still not found, try to find any ticket-related category
+  if (!category) {
+    category = guild.channels.cache.find(c => 
+      c.type === ChannelType.GuildCategory && 
+      (c.name.toLowerCase().includes('ticket') || c.name.toLowerCase().includes('swoosh'))
+    );
+  }
+  
+  // If we found a category, log it and return
+  if (category) {
+    console.log(`Found existing ticket category "${category.name}" (ID: ${category.id})`);
+    return category;
+  }
+  
+  // If we get here, we need to create a new category
+  console.log(`Creating new ticket category "${categoryName}" in server ${guild.name}`);
+  
+  try {
     category = await guild.channels.create({
-      name: config.ticketCategory,
+      name: categoryName,
       type: ChannelType.GuildCategory,
       permissionOverwrites: [
         {
@@ -1142,6 +1194,15 @@ async function ensureTicketCategory(guild) {
         }
       ]
     });
+    console.log(`Created new ticket category "${category.name}" (ID: ${category.id})`);
+  } catch (error) {
+    console.error(`Error creating ticket category:`, error);
+    // Try to find any category as fallback
+    const fallbackCategory = guild.channels.cache.find(c => c.type === ChannelType.GuildCategory);
+    if (fallbackCategory) {
+      console.log(`Using fallback category "${fallbackCategory.name}" for tickets`);
+      return fallbackCategory;
+    }
   }
   
   return category;
