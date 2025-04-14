@@ -35,23 +35,23 @@ module.exports = {
       };
       
       if (specialUsers[targetUser.id]) {
-        // Create a special embed for owners/developers
+        // Create a special embed for owners/developers/testers/staff
         const roles = targetMember?.roles.cache
           .filter(role => role.id !== interaction.guild.id) // Filter out @everyone role
           .sort((a, b) => b.position - a.position) || []; // Sort by position
           
         const highestRole = roles.first?.();
         
+        // Create the embed with special styling
         const specialEmbed = new EmbedBuilder()
-          .setTitle(`<:aperson:1358185076449476660> User Info: ${targetUser.tag}`)
+          .setTitle(`<:aperson:1358185076449476660> User Info: ${targetUser.username}`)
           .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }))
           .addFields(
             { name: '<:aperson:1358185076449476660> User ID', value: targetUser.id },
             { name: '<:Joindate:1358183055071903805> Joined Server', value: targetMember?.joinedAt ? `<t:${Math.floor(targetMember.joinedAt.getTime() / 1000)}:R>` : 'Unknown' },
             { name: '<:Calendar_when:1358183398434410636> Account Created', value: `<t:${Math.floor(targetUser.createdAt.getTime() / 1000)}:R>` }
           )
-          .setColor('#FFD700') // Gold color for special users
-          .setFooter({ text: specialUsers[targetUser.id] });
+          .setColor('#FFD700'); // Gold color for special users
           
         if (targetMember && roles.size > 0) {
           specialEmbed.addFields(
@@ -66,6 +66,15 @@ module.exports = {
             specialEmbed.addFields({ name: '<:Role_:1358183713522847855> Roles', value: `${roles.first(10).map(role => role.toString()).join(' ')} (+${roles.size - 10} more)` });
           }
         }
+        
+        // Add image at the bottom
+        specialEmbed.setImage(targetUser.displayAvatarURL({ dynamic: true, size: 256 }));
+        
+        // Add the special role title at the very bottom
+        specialEmbed.addFields({ 
+          name: '\u200B', // Invisible character for spacing
+          value: specialUsers[targetUser.id]
+        });
           
         return interaction.reply({ embeds: [specialEmbed] });
       }
