@@ -157,11 +157,32 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Set up WebSocket connection for real-time updates
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
+  // Use the /stats-ws endpoint - FIXED ENDPOINT
+  const wsUrl = `${protocol}//${window.location.host}/stats-ws`;
   let socket;
   
-  // Connection status indicator
+  // Connection management
   let connectionLost = false;
+  let reconnectAttempts = 0;
+  const MAX_RECONNECT_ATTEMPTS = 20;
+  const RECONNECT_INTERVAL = 3000; // 3 seconds
+  let reconnectTimer = null;
+  let pingInterval = null;
+  let isReconnecting = false;
+  
+  // Add a connection status indicator
+  const statusDiv = document.createElement('div');
+  statusDiv.id = 'connection-status';
+  statusDiv.style.position = 'fixed';
+  statusDiv.style.bottom = '10px';
+  statusDiv.style.right = '10px';
+  statusDiv.style.background = 'rgba(0,0,0,0.7)';
+  statusDiv.style.color = '#fff';
+  statusDiv.style.padding = '5px 10px';
+  statusDiv.style.borderRadius = '4px';
+  statusDiv.style.zIndex = '9999';
+  statusDiv.style.display = 'none';
+  document.body.appendChild(statusDiv);
   
   // Initialize gauges and charts
   initGauges();
@@ -171,43 +192,140 @@ document.addEventListener('DOMContentLoaded', function() {
   connectWebSocket();
   
   function connectWebSocket() {
-    socket = new WebSocket(wsUrl);
+    // Don't attempt reconnection if already trying
+    if (isReconnecting) return;
+    isReconnecting = true;
     
-    // Handle WebSocket opening
-    socket.onopen = () => {
-      console.log('WebSocket connection established');
-      if (connectionLost) {
-        // Reconnection successful, update UI
-        document.querySelector('.last-updated').classList.remove('disconnected');
-        document.querySelector('.last-updated').innerHTML = '<i class="fas fa-sync-alt"></i> Live updates every 2 seconds';
-        connectionLost = false;
-      }
-    };
-    
-    // Handle incoming messages
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      updateDashboard(data);
-    };
-    
-    // Handle WebSocket closing
-    socket.onclose = () => {
-      console.log('WebSocket connection closed');
-      if (!connectionLost) {
-        // Show disconnected status
-        document.querySelector('.last-updated').classList.add('disconnected');
-        document.querySelector('.last-updated').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection lost. Attempting to reconnect...';
-        connectionLost = true;
+    try {
+      // Clear any existing socket
+      if (socket && socket.readyState !== WebSocket.CLOSED) {
+        socket.close();
       }
       
-      // Try to reconnect after 5 seconds
-      setTimeout(connectWebSocket, 5000);
-    };
-    
-    // Handle WebSocket errors
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
+      // Clear any existing ping interval
+      if (pingInterval) {
+        clearInterval(pingInterval);
+        pingInterval = null;
+      }
+      
+      // Connection attempt indicator
+      statusDiv.style.display = 'block';
+      statusDiv.textContent = `Connecting... Attempt ${reconnectAttempts+1}`;
+      statusDiv.style.background = 'rgba(255,165,0,0.7)';
+      
+      console.log(`WebSocket connecting... Attempt ${reconnectAttempts+1}`);
+      socket = new WebSocket(wsUrl);
+      
+      // Handle WebSocket opening
+      socket.onopen = () => {
+        console.log('WebSocket connection established');
+        // Reset reconnection state
+        reconnectAttempts = 0;
+        isReconnecting = false;
+        
+        // Update connection status
+        if (connectionLost) {
+          // Reconnection successful, update UI
+          document.querySelector('.last-updated').classList.remove('disconnected');
+          document.querySelector('.last-updated').innerHTML = '<i class="fas fa-sync-alt"></i> Live updates every 2 seconds';
+          connectionLost = false;
+        }
+        
+        // Update status indicator
+        statusDiv.textContent = 'Connected';
+        statusDiv.style.background = 'rgba(0,128,0,0.7)';
+        
+        // Set up ping to keep connection alive
+        pingInterval = setInterval(() => {
+          if (socket && socket.readyState === WebSocket.OPEN) {
+            try {
+              socket.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+              console.log('Sent ping to keep WebSocket alive');
+            } catch (error) {
+              console.error('Error sending ping:', error);
+            }
+          }
+        }, 25000); // Send ping every 25 seconds
+        
+        // Hide status after 3 seconds
+        setTimeout(() => {
+          statusDiv.style.display = 'none';
+        }, 3000);
+        
+        // Request initial data
+        socket.send(JSON.stringify({ type: 'subscribe', data: 'all' }));
+      };
+      
+      // Handle incoming messages
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          // Reset reconnect attempts on successful message
+          reconnectAttempts = 0;
+          updateDashboard(data);
+        } catch (err) {
+          console.error('Error parsing WebSocket data:', err);
+        }
+      };
+      
+      // Handle WebSocket closing
+      socket.onclose = (event) => {
+        console.log('WebSocket connection closed:', event.code, event.reason);
+        
+        // Clear ping interval
+        if (pingInterval) {
+          clearInterval(pingInterval);
+          pingInterval = null;
+        }
+        
+        if (!connectionLost) {
+          // Show disconnected status
+          document.querySelector('.last-updated').classList.add('disconnected');
+          document.querySelector('.last-updated').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection lost. Attempting to reconnect...';
+          connectionLost = true;
+        }
+        
+        // Update status indicator
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = 'Disconnected. Reconnecting...';
+        statusDiv.style.background = 'rgba(255,0,0,0.7)';
+        
+        // Try to reconnect with exponential backoff
+        reconnectAttempts++;
+        isReconnecting = false;
+        
+        if (reconnectAttempts <= MAX_RECONNECT_ATTEMPTS) {
+          const delay = Math.min(RECONNECT_INTERVAL * Math.pow(1.5, reconnectAttempts - 1), 30000);
+          console.log(`Attempting to reconnect in ${delay/1000} seconds...`);
+          
+          // Clear any existing reconnect timer
+          if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+          }
+          
+          reconnectTimer = setTimeout(connectWebSocket, delay);
+        } else {
+          statusDiv.textContent = 'Connection failed. Please refresh the page.';
+          document.querySelector('.last-updated').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Connection failed. Please refresh the page.';
+        }
+      };
+      
+      // Handle WebSocket errors
+      socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = 'Connection error';
+        statusDiv.style.background = 'rgba(255,0,0,0.7)';
+      }; 
+    } catch (err) {
+      console.error('Error setting up WebSocket:', err);
+      isReconnecting = false;
+      
+      // Try again after a delay
+      if (reconnectAttempts <= MAX_RECONNECT_ATTEMPTS) {
+        reconnectTimer = setTimeout(connectWebSocket, RECONNECT_INTERVAL);
+      }
+    }
   }
   
   // Initialize gauge charts
