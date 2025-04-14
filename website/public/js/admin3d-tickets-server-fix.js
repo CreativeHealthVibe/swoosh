@@ -6,16 +6,33 @@
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Server fix script loaded');
 
-  // Server selector element
-  const serverSelect = document.getElementById('server-select');
+  // Try to find the server selector element - add a small delay as it might not be immediately available
+  setTimeout(() => {
+    // Server selector element
+    const serverSelect = document.getElementById('server-select');
+    
+    if (!serverSelect) {
+      console.warn('Server select element not found on initial load, will retry...');
+      // Try again with a longer delay
+      setTimeout(() => {
+        const serverSelectRetry = document.getElementById('server-select');
+        if (serverSelectRetry) {
+          console.log('Server select element found on retry');
+          initializeServerSelect(serverSelectRetry);
+        } else {
+          console.error('Server select element not found after retry!');
+        }
+      }, 1000);
+      return;
+    } else {
+      initializeServerSelect(serverSelect);
+    }
+  }, 100);
   
-  if (!serverSelect) {
-    console.error('Server select element not found!');
-    return;
-  }
-
-  // Ensure server options are properly displayed
-  function fixServerOptions() {
+  // Initialize all server select functionality
+  function initializeServerSelect(serverSelect) {
+    // Ensure server options are properly displayed
+    function fixServerOptions() {
     const options = serverSelect.querySelectorAll('option');
     
     options.forEach(option => {
