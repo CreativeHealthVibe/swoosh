@@ -54,6 +54,15 @@ module.exports = {
             .setDescription('The channel to use for bot status updates')
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)))
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName('member')
+        .setDescription('Set the member join/leave logging channel')
+        .addChannelOption(option =>
+          option.setName('channel')
+            .setDescription('The channel to use for member join/leave logs')
+            .addChannelTypes(ChannelType.GuildText)
+            .setRequired(true)))
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   /**
@@ -109,6 +118,10 @@ module.exports = {
         case 'status':
           guildConfig.loggingChannels.botStatus = channel.id;
           break;
+          
+        case 'member':
+          guildConfig.loggingChannels.memberJoin = channel.id;
+          break;
       }
       
       // Save the updated configuration
@@ -148,11 +161,23 @@ module.exports = {
         });
       } else if (subcommand === 'deleted') {
         embed.setFooter({ 
-          text: 'This channel will receive logs when messages are deleted.' 
+          text: 'This channel will receive logs when messages are deleted or edited.' 
         });
       } else if (subcommand === 'transcripts') {
         embed.setFooter({ 
           text: 'Ticket transcripts will be saved to this channel when tickets are closed.' 
+        });
+      } else if (subcommand === 'commands') {
+        embed.setFooter({ 
+          text: 'Command usage logs will be sent to this channel.' 
+        });
+      } else if (subcommand === 'status') {
+        embed.setFooter({ 
+          text: 'Bot status updates will be posted to this channel hourly.' 
+        });
+      } else if (subcommand === 'member') {
+        embed.setFooter({ 
+          text: 'Member join and leave events will be logged to this channel.' 
         });
       }
       
