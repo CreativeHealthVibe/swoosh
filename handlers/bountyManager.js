@@ -17,10 +17,39 @@ module.exports = {
    * Initialize bounty manager
    * @param {Object} client - Discord client
    */
-  init: (client) => {
+  init: async (client) => {
     // This function is called when the bot starts up
-    console.log('Bounty manager initialized');
-    this.client = client;
+    console.log('Bounty manager initializing...');
+    module.exports.client = client;
+    
+    // Load pending bounties from Discord DB if available
+    if (client.discordDB && client.discordDB.initialized) {
+      try {
+        // Load all bounties from the database
+        const storedBounties = client.discordDB.getCollection(BOUNTY_COLLECTION);
+        
+        if (storedBounties && Object.keys(storedBounties).length > 0) {
+          console.log(`📋 Loading ${Object.keys(storedBounties).length} pending bounties from database`);
+          
+          // Restore each bounty to the in-memory Map
+          for (const [id, bountyData] of Object.entries(storedBounties)) {
+            // Skip bounties that were already approved or denied and are just waiting for cleanup
+            if (bountyData.status === 'approved' || bountyData.status === 'denied') {
+              continue;
+            }
+            
+            // Add to in-memory cache
+            pendingBounties.set(id, bountyData);
+          }
+          
+          console.log(`✅ Loaded ${pendingBounties.size} active pending bounties`);
+        }
+      } catch (error) {
+        console.error('Error loading bounties from database:', error);
+      }
+    }
+    
+    console.log('✅ Bounty manager initialized');
   },
   
   /**
@@ -52,8 +81,8 @@ module.exports = {
       // Generate a unique ID for this submission
       const submissionId = Date.now().toString();
       
-      // Store the submission with metadata
-      pendingBounties.set(submissionId, {
+      // Create the bounty data object
+      const bountyEntry = {
         id: submissionId,
         submittedAt: new Date(),
         submittedBy: interaction.user,
@@ -61,7 +90,33 @@ module.exports = {
         channelId: interaction.channel.id,
         status: 'pending',
         ...bountyData
-      });
+      };
+      
+      // Store in memory
+      pendingBounties.set(submissionId, bountyEntry);
+      
+      // Save to Discord DB if available
+      if (module.exports.client && module.exports.client.discordDB) {
+        try {
+          // Create a DB-safe copy (prevent circular references)
+          const dbSafeBounty = {
+            ...bountyEntry,
+            submittedBy: {
+              id: interaction.user.id,
+              tag: interaction.user.tag,
+              username: interaction.user.username
+            },
+            // Ensure we save the avatar URL
+            robloxAvatarUrl: bountyData.robloxAvatarUrl || null
+          };
+          
+          // Store in the database
+          module.exports.client.discordDB.setDocument(BOUNTY_COLLECTION, submissionId, dbSafeBounty);
+          console.log(`💾 Saved bounty ${submissionId} to database`);
+        } catch (dbError) {
+          console.error('Error saving bounty to database:', dbError);
+        }
+      }
       
       // Log the submission
       logging.logAction('Bounty Submitted', null, interaction.user, {
@@ -185,6 +240,34 @@ module.exports = {
         pendingBounty.approvedAt = new Date();
         pendingBounties.set(submissionId, pendingBounty);
         
+        // Update in Discord DB if available
+        if (module.exports.client && module.exports.client.discordDB) {
+          try {
+            // Create a DB-safe copy (prevent circular references)
+            const dbSafeBounty = {
+              ...pendingBounty,
+              submittedBy: pendingBounty.submittedBy ? {
+                id: pendingBounty.submittedBy.id,
+                tag: pendingBounty.submittedBy.tag,
+                username: pendingBounty.submittedBy.username
+              } : null,
+              approvedBy: {
+                id: interaction.user.id,
+                tag: interaction.user.tag,
+                username: interaction.user.username
+              },
+              status: 'approved',
+              approvedAt: new Date().toISOString()
+            };
+            
+            // Update in the database
+            module.exports.client.discordDB.setDocument(BOUNTY_COLLECTION, submissionId, dbSafeBounty);
+            console.log(`💾 Updated bounty ${submissionId} status to 'approved' in database`);
+          } catch (dbError) {
+            console.error('Error updating bounty in database:', dbError);
+          }
+        }
+        
         // Remove from pending after some time (e.g., 1 hour)
         setTimeout(() => {
           pendingBounties.delete(submissionId);
@@ -230,6 +313,35 @@ module.exports = {
       pendingBounty.deniedAt = new Date();
       pendingBounty.denialReason = reason;
       pendingBounties.set(submissionId, pendingBounty);
+      
+      // Update in Discord DB if available
+      if (module.exports.client && module.exports.client.discordDB) {
+        try {
+          // Create a DB-safe copy (prevent circular references)
+          const dbSafeBounty = {
+            ...pendingBounty,
+            submittedBy: pendingBounty.submittedBy ? {
+              id: pendingBounty.submittedBy.id,
+              tag: pendingBounty.submittedBy.tag,
+              username: pendingBounty.submittedBy.username
+            } : null,
+            deniedBy: {
+              id: interaction.user.id,
+              tag: interaction.user.tag,
+              username: interaction.user.username
+            },
+            status: 'denied',
+            deniedAt: new Date().toISOString(),
+            denialReason: reason || 'No reason provided'
+          };
+          
+          // Update in the database
+          module.exports.client.discordDB.setDocument(BOUNTY_COLLECTION, submissionId, dbSafeBounty);
+          console.log(`💾 Updated bounty ${submissionId} status to 'denied' in database`);
+        } catch (dbError) {
+          console.error('Error updating bounty in database:', dbError);
+        }
+      }
       
       // Log the denial
       logging.logAction('Bounty Denied', null, interaction.user, {
