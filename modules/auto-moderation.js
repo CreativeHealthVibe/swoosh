@@ -467,8 +467,70 @@ class AutoModerationSystem {
    * Check if content contains external links
    */
   containsLinks(content) {
+    // First check if there are any links at all
     const linkRegex = /(https?:\/\/[^\s]+)/gi;
-    return linkRegex.test(content);
+    
+    if (!linkRegex.test(content)) {
+      return false;
+    }
+    
+    // Reset the regex state
+    linkRegex.lastIndex = 0;
+    
+    // Extract all links
+    const links = content.match(linkRegex) || [];
+    
+    // Whitelist for common Discord, GIF, and image domains
+    const whitelistedDomains = [
+      // Discord CDN domains
+      'cdn.discordapp.com',
+      'media.discordapp.net',
+      'images-ext-1.discordapp.net',
+      'images-ext-2.discordapp.net',
+      
+      // Common GIF and image services
+      'tenor.com',
+      'giphy.com',
+      'gph.is',
+      'media.giphy.com',
+      'media1.tenor.com',
+      'media2.tenor.com',
+      'media3.tenor.com',
+      'c.tenor.com',
+      
+      // Other common image hosts
+      'imgur.com',
+      'i.imgur.com',
+      'gyazo.com',
+      'i.gyazo.com',
+      'prnt.sc',
+      'ibb.co',
+      
+      // Discord's own links
+      'discord.com',
+      'discord.gg',
+      'discordapp.com'
+    ];
+    
+    // Check if any of the links are not whitelisted
+    for (const link of links) {
+      let isWhitelisted = false;
+      
+      for (const domain of whitelistedDomains) {
+        if (link.includes(domain)) {
+          isWhitelisted = true;
+          break;
+        }
+      }
+      
+      // If we found a non-whitelisted link, return true (meaning it contains external links)
+      if (!isWhitelisted) {
+        return true;
+      }
+    }
+    
+    // All links were whitelisted
+    return false;
   }
   
   /**
