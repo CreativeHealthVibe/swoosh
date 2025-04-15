@@ -28,7 +28,7 @@ const client = new Client({
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildPresences, // Added for user status tracking
-    GatewayIntentBits.GuildVoiceStates, // Added for voice channel features
+    // GatewayIntentBits.GuildVoiceStates, // Removed - voice features disabled on Replit
   ],
   partials: [Partials.Channel, Partials.Message, Partials.Reaction, Partials.User]
 });
