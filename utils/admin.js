@@ -2,6 +2,7 @@
  * Admin utility functions
  * Contains functions for admin permissions and operations
  */
+const { PermissionFlagsBits } = require('discord.js');
 
 /**
  * Check if a user is a server admin
@@ -12,7 +13,7 @@ const isAdmin = (member) => {
   if (!member) return false;
   
   // Check if user has administrator permission
-  if (member.permissions && member.permissions.has('ADMINISTRATOR')) {
+  if (member.permissions && member.permissions.has(PermissionFlagsBits.Administrator)) {
     return true;
   }
   
@@ -28,7 +29,7 @@ const isAdmin = (member) => {
  */
 const canCreateChannels = (member) => {
   if (!member) return false;
-  return member.permissions.has('MANAGE_CHANNELS') || isAdmin(member);
+  return member.permissions.has(PermissionFlagsBits.ManageChannels) || isAdmin(member);
 };
 
 /**
@@ -50,7 +51,7 @@ const canManageTickets = (member) => {
  */
 const canManageRoles = (member) => {
   if (!member) return false;
-  return member.permissions.has('MANAGE_ROLES') || isAdmin(member);
+  return member.permissions.has(PermissionFlagsBits.ManageRoles) || isAdmin(member);
 };
 
 /**
@@ -60,7 +61,7 @@ const canManageRoles = (member) => {
  */
 const canBanMembers = (member) => {
   if (!member) return false;
-  return member.permissions.has('BAN_MEMBERS') || isAdmin(member);
+  return member.permissions.has(PermissionFlagsBits.BanMembers) || isAdmin(member);
 };
 
 /**
@@ -70,7 +71,7 @@ const canBanMembers = (member) => {
  */
 const canKickMembers = (member) => {
   if (!member) return false;
-  return member.permissions.has('KICK_MEMBERS') || isAdmin(member);
+  return member.permissions.has(PermissionFlagsBits.KickMembers) || isAdmin(member);
 };
 
 /**
