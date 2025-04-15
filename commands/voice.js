@@ -326,7 +326,7 @@ module.exports = {
       
       try {
         // Use our audio player module to play the track
-        const { player, details } = await audioPlayer.playYouTube(
+        const { player, details } = await audioPlayer.playSpotify(
           voiceConnection.connection, 
           query
         );
@@ -351,7 +351,7 @@ module.exports = {
             { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
             { name: 'Requested By', value: message.author.tag, inline: true }
           )
-          .setFooter({ text: 'SWOOSH Bot Music' });
+          .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
         
         // Set up audio player events
         player.on(AudioPlayerStatus.Idle, () => {
@@ -406,7 +406,7 @@ module.exports = {
       
       try {
         // Use our audio player module to play the track
-        const { player, details } = await audioPlayer.playYouTube(
+        const { player, details } = await audioPlayer.playSpotify(
           voiceConnection.connection, 
           query
         );
@@ -431,7 +431,7 @@ module.exports = {
             { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
             { name: 'Requested By', value: interaction.user.tag, inline: true }
           )
-          .setFooter({ text: 'SWOOSH Bot Music' });
+          .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
         
         // Set up audio player events
         player.on(AudioPlayerStatus.Idle, () => {
