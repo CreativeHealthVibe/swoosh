@@ -128,6 +128,11 @@ module.exports = {
   // Role IDs that can access tickets (will be overridden by database settings)
   staffRoles: ["Admin","Moderator","Staff","Bounty Master"],
   
+  // Role configurations
+  roles: {
+    bountyMaster: '1054517788858503310', // Default Bounty Master role ID
+  },
+  
   // Validation limits
   validation: {
     bountyMin: 15,
