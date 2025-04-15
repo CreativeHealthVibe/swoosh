@@ -241,8 +241,17 @@ async function playSpotify(connection, query) {
     // Create a direct audio playback source using FFmpeg
     console.log(`Playing: ${trackInfo.name} by ${trackInfo.artists.map(a => a.name).join(', ')}`);
     
-    // Create an audio resource directly from the silent.mp3 file we created
+    // Create an audio resource directly from the silent.mp3 file
     const audioStream = createReadStream(SILENT_AUDIO);
+    
+    // Process the mp3 file through FFmpeg to ensure it's in the right format
+    const ffmpeg = spawn(ffmpegPath, [
+      '-i', SILENT_AUDIO,   // Input from the mp3 file
+      '-f', 's16le',        // Output format
+      '-ar', '48000',       // Output sample rate
+      '-ac', '2',           // Stereo output
+      'pipe:1'              // Output to stdout
+    ], { stdio: ['ignore', 'pipe', 'ignore'] });
     
     // Create an audio resource from the FFmpeg process output
     const resource = createAudioResource(ffmpeg.stdout, {
