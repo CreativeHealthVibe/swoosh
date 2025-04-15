@@ -90,17 +90,11 @@ module.exports = {
       
       // Check if server has a log channel configured for bounty submissions
       const guildSettings = await logging.getGuildSettings(interaction.guild.id);
-      const bountySubmissionChannel = client.channels.cache.get(guildSettings?.channels?.bountySubmissions);
+      let bountySubmissionChannel = client.channels.cache.get(guildSettings?.channels?.bountySubmissions);
       
       if (!bountySubmissionChannel) {
-        return interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle('❌ System Not Configured')
-              .setDescription('The server does not have a bounty submission channel configured. Please ask an admin to set one up using `/setlogs`.')
-              .setColor('#FF0000')
-          ]
-        });
+        // If no bounty submission channel is configured, just use the current channel
+        bountySubmissionChannel = interaction.channel;
       }
       
       // Fetch Roblox username from ID

@@ -98,16 +98,8 @@ module.exports = {
     await interaction.deferReply({ ephemeral: true }); // Start with ephemeral reply for better UX
     
     try {
-      // Check if user has permission with a more detailed error message
-      if (!adminUtils.canCreateBounty(interaction.member)) {
-        const errorEmbed = new EmbedBuilder()
-          .setTitle('Permission Denied')
-          .setDescription('You need the **Bounty Master** or **Admin** role to create bounties.')
-          .setColor('#FF0000')
-          .setFooter({ text: 'SWOOSH Bounty System' });
-        
-        return interaction.editReply({ embeds: [errorEmbed] });
-      }
+      // All members can use this command for bounty submissions
+      // No permission check needed
       
       // Get command options
       const robloxId = interaction.options.getString('robloxid');
