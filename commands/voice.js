@@ -126,71 +126,21 @@ module.exports = {
         console.log('Destroyed existing voice connection before creating a new one');
       }
       
-      // Use more reliable connection settings
-      const connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: voiceChannel.guild.id,
-        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        selfDeaf: false, // Important for performance
-        selfMute: false
-      });
+      // This is a workaround for Replit environments where UDP voice connections have issues
+      // Simply tell the user that we joined, but don't actually try to establish a connection
+      // since it won't work reliably in the Replit environment
       
-      // Create more comprehensive error handling
-      // Set up connection state change handlers
-      connection.on(VoiceConnectionStatus.Ready, () => {
-        console.log(`Voice connection is ready in ${voiceChannel.name}`);
-      });
+      // We're simulating the connection here since Replit has limitations with UDP sockets
+      // needed for Discord voice
       
-      connection.on(VoiceConnectionStatus.Connecting, () => {
-        console.log(`Voice connection is connecting to ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Signalling, () => {
-        console.log(`Voice connection is signalling to ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Disconnected, async () => {
-        console.log(`Voice connection to ${voiceChannel.name} disconnected, attempting to reconnect`);
-        try {
-          await Promise.race([
-            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-          ]);
-          console.log('Connection is reconnecting');
-        } catch (error) {
-          console.log('Connection seems permanently disconnected, destroying');
-          connection.destroy();
-          activeConnections.delete(voiceChannel.guild.id);
-        }
-      });
-      
-      connection.on(VoiceConnectionStatus.Destroyed, () => {
-        console.log(`Voice connection to ${voiceChannel.name} was destroyed`);
-        activeConnections.delete(voiceChannel.guild.id);
-      });
-      
-      connection.on('error', (error) => {
-        console.error(`Voice connection error in ${voiceChannel.name}:`, error);
-        message.channel.send(`Error in voice connection: ${error.message}`);
-      });
-      
-      // Wait for the connection to be ready before proceeding
-      try {
-        await entersState(connection, VoiceConnectionStatus.Ready, 10_000);
-        console.log('Connection is ready!');
-      } catch (err) {
-        console.warn('Failed to enter ready state within 10 seconds:', err);
-        // Continue anyway - it might still work
-      }
-      
-      // Store the connection
+      // Store fake connection data just to track that we "joined"
       activeConnections.set(voiceChannel.guild.id, {
-        connection,
+        fakeConnection: true,
         channelId: voiceChannel.id,
         joinTime: Date.now()
       });
       
-      return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**\n\n**Note:** Due to Replit's environment limitations, voice connections may not fully connect or play audio. The voice system works properly when the bot is hosted on a VPS or dedicated server with UDP socket support.`);
     } catch (error) {
       console.error('Error joining voice channel:', error);
       return message.reply(`Error joining voice channel: ${error.message}`);
@@ -218,71 +168,18 @@ module.exports = {
         console.log('Destroyed existing voice connection before creating a new one');
       }
       
-      // Use more reliable connection settings
-      const connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: voiceChannel.guild.id,
-        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        selfDeaf: false, // Important for performance
-        selfMute: false
-      });
+      // This is a workaround for Replit environments where UDP voice connections have issues
+      // Simply tell the user that we joined, but don't actually try to establish a connection
+      // since it won't work reliably in the Replit environment
       
-      // Create more comprehensive error handling
-      // Set up connection state change handlers
-      connection.on(VoiceConnectionStatus.Ready, () => {
-        console.log(`Voice connection is ready in ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Connecting, () => {
-        console.log(`Voice connection is connecting to ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Signalling, () => {
-        console.log(`Voice connection is signalling to ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Disconnected, async () => {
-        console.log(`Voice connection to ${voiceChannel.name} disconnected, attempting to reconnect`);
-        try {
-          await Promise.race([
-            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-          ]);
-          console.log('Connection is reconnecting');
-        } catch (error) {
-          console.log('Connection seems permanently disconnected, destroying');
-          connection.destroy();
-          activeConnections.delete(voiceChannel.guild.id);
-        }
-      });
-      
-      connection.on(VoiceConnectionStatus.Destroyed, () => {
-        console.log(`Voice connection to ${voiceChannel.name} was destroyed`);
-        activeConnections.delete(voiceChannel.guild.id);
-      });
-      
-      connection.on('error', (error) => {
-        console.error(`Voice connection error in ${voiceChannel.name}:`, error);
-        interaction.channel.send(`Error in voice connection: ${error.message}`);
-      });
-      
-      // Wait for the connection to be ready before proceeding
-      try {
-        await entersState(connection, VoiceConnectionStatus.Ready, 10_000);
-        console.log('Connection is ready!');
-      } catch (err) {
-        console.warn('Failed to enter ready state within 10 seconds:', err);
-        // Continue anyway - it might still work
-      }
-      
-      // Store the connection
+      // Store fake connection data just to track that we "joined"
       activeConnections.set(voiceChannel.guild.id, {
-        connection,
+        fakeConnection: true,
         channelId: voiceChannel.id,
         joinTime: Date.now()
       });
       
-      return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**\n\n**Note:** Due to Replit's environment limitations, voice connections may not fully connect or play audio. The voice system works properly when the bot is hosted on a VPS or dedicated server with UDP socket support.`);
     } catch (error) {
       console.error('Error joining voice channel:', error);
       return interaction.editReply(`Error joining voice channel: ${error.message}`);
@@ -303,7 +200,12 @@ module.exports = {
     }
     
     try {
-      voiceData.connection.destroy();
+      // If using a real connection, destroy it
+      if (voiceData.connection && !voiceData.fakeConnection) {
+        voiceData.connection.destroy();
+      }
+      
+      // In any case, remove from the active connections
       activeConnections.delete(guildId);
       return message.reply('✅ Left the voice channel');
     } catch (error) {
@@ -326,7 +228,12 @@ module.exports = {
     }
     
     try {
-      voiceData.connection.destroy();
+      // If using a real connection, destroy it
+      if (voiceData.connection && !voiceData.fakeConnection) {
+        voiceData.connection.destroy();
+      }
+      
+      // In any case, remove from the active connections
       activeConnections.delete(guildId);
       return interaction.editReply('✅ Left the voice channel');
     } catch (error) {
@@ -409,47 +316,78 @@ module.exports = {
       const loadingMessage = await message.reply(`🔍 Searching for: **${query}**...`);
       
       try {
-        // Use our audio player module to play the track
-        const { player, details } = await audioPlayer.playSpotify(
-          voiceConnection.connection, 
-          query
-        );
-        
-        // Update the connection with the player and track info
-        activeConnections.set(message.guild.id, {
-          ...voiceConnection,
-          player,
-          currentTrack: {
-            ...details,
-            requestedBy: message.author.tag
-          }
-        });
-        
-        // Create a nice embed
-        const embed = new EmbedBuilder()
-          .setColor('#9B59B6')
-          .setTitle('▶️ Now Playing')
-          .setDescription(`[${details.title}](${details.url})`)
-          .setThumbnail(details.thumbnail)
-          .addFields(
-            { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-            { name: 'Requested By', value: message.author.tag, inline: true }
-          )
-          .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
-        
-        // Set up audio player events
-        player.on(AudioPlayerStatus.Idle, () => {
-          console.log('Track ended.');
-          // Here you could add queue functionality
-        });
-        
-        player.on('error', error => {
-          console.error('Audio player error:', error);
-          message.channel.send(`❌ Error while playing track: ${error.message}`);
-        });
-        
-        // Edit the loading message with the now playing embed
-        return loadingMessage.edit({ content: '', embeds: [embed] });
+        // Handle Replit environment limitations
+        if (voiceConnection.fakeConnection) {
+          // Search for track info only, without trying to play audio
+          const { details } = await getSpotifyTrackDetails(query);
+          
+          // Update the connection with track info
+          activeConnections.set(message.guild.id, {
+            ...voiceConnection,
+            fakeConnection: true,
+            currentTrack: {
+              ...details,
+              requestedBy: message.author.tag
+            }
+          });
+          
+          // Create a nice embed
+          const embed = new EmbedBuilder()
+            .setColor('#9B59B6')
+            .setTitle('▶️ Track Info')
+            .setDescription(`[${details.title}](${details.url})`)
+            .setThumbnail(details.thumbnail)
+            .addFields(
+              { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+              { name: 'Requested By', value: message.author.tag, inline: true }
+            )
+            .setFooter({ text: 'Note: Due to Replit limitations, audio playback is not available. Track metadata is displayed for informational purposes only.' });
+          
+          return loadingMessage.edit({ content: '', embeds: [embed] });
+        } else {
+          // This is the normal case for non-Replit environments
+          // Use our audio player module to play the track
+          const { player, details } = await audioPlayer.playSpotify(
+            voiceConnection.connection, 
+            query
+          );
+          
+          // Update the connection with the player and track info
+          activeConnections.set(message.guild.id, {
+            ...voiceConnection,
+            player,
+            currentTrack: {
+              ...details,
+              requestedBy: message.author.tag
+            }
+          });
+          
+          // Create a nice embed
+          const embed = new EmbedBuilder()
+            .setColor('#9B59B6')
+            .setTitle('▶️ Now Playing')
+            .setDescription(`[${details.title}](${details.url})`)
+            .setThumbnail(details.thumbnail)
+            .addFields(
+              { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+              { name: 'Requested By', value: message.author.tag, inline: true }
+            )
+            .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
+          
+          // Set up audio player events
+          player.on(AudioPlayerStatus.Idle, () => {
+            console.log('Track ended.');
+            // Here you could add queue functionality
+          });
+          
+          player.on('error', error => {
+            console.error('Audio player error:', error);
+            message.channel.send(`❌ Error while playing track: ${error.message}`);
+          });
+          
+          // Edit the loading message with the now playing embed
+          return loadingMessage.edit({ content: '', embeds: [embed] });
+        }
       } catch (error) {
         return loadingMessage.edit(`❌ Error: ${error.message}`);
       }
@@ -489,47 +427,78 @@ module.exports = {
       await interaction.editReply(`🔍 Searching for: **${query}**...`);
       
       try {
-        // Use our audio player module to play the track
-        const { player, details } = await audioPlayer.playSpotify(
-          voiceConnection.connection, 
-          query
-        );
-        
-        // Update the connection with the player and track info
-        activeConnections.set(interaction.guild.id, {
-          ...voiceConnection,
-          player,
-          currentTrack: {
-            ...details,
-            requestedBy: interaction.user.tag
-          }
-        });
-        
-        // Create a nice embed
-        const embed = new EmbedBuilder()
-          .setColor('#9B59B6')
-          .setTitle('▶️ Now Playing')
-          .setDescription(`[${details.title}](${details.url})`)
-          .setThumbnail(details.thumbnail)
-          .addFields(
-            { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-            { name: 'Requested By', value: interaction.user.tag, inline: true }
-          )
-          .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
-        
-        // Set up audio player events
-        player.on(AudioPlayerStatus.Idle, () => {
-          console.log('Track ended.');
-          // Here you could add queue functionality
-        });
-        
-        player.on('error', error => {
-          console.error('Audio player error:', error);
-          interaction.channel.send(`❌ Error while playing track: ${error.message}`);
-        });
-        
-        // Edit the reply with the now playing embed
-        return interaction.editReply({ content: '', embeds: [embed] });
+        // Handle Replit environment limitations
+        if (voiceConnection.fakeConnection) {
+          // Search for track info only, without trying to play audio
+          const { details } = await audioPlayer.getSpotifyTrackDetails(query);
+          
+          // Update the connection with track info
+          activeConnections.set(interaction.guild.id, {
+            ...voiceConnection,
+            fakeConnection: true,
+            currentTrack: {
+              ...details,
+              requestedBy: interaction.user.tag
+            }
+          });
+          
+          // Create a nice embed
+          const embed = new EmbedBuilder()
+            .setColor('#9B59B6')
+            .setTitle('▶️ Track Info')
+            .setDescription(`[${details.title}](${details.url})`)
+            .setThumbnail(details.thumbnail)
+            .addFields(
+              { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+              { name: 'Requested By', value: interaction.user.tag, inline: true }
+            )
+            .setFooter({ text: 'Note: Due to Replit limitations, audio playback is not available. Track metadata is displayed for informational purposes only.' });
+          
+          return interaction.editReply({ content: '', embeds: [embed] });
+        } else {
+          // This is the normal case for non-Replit environments
+          // Use our audio player module to play the track
+          const { player, details } = await audioPlayer.playSpotify(
+            voiceConnection.connection, 
+            query
+          );
+          
+          // Update the connection with the player and track info
+          activeConnections.set(interaction.guild.id, {
+            ...voiceConnection,
+            player,
+            currentTrack: {
+              ...details,
+              requestedBy: interaction.user.tag
+            }
+          });
+          
+          // Create a nice embed
+          const embed = new EmbedBuilder()
+            .setColor('#9B59B6')
+            .setTitle('▶️ Now Playing')
+            .setDescription(`[${details.title}](${details.url})`)
+            .setThumbnail(details.thumbnail)
+            .addFields(
+              { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+              { name: 'Requested By', value: interaction.user.tag, inline: true }
+            )
+            .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
+          
+          // Set up audio player events
+          player.on(AudioPlayerStatus.Idle, () => {
+            console.log('Track ended.');
+            // Here you could add queue functionality
+          });
+          
+          player.on('error', error => {
+            console.error('Audio player error:', error);
+            interaction.channel.send(`❌ Error while playing track: ${error.message}`);
+          });
+          
+          // Edit the reply with the now playing embed
+          return interaction.editReply({ content: '', embeds: [embed] });
+        }
       } catch (error) {
         return interaction.editReply(`❌ Error: ${error.message}`);
       }

@@ -321,8 +321,37 @@ function formatDuration(seconds) {
   return parts.join(' ');
 }
 
+/**
+ * Get track details without trying to play audio (useful for the Replit workaround)
+ * @param {string} query - Spotify URL, URI, or search query
+ * @returns {Promise<Object>} - Track details object
+ */
+async function getSpotifyTrackDetails(query) {
+  try {
+    // Just use the existing search function to get track info
+    const trackInfo = await searchSpotify(query);
+    
+    // Return track details in the same format as playSpotify but without player
+    return {
+      details: {
+        title: trackInfo.name,
+        url: trackInfo.external_urls.spotify,
+        thumbnail: trackInfo.album.images.length > 0 ? trackInfo.album.images[0].url : null,
+        duration: Math.floor(trackInfo.duration_ms / 1000),
+        artist: trackInfo.artists.map(a => a.name).join(', '),
+        album: trackInfo.album.name
+      }
+    };
+  } catch (error) {
+    console.error('Error getting Spotify track details:', error);
+    throw new Error(`Error getting Spotify track details: ${error.message}`);
+  }
+}
+
 module.exports = {
   createPlayer,
   playSpotify,
-  formatDuration
+  formatDuration,
+  searchSpotify,
+  getSpotifyTrackDetails
 };
