@@ -276,11 +276,11 @@ async function playSpotify(connection, query) {
     });
     
     try {
-      // Use a pre-generated tone.mp3 file instead of generating audio on-the-fly
-      console.log(`Playing tone file from: ${TONE_AUDIO}`);
+      // Use a pre-generated silent.mp3 file instead of a tone to avoid beeping
+      console.log(`Playing silent audio from: ${SILENT_AUDIO}`);
       
-      // Create a read stream from the pre-made audio file
-      const fileStream = createReadStream(TONE_AUDIO);
+      // Create a read stream from the silent audio file
+      const fileStream = createReadStream(SILENT_AUDIO);
       
       // Check if file exists and is readable
       fileStream.on('error', (error) => {
