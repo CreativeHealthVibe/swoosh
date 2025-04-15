@@ -78,7 +78,7 @@ async function searchSpotify(query) {
   await ensureSpotifyToken();
   
   try {
-    // Check if it's a Spotify URL/URI
+    // Check if it's a Spotify URL/URI for a track
     if (query.includes('spotify.com/track/') || query.includes('spotify:track:')) {
       // Extract track ID from URL or URI
       let trackId;
@@ -91,8 +91,65 @@ async function searchSpotify(query) {
       // Get track details
       const data = await spotifyApi.getTrack(trackId);
       return data.body;
-    } else {
-      // Perform a search
+    } 
+    // Check if it's a Spotify artist URL
+    else if (query.includes('spotify.com/artist/') || query.includes('spotify:artist:')) {
+      // Extract artist ID from URL or URI
+      let artistId;
+      if (query.includes('spotify.com/artist/')) {
+        artistId = query.split('spotify.com/artist/')[1].split('?')[0];
+      } else {
+        artistId = query.split('spotify:artist:')[1];
+      }
+      
+      // Get artist's top tracks
+      const data = await spotifyApi.getArtistTopTracks(artistId, 'US');
+      if (data.body.tracks.length === 0) {
+        throw new Error('No tracks found for this artist');
+      }
+      return data.body.tracks[0]; // Return the top track
+    }
+    // Check if it's a Spotify album URL 
+    else if (query.includes('spotify.com/album/') || query.includes('spotify:album:')) {
+      // Extract album ID from URL or URI
+      let albumId;
+      if (query.includes('spotify.com/album/')) {
+        albumId = query.split('spotify.com/album/')[1].split('?')[0];
+      } else {
+        albumId = query.split('spotify:album:')[1];
+      }
+      
+      // Get album tracks
+      const data = await spotifyApi.getAlbumTracks(albumId, { limit: 1 });
+      if (data.body.items.length === 0) {
+        throw new Error('No tracks found in this album');
+      }
+      
+      // Get full track details for the first track
+      const trackData = await spotifyApi.getTrack(data.body.items[0].id);
+      return trackData.body;
+    }
+    // Check if it's a Spotify playlist URL
+    else if (query.includes('spotify.com/playlist/') || query.includes('spotify:playlist:')) {
+      // Extract playlist ID from URL or URI
+      let playlistId;
+      if (query.includes('spotify.com/playlist/')) {
+        playlistId = query.split('spotify.com/playlist/')[1].split('?')[0];
+      } else {
+        playlistId = query.split('spotify:playlist:')[1];
+      }
+      
+      // Get playlist tracks
+      const data = await spotifyApi.getPlaylistTracks(playlistId, { limit: 1 });
+      if (data.body.items.length === 0) {
+        throw new Error('No tracks found in this playlist');
+      }
+      
+      // Get full track details
+      return data.body.items[0].track;
+    }
+    else {
+      // It's a general search query
       const data = await spotifyApi.searchTracks(query, { limit: 1 });
       if (data.body.tracks.items.length === 0) {
         throw new Error('No tracks found matching your query');
