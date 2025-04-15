@@ -277,8 +277,6 @@ module.exports = {
         .setDescription(
           `# REWARD: R$ ${formattedAmount}\n\n` +
           `**ID:** ${bountyData.robloxId}\n` +
-          `**Priority:** ${priority.name}\n` +
-          `**Authorized By:** ${interaction.user.toString()}\n` +
           `**Submitted By:** ${bountyData.submittedBy ? bountyData.submittedBy.toString() : interaction.user.toString()}\n` +
           `**Approved By:** ${bountyData.approvedBy ? bountyData.approvedBy.toString() : interaction.user.toString()}`
         )
@@ -345,7 +343,6 @@ module.exports = {
           clipRequired: bountyData.clipRequired,
           reason: bountyData.reason || 'No reason provided',
           template: template.name,
-          priority: priority.name,
           channel: bountyData.channel?.name || 'No specific channel',
           submittedBy: bountyData.submittedBy ? bountyData.submittedBy.tag : interaction.user.tag,
           approvedBy: bountyData.approvedBy ? bountyData.approvedBy.tag : interaction.user.tag,
