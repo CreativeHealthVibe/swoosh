@@ -162,6 +162,48 @@ async function searchSpotify(query) {
   }
 }
 
+// Track the last time we made a YouTube search request to avoid rate limiting
+let lastYouTubeRequestTime = 0;
+const MIN_REQUEST_INTERVAL = 2000; // 2 seconds between requests
+
+/**
+ * Search for a track on YouTube with rate limiting and retries
+ * @param {string} query - Search query
+ * @param {number} retries - Number of retries left
+ * @returns {Promise<Object>} - Search results
+ */
+async function searchYouTubeWithRetry(query, retries = 3) {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastYouTubeRequestTime;
+  
+  // If we're making requests too quickly, wait before making another
+  if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+    const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+    console.log(`Rate limiting: waiting ${waitTime}ms before next YouTube request`);
+    await new Promise(resolve => setTimeout(resolve, waitTime));
+  }
+  
+  try {
+    // Update the last request time
+    lastYouTubeRequestTime = Date.now();
+    
+    // Make the search request
+    const results = await play.search(query, { limit: 1 });
+    return results;
+  } catch (error) {
+    // If we get a 429 Too Many Requests error and have retries left
+    if (error.message && error.message.includes('429') && retries > 0) {
+      const waitTime = (4 - retries) * 2000; // Increase wait time with each retry
+      console.log(`YouTube rate limited (429). Retrying in ${waitTime/1000} seconds... (${retries} retries left)`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      return searchYouTubeWithRetry(query, retries - 1);
+    }
+    
+    // If we're out of retries or got a different error, throw it
+    throw error;
+  }
+}
+
 /**
  * Play a Spotify track in a voice connection
  * @param {Object} connection - Discord voice connection
@@ -180,14 +222,35 @@ async function playSpotify(connection, query) {
     const searchQuery = `${trackInfo.name} ${trackInfo.artists.map(a => a.name).join(' ')}`;
     console.log(`Searching for: ${searchQuery}`);
     
-    // Search for the track on YouTube to get the actual audio
-    const searchResults = await play.search(searchQuery, { limit: 1 });
+    // Search for the track on YouTube with rate limiting and retries
+    const searchResults = await searchYouTubeWithRetry(searchQuery);
     if (!searchResults || searchResults.length === 0) {
       throw new Error('Could not find audio for this track');
     }
     
-    // Get video stream
-    const stream = await play.stream(searchResults[0].url);
+    // Get video stream with retries
+    let stream;
+    let streamRetries = 3;
+    
+    while (streamRetries > 0) {
+      try {
+        stream = await play.stream(searchResults[0].url);
+        break; // If successful, break out of the retry loop
+      } catch (error) {
+        if (error.message && error.message.includes('429') && streamRetries > 1) {
+          const waitTime = (4 - streamRetries) * 2000;
+          console.log(`YouTube rate limited (429) when streaming. Retrying in ${waitTime/1000} seconds... (${streamRetries-1} retries left)`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          streamRetries--;
+        } else {
+          throw error; // Rethrow if not a rate limit or out of retries
+        }
+      }
+    }
+    
+    if (!stream) {
+      throw new Error('Failed to get audio stream after multiple attempts');
+    }
     
     // Create an FFmpeg process that converts the stream
     const ffmpeg = spawn(ffmpegPath, [
