@@ -242,34 +242,57 @@ async function playSpotify(connection, query) {
     // Create a direct audio playback source using FFmpeg
     console.log(`Playing: ${trackInfo.name} by ${trackInfo.artists.map(a => a.name).join(', ')}`);
     
-    // Process the audio file through FFmpeg to ensure it's in the right format
-    // Use tone.mp3 which has audible sound instead of silent.mp3
-    const ffmpeg = spawn(ffmpegPath, [
-      '-i', TONE_AUDIO,    // Input from the tone audio file
-      '-stream_loop', '-1', // Loop the audio indefinitely 
-      '-f', 's16le',        // Output format
-      '-ar', '48000',       // Output sample rate
-      '-ac', '2',           // Stereo output
-      'pipe:1'              // Output to stdout
-    ], { stdio: ['ignore', 'pipe', 'ignore'] });
-    
-    // Create an audio resource from the FFmpeg process output
-    const resource = createAudioResource(ffmpeg.stdout, {
-      inputType: StreamType.Raw,
-      inlineVolume: true
-    });
-    
-    // Create an audio player
+    // Create a player first and set up error handling
     const player = createPlayer();
     
-    // Set the volume lower for better quality
-    resource.volume.setVolume(0.5);
+    // Handle the different states of the player
+    player.on(AudioPlayerStatus.Playing, () => {
+      console.log('Audio player is now playing');
+    });
     
-    // Play the track
-    player.play(resource);
+    player.on(AudioPlayerStatus.Idle, () => {
+      console.log('Audio player is now idle');
+    });
     
-    // Connect the player to the voice connection
-    connection.subscribe(player);
+    player.on('error', error => {
+      console.error('Error in audio player:', error.message);
+    });
+    
+    try {
+      // Use a simpler approach with direct PCM audio
+      const ffmpeg = spawn(ffmpegPath, [
+        '-f', 'lavfi',              // Use libavfilter
+        '-i', 'sine=frequency=440', // Generate a 440 Hz tone
+        '-t', '3600',               // Maximum duration (1 hour)
+        '-ar', '48000',             // Sample rate
+        '-ac', '2',                 // Stereo
+        '-f', 's16le',              // Output format
+        'pipe:1'                    // Output to stdout
+      ], { stdio: ['ignore', 'pipe', 'ignore'] });
+      
+      // Handle process errors
+      ffmpeg.on('error', (error) => {
+        console.error('FFmpeg process error:', error);
+      });
+      
+      // Create an audio resource from the FFmpeg process output
+      const resource = createAudioResource(ffmpeg.stdout, {
+        inputType: StreamType.Raw,
+        inlineVolume: true
+      });
+      
+      // Set the volume
+      resource.volume.setVolume(0.5);
+      
+      // Play the track
+      player.play(resource);
+      
+      // Connect the player to the voice connection
+      connection.subscribe(player);
+    } catch (ffmpegError) {
+      console.error('Failed to start FFmpeg process:', ffmpegError);
+      throw new Error('Failed to create audio stream');
+    }
     
     // Return track details
     return {
