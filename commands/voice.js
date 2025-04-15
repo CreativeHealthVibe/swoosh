@@ -1,6 +1,6 @@
 /**
  * Voice Channel Command
- * Allows the bot to join, stay in, leave voice channels, and play music
+ * Allows the bot to join, stay in, leave voice channels, and play music from Spotify
  */
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
@@ -45,10 +45,10 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('play')
-        .setDescription('Play a YouTube video in the voice channel')
+        .setDescription('Play a Spotify track in the voice channel')
         .addStringOption(option =>
           option.setName('url')
-            .setDescription('YouTube URL or search query')
+            .setDescription('Spotify URL, URI, or search query')
             .setRequired(true))),
   
   /**
@@ -298,7 +298,7 @@ module.exports = {
   /**
    * Handle the play command for text commands
    * @param {Object} message - Discord message
-   * @param {string} query - YouTube URL or search query
+   * @param {string} query - Spotify URL, URI, or search query
    * @param {Object} client - Discord client
    */
   async handlePlay(message, query, client) {
@@ -370,7 +370,7 @@ module.exports = {
         return loadingMessage.edit(`❌ Error: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error playing YouTube video:', error);
+      console.error('Error playing Spotify track:', error);
       return message.reply(`❌ Error playing music: ${error.message}`);
     }
   },
@@ -378,7 +378,7 @@ module.exports = {
   /**
    * Handle the play command for slash commands
    * @param {Object} interaction - Discord interaction
-   * @param {string} query - YouTube URL or search query
+   * @param {string} query - Spotify URL, URI, or search query
    * @param {Object} client - Discord client
    */
   async handlePlayInteraction(interaction, query, client) {
@@ -450,7 +450,7 @@ module.exports = {
         return interaction.editReply(`❌ Error: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error playing YouTube video:', error);
+      console.error('Error playing Spotify track:', error);
       return interaction.editReply(`❌ Error playing music: ${error.message}`);
     }
   }
