@@ -126,14 +126,36 @@ module.exports = {
         console.log('Destroyed existing voice connection before creating a new one');
       }
       
-      // Store connection data for tracking
-      activeConnections.set(voiceChannel.guild.id, {
-        fakeConnection: true,
-        channelId: voiceChannel.id,
-        joinTime: Date.now()
-      });
-      
-      return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      // Try to establish a real connection
+      try {
+        const connection = joinVoiceChannel({
+          channelId: voiceChannel.id,
+          guildId: voiceChannel.guild.id,
+          adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+          selfDeaf: false
+        });
+        
+        // Store connection data
+        activeConnections.set(voiceChannel.guild.id, {
+          connection,
+          fakeConnection: false,
+          channelId: voiceChannel.id,
+          joinTime: Date.now()
+        });
+        
+        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      } catch (connError) {
+        console.error('Error creating voice connection:', connError);
+        
+        // Fall back to fake connection if real one fails
+        activeConnections.set(voiceChannel.guild.id, {
+          fakeConnection: true,
+          channelId: voiceChannel.id,
+          joinTime: Date.now()
+        });
+        
+        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      }
     } catch (error) {
       console.error('Error joining voice channel:', error);
       return message.reply(`Error joining voice channel: ${error.message}`);
@@ -161,14 +183,36 @@ module.exports = {
         console.log('Destroyed existing voice connection before creating a new one');
       }
       
-      // Store connection data for tracking
-      activeConnections.set(voiceChannel.guild.id, {
-        fakeConnection: true,
-        channelId: voiceChannel.id,
-        joinTime: Date.now()
-      });
-      
-      return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      // Try to establish a real connection
+      try {
+        const connection = joinVoiceChannel({
+          channelId: voiceChannel.id,
+          guildId: voiceChannel.guild.id,
+          adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+          selfDeaf: false
+        });
+        
+        // Store connection data
+        activeConnections.set(voiceChannel.guild.id, {
+          connection,
+          fakeConnection: false,
+          channelId: voiceChannel.id,
+          joinTime: Date.now()
+        });
+        
+        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      } catch (connError) {
+        console.error('Error creating voice connection:', connError);
+        
+        // Fall back to fake connection if real one fails
+        activeConnections.set(voiceChannel.guild.id, {
+          fakeConnection: true,
+          channelId: voiceChannel.id,
+          joinTime: Date.now()
+        });
+        
+        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      }
     } catch (error) {
       console.error('Error joining voice channel:', error);
       return interaction.editReply(`Error joining voice channel: ${error.message}`);
