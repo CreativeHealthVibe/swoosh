@@ -259,17 +259,18 @@ async function playSpotify(connection, query) {
     });
     
     try {
-      // Create the most basic, low-resource audio stream possible
+      // Create a simple audio tone that is guaranteed to produce sound
       const ffmpeg = spawn(ffmpegPath, [
-        '-hide_banner',
-        '-loglevel', 'error',
-        '-re',                     // Read at native framerate (important!)
+        '-hide_banner', 
+        '-loglevel', 'info',       // More verbose logging
         '-f', 'lavfi',             // Use libavfilter
-        '-i', 'anullsrc=r=48000:cl=stereo', // Generate silent audio - lowest CPU usage
-        '-f', 's16le',             // Format: signed 16-bit little-endian
-        '-ar', '48000',            // Audio rate: 48kHz (Discord requirement)
-        '-ac', '2',                // Audio channels: 2 (stereo)
-        '-b:a', '64k',             // Low bitrate to save resources
+        '-i', 'sine=frequency=440:sample_rate=48000:duration=3600', // Generate a pure 440Hz sine wave (A4 note)
+        '-ac', '2',                // Stereo audio (required for Discord)
+        '-ar', '48000',            // 48kHz sample rate (required for Discord)
+        '-f', 's16le',             // PCM signed 16-bit little-endian
+        '-acodec', 'pcm_s16le',    // PCM codec
+        '-b:a', '128k',            // Higher bitrate for better quality
+        '-vol', '256',             // Maximum volume
         'pipe:1'                   // Output to stdout
       ], { 
         stdio: ['ignore', 'pipe', 'pipe'],
@@ -278,16 +279,19 @@ async function playSpotify(connection, query) {
       
       // Handle process errors and output
       ffmpeg.stderr.on('data', (data) => {
-        console.log(`FFmpeg stderr: ${data}`);
+        console.log(`FFmpeg output: ${data}`);
       });
       
       ffmpeg.on('error', (error) => {
-        console.error('FFmpeg process error:', error);
+        console.error('CRITICAL FFmpeg process error:', error);
       });
       
       ffmpeg.on('exit', (code, signal) => {
         console.log(`FFmpeg process exited with code ${code} and signal ${signal}`);
       });
+      
+      // Log that we're starting audio generation
+      console.log('Started generating 440Hz audio tone with FFmpeg');
       
       // Create an audio resource with proper configuration for Discord
       const resource = createAudioResource(ffmpeg.stdout, {
