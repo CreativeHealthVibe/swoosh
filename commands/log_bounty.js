@@ -377,9 +377,70 @@ async function handleViewSubcommand(interaction, client) {
               .addOptions(channels.slice(0, 25)) // Discord limits to 25 options
           );
         
-        await buttonInteraction.update({
+        const channelMessage = await buttonInteraction.update({
           content: "Please select a channel to post the approved bounty:",
-          components: [channelSelect]
+          components: [channelSelect],
+          fetchReply: true
+        });
+        
+        // Create a new collector specifically for the channel selection
+        const channelCollector = channelMessage.createMessageComponentCollector({
+          componentType: ComponentType.StringSelect,
+          time: 60000 // 1 minute timeout
+        });
+        
+        channelCollector.on('collect', async (channelInteraction) => {
+          if (channelInteraction.user.id !== interaction.user.id) {
+            return channelInteraction.reply({
+              content: "You cannot interact with this menu.",
+              ephemeral: true
+            });
+          }
+          
+          await channelInteraction.deferUpdate();
+          
+          // Get the selected channel
+          const selectedChannelId = channelInteraction.values[0];
+          const selectedChannel = interaction.guild.channels.cache.get(selectedChannelId);
+          
+          if (!selectedChannel) {
+            return channelInteraction.editReply({
+              content: "Error: Could not find the selected channel. Please try again.",
+              components: []
+            });
+          }
+          
+          // Process the approval with the selected channel
+          const clipRequired = false; // Default value
+          const logEvidence = true; // Default value
+          
+          const approvalResult = await bountyManager.approveBounty(interaction, submissionId, {
+            channel: selectedChannel,
+            clipRequired,
+            logEvidence
+          });
+          
+          // Show result
+          if (approvalResult.success) {
+            channelInteraction.editReply({
+              content: `✅ Bounty approved and posted successfully in ${selectedChannel.toString()}!`,
+              components: []
+            });
+          } else {
+            channelInteraction.editReply({
+              content: `❌ Error: ${approvalResult.message}`,
+              components: []
+            });
+          }
+        });
+        
+        channelCollector.on('end', async (collected, reason) => {
+          if (reason === 'time' && collected.size === 0) {
+            await buttonInteraction.editReply({
+              content: "Channel selection timed out. Please try again.",
+              components: []
+            });
+          }
         });
       } else if (buttonInteraction.customId === `deny-bounty-${submissionId}`) {
         // Modal for denial reason
