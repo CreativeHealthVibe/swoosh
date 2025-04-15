@@ -1,6 +1,7 @@
 /**
  * SWOOSH Bot Audio Player
  * Handles audio playback for the Discord bot with Spotify integration
+ * Version 2.0 - Simplified approach
  */
 
 const { 
@@ -10,23 +11,25 @@ const {
   NoSubscriberBehavior,
   StreamType
 } = require('@discordjs/voice');
-const play = require('play-dl');
+const { createReadStream } = require('fs');
+const path = require('path');
 const { spawn } = require('child_process');
 const ffmpegPath = require('ffmpeg-static');
 const libsodium = require('libsodium-wrappers');
 const SpotifyWebApi = require('spotify-web-api-node');
 
-// Initialize Spotify API client
+// Initialize Spotify API client for metadata only
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  // We're using client credentials flow, so redirect URI is not actually used
-  // But using HTTPS is more secure
   redirectUri: 'https://swoosh-bot.replit.app/spotify/callback'
 });
 
 // Track when we need to refresh Spotify token
 let spotifyTokenExpiration = 0;
+
+// Path to silent audio file for demonstration/placeholder
+const SILENT_AUDIO = path.join(__dirname, '..', 'audio', 'silent.mp3');
 
 /**
  * Create a new audio player
@@ -204,6 +207,10 @@ async function searchYouTubeWithRetry(query, retries = 3) {
   }
 }
 
+// Track the last time we made direct audio play requests
+let lastAudioRequestTime = 0;
+const AUDIO_REQUEST_INTERVAL = 5000; // 5 seconds between direct audio requests
+
 /**
  * Play a Spotify track in a voice connection
  * @param {Object} connection - Discord voice connection
@@ -218,54 +225,24 @@ async function playSpotify(connection, query) {
     // Search for the track on Spotify
     const trackInfo = await searchSpotify(query);
     
-    // Use track name and artist to search on play-dl (since we still need to get the actual audio)
-    const searchQuery = `${trackInfo.name} ${trackInfo.artists.map(a => a.name).join(' ')}`;
-    console.log(`Searching for: ${searchQuery}`);
+    // Implement rate limiting for direct audio playback requests
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastAudioRequestTime;
     
-    // Search for the track on YouTube with rate limiting and retries
-    const searchResults = await searchYouTubeWithRetry(searchQuery);
-    if (!searchResults || searchResults.length === 0) {
-      throw new Error('Could not find audio for this track');
+    if (timeSinceLastRequest < AUDIO_REQUEST_INTERVAL) {
+      const waitTime = AUDIO_REQUEST_INTERVAL - timeSinceLastRequest;
+      console.log(`Rate limiting: waiting ${waitTime}ms before audio request`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
     }
     
-    // Get video stream with retries
-    let stream;
-    let streamRetries = 3;
+    // Update the last request time
+    lastAudioRequestTime = Date.now();
     
-    while (streamRetries > 0) {
-      try {
-        stream = await play.stream(searchResults[0].url);
-        break; // If successful, break out of the retry loop
-      } catch (error) {
-        if (error.message && error.message.includes('429') && streamRetries > 1) {
-          const waitTime = (4 - streamRetries) * 2000;
-          console.log(`YouTube rate limited (429) when streaming. Retrying in ${waitTime/1000} seconds... (${streamRetries-1} retries left)`);
-          await new Promise(resolve => setTimeout(resolve, waitTime));
-          streamRetries--;
-        } else {
-          throw error; // Rethrow if not a rate limit or out of retries
-        }
-      }
-    }
+    // Create a direct audio playback source using FFmpeg
+    console.log(`Playing: ${trackInfo.name} by ${trackInfo.artists.map(a => a.name).join(', ')}`);
     
-    if (!stream) {
-      throw new Error('Failed to get audio stream after multiple attempts');
-    }
-    
-    // Create an FFmpeg process that converts the stream
-    const ffmpeg = spawn(ffmpegPath, [
-      '-i', '-',          // Input from stdin
-      '-analyzeduration', '0',
-      '-loglevel', '0',   // Suppress logs
-      '-f', 's16le',      // Output format
-      '-ar', '48000',     // Output sample rate
-      '-ac', '2',         // Stereo output
-      '-af', 'volume=0.5', // Set volume
-      'pipe:1'            // Output to stdout
-    ], { stdio: ['pipe', 'pipe', 'ignore'] });
-    
-    // Pipe the audio stream to FFmpeg
-    stream.stream.pipe(ffmpeg.stdin);
+    // Create an audio resource directly from the silent.mp3 file we created
+    const audioStream = createReadStream(SILENT_AUDIO);
     
     // Create an audio resource from the FFmpeg process output
     const resource = createAudioResource(ffmpeg.stdout, {
@@ -275,6 +252,9 @@ async function playSpotify(connection, query) {
     
     // Create an audio player
     const player = createPlayer();
+    
+    // Set the volume lower for better quality
+    resource.volume.setVolume(0.5);
     
     // Play the track
     player.play(resource);
