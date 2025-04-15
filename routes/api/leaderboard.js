@@ -9,7 +9,7 @@ const authMiddleware = require('../../middlewares/auth');
 
 /**
  * GET /api/leaderboard/top-servers
- * Get top 5 servers by member count
+ * Get top 10 servers by member count
  */
 router.get('/top-servers', async (req, res) => {
   try {
@@ -46,8 +46,8 @@ router.get('/top-servers', async (req, res) => {
       b.memberCount - a.memberCount
     );
     
-    // Get top 5 guilds
-    const topGuilds = sortedGuilds.slice(0, 5);
+    // Get top 10 guilds
+    const topGuilds = sortedGuilds.slice(0, 10);
     
     // Format the server data for the leaderboard
     const servers = await Promise.all(topGuilds.map(async guild => {
