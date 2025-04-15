@@ -71,8 +71,9 @@ const autoroles = global.sharedAutoroles;
 client.commands = new Collection();
 client.slashCommands = new Collection();
 
-// Load command files
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+// Load command files (skip disabled commands)
+const commandFiles = fs.readdirSync('./commands')
+  .filter(file => file.endsWith('.js') && !file.includes('.disabled'));
 const slashCommands = [];
 
 for (const file of commandFiles) {
