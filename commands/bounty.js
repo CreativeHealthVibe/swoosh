@@ -121,13 +121,14 @@ module.exports = {
       // Fetch avatar URL
       const robloxAvatarUrl = await fetchRobloxAvatar(robloxId);
       
-      // Submit the bounty
+      // Submit the bounty for admin approval (not direct creation)
       const submissionResult = await bountyManager.submitBounty(interaction, {
         robloxId,
         robloxUsername,
         amount,
         reason,
-        robloxAvatarUrl
+        robloxAvatarUrl,
+        requiresApproval: true // Force admin approval
       });
       
       if (submissionResult.success) {

@@ -226,35 +226,29 @@ module.exports = {
             components: []
           });
           
-          // Create bounty with fetched information
-          const result = await bountyManager.createBounty(interaction, {
+          // Submit bounty for admin approval (not direct creation)
+          const result = await bountyManager.submitBounty(interaction, {
             robloxUsername: userProfile.username,
             robloxId: userProfile.id,
             amount,
-            clipRequired: true, // Always true as requested
             reason,
-            channel,
-            priority: selectedPriority,
-            template: selectedTemplate,
             robloxAvatarUrl: avatarUrl,
-            submittedBy: submittedBy,
-            approvedBy: approvedBy,
-            skipLogging: !logEvidence // Skip logging if logEvidence is false
+            requiresApproval: true // Force admin approval
           });
           
           if (result.success) {
             // Success message with bigger text and clean design
             const successEmbed = new EmbedBuilder()
-              .setTitle(`BOUNTY CREATED`)
+              .setTitle(`BOUNTY SUBMITTED`)
               .setDescription(
                 `## Target: ${userProfile.username}\n\n` +
                 `**Roblox ID:** ${userProfile.id}\n` +
                 `**Reward:** R$ ${amount.toLocaleString()}\n\n` +
-                `The bounty has been posted to ${channel}.`
+                `Your bounty has been submitted for admin approval. You will be notified when it is approved.`
               )
               .setColor('#000000')
               .setFooter({ 
-                text: `SWOOSH Bounty System`,
+                text: `SWOOSH Bounty System • Submission ID: ${result.submissionId}`,
                 iconURL: interaction.guild.iconURL({ dynamic: true })
               })
               .setTimestamp();
