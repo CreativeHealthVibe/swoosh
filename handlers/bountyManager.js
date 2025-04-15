@@ -58,6 +58,46 @@ module.exports = {
         timestamp: new Date().toISOString()
       });
       
+      // Get guild settings for the server
+      const guildSettings = await logging.getGuildSettings(interaction.guild.id);
+      const bountySubmissionChannel = interaction.client.channels.cache.get(guildSettings?.channels?.bountySubmissions);
+      
+      // If a bounty submission channel is configured, notify admins
+      if (bountySubmissionChannel) {
+        try {
+          const { EmbedBuilder } = require('discord.js');
+          const notificationEmbed = new EmbedBuilder()
+            .setTitle('📋 New Bounty Submission')
+            .setDescription(
+              `A new bounty has been submitted and requires admin approval.\n\n` +
+              `**Target:** ${bountyData.robloxUsername}\n` +
+              `**Roblox ID:** ${bountyData.robloxId}\n` +
+              `**Amount:** R$ ${bountyData.amount.toLocaleString()}\n` +
+              `**Submitted By:** ${interaction.user.toString()}\n` +
+              `${bountyData.reason ? `**Reason:** ${bountyData.reason}\n` : ''}\n` +
+              `Use \`/log_bounty view id:${submissionId}\` to review this submission.`
+            )
+            .setColor('#000000')
+            .setFooter({ 
+              text: `SWOOSH Bounty System • Submission ID: ${submissionId}`,
+              iconURL: interaction.guild.iconURL({ dynamic: true })
+            })
+            .setTimestamp();
+          
+          // Add avatar if available
+          if (bountyData.robloxAvatarUrl) {
+            notificationEmbed.setThumbnail(bountyData.robloxAvatarUrl);
+          }
+          
+          await bountySubmissionChannel.send({ 
+            content: `<@&${config.roles.bountyMaster || '1054517788858503310'}>`, // Tag admins or bounty masters 
+            embeds: [notificationEmbed] 
+          });
+        } catch (error) {
+          console.error('Error sending bounty submission notification:', error);
+        }
+      }
+      
       return {
         success: true,
         submissionId,
