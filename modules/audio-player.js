@@ -226,16 +226,6 @@ async function playSpotify(connection, query) {
     // Search for the track on Spotify
     const trackInfo = await searchSpotify(query);
     
-    // Implement rate limiting for direct audio playback requests
-    const now = Date.now();
-    const timeSinceLastRequest = now - lastAudioRequestTime;
-    
-    if (timeSinceLastRequest < AUDIO_REQUEST_INTERVAL) {
-      const waitTime = AUDIO_REQUEST_INTERVAL - timeSinceLastRequest;
-      console.log(`Rate limiting: waiting ${waitTime}ms before audio request`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-    }
-    
     // Update the last request time
     lastAudioRequestTime = Date.now();
     
@@ -259,57 +249,39 @@ async function playSpotify(connection, query) {
     });
     
     try {
-      // Create a simple audio tone that is guaranteed to produce sound
-      const ffmpeg = spawn(ffmpegPath, [
-        '-hide_banner', 
-        '-loglevel', 'info',       // More verbose logging
-        '-f', 'lavfi',             // Use libavfilter
-        '-i', 'sine=frequency=440:sample_rate=48000:duration=3600', // Generate a pure 440Hz sine wave (A4 note)
-        '-ac', '2',                // Stereo audio (required for Discord)
-        '-ar', '48000',            // 48kHz sample rate (required for Discord)
-        '-f', 's16le',             // PCM signed 16-bit little-endian
-        '-acodec', 'pcm_s16le',    // PCM codec
-        '-b:a', '128k',            // Higher bitrate for better quality
-        '-vol', '256',             // Maximum volume
-        'pipe:1'                   // Output to stdout
-      ], { 
-        stdio: ['ignore', 'pipe', 'pipe'],
-        windowsHide: true
+      // Use a pre-generated tone.mp3 file instead of generating audio on-the-fly
+      console.log(`Playing tone file from: ${TONE_AUDIO}`);
+      
+      // Create a read stream from the pre-made audio file
+      const fileStream = createReadStream(TONE_AUDIO);
+      
+      // Check if file exists and is readable
+      fileStream.on('error', (error) => {
+        console.error('Error reading audio file:', error.message);
+        throw new Error('Could not read audio file');
       });
       
-      // Handle process errors and output
-      ffmpeg.stderr.on('data', (data) => {
-        console.log(`FFmpeg output: ${data}`);
-      });
-      
-      ffmpeg.on('error', (error) => {
-        console.error('CRITICAL FFmpeg process error:', error);
-      });
-      
-      ffmpeg.on('exit', (code, signal) => {
-        console.log(`FFmpeg process exited with code ${code} and signal ${signal}`);
-      });
-      
-      // Log that we're starting audio generation
-      console.log('Started generating 440Hz audio tone with FFmpeg');
+      // Log that we're using a real audio file
+      console.log('Using pre-generated audio file for stable playback');
       
       // Create an audio resource with proper configuration for Discord
-      const resource = createAudioResource(ffmpeg.stdout, {
-        inputType: StreamType.Raw,
-        inlineVolume: true,
-        silencePaddingFrames: 5
+      const resource = createAudioResource(fileStream, {
+        inputType: StreamType.Arbitrary,
+        inlineVolume: true
       });
       
-      // Set the volume
-      resource.volume.setVolume(0.5);
+      // Set the volume to maximum
+      resource.volume.setVolume(1.0);
       
       // Play the track
       player.play(resource);
       
       // Connect the player to the voice connection
       connection.subscribe(player);
-    } catch (ffmpegError) {
-      console.error('Failed to start FFmpeg process:', ffmpegError);
+      
+      console.log('Audio player subscribed to voice connection');
+    } catch (audioError) {
+      console.error('Failed to play audio file:', audioError);
       throw new Error('Failed to create audio stream');
     }
     
