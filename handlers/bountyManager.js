@@ -36,6 +36,16 @@ module.exports = {
    */
   submitBounty: async (interaction, bountyData) => {
     try {
+      // Check if we need admin approval
+      const requiresApproval = bountyData.requiresApproval !== false; // Default to true if not specified
+      
+      // If doesn't require approval AND user has permission, create bounty directly
+      if (!requiresApproval && adminUtils.canCreateBounty(interaction.member)) {
+        // Create the bounty directly if the user has permission
+        return module.exports.createBounty(interaction, bountyData);
+      }
+      
+      // Otherwise, create a submission for admin approval
       // Generate a unique ID for this submission
       const submissionId = Date.now().toString();
       
@@ -239,8 +249,14 @@ module.exports = {
    */
   createBounty: async (interaction, bountyData) => {
     try {
-      // All members can submit bounties
-      // No permission check needed
+      // Check if user has permission (admin or bounty master role)
+      // Only for direct bounty creation (not coming from approval flow)
+      if (!bountyData.approvedBy && !adminUtils.canCreateBounty(interaction.member)) {
+        return {
+          success: false,
+          message: "You don't have permission to create bounties directly. Use the regular bounty command to submit for admin approval."
+        };
+      }
       
       // Validate Roblox ID
       if (!validators.validateRobloxID(bountyData.robloxId)) {
