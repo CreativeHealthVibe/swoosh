@@ -72,10 +72,10 @@ module.exports = {
     } else if (subCommand === 'status') {
       return this.handleStatus(message, client);
     } else if (subCommand === 'play') {
-      // Get the URL or search query
+      // Get the Spotify URL or search query
       const query = args.slice(1).join(' ');
       if (!query) {
-        return message.reply('Please provide a YouTube URL or search query to play');
+        return message.reply('Please provide a Spotify URL, URI, or search query to play');
       }
       return this.handlePlay(message, query, client);
     }
