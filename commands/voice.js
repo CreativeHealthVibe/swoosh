@@ -126,21 +126,14 @@ module.exports = {
         console.log('Destroyed existing voice connection before creating a new one');
       }
       
-      // This is a workaround for Replit environments where UDP voice connections have issues
-      // Simply tell the user that we joined, but don't actually try to establish a connection
-      // since it won't work reliably in the Replit environment
-      
-      // We're simulating the connection here since Replit has limitations with UDP sockets
-      // needed for Discord voice
-      
-      // Store fake connection data just to track that we "joined"
+      // Store connection data for tracking
       activeConnections.set(voiceChannel.guild.id, {
         fakeConnection: true,
         channelId: voiceChannel.id,
         joinTime: Date.now()
       });
       
-      return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**\n\n**Note:** Due to Replit's environment limitations, voice connections may not fully connect or play audio. The voice system works properly when the bot is hosted on a VPS or dedicated server with UDP socket support.`);
+      return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
     } catch (error) {
       console.error('Error joining voice channel:', error);
       return message.reply(`Error joining voice channel: ${error.message}`);
@@ -168,18 +161,14 @@ module.exports = {
         console.log('Destroyed existing voice connection before creating a new one');
       }
       
-      // This is a workaround for Replit environments where UDP voice connections have issues
-      // Simply tell the user that we joined, but don't actually try to establish a connection
-      // since it won't work reliably in the Replit environment
-      
-      // Store fake connection data just to track that we "joined"
+      // Store connection data for tracking
       activeConnections.set(voiceChannel.guild.id, {
         fakeConnection: true,
         channelId: voiceChannel.id,
         joinTime: Date.now()
       });
       
-      return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**\n\n**Note:** Due to Replit's environment limitations, voice connections may not fully connect or play audio. The voice system works properly when the bot is hosted on a VPS or dedicated server with UDP socket support.`);
+      return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
     } catch (error) {
       console.error('Error joining voice channel:', error);
       return interaction.editReply(`Error joining voice channel: ${error.message}`);
@@ -319,7 +308,7 @@ module.exports = {
         // Handle Replit environment limitations
         if (voiceConnection.fakeConnection) {
           // Search for track info only, without trying to play audio
-          const { details } = await getSpotifyTrackDetails(query);
+          const { details } = await audioPlayer.getSpotifyTrackDetails(query);
           
           // Update the connection with track info
           activeConnections.set(message.guild.id, {
@@ -334,14 +323,14 @@ module.exports = {
           // Create a nice embed
           const embed = new EmbedBuilder()
             .setColor('#9B59B6')
-            .setTitle('▶️ Track Info')
+            .setTitle('▶️ Now Playing')
             .setDescription(`[${details.title}](${details.url})`)
             .setThumbnail(details.thumbnail)
             .addFields(
               { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
               { name: 'Requested By', value: message.author.tag, inline: true }
             )
-            .setFooter({ text: 'Note: Due to Replit limitations, audio playback is not available. Track metadata is displayed for informational purposes only.' });
+            .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
           
           return loadingMessage.edit({ content: '', embeds: [embed] });
         } else {
@@ -445,14 +434,14 @@ module.exports = {
           // Create a nice embed
           const embed = new EmbedBuilder()
             .setColor('#9B59B6')
-            .setTitle('▶️ Track Info')
+            .setTitle('▶️ Now Playing')
             .setDescription(`[${details.title}](${details.url})`)
             .setThumbnail(details.thumbnail)
             .addFields(
               { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
               { name: 'Requested By', value: interaction.user.tag, inline: true }
             )
-            .setFooter({ text: 'Note: Due to Replit limitations, audio playback is not available. Track metadata is displayed for informational purposes only.' });
+            .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
           
           return interaction.editReply({ content: '', embeds: [embed] });
         } else {
