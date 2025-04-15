@@ -87,43 +87,6 @@ module.exports = {
         .setRequired(true)
         .setMinValue(15)
         .setMaxValue(30000)
-    )
-    .addStringOption(option =>
-      option.setName('reason')
-        .setDescription('Reason for the bounty (optional)')
-        .setRequired(false)
-    )
-    .addStringOption(option =>
-      option.setName('priority')
-        .setDescription('Priority level of this bounty')
-        .setRequired(false)
-        .addChoices(
-          { name: '🟢 Low Priority', value: 'low' },
-          { name: '🟡 Medium Priority', value: 'medium' },
-          { name: '🔴 High Priority', value: 'high' },
-          { name: '⭐ TOP PRIORITY', value: 'top' }
-        )
-    )
-    .addChannelOption(option =>
-      option.setName('channel')
-        .setDescription('Channel to post the bounty in')
-        .addChannelTypes(ChannelType.GuildText)
-        .setRequired(false)
-    )
-    .addUserOption(option =>
-      option.setName('submitted_by')
-        .setDescription('User who submitted this bounty')
-        .setRequired(false)
-    )
-    .addUserOption(option =>
-      option.setName('approved_by')
-        .setDescription('Admin who approved this bounty')
-        .setRequired(false)
-    )
-    .addBooleanOption(option =>
-      option.setName('log_evidence')
-        .setDescription('Whether to log RE (evidence) submissions')
-        .setRequired(false)
     ),
   
   /**
@@ -149,12 +112,12 @@ module.exports = {
       // Get command options
       const robloxId = interaction.options.getString('robloxid');
       const amount = interaction.options.getInteger('amount');
-      const reason = interaction.options.getString('reason') || null;
-      const priority = interaction.options.getString('priority') || 'medium'; // default to medium priority
-      const channel = interaction.options.getChannel('channel') || interaction.channel;
-      const submittedBy = interaction.options.getUser('submitted_by') || interaction.user;
-      const approvedBy = interaction.options.getUser('approved_by') || interaction.user;
-      const logEvidence = interaction.options.getBoolean('log_evidence') ?? true; // Default to true if not specified
+      const reason = null;
+      const priority = 'medium'; // default to medium priority
+      const channel = interaction.channel;
+      const submittedBy = interaction.user;
+      const approvedBy = interaction.user;
+      const logEvidence = true; // Default to true
       
       // Validate Roblox ID 
       if (!validators.validateRobloxID(robloxId)) {
@@ -220,12 +183,7 @@ module.exports = {
           `**Username: ${userProfile.username}**\n` +
           `**Display Name: ${userProfile.displayName || 'None'}**\n` +
           `**Roblox ID: ${userProfile.id}**\n\n` +
-          `**Reward: R$ ${amount.toLocaleString()}**\n` +
-          `**Priority: ${selectedPriority.name}**\n` +
-          `**Submitted By:** ${submittedBy.toString()}\n` +
-          `**Approved By:** ${approvedBy.toString()}\n` +
-          `**Log Evidence:** ${logEvidence ? 'Yes' : 'No'}\n` +
-          `${reason ? `**Reason: ${reason}**\n` : ''}\n` +
+          `**Reward: R$ ${amount.toLocaleString()}**\n\n` +
           `Please confirm you want to create this bounty.`
         )
         .setColor('#000000')
@@ -299,11 +257,7 @@ module.exports = {
               .setDescription(
                 `## Target: ${userProfile.username}\n\n` +
                 `**Roblox ID:** ${userProfile.id}\n` +
-                `**Reward:** R$ ${amount.toLocaleString()}\n` +
-                `**Submitted By:** ${submittedBy.toString()}\n` +
-                `**Approved By:** ${approvedBy.toString()}\n` +
-                `**Evidence Logs:** ${logEvidence ? 'Enabled' : 'Disabled'}\n` +
-                `${reason ? `**Reason:** ${reason}\n` : ''}\n` +
+                `**Reward:** R$ ${amount.toLocaleString()}\n\n` +
                 `The bounty has been posted to ${channel}.`
               )
               .setColor('#000000')
