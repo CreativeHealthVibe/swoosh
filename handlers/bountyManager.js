@@ -199,13 +199,8 @@ module.exports = {
    */
   createBounty: async (interaction, bountyData) => {
     try {
-      // Validate user has permission to create bounties
-      if (!adminUtils.canCreateBounty(interaction.member)) {
-        return {
-          success: false,
-          message: "You don't have permission to set bounties."
-        };
-      }
+      // All members can submit bounties
+      // No permission check needed
       
       // Validate Roblox ID
       if (!validators.validateRobloxID(bountyData.robloxId)) {
