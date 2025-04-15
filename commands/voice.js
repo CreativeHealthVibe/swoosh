@@ -58,11 +58,7 @@ module.exports = {
    * @param {Object} client - Discord client
    */
   async execute(message, args, client) {
-    // Check if user has permission to use this command
-    if (!message.member.permissions.has(PermissionFlagsBits.MuteMembers)) {
-      return message.reply('You need the **Mute Members** permission to use voice commands');
-    }
-    
+    // Only require permission for admin-level functions
     const subCommand = args[0]?.toLowerCase();
     
     if (!subCommand || !['join', 'leave', 'status', 'play'].includes(subCommand)) {
