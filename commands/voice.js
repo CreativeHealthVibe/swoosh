@@ -118,34 +118,76 @@ module.exports = {
     }
     
     try {
+      // First, destroy any existing connections to avoid conflicts
+      const existingConnection = getVoiceConnection(voiceChannel.guild.id);
+      if (existingConnection) {
+        existingConnection.destroy();
+        activeConnections.delete(voiceChannel.guild.id);
+        console.log('Destroyed existing voice connection before creating a new one');
+      }
+      
+      // Use more reliable connection settings
       const connection = joinVoiceChannel({
         channelId: voiceChannel.id,
         guildId: voiceChannel.guild.id,
         adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        selfDeaf: false,
+        selfDeaf: true, // Important for performance
         selfMute: false
       });
+      
+      // Create more comprehensive error handling
+      // Set up connection state change handlers
+      connection.on(VoiceConnectionStatus.Ready, () => {
+        console.log(`Voice connection is ready in ${voiceChannel.name}`);
+      });
+      
+      connection.on(VoiceConnectionStatus.Connecting, () => {
+        console.log(`Voice connection is connecting to ${voiceChannel.name}`);
+      });
+      
+      connection.on(VoiceConnectionStatus.Signalling, () => {
+        console.log(`Voice connection is signalling to ${voiceChannel.name}`);
+      });
+      
+      connection.on(VoiceConnectionStatus.Disconnected, async () => {
+        console.log(`Voice connection to ${voiceChannel.name} disconnected, attempting to reconnect`);
+        try {
+          await Promise.race([
+            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+          ]);
+          console.log('Connection is reconnecting');
+        } catch (error) {
+          console.log('Connection seems permanently disconnected, destroying');
+          connection.destroy();
+          activeConnections.delete(voiceChannel.guild.id);
+        }
+      });
+      
+      connection.on(VoiceConnectionStatus.Destroyed, () => {
+        console.log(`Voice connection to ${voiceChannel.name} was destroyed`);
+        activeConnections.delete(voiceChannel.guild.id);
+      });
+      
+      connection.on('error', (error) => {
+        console.error(`Voice connection error in ${voiceChannel.name}:`, error);
+        message.channel.send(`Error in voice connection: ${error.message}`);
+      });
+      
+      // Wait for the connection to be ready before proceeding
+      try {
+        await entersState(connection, VoiceConnectionStatus.Ready, 10_000);
+        console.log('Connection is ready!');
+      } catch (err) {
+        console.warn('Failed to enter ready state within 10 seconds:', err);
+        // Continue anyway - it might still work
+      }
       
       // Store the connection
       activeConnections.set(voiceChannel.guild.id, {
         connection,
         channelId: voiceChannel.id,
         joinTime: Date.now()
-      });
-      
-      // Set up connection event listeners
-      connection.on(VoiceConnectionStatus.Disconnected, async () => {
-        try {
-          await Promise.race([
-            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-          ]);
-          // Seems to be reconnecting - don't destroy
-        } catch (error) {
-          // Disconnection appears to be permanent
-          connection.destroy();
-          activeConnections.delete(voiceChannel.guild.id);
-        }
       });
       
       return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
@@ -168,34 +210,76 @@ module.exports = {
     }
     
     try {
+      // First, destroy any existing connections to avoid conflicts
+      const existingConnection = getVoiceConnection(voiceChannel.guild.id);
+      if (existingConnection) {
+        existingConnection.destroy();
+        activeConnections.delete(voiceChannel.guild.id);
+        console.log('Destroyed existing voice connection before creating a new one');
+      }
+      
+      // Use more reliable connection settings
       const connection = joinVoiceChannel({
         channelId: voiceChannel.id,
         guildId: voiceChannel.guild.id,
         adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        selfDeaf: false,
+        selfDeaf: true, // Important for performance
         selfMute: false
       });
+      
+      // Create more comprehensive error handling
+      // Set up connection state change handlers
+      connection.on(VoiceConnectionStatus.Ready, () => {
+        console.log(`Voice connection is ready in ${voiceChannel.name}`);
+      });
+      
+      connection.on(VoiceConnectionStatus.Connecting, () => {
+        console.log(`Voice connection is connecting to ${voiceChannel.name}`);
+      });
+      
+      connection.on(VoiceConnectionStatus.Signalling, () => {
+        console.log(`Voice connection is signalling to ${voiceChannel.name}`);
+      });
+      
+      connection.on(VoiceConnectionStatus.Disconnected, async () => {
+        console.log(`Voice connection to ${voiceChannel.name} disconnected, attempting to reconnect`);
+        try {
+          await Promise.race([
+            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+          ]);
+          console.log('Connection is reconnecting');
+        } catch (error) {
+          console.log('Connection seems permanently disconnected, destroying');
+          connection.destroy();
+          activeConnections.delete(voiceChannel.guild.id);
+        }
+      });
+      
+      connection.on(VoiceConnectionStatus.Destroyed, () => {
+        console.log(`Voice connection to ${voiceChannel.name} was destroyed`);
+        activeConnections.delete(voiceChannel.guild.id);
+      });
+      
+      connection.on('error', (error) => {
+        console.error(`Voice connection error in ${voiceChannel.name}:`, error);
+        interaction.channel.send(`Error in voice connection: ${error.message}`);
+      });
+      
+      // Wait for the connection to be ready before proceeding
+      try {
+        await entersState(connection, VoiceConnectionStatus.Ready, 10_000);
+        console.log('Connection is ready!');
+      } catch (err) {
+        console.warn('Failed to enter ready state within 10 seconds:', err);
+        // Continue anyway - it might still work
+      }
       
       // Store the connection
       activeConnections.set(voiceChannel.guild.id, {
         connection,
         channelId: voiceChannel.id,
         joinTime: Date.now()
-      });
-      
-      // Set up connection event listeners
-      connection.on(VoiceConnectionStatus.Disconnected, async () => {
-        try {
-          await Promise.race([
-            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-          ]);
-          // Seems to be reconnecting - don't destroy
-        } catch (error) {
-          // Disconnection appears to be permanent
-          connection.destroy();
-          activeConnections.delete(voiceChannel.guild.id);
-        }
       });
       
       return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
