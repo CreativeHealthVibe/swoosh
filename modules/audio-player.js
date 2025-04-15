@@ -1,6 +1,6 @@
 /**
  * SWOOSH Bot Audio Player
- * Handles audio playback for the Discord bot
+ * Handles audio playback for the Discord bot with Spotify integration
  */
 
 const { 
@@ -13,6 +13,19 @@ const play = require('play-dl');
 const { spawn } = require('child_process');
 const ffmpegPath = require('ffmpeg-static');
 const libsodium = require('libsodium-wrappers');
+const SpotifyWebApi = require('spotify-web-api-node');
+
+// Initialize Spotify API client
+const spotifyApi = new SpotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  // We're using client credentials flow, so redirect URI is not actually used
+  // But using HTTPS is more secure
+  redirectUri: 'https://swoosh-bot.replit.app/spotify/callback'
+});
+
+// Track when we need to refresh Spotify token
+let spotifyTokenExpiration = 0;
 
 /**
  * Create a new audio player
@@ -26,121 +39,144 @@ function createPlayer() {
   });
 }
 
-// Track when the last YouTube request was made to avoid rate limiting
-let lastYouTubeRequestTime = 0;
-const YOUTUBE_REQUEST_RATE_LIMIT = 3000; // 3 seconds between requests
-
 /**
- * Make a rate-limited YouTube API request
- * @param {Function} requestFn - Function that makes the actual API request
- * @returns {Promise<any>} - The API response
+ * Ensure we have a valid Spotify access token
+ * @returns {Promise<void>} - Resolves when token is valid
  */
-async function rateLimitedYouTubeRequest(requestFn) {
+async function ensureSpotifyToken() {
   const now = Date.now();
-  const timeSinceLastRequest = now - lastYouTubeRequestTime;
   
-  // If we've made a request too recently, wait before making another
-  if (timeSinceLastRequest < YOUTUBE_REQUEST_RATE_LIMIT) {
-    const waitTime = YOUTUBE_REQUEST_RATE_LIMIT - timeSinceLastRequest;
-    console.log(`Rate limiting YouTube request, waiting ${waitTime}ms`);
-    await new Promise(resolve => setTimeout(resolve, waitTime));
-  }
-  
-  try {
-    // Update the last request time
-    lastYouTubeRequestTime = Date.now();
-    return await requestFn();
-  } catch (error) {
-    // Special handling for rate limit errors
-    if (error.message && error.message.includes('429')) {
-      console.warn('YouTube rate limit hit, need to wait longer between requests');
-      lastYouTubeRequestTime = Date.now() + 30000; // Force a 30 second cooldown
-      throw new Error('YouTube is rate limiting our requests. Please try again in 30 seconds.');
+  // If token is expired or will expire in the next minute, refresh it
+  if (now >= spotifyTokenExpiration - 60000) {
+    try {
+      console.log('Getting new Spotify access token...');
+      const data = await spotifyApi.clientCredentialsGrant();
+      const accessToken = data.body['access_token'];
+      const expiresIn = data.body['expires_in'];
+      
+      // Set the access token
+      spotifyApi.setAccessToken(accessToken);
+      
+      // Calculate when the token will expire (current time + expires_in seconds - 1 minute buffer)
+      spotifyTokenExpiration = now + (expiresIn * 1000) - 60000;
+      
+      console.log('Spotify access token refreshed, expires in', expiresIn, 'seconds');
+    } catch (error) {
+      console.error('Error getting Spotify access token:', error);
+      throw new Error(`Error authenticating with Spotify: ${error.message}`);
     }
-    throw error;
   }
 }
 
 /**
- * Play a YouTube video in a voice connection
- * @param {Object} connection - Discord voice connection
- * @param {string} url - YouTube URL or search query
- * @returns {Promise<Object>} - Details about the playing track
+ * Search for tracks on Spotify
+ * @param {string} query - Search query
+ * @returns {Promise<Object>} - Track information
  */
-async function playYouTube(connection, url) {
+async function searchSpotify(query) {
+  await ensureSpotifyToken();
+  
+  try {
+    // Check if it's a Spotify URL/URI
+    if (query.includes('spotify.com/track/') || query.includes('spotify:track:')) {
+      // Extract track ID from URL or URI
+      let trackId;
+      if (query.includes('spotify.com/track/')) {
+        trackId = query.split('spotify.com/track/')[1].split('?')[0];
+      } else {
+        trackId = query.split('spotify:track:')[1];
+      }
+      
+      // Get track details
+      const data = await spotifyApi.getTrack(trackId);
+      return data.body;
+    } else {
+      // Perform a search
+      const data = await spotifyApi.searchTracks(query, { limit: 1 });
+      if (data.body.tracks.items.length === 0) {
+        throw new Error('No tracks found matching your query');
+      }
+      return data.body.tracks.items[0];
+    }
+  } catch (error) {
+    console.error('Error searching Spotify:', error);
+    throw new Error(`Error searching Spotify: ${error.message}`);
+  }
+}
+
+/**
+ * Play a Spotify track in a voice connection
+ * @param {Object} connection - Discord voice connection
+ * @param {string} query - Spotify track URL, URI, or search query
+ * @returns {Promise<Object>} - Player and track details
+ */
+async function playSpotify(connection, query) {
   // Wait for libsodium to be ready (required for voice)
   await libsodium.ready;
   
-  // Get the video info
-  let videoInfo = null;
-  
   try {
-    // If it's a YouTube URL, get the video info directly
-    if (url.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/)) {
-      videoInfo = await rateLimitedYouTubeRequest(() => play.video_info(url));
-    } else {
-      // Otherwise, search for the video
-      const searchResults = await rateLimitedYouTubeRequest(() => play.search(url, { limit: 1 }));
-      if (!searchResults || searchResults.length === 0) {
-        throw new Error('No results found for your query!');
+    // Search for the track on Spotify
+    const trackInfo = await searchSpotify(query);
+    
+    // Use track name and artist to search on play-dl (since we still need to get the actual audio)
+    const searchQuery = `${trackInfo.name} ${trackInfo.artists.map(a => a.name).join(' ')}`;
+    console.log(`Searching for: ${searchQuery}`);
+    
+    // Search for the track on YouTube to get the actual audio
+    const searchResults = await play.search(searchQuery, { limit: 1 });
+    if (!searchResults || searchResults.length === 0) {
+      throw new Error('Could not find audio for this track');
+    }
+    
+    // Get video stream
+    const stream = await play.stream(searchResults[0].url);
+    
+    // Create an FFmpeg process that converts the stream
+    const ffmpeg = spawn(ffmpegPath, [
+      '-i', '-',          // Input from stdin
+      '-analyzeduration', '0',
+      '-loglevel', '0',   // Suppress logs
+      '-f', 's16le',      // Output format
+      '-ar', '48000',     // Output sample rate
+      '-ac', '2',         // Stereo output
+      '-af', 'volume=0.5', // Set volume
+      'pipe:1'            // Output to stdout
+    ], { stdio: ['pipe', 'pipe', 'ignore'] });
+    
+    // Pipe the audio stream to FFmpeg
+    stream.stream.pipe(ffmpeg.stdin);
+    
+    // Create an audio resource from the FFmpeg process output
+    const resource = createAudioResource(ffmpeg.stdout, {
+      inputType: 'StreamType',
+      inlineVolume: true
+    });
+    
+    // Create an audio player
+    const player = createPlayer();
+    
+    // Play the track
+    player.play(resource);
+    
+    // Connect the player to the voice connection
+    connection.subscribe(player);
+    
+    // Return track details
+    return {
+      player,
+      details: {
+        title: trackInfo.name,
+        url: trackInfo.external_urls.spotify,
+        thumbnail: trackInfo.album.images.length > 0 ? trackInfo.album.images[0].url : null,
+        duration: Math.floor(trackInfo.duration_ms / 1000),
+        artist: trackInfo.artists.map(a => a.name).join(', '),
+        album: trackInfo.album.name
       }
-      videoInfo = await rateLimitedYouTubeRequest(() => play.video_info(searchResults[0].url));
-    }
+    };
   } catch (error) {
-    console.error('Error fetching video info:', error);
-    throw new Error(`Error fetching video info: ${error.message}`);
+    console.error('Error playing Spotify track:', error);
+    throw new Error(`Error playing Spotify track: ${error.message}`);
   }
-  
-  if (!videoInfo || !videoInfo.video_details) {
-    throw new Error('Could not get video information!');
-  }
-  
-  // Get the video details
-  const videoDetails = videoInfo.video_details;
-  
-  // Create an audio stream with rate limiting
-  const stream = await rateLimitedYouTubeRequest(() => play.stream(videoDetails.url));
-  
-  // Create an FFmpeg process that converts the stream
-  const ffmpeg = spawn(ffmpegPath, [
-    '-i', '-',          // Input from stdin
-    '-analyzeduration', '0',
-    '-loglevel', '0',   // Suppress logs
-    '-f', 's16le',      // Output format
-    '-ar', '48000',     // Output sample rate
-    '-ac', '2',         // Stereo output
-    '-af', 'volume=0.5', // Set volume
-    'pipe:1'            // Output to stdout
-  ], { stdio: ['pipe', 'pipe', 'ignore'] });
-  
-  // Pipe the YouTube stream to FFmpeg
-  stream.stream.pipe(ffmpeg.stdin);
-  
-  // Create an audio resource from the FFmpeg process output
-  const resource = createAudioResource(ffmpeg.stdout, {
-    inputType: 'StreamType',
-    inlineVolume: true
-  });
-  
-  // Create an audio player
-  const player = createPlayer();
-  
-  // Play the track
-  player.play(resource);
-  
-  // Connect the player to the voice connection
-  connection.subscribe(player);
-  
-  // Return track details
-  return {
-    player,
-    details: {
-      title: videoDetails.title,
-      url: videoDetails.url,
-      thumbnail: videoDetails.thumbnails ? videoDetails.thumbnails[0]?.url : null,
-      duration: videoDetails.durationInSec
-    }
-  };
 }
 
 /**
@@ -163,6 +199,6 @@ function formatDuration(seconds) {
 
 module.exports = {
   createPlayer,
-  playYouTube,
+  playSpotify,
   formatDuration
 };
