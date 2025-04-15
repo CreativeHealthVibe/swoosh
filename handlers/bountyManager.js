@@ -6,8 +6,11 @@ const adminUtils = require('../utils/admin');
 const logging = require('../modules/logging');
 const webhookManager = require('./webhookManager');
 
-// Storage for pending bounty submissions
+// Storage for pending bounty submissions (in-memory and persistent)
 const pendingBounties = new Map();
+
+// Collection name for Discord DB
+const BOUNTY_COLLECTION = 'pending-bounties';
 
 module.exports = {
   /**
