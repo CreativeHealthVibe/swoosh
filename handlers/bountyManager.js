@@ -99,8 +99,20 @@ module.exports = {
             notificationEmbed.setThumbnail(bountyData.robloxAvatarUrl);
           }
           
+          // Find the Bounty Master role ID
+          let bountyMasterRoleId = config.roles.bountyMaster || '1054517788858503310'; // Use config or fallback
+          
+          // Try to find Bounty Master role in the guild
+          const bountyMasterRole = interaction.guild.roles.cache.find(
+            role => role.name.toLowerCase() === 'bounty master'
+          );
+          
+          if (bountyMasterRole) {
+            bountyMasterRoleId = bountyMasterRole.id;
+          }
+          
           await bountySubmissionChannel.send({ 
-            content: `<@&${config.roles.bountyMaster || '1054517788858503310'}>`, // Tag admins or bounty masters 
+            content: `<@&${bountyMasterRoleId}>`, // Tag Bounty Masters with dynamically found role
             embeds: [notificationEmbed] 
           });
         } catch (error) {
