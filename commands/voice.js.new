@@ -167,7 +167,7 @@ module.exports = {
           joinTime: Date.now()
         });
         
-        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+        return message.reply(`✅ Joined voice channel (display-only mode, no audio playback on Replit): **${voiceChannel.name}**`);
       }
     } catch (error) {
       console.error('Error joining voice channel:', error);
@@ -224,7 +224,7 @@ module.exports = {
           joinTime: Date.now()
         });
         
-        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+        return interaction.editReply(`✅ Joined voice channel (display-only mode, no audio playback on Replit): **${voiceChannel.name}**`);
       }
     } catch (error) {
       console.error('Error joining voice channel:', error);

@@ -22,14 +22,15 @@ const musicQueues = new Map();
 module.exports = {
   // Command metadata
   name: 'voice',
-  description: 'Voice channel commands',
+  description: 'Voice channel and music commands',
   category: 'Utility',
-  usage: 'voice <join|leave|status>',
+  usage: 'voice <join|leave|status|play> [query]',
+  moodOptions: [':sob:', ':joy:', ':rage:', ':heart:', ':pensive:', ':star_struck:'],
   
   // Slash command definition
   data: new SlashCommandBuilder()
     .setName('voice')
-    .setDescription('Voice channel commands')
+    .setDescription('Voice channel and music commands (including mood-based music)')
     .addSubcommand(subcommand =>
       subcommand
         .setName('join')
@@ -45,10 +46,10 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('play')
-        .setDescription('Play a Spotify track in the voice channel')
+        .setDescription('Play a Spotify track or mood-based music in the voice channel')
         .addStringOption(option =>
           option.setName('url')
-            .setDescription('Spotify URL, URI, or search query')
+            .setDescription('Spotify URL, search query, or emoticon (like :sob: for sad music)')
             .setRequired(true))),
   
   /**
@@ -62,7 +63,19 @@ module.exports = {
     const subCommand = args[0]?.toLowerCase();
     
     if (!subCommand || !['join', 'leave', 'status', 'play'].includes(subCommand)) {
-      return message.reply('Please use a valid subcommand: `join`, `leave`, `status`, or `play`');
+      const moodList = this.moodOptions.join(', ');
+      const helpEmbed = new EmbedBuilder()
+        .setColor('#9B59B6')
+        .setTitle('🎵 Voice Commands')
+        .setDescription('Control the bot in voice channels')
+        .addFields(
+          { name: 'Basic Commands', value: '`.voice join` - Join your voice channel\n`.voice leave` - Leave the voice channel\n`.voice status` - Check connection status' },
+          { name: 'Music Commands', value: '`.voice play <query>` - Play music from Spotify\nYou can use Spotify URLs, track names, or mood emojis' },
+          { name: 'Mood-Based Music', value: `Try using these emojis as the query to play music matching your mood:\n${moodList}\n\nExample: \`.voice play :sob:\`` }
+        )
+        .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
+      
+      return message.reply({ embeds: [helpEmbed] });
     }
     
     if (subCommand === 'join') {
@@ -126,71 +139,36 @@ module.exports = {
         console.log('Destroyed existing voice connection before creating a new one');
       }
       
-      // Use more reliable connection settings
-      const connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: voiceChannel.guild.id,
-        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        selfDeaf: true, // Important for performance
-        selfMute: false
-      });
-      
-      // Create more comprehensive error handling
-      // Set up connection state change handlers
-      connection.on(VoiceConnectionStatus.Ready, () => {
-        console.log(`Voice connection is ready in ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Connecting, () => {
-        console.log(`Voice connection is connecting to ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Signalling, () => {
-        console.log(`Voice connection is signalling to ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Disconnected, async () => {
-        console.log(`Voice connection to ${voiceChannel.name} disconnected, attempting to reconnect`);
-        try {
-          await Promise.race([
-            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-          ]);
-          console.log('Connection is reconnecting');
-        } catch (error) {
-          console.log('Connection seems permanently disconnected, destroying');
-          connection.destroy();
-          activeConnections.delete(voiceChannel.guild.id);
-        }
-      });
-      
-      connection.on(VoiceConnectionStatus.Destroyed, () => {
-        console.log(`Voice connection to ${voiceChannel.name} was destroyed`);
-        activeConnections.delete(voiceChannel.guild.id);
-      });
-      
-      connection.on('error', (error) => {
-        console.error(`Voice connection error in ${voiceChannel.name}:`, error);
-        message.channel.send(`Error in voice connection: ${error.message}`);
-      });
-      
-      // Wait for the connection to be ready before proceeding
+      // Try to establish a real connection
       try {
-        await entersState(connection, VoiceConnectionStatus.Ready, 10_000);
-        console.log('Connection is ready!');
-      } catch (err) {
-        console.warn('Failed to enter ready state within 10 seconds:', err);
-        // Continue anyway - it might still work
+        const connection = joinVoiceChannel({
+          channelId: voiceChannel.id,
+          guildId: voiceChannel.guild.id,
+          adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+          selfDeaf: false
+        });
+        
+        // Store connection data
+        activeConnections.set(voiceChannel.guild.id, {
+          connection,
+          fakeConnection: false,
+          channelId: voiceChannel.id,
+          joinTime: Date.now()
+        });
+        
+        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      } catch (connError) {
+        console.error('Error creating voice connection:', connError);
+        
+        // Fall back to fake connection if real one fails
+        activeConnections.set(voiceChannel.guild.id, {
+          fakeConnection: true,
+          channelId: voiceChannel.id,
+          joinTime: Date.now()
+        });
+        
+        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
       }
-      
-      // Store the connection
-      activeConnections.set(voiceChannel.guild.id, {
-        connection,
-        channelId: voiceChannel.id,
-        joinTime: Date.now()
-      });
-      
-      return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
     } catch (error) {
       console.error('Error joining voice channel:', error);
       return message.reply(`Error joining voice channel: ${error.message}`);
@@ -218,71 +196,36 @@ module.exports = {
         console.log('Destroyed existing voice connection before creating a new one');
       }
       
-      // Use more reliable connection settings
-      const connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: voiceChannel.guild.id,
-        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        selfDeaf: true, // Important for performance
-        selfMute: false
-      });
-      
-      // Create more comprehensive error handling
-      // Set up connection state change handlers
-      connection.on(VoiceConnectionStatus.Ready, () => {
-        console.log(`Voice connection is ready in ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Connecting, () => {
-        console.log(`Voice connection is connecting to ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Signalling, () => {
-        console.log(`Voice connection is signalling to ${voiceChannel.name}`);
-      });
-      
-      connection.on(VoiceConnectionStatus.Disconnected, async () => {
-        console.log(`Voice connection to ${voiceChannel.name} disconnected, attempting to reconnect`);
-        try {
-          await Promise.race([
-            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-          ]);
-          console.log('Connection is reconnecting');
-        } catch (error) {
-          console.log('Connection seems permanently disconnected, destroying');
-          connection.destroy();
-          activeConnections.delete(voiceChannel.guild.id);
-        }
-      });
-      
-      connection.on(VoiceConnectionStatus.Destroyed, () => {
-        console.log(`Voice connection to ${voiceChannel.name} was destroyed`);
-        activeConnections.delete(voiceChannel.guild.id);
-      });
-      
-      connection.on('error', (error) => {
-        console.error(`Voice connection error in ${voiceChannel.name}:`, error);
-        interaction.channel.send(`Error in voice connection: ${error.message}`);
-      });
-      
-      // Wait for the connection to be ready before proceeding
+      // Try to establish a real connection
       try {
-        await entersState(connection, VoiceConnectionStatus.Ready, 10_000);
-        console.log('Connection is ready!');
-      } catch (err) {
-        console.warn('Failed to enter ready state within 10 seconds:', err);
-        // Continue anyway - it might still work
+        const connection = joinVoiceChannel({
+          channelId: voiceChannel.id,
+          guildId: voiceChannel.guild.id,
+          adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+          selfDeaf: false
+        });
+        
+        // Store connection data
+        activeConnections.set(voiceChannel.guild.id, {
+          connection,
+          fakeConnection: false,
+          channelId: voiceChannel.id,
+          joinTime: Date.now()
+        });
+        
+        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+      } catch (connError) {
+        console.error('Error creating voice connection:', connError);
+        
+        // Fall back to fake connection if real one fails
+        activeConnections.set(voiceChannel.guild.id, {
+          fakeConnection: true,
+          channelId: voiceChannel.id,
+          joinTime: Date.now()
+        });
+        
+        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
       }
-      
-      // Store the connection
-      activeConnections.set(voiceChannel.guild.id, {
-        connection,
-        channelId: voiceChannel.id,
-        joinTime: Date.now()
-      });
-      
-      return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
     } catch (error) {
       console.error('Error joining voice channel:', error);
       return interaction.editReply(`Error joining voice channel: ${error.message}`);
@@ -303,7 +246,12 @@ module.exports = {
     }
     
     try {
-      voiceData.connection.destroy();
+      // If using a real connection, destroy it
+      if (voiceData.connection && !voiceData.fakeConnection) {
+        voiceData.connection.destroy();
+      }
+      
+      // In any case, remove from the active connections
       activeConnections.delete(guildId);
       return message.reply('✅ Left the voice channel');
     } catch (error) {
@@ -326,7 +274,12 @@ module.exports = {
     }
     
     try {
-      voiceData.connection.destroy();
+      // If using a real connection, destroy it
+      if (voiceData.connection && !voiceData.fakeConnection) {
+        voiceData.connection.destroy();
+      }
+      
+      // In any case, remove from the active connections
       activeConnections.delete(guildId);
       return interaction.editReply('✅ Left the voice channel');
     } catch (error) {
@@ -409,47 +362,78 @@ module.exports = {
       const loadingMessage = await message.reply(`🔍 Searching for: **${query}**...`);
       
       try {
-        // Use our audio player module to play the track
-        const { player, details } = await audioPlayer.playSpotify(
-          voiceConnection.connection, 
-          query
-        );
-        
-        // Update the connection with the player and track info
-        activeConnections.set(message.guild.id, {
-          ...voiceConnection,
-          player,
-          currentTrack: {
-            ...details,
-            requestedBy: message.author.tag
-          }
-        });
-        
-        // Create a nice embed
-        const embed = new EmbedBuilder()
-          .setColor('#9B59B6')
-          .setTitle('▶️ Now Playing')
-          .setDescription(`[${details.title}](${details.url})`)
-          .setThumbnail(details.thumbnail)
-          .addFields(
-            { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-            { name: 'Requested By', value: message.author.tag, inline: true }
-          )
-          .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
-        
-        // Set up audio player events
-        player.on(AudioPlayerStatus.Idle, () => {
-          console.log('Track ended.');
-          // Here you could add queue functionality
-        });
-        
-        player.on('error', error => {
-          console.error('Audio player error:', error);
-          message.channel.send(`❌ Error while playing track: ${error.message}`);
-        });
-        
-        // Edit the loading message with the now playing embed
-        return loadingMessage.edit({ content: '', embeds: [embed] });
+        // Handle Replit environment limitations
+        if (voiceConnection.fakeConnection) {
+          // Search for track info only, without trying to play audio
+          const { details } = await audioPlayer.getSpotifyTrackDetails(query);
+          
+          // Update the connection with track info
+          activeConnections.set(message.guild.id, {
+            ...voiceConnection,
+            fakeConnection: true,
+            currentTrack: {
+              ...details,
+              requestedBy: message.author.tag
+            }
+          });
+          
+          // Create a nice embed
+          const embed = new EmbedBuilder()
+            .setColor('#9B59B6')
+            .setTitle('▶️ Now Playing')
+            .setDescription(`[${details.title}](${details.url})`)
+            .setThumbnail(details.thumbnail)
+            .addFields(
+              { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+              { name: 'Requested By', value: message.author.tag, inline: true }
+            )
+            .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
+          
+          return loadingMessage.edit({ content: '', embeds: [embed] });
+        } else {
+          // This is the normal case for non-Replit environments
+          // Use our audio player module to play the track
+          const { player, details } = await audioPlayer.playSpotify(
+            voiceConnection.connection, 
+            query
+          );
+          
+          // Update the connection with the player and track info
+          activeConnections.set(message.guild.id, {
+            ...voiceConnection,
+            player,
+            currentTrack: {
+              ...details,
+              requestedBy: message.author.tag
+            }
+          });
+          
+          // Create a nice embed
+          const embed = new EmbedBuilder()
+            .setColor('#9B59B6')
+            .setTitle('▶️ Now Playing')
+            .setDescription(`[${details.title}](${details.url})`)
+            .setThumbnail(details.thumbnail)
+            .addFields(
+              { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+              { name: 'Requested By', value: message.author.tag, inline: true }
+            )
+            .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
+          
+          // Set up audio player events
+          player.on(AudioPlayerStatus.Idle, () => {
+            console.log('Track ended.');
+            // Here you could add queue functionality
+          });
+          
+          player.on('error', error => {
+            console.error('Audio player error:', error);
+            message.channel.send(`❌ Error while playing track: ${error.message}`);
+          });
+          
+          // Edit the loading message with the now playing embed
+          return loadingMessage.edit({ content: '', embeds: [embed] });
+        }
       } catch (error) {
         return loadingMessage.edit(`❌ Error: ${error.message}`);
       }
@@ -489,47 +473,78 @@ module.exports = {
       await interaction.editReply(`🔍 Searching for: **${query}**...`);
       
       try {
-        // Use our audio player module to play the track
-        const { player, details } = await audioPlayer.playSpotify(
-          voiceConnection.connection, 
-          query
-        );
-        
-        // Update the connection with the player and track info
-        activeConnections.set(interaction.guild.id, {
-          ...voiceConnection,
-          player,
-          currentTrack: {
-            ...details,
-            requestedBy: interaction.user.tag
-          }
-        });
-        
-        // Create a nice embed
-        const embed = new EmbedBuilder()
-          .setColor('#9B59B6')
-          .setTitle('▶️ Now Playing')
-          .setDescription(`[${details.title}](${details.url})`)
-          .setThumbnail(details.thumbnail)
-          .addFields(
-            { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-            { name: 'Requested By', value: interaction.user.tag, inline: true }
-          )
-          .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
-        
-        // Set up audio player events
-        player.on(AudioPlayerStatus.Idle, () => {
-          console.log('Track ended.');
-          // Here you could add queue functionality
-        });
-        
-        player.on('error', error => {
-          console.error('Audio player error:', error);
-          interaction.channel.send(`❌ Error while playing track: ${error.message}`);
-        });
-        
-        // Edit the reply with the now playing embed
-        return interaction.editReply({ content: '', embeds: [embed] });
+        // Handle Replit environment limitations
+        if (voiceConnection.fakeConnection) {
+          // Search for track info only, without trying to play audio
+          const { details } = await audioPlayer.getSpotifyTrackDetails(query);
+          
+          // Update the connection with track info
+          activeConnections.set(interaction.guild.id, {
+            ...voiceConnection,
+            fakeConnection: true,
+            currentTrack: {
+              ...details,
+              requestedBy: interaction.user.tag
+            }
+          });
+          
+          // Create a nice embed
+          const embed = new EmbedBuilder()
+            .setColor('#9B59B6')
+            .setTitle('▶️ Now Playing')
+            .setDescription(`[${details.title}](${details.url})`)
+            .setThumbnail(details.thumbnail)
+            .addFields(
+              { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+              { name: 'Requested By', value: interaction.user.tag, inline: true }
+            )
+            .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
+          
+          return interaction.editReply({ content: '', embeds: [embed] });
+        } else {
+          // This is the normal case for non-Replit environments
+          // Use our audio player module to play the track
+          const { player, details } = await audioPlayer.playSpotify(
+            voiceConnection.connection, 
+            query
+          );
+          
+          // Update the connection with the player and track info
+          activeConnections.set(interaction.guild.id, {
+            ...voiceConnection,
+            player,
+            currentTrack: {
+              ...details,
+              requestedBy: interaction.user.tag
+            }
+          });
+          
+          // Create a nice embed
+          const embed = new EmbedBuilder()
+            .setColor('#9B59B6')
+            .setTitle('▶️ Now Playing')
+            .setDescription(`[${details.title}](${details.url})`)
+            .setThumbnail(details.thumbnail)
+            .addFields(
+              { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
+              { name: 'Requested By', value: interaction.user.tag, inline: true }
+            )
+            .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
+          
+          // Set up audio player events
+          player.on(AudioPlayerStatus.Idle, () => {
+            console.log('Track ended.');
+            // Here you could add queue functionality
+          });
+          
+          player.on('error', error => {
+            console.error('Audio player error:', error);
+            interaction.channel.send(`❌ Error while playing track: ${error.message}`);
+          });
+          
+          // Edit the reply with the now playing embed
+          return interaction.editReply({ content: '', embeds: [embed] });
+        }
       } catch (error) {
         return interaction.editReply(`❌ Error: ${error.message}`);
       }

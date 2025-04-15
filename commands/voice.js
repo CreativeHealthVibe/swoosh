@@ -156,7 +156,7 @@ module.exports = {
           joinTime: Date.now()
         });
         
-        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}** (display-only mode, no audio playback on Replit)`);
       } catch (connError) {
         console.error('Error creating voice connection:', connError);
         
@@ -167,7 +167,7 @@ module.exports = {
           joinTime: Date.now()
         });
         
-        return message.reply(`✅ Joined voice channel (display-only mode, no audio playback on Replit): **${voiceChannel.name}**`);
+        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}** (display-only mode, no audio playback on Replit)`);
       }
     } catch (error) {
       console.error('Error joining voice channel:', error);
@@ -213,7 +213,7 @@ module.exports = {
           joinTime: Date.now()
         });
         
-        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
+        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}** (display-only mode, no audio playback on Replit)`);
       } catch (connError) {
         console.error('Error creating voice connection:', connError);
         
@@ -224,7 +224,7 @@ module.exports = {
           joinTime: Date.now()
         });
         
-        return interaction.editReply(`✅ Joined voice channel (display-only mode, no audio playback on Replit): **${voiceChannel.name}**`);
+        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}** (display-only mode, no audio playback on Replit)`);
       }
     } catch (error) {
       console.error('Error joining voice channel:', error);
@@ -385,9 +385,9 @@ module.exports = {
             .setThumbnail(details.thumbnail)
             .addFields(
               { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: "Duration", value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: "Requested By", value: message.author.tag, inline: true },
-              { name: "⚠️ Note", value: "Due to Replit limitations, audio playback is not available, but you can click the track link to listen on Spotify." }
+              { name: 'Requested By', value: message.author.tag, inline: true },
+              { name: '⚠️ Note', value: 'Due to Replit limitations, audio playback is not available, but you can click the track link to listen on Spotify.' }
+            )
             .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
           
           return loadingMessage.edit({ content: '', embeds: [embed] });
@@ -412,12 +412,13 @@ module.exports = {
           // Create a nice embed
           const embed = new EmbedBuilder()
             .setColor('#9B59B6')
-            .setTitle('▶️ Now Playing')
+            .setTitle('🎵 Track Information')
             .setDescription(`[${details.title}](${details.url})`)
             .setThumbnail(details.thumbnail)
             .addFields(
               { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: 'Requested By', value: message.author.tag, inline: true }
+              { name: 'Requested By', value: message.author.tag, inline: true },
+              { name: 'Note', value: 'If you cannot hear audio, this may be due to hosting limitations. Click the track link to listen on Spotify.' }
             )
             .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
           
@@ -486,19 +487,19 @@ module.exports = {
             currentTrack: {
               ...details,
               requestedBy: interaction.user.tag
-              { name: "Duration", value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: "Requested By", value: interaction.user.tag, inline: true },
-              { name: "⚠️ Note", value: "Due to Replit limitations, audio playback is not available, but you can click the track link to listen on Spotify." }
+            }
+          });
           
-          // Create a nice embed
+          // Create a nice embed with notification about playback limitations
           const embed = new EmbedBuilder()
             .setColor('#9B59B6')
-            .setTitle('▶️ Now Playing')
+            .setTitle('🎵 Track Information')
             .setDescription(`[${details.title}](${details.url})`)
             .setThumbnail(details.thumbnail)
             .addFields(
               { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: 'Requested By', value: interaction.user.tag, inline: true }
+              { name: 'Requested By', value: interaction.user.tag, inline: true },
+              { name: '⚠️ Note', value: 'Due to Replit limitations, audio playback is not available, but you can click the track link to listen on Spotify.' }
             )
             .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
           
@@ -524,12 +525,13 @@ module.exports = {
           // Create a nice embed
           const embed = new EmbedBuilder()
             .setColor('#9B59B6')
-            .setTitle('▶️ Now Playing')
+            .setTitle('🎵 Track Information')
             .setDescription(`[${details.title}](${details.url})`)
             .setThumbnail(details.thumbnail)
             .addFields(
               { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: 'Requested By', value: interaction.user.tag, inline: true }
+              { name: 'Requested By', value: interaction.user.tag, inline: true },
+              { name: 'Note', value: 'If you cannot hear audio, this may be due to hosting limitations. Click the track link to listen on Spotify.' }
             )
             .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
           
