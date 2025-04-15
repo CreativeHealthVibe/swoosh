@@ -259,26 +259,41 @@ async function playSpotify(connection, query) {
     });
     
     try {
-      // Use a simpler approach with direct PCM audio
+      // Create the most basic, low-resource audio stream possible
       const ffmpeg = spawn(ffmpegPath, [
-        '-f', 'lavfi',              // Use libavfilter
-        '-i', 'sine=frequency=440', // Generate a 440 Hz tone
-        '-t', '3600',               // Maximum duration (1 hour)
-        '-ar', '48000',             // Sample rate
-        '-ac', '2',                 // Stereo
-        '-f', 's16le',              // Output format
-        'pipe:1'                    // Output to stdout
-      ], { stdio: ['ignore', 'pipe', 'ignore'] });
+        '-hide_banner',
+        '-loglevel', 'error',
+        '-re',                     // Read at native framerate (important!)
+        '-f', 'lavfi',             // Use libavfilter
+        '-i', 'anullsrc=r=48000:cl=stereo', // Generate silent audio - lowest CPU usage
+        '-f', 's16le',             // Format: signed 16-bit little-endian
+        '-ar', '48000',            // Audio rate: 48kHz (Discord requirement)
+        '-ac', '2',                // Audio channels: 2 (stereo)
+        '-b:a', '64k',             // Low bitrate to save resources
+        'pipe:1'                   // Output to stdout
+      ], { 
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true
+      });
       
-      // Handle process errors
+      // Handle process errors and output
+      ffmpeg.stderr.on('data', (data) => {
+        console.log(`FFmpeg stderr: ${data}`);
+      });
+      
       ffmpeg.on('error', (error) => {
         console.error('FFmpeg process error:', error);
       });
       
-      // Create an audio resource from the FFmpeg process output
+      ffmpeg.on('exit', (code, signal) => {
+        console.log(`FFmpeg process exited with code ${code} and signal ${signal}`);
+      });
+      
+      // Create an audio resource with proper configuration for Discord
       const resource = createAudioResource(ffmpeg.stdout, {
         inputType: StreamType.Raw,
-        inlineVolume: true
+        inlineVolume: true,
+        silencePaddingFrames: 5
       });
       
       // Set the volume
