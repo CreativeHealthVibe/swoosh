@@ -171,7 +171,8 @@ module.exports = {
         channel: approvalData.channel,
         submittedBy: pendingBounty.submittedBy,
         approvedBy: interaction.user,
-        logEvidence: approvalData.logEvidence
+        logEvidence: approvalData.logEvidence,
+        robloxAvatarUrl: pendingBounty.robloxAvatarUrl // Pass the avatar URL through
       });
       
       if (createResult.success) {
