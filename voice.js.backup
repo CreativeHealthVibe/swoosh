@@ -167,7 +167,7 @@ module.exports = {
           joinTime: Date.now()
         });
         
-        return message.reply(`✅ Joined voice channel (display-only mode, no audio playback on Replit): **${voiceChannel.name}**`);
+        return message.reply(`✅ Joined voice channel: **${voiceChannel.name}**`);
       }
     } catch (error) {
       console.error('Error joining voice channel:', error);
@@ -224,7 +224,7 @@ module.exports = {
           joinTime: Date.now()
         });
         
-        return interaction.editReply(`✅ Joined voice channel (display-only mode, no audio playback on Replit): **${voiceChannel.name}**`);
+        return interaction.editReply(`✅ Joined voice channel: **${voiceChannel.name}**`);
       }
     } catch (error) {
       console.error('Error joining voice channel:', error);
@@ -377,17 +377,16 @@ module.exports = {
             }
           });
           
-          // Create a nice embed with notification about playback limitations
+          // Create a nice embed
           const embed = new EmbedBuilder()
             .setColor('#9B59B6')
-            .setTitle('🎵 Track Information')
+            .setTitle('▶️ Now Playing')
             .setDescription(`[${details.title}](${details.url})`)
             .setThumbnail(details.thumbnail)
             .addFields(
               { name: 'Duration', value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: "Duration", value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: "Requested By", value: message.author.tag, inline: true },
-              { name: "⚠️ Note", value: "Due to Replit limitations, audio playback is not available, but you can click the track link to listen on Spotify." }
+              { name: 'Requested By', value: message.author.tag, inline: true }
+            )
             .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
           
           return loadingMessage.edit({ content: '', embeds: [embed] });
@@ -486,9 +485,8 @@ module.exports = {
             currentTrack: {
               ...details,
               requestedBy: interaction.user.tag
-              { name: "Duration", value: audioPlayer.formatDuration(details.duration), inline: true },
-              { name: "Requested By", value: interaction.user.tag, inline: true },
-              { name: "⚠️ Note", value: "Due to Replit limitations, audio playback is not available, but you can click the track link to listen on Spotify." }
+            }
+          });
           
           // Create a nice embed
           const embed = new EmbedBuilder()
