@@ -22,14 +22,15 @@ const musicQueues = new Map();
 module.exports = {
   // Command metadata
   name: 'voice',
-  description: 'Voice channel commands',
+  description: 'Voice channel and music commands',
   category: 'Utility',
-  usage: 'voice <join|leave|status>',
+  usage: 'voice <join|leave|status|play> [query]',
+  moodOptions: [':sob:', ':joy:', ':rage:', ':heart:', ':pensive:', ':star_struck:'],
   
   // Slash command definition
   data: new SlashCommandBuilder()
     .setName('voice')
-    .setDescription('Voice channel commands')
+    .setDescription('Voice channel and music commands (including mood-based music)')
     .addSubcommand(subcommand =>
       subcommand
         .setName('join')
@@ -45,10 +46,10 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('play')
-        .setDescription('Play a Spotify track in the voice channel')
+        .setDescription('Play a Spotify track or mood-based music in the voice channel')
         .addStringOption(option =>
           option.setName('url')
-            .setDescription('Spotify URL, URI, or search query')
+            .setDescription('Spotify URL, search query, or emoticon (like :sob: for sad music)')
             .setRequired(true))),
   
   /**
@@ -62,7 +63,19 @@ module.exports = {
     const subCommand = args[0]?.toLowerCase();
     
     if (!subCommand || !['join', 'leave', 'status', 'play'].includes(subCommand)) {
-      return message.reply('Please use a valid subcommand: `join`, `leave`, `status`, or `play`');
+      const moodList = this.moodOptions.join(', ');
+      const helpEmbed = new EmbedBuilder()
+        .setColor('#9B59B6')
+        .setTitle('🎵 Voice Commands')
+        .setDescription('Control the bot in voice channels')
+        .addFields(
+          { name: 'Basic Commands', value: '`.voice join` - Join your voice channel\n`.voice leave` - Leave the voice channel\n`.voice status` - Check connection status' },
+          { name: 'Music Commands', value: '`.voice play <query>` - Play music from Spotify\nYou can use Spotify URLs, track names, or mood emojis' },
+          { name: 'Mood-Based Music', value: `Try using these emojis as the query to play music matching your mood:\n${moodList}\n\nExample: \`.voice play :sob:\`` }
+        )
+        .setFooter({ text: 'SWOOSH Bot Music via Spotify' });
+      
+      return message.reply({ embeds: [helpEmbed] });
     }
     
     if (subCommand === 'join') {

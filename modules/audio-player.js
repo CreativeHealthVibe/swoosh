@@ -153,12 +153,39 @@ async function searchSpotify(query) {
       return data.body.items[0].track;
     }
     else {
-      // It's a general search query
-      const data = await spotifyApi.searchTracks(query, { limit: 1 });
-      if (data.body.tracks.items.length === 0) {
-        throw new Error('No tracks found matching your query');
+      // Check if it's an emoticon or emoji and map to appropriate music mood
+      const moodMap = {
+        ':sob:': 'sad emotional music',
+        '😭': 'sad emotional music',
+        ':joy:': 'happy upbeat music',
+        '😂': 'happy upbeat music',
+        ':rage:': 'angry aggressive music',
+        '😡': 'angry aggressive music',
+        ':heart:': 'romantic love songs',
+        '❤️': 'romantic love songs',
+        ':pensive:': 'nostalgic music',
+        '😔': 'nostalgic music',
+        ':star_struck:': 'epic orchestral music',
+        '🤩': 'epic orchestral music'
+      };
+      
+      if (moodMap[query]) {
+        const searchTerm = moodMap[query];
+        console.log(`Emotional music request detected: "${query}". Searching for "${searchTerm}"`);
+        // Search for the specific mood music
+        const data = await spotifyApi.searchTracks(searchTerm, { limit: 1 });
+        if (data.body.tracks.items.length === 0) {
+          throw new Error(`No tracks found for mood: ${query}`);
+        }
+        return data.body.tracks.items[0];
+      } else {
+        // It's a general search query
+        const data = await spotifyApi.searchTracks(query, { limit: 1 });
+        if (data.body.tracks.items.length === 0) {
+          throw new Error('No tracks found matching your query');
+        }
+        return data.body.tracks.items[0];
       }
-      return data.body.tracks.items[0];
     }
   } catch (error) {
     console.error('Error searching Spotify:', error);
