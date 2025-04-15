@@ -7,7 +7,8 @@ const {
   createAudioResource,
   createAudioPlayer,
   AudioPlayerStatus,
-  NoSubscriberBehavior 
+  NoSubscriberBehavior,
+  StreamType
 } = require('@discordjs/voice');
 const play = require('play-dl');
 const { spawn } = require('child_process');
@@ -148,7 +149,7 @@ async function playSpotify(connection, query) {
     
     // Create an audio resource from the FFmpeg process output
     const resource = createAudioResource(ffmpeg.stdout, {
-      inputType: 'StreamType',
+      inputType: StreamType.Raw,
       inlineVolume: true
     });
     
