@@ -28,8 +28,9 @@ const spotifyApi = new SpotifyWebApi({
 // Track when we need to refresh Spotify token
 let spotifyTokenExpiration = 0;
 
-// Path to silent audio file for demonstration/placeholder
+// Path to audio files for playback
 const SILENT_AUDIO = path.join(__dirname, '..', 'audio', 'silent.mp3');
+const TONE_AUDIO = path.join(__dirname, '..', 'audio', 'tone.mp3');
 
 /**
  * Create a new audio player
@@ -241,12 +242,11 @@ async function playSpotify(connection, query) {
     // Create a direct audio playback source using FFmpeg
     console.log(`Playing: ${trackInfo.name} by ${trackInfo.artists.map(a => a.name).join(', ')}`);
     
-    // Create an audio resource directly from the silent.mp3 file
-    const audioStream = createReadStream(SILENT_AUDIO);
-    
-    // Process the mp3 file through FFmpeg to ensure it's in the right format
+    // Process the audio file through FFmpeg to ensure it's in the right format
+    // Use tone.mp3 which has audible sound instead of silent.mp3
     const ffmpeg = spawn(ffmpegPath, [
-      '-i', SILENT_AUDIO,   // Input from the mp3 file
+      '-i', TONE_AUDIO,    // Input from the tone audio file
+      '-stream_loop', '-1', // Loop the audio indefinitely 
       '-f', 's16le',        // Output format
       '-ar', '48000',       // Output sample rate
       '-ac', '2',           // Stereo output
